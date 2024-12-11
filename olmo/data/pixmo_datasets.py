@@ -185,13 +185,16 @@ class PixMoPoints(Dataset):
         self.mode = mode
         if kind == "both":
             data1 = datasets.load_from_disk(
-                join(PIXMO_DATASETS, "points_high_frequency"), keep_in_memory=keep_in_memory)[split]
+                join(PIXMO_DATASETS, "points-counting"), keep_in_memory=keep_in_memory)[split]
             data2 = datasets.load_from_disk(
-                join(PIXMO_DATASETS, "points_basic"), keep_in_memory=keep_in_memory)[split]
+                join(PIXMO_DATASETS, "points-pointing"), keep_in_memory=keep_in_memory)[split]
             self.data = datasets.concatenate_datasets([data1, data2])
+        elif kind == "basic":
+            self.data = datasets.load_from_disk(
+                join(PIXMO_DATASETS, f"points-pointing"), keep_in_memory=keep_in_memory)[split]
         else:
             self.data = datasets.load_from_disk(
-                join(PIXMO_DATASETS, f"points_{kind}"), keep_in_memory=keep_in_memory)[split]
+                join(PIXMO_DATASETS, f"points-counting"), keep_in_memory=keep_in_memory)[split]
 
     def __len__(self):
         return len(self.data)
@@ -370,7 +373,7 @@ class PixMoCap(Dataset):
         return out
 
 
-class PixMoAskMeAnything(Dataset):
+class PixMoAskModelAnything(Dataset):
     @classmethod
     def download(cls, n_procs=1, check_sha=True, n_val=2048, cache_only=False):
         local_name = join(PIXMO_DATASETS, "ask-model-anything")

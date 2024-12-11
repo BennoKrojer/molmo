@@ -14,7 +14,7 @@ from olmo.data.iterable_dataset_mixture import IterableDatasetMixture
 from olmo.data.model_preprocessor import Preprocessor, MultiModalPreprocessor
 from olmo.data.pixmo_datasets import PixMoPointExplanations as PixMoPointExplanationHF, \
     PixMoDocs, PixMoCount, PixMoPoints, PixMoCapQa, PixMoCap, PixMoPointExplanations, \
-    PixMoAskMeAnything, PixMoPointsEval
+    PixMoAskModelAnything, PixMoPointsEval
 from olmo.torch_util import get_global_rank, get_world_size
 
 log = logging.getLogger(__name__)
@@ -243,7 +243,7 @@ def get_dataset_by_name(dataset_name, split):
 
     # PixMo-AskModelAnything
     elif dataset_name in ["user_qa", "pixmo_ask_model_anything"]:
-        return PixMoAskMeAnything(split=split)
+        return PixMoAskModelAnything(split=split)
 
     # PixMo-CapQa
     elif dataset_name in ["synthetic_qa_v3_as_user_qa", "pixmo_cap_qa"]:
