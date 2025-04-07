@@ -14,6 +14,7 @@ from itertools import islice
 from pathlib import Path
 from pstats import SortKey
 from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
+from datetime import timedelta
 
 import numpy as np
 import torch
@@ -226,7 +227,9 @@ class Trainer:
     ephemeral_checkpoints: List[Path] = field(default_factory=list)
     min_train_loss: float = float("inf")
     cur_train_loss: float = float("inf")
-    _start_time: float = 0.0
+    _start_time: float = field(default_factory=time.time)
+    _last_step_time: float = field(default_factory=time.time)
+    _step_times: Deque[float] = field(default_factory=lambda: deque(maxlen=50))  # Track last 50 step times
     _gc_init_state: bool = True
     _inference_warmup: bool = True
     loss_fn: Callable[..., torch.Tensor] = field(default_factory=lambda: cross_entropy_loss)  # type: ignore
@@ -1104,33 +1107,48 @@ class Trainer:
         return metrics
 
     def log_metrics_to_console(self, prefix: str, metrics: Dict[str, float]):
-        def format_float(value: float) -> str:
-            if value < 0.0001:
-                return str(value)  # scientific notation
-            elif value > 1000:
-                return f"{int(value):,d}"
-            elif value > 100:
-                return f"{value:.1f}"
-            elif value > 10:
-                return f"{value:.2f}"
-            elif value > 1:
-                return f"{value:.3f}"
-            else:
-                return f"{value:.4f}"
+        # Calculate time estimates
+        current_time = time.time()
+        step_time = current_time - self._last_step_time
+        self._last_step_time = current_time
 
+        # Add the current step time to the deque
+        self._step_times.append(step_time)
+
+        # Calculate average step time
+        avg_step_time = sum(self._step_times) / len(self._step_times)
+
+        # Estimate time remaining
+        steps_remaining = self.max_steps - self.global_step
+        estimated_time_remaining = avg_step_time * steps_remaining
+
+        # Calculate elapsed time and total estimated time
+        elapsed_time = current_time - self._start_time
+        total_estimated_time = elapsed_time + estimated_time_remaining
+
+        # Format time as readable strings
+        elapsed_str = str(timedelta(seconds=int(elapsed_time)))
+        remaining_str = str(timedelta(seconds=int(estimated_time_remaining)))
+        total_str = str(timedelta(seconds=int(total_estimated_time)))
+
+        # Add time estimates to metrics
+        time_metrics = {
+            "time/elapsed": elapsed_str,
+            "time/remaining": remaining_str,
+            "time/total_estimate": total_str,
+        }
+
+        # Combine with existing metrics
+        all_metrics = {**metrics, **time_metrics}
+
+        # Log using existing logging mechanism
         log.info(
             f"{prefix}\n"
             + "\n".join(
                 [
-                    f"    {name}={format_float(value)}"
-                    for name, value in metrics.items()
-                    # there's too many optimizer metrics
-                    # also skip non-float wandb.Metrics from inference evaluators
-                    if (
-                        isinstance(value, (int, float)) and (
-                            name == "optim/total_grad_norm"
-                            or (not name.startswith("optim/") and not name.startswith("batch/"))
-                    ))
+                    f"    {name}={value}"
+                    for name, value in all_metrics.items()
+                    if isinstance(value, (int, float, str))
                 ]
             )
         )

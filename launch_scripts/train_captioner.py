@@ -2,10 +2,11 @@ import argparse
 import logging
 from dataclasses import replace
 from typing import cast
+import datetime
 
 from omegaconf import omegaconf, OmegaConf
 
-from olmo.data import PixMoCap
+from olmo.data import PixMoCap, PixMoPoints
 from launch_scripts.utils import DEBUG_MODEL, VISION_BACKBONES, LLMS, DEFAULT_LOAD_PATHS
 from olmo.torch_util import get_world_size
 from scripts.train import main as train
@@ -24,6 +25,11 @@ import torch.distributed as dist
 
 
 log = logging.getLogger("train")
+
+
+def get_timestamped_save_folder(base_folder):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{base_folder}_{timestamp}"
 
 
 if __name__ == "__main__":
@@ -50,6 +56,12 @@ if __name__ == "__main__":
     parser.add_argument("--device_eval_batch_size", default=4, type=int)
     parser.add_argument("--seq_len", default=2304, type=int)
     parser.add_argument("--dataset", default="pixmo_cap_with_transcripts")
+    parser.add_argument("--ft_connector", action="store_true", help="Fine-tune the connector")
+    parser.add_argument("--ft_llm", action="store_true", help="Fine-tune the LLM")
+    parser.add_argument("--ft_vit", action="store_true", help="Fine-tune the vision backbone")
+    parser.add_argument("--points_kind", choices=["basic", "high_frequency", "both"], default="basic", help="Kind of points dataset to use")
+    parser.add_argument("--points_counting", action="store_true", help="Use counting mode for points dataset")
+    parser.add_argument("--save_folder", help="Custom save folder")
     args, other_args = parser.parse_known_args()
 
     seq_len = args.seq_len
@@ -71,7 +83,12 @@ if __name__ == "__main__":
         eval_examples = args.n_eval_examples
         log_interval = 20
         global_batch_size = args.global_batch_size
-        n = len(PixMoCap("train", "captions"))
+        if args.dataset == "pixmo_cap_with_transcripts":
+            n = len(PixMoCap("train", "captions"))
+        elif args.dataset == "pixmo_points":
+            n = len(PixMoPoints("train", kind=args.points_kind, counting=args.points_counting))
+        else:
+            raise ValueError(f"Unknown dataset {args.dataset} for duration calculation")
         duration = 4 * (n + global_batch_size - 1) // global_batch_size
         eval_interval = 1000
         vit_layers = [-2, -9] if args.vision_backbone == "openai" else [-3, -9]
@@ -107,10 +124,15 @@ if __name__ == "__main__":
         ),
     )
 
+    if args.save_folder:
+        save_folder = get_timestamped_save_folder(args.save_folder)
+    else:
+        save_folder = get_timestamped_save_folder("training_logs")
+
     cfg = TrainConfig(
         run_name="multitask_train",
         no_pre_train_checkpoint=True,
-        save_folder="debug_run" if debug else omegaconf.MISSING,
+        save_folder=save_folder,
         seed=6198,
         dry_run=False,
         wandb=None if debug else WandbConfig(
@@ -134,9 +156,9 @@ if __name__ == "__main__":
             pin_memory=True,
             shuffle_messages=False,
         ),
-        ft_connector=True,
-        ft_llm=True,
-        ft_vit=True,
+        ft_connector=args.ft_connector,
+        ft_llm=args.ft_llm,
+        ft_vit=args.ft_vit,
         optimizer=OptimizerConfig(
             name=OptimizerType.adamw,
             connector_learning_rate=2e-4,
@@ -189,14 +211,14 @@ if __name__ == "__main__":
         activation_checkpointing=ActivationCheckpointingStrategy.whole_layer,
         eval_interval=eval_interval,
         evaluators=[
-            # Evaluate loss on data with and without the transcripts
+            # Evaluate loss on the specified dataset
             evaluator,
             replace(
                 evaluator,
-                label="caption_val",
+                label=f"{args.dataset}_val",
                 data=replace(
                     evaluator.data,
-                    dataset="pixmo_cap"
+                    dataset=args.dataset
                 )
             )
         ]
