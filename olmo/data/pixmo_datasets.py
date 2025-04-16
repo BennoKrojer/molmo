@@ -209,6 +209,7 @@ class PixMoPoints(Dataset):
                 point_scale=100,
                 style=self.mode
             ))
+        # print("DEBUG: Messages:", messages)
         return dict(
             image=ex["image"],
             message_list=messages,

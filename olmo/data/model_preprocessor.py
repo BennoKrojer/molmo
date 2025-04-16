@@ -10,6 +10,8 @@ from PIL import ImageOps
 from olmo import tokenizer
 from olmo.tokenizer import get_special_token_ids
 
+import logging
+
 
 def setup_pil():
     PIL.Image.MAX_IMAGE_PIXELS = None
@@ -367,6 +369,7 @@ class MultiModalPreprocessor:
             resized = self._normalize(resized)
             patches = pixels_to_patches(resized, image_patch_size)
             img_mask = pixels_to_patches(img_mask, image_patch_size)
+            img_mask = img_mask.astype(np.float32).mean(axis=-1)
 
             per_row = np.full(
                 (image_token_length_w,),
@@ -475,6 +478,7 @@ class MultiModalPreprocessor:
 
             patches = batch_pixels_to_patches(patches, image_patch_size)
             img_mask = batch_pixels_to_patches(img_mask, image_patch_size)
+            # in the following print certain parts of the img_mask to show the mean operation
             img_mask = img_mask.astype(np.float32).mean(axis=-1)
             patch_ordering = np.reshape(patch_ordering, [-1])
             valid = patch_ordering >= 0
@@ -549,6 +553,7 @@ class MultiModalPreprocessor:
 
             joint = np.concatenate(joint, 0)
             img_mask = np.pad(img_mask, [[0, 1], [0, 0]], constant_values=-1)
+    
             return patches, joint, patch_ordering, img_mask
         else:
             raise NotImplementedError(self.crop_mode)
@@ -623,13 +628,13 @@ class MultiModalPreprocessor:
         rng=None,
         require_image_features=False
     ):
-        """Interleave images and text tokens into multi-modal features for the model"""
+        # print("DEBUG: MultiModalPreprocessor called with:", type(messages))
         if len(messages) == 0:
             raise ValueError("Given empty messages")
         if not isinstance(messages[0], str) and len(messages) == 1:
             messages = messages[0]
         if isinstance(messages[0], str):
-            # List of user/system/user/system ect. prompts
+            # print("DEBUG: Processing string messages:", messages)
             loss_masks = []
             token_ids = []
             for msg_ix, message in enumerate(messages):
@@ -646,6 +651,7 @@ class MultiModalPreprocessor:
             loss_masks = np.array(loss_masks, dtype=np.float32)
             subsegments = None
         else:
+            # print("DEBUG: Processing non-string messages:", type(messages[0]))
             if weight is not None:
                 raise NotImplementedError("Multi-messages with weights")
             # List of lists of user/system/user/system ect. prompts
@@ -655,6 +661,7 @@ class MultiModalPreprocessor:
             for message_set_ix, message_set in enumerate(messages):
                 n = 0
                 for msg_ix, message in enumerate(message_set):
+                    # print(message)
                     has_loss = msg_ix % 2 == 1
                     message_ids = self.tokenizer.encode(message)
                     if has_loss:

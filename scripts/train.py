@@ -5,8 +5,6 @@ import sys
 from os import listdir
 from os.path import join
 from pathlib import Path
-import time
-from datetime import timedelta
 
 import torch
 import torch.distributed as dist
