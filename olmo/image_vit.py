@@ -103,7 +103,6 @@ class ViTMultiHeadDotProductAttention(nn.Module):
         else:
             inputs_k = inputs_q
             inputs_v = inputs_q
-
         xq, xk, xv = self.wq(inputs_q), self.wk(inputs_k), self.wv(inputs_v)
 
         xq = self._split_heads(xq, self.num_heads)

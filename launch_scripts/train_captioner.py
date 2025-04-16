@@ -3,12 +3,14 @@ import logging
 from dataclasses import replace
 from typing import cast
 import datetime
+import os
+import time
 
 from omegaconf import omegaconf, OmegaConf
 
 from olmo.data import PixMoCap, PixMoPoints
 from launch_scripts.utils import DEBUG_MODEL, VISION_BACKBONES, LLMS, DEFAULT_LOAD_PATHS
-from olmo.torch_util import get_world_size
+from olmo.torch_util import get_world_size, get_global_rank
 from scripts.train import main as train
 
 from olmo import TrainConfig, WandbConfig, DataConfig, OptimizerConfig, OptimizerType, \
@@ -22,15 +24,10 @@ from olmo.util import (
 )
 import torch.multiprocessing as mp
 import torch.distributed as dist
+import torch
 
 
 log = logging.getLogger("train")
-
-
-def get_timestamped_save_folder(base_folder):
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{base_folder}_{timestamp}"
-
 
 if __name__ == "__main__":
     try:
@@ -62,6 +59,8 @@ if __name__ == "__main__":
     parser.add_argument("--points_kind", choices=["basic", "high_frequency", "both"], default="basic", help="Kind of points dataset to use")
     parser.add_argument("--points_counting", action="store_true", help="Use counting mode for points dataset")
     parser.add_argument("--save_folder", help="Custom save folder")
+    parser.add_argument("--crop_mode", default="overlap-and-resize-c2", choices=["resize", "overlap-and-resize-c2"], help="How to divide the image into crops")
+    parser.add_argument("--image_token_length", type=int, default=None, help="Length of image tokens (width/height)")
     args, other_args = parser.parse_known_args()
 
     seq_len = args.seq_len
@@ -97,7 +96,7 @@ if __name__ == "__main__":
             vision_backbone=VISION_BACKBONES[args.vision_backbone],
             llm_load_path=DEFAULT_LOAD_PATHS.get(args.llm, omegaconf.MISSING),
             vit_load_path=DEFAULT_LOAD_PATHS.get(args.vision_backbone, omegaconf.MISSING),
-            crop_mode="overlap-and-resize-c2",
+            crop_mode=args.crop_mode,
             system_prompt_kind='style_and_length',
             residual_dropout=0.0,
             response_residual_dropout=0.1,
@@ -124,11 +123,8 @@ if __name__ == "__main__":
         ),
     )
 
-    if args.save_folder:
-        save_folder = get_timestamped_save_folder(args.save_folder)
-    else:
-        save_folder = get_timestamped_save_folder("training_logs")
-
+    save_folder = args.save_folder
+    
     cfg = TrainConfig(
         run_name="multitask_train",
         no_pre_train_checkpoint=True,

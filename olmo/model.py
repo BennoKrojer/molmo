@@ -1354,6 +1354,7 @@ class Residual(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x + self.submodule(x)
 
+USE_FIRST_IMAGE_CROP_ONLY = False
 
 class MolmoVisionBackbone(nn.Module):
     def __init__(self, config: ModelConfig):
@@ -1567,6 +1568,8 @@ class MolmoVisionBackbone(nn.Module):
 
         h, w = cfg.llm_patches_per_crop()
         image_features = image_features.reshape(batch_size, num_image, h * w, -1)
+        if USE_FIRST_IMAGE_CROP_ONLY: #DEBUGGING ONLY
+            image_features = image_features[:, :1, :, :]
 
         # MLP layer to map the feature.
         if cfg.image_projector == ImageProjectType.mlpx2:
@@ -1897,6 +1900,8 @@ class Molmo(nn.Module):
             # cls_embed: (batch_size, num_image, d_model)
             image_features = self.vision_backbone(images, image_masks)
             num_image, num_patch = image_features.shape[1:3]
+            if USE_FIRST_IMAGE_CROP_ONLY: #DEBUGGING ONLY
+                image_input_idx = image_input_idx[:, :1, :]
             assert image_input_idx.shape == (batch_size, num_image, num_patch)
 
             # inster the image feature into the embedding.
