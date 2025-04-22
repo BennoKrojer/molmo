@@ -204,6 +204,7 @@ def main(cfg: TrainConfig) -> None:
         def dummy_init_fn(module: torch.nn.Module) -> None:
             module.to_empty(device=get_default_device(), recurse=False)
 
+
         param_init_fn = dummy_init_fn
     else:
         param_init_fn = None
@@ -280,23 +281,29 @@ def main(cfg: TrainConfig) -> None:
 
             # We save a checkpoint up-front to make sure this won't fail (due to disk space or whatever).
             log.info("Saving pre-train checkpoint...")
-            checkpoint_path, local_checkpoint_cache = trainer.save_checkpoint(checkpoint_type=checkpoint_type)
-            log.info(f"Checkpoint saved to {checkpoint_path}")
+            if cfg.model.vision_backbone is not None and not cfg.ft_connector:
+                # Only save connector weights
+                from save_connector import save_connector_weights
+                save_connector_weights(olmo_model, str(Path(cfg.save_folder) / "connector_weights.pt"))
+            else:
+                # Save full checkpoint
+                checkpoint_path, local_checkpoint_cache = trainer.save_checkpoint(checkpoint_type=checkpoint_type)
+                log.info(f"Checkpoint saved to {checkpoint_path}")
 
-            # And they we verify that we can load it.
-            log.info("Attempting to load pre-train checkpoint...")
-            trainer.restore_checkpoint(
-                checkpoint_path,
-                checkpoint_type=checkpoint_type,
-                local_cache=local_checkpoint_cache,
-                load_dataloader_state=False,
-            )
-            log.info("Checkpoint successfully loaded")
+                # And they we verify that we can load it.
+                log.info("Attempting to load pre-train checkpoint...")
+                trainer.restore_checkpoint(
+                    checkpoint_path,
+                    checkpoint_type=checkpoint_type,
+                    local_cache=local_checkpoint_cache,
+                    load_dataloader_state=False,
+                )
+                log.info("Checkpoint successfully loaded")
 
-            # But now we can remove it so we don't take up unnecessary space.
-            log.info("Removing pre-train checkpoint...")
-            trainer.remove_checkpoint(checkpoint_type=checkpoint_type)
-            log.info("Successfully removed checkpoint")
+                # But now we can remove it so we don't take up unnecessary space.
+                log.info("Removing pre-train checkpoint...")
+                trainer.remove_checkpoint(checkpoint_type=checkpoint_type)
+                log.info("Successfully removed checkpoint")
 
         if cfg.load_path is not None:
             log.info(f"Loading checkpoint from {cfg.load_path}...")
