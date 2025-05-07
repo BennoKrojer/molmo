@@ -4,7 +4,7 @@ from olmo.checkpoint import build_sharded_checkpointer
 from olmo.torch_util import get_local_rank
 
 # --- Config
-step_dir = "/mnt/research/scratch/bkroje/checkpoints/train_mlp-only_pixmo_points_overlap-and-resize-c2/step10000"
+step_dir = "/mnt/research/scratch/bkroje/molmo_data/molmo_data/checkpoints/train_mlp-only_pixmo_cap_overlap-and-resize-c2/step6000"
 cfg_path = step_dir + "/config.yaml"
 cfg = TrainConfig.load(cfg_path)
 device = torch.device("cuda", get_local_rank())
@@ -25,4 +25,4 @@ model_state, _, _ = checkpointer.unshard_checkpoint(
 )
 
 # --- Save as regular .pt file
-torch.save(model_state, step_dir + "_unsharded.pt")
+torch.save(model_state, step_dir + "/model.pt")
