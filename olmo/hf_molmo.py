@@ -8,7 +8,7 @@ from olmo import Molmo, ModelConfig, ActivationType, LayerNormType, TokenizerCon
 from olmo.config import ImagePooling2DType
 
 
-def load_hf_model(repo_id) -> Molmo:
+def load_hf_model(repo_id, device: str = "cpu") -> Molmo:
     if repo_id == "allenai/Molmo-7B-D-0924":
         tokenizer = 'allenai/OLMoE-1B-7B-0924'
     else:
@@ -83,10 +83,13 @@ def load_hf_model(repo_id) -> Molmo:
         )
     )
 
+    model_cfg.init_device = device
     olmo_model = Molmo(model_cfg, init_params=False)
     state_dict = model.state_dict()
     state_dict = {k[6:]: v for k, v in state_dict.items()}
     olmo_model.load_state_dict(state_dict)
+    olmo_model = olmo_model.to(device)
+    return olmo_model
 
 
 def convert_cli():

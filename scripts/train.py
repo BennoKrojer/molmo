@@ -5,6 +5,8 @@ import sys
 from os import listdir
 from os.path import join
 from pathlib import Path
+import os
+os.environ["PYTHONBREAKPOINT"] = "pdb.set_trace"
 
 import torch
 import torch.distributed as dist

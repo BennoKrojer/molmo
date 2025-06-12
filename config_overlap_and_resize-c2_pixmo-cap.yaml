@@ -179,7 +179,7 @@ fast_forward_batches: null
 evaluators:
 - label: val
   data:
-    dataset: pixmo_points
+    dataset: pixmo_cap
     mixture: null
     root_size_mixture: null
     split: validation
@@ -207,7 +207,7 @@ evaluators:
   skip_if_metrics_cached: true
 - label: pixmo_points_val
   data:
-    dataset: pixmo_points
+    dataset: pixmo_cap
     mixture: null
     root_size_mixture: null
     split: validation
@@ -236,7 +236,7 @@ evaluators:
 eval_interval: 1000
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_points_overlap-and-resize-c2
+save_folder: /mnt/research/scratch/bkroje/molmo_data/molmo_data/checkpoints/train_mlp-only_pixmo_cap_overlap-and-resize-c2
 remote_save_folder: null
 canceled_check_interval: 50
 save_interval: 2000

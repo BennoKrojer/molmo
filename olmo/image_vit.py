@@ -96,7 +96,6 @@ class ViTMultiHeadDotProductAttention(nn.Module):
         return hidden_states.reshape(hidden_states.shape[:2] + (self.embed_dim,))
 
     def forward(self, inputs_q: torch.Tensor, inputs_kv: Optional[torch.Tensor] = None) -> torch.Tensor:
-
         if inputs_kv is not None:
             inputs_k = inputs_kv
             inputs_v = inputs_kv

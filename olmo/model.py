@@ -649,6 +649,7 @@ class OLMoBlock(nn.Module):
         drop_mask: Optional[torch.Tensor] = None,
         dropout_p: float = 0.0,
         is_causal: bool = False,
+        output_attentions: bool = False,
     ) -> torch.Tensor:
         """
         Computes scaled dot product attention on query, key and value tensors, using an optional
@@ -672,6 +673,12 @@ class OLMoBlock(nn.Module):
                 k = k.repeat_interleave(num_q_heads // num_kv_heads, dim=1, output_size=num_q_heads)
                 v = v.repeat_interleave(num_q_heads // num_kv_heads, dim=1, output_size=num_q_heads)
 
+            if output_attentions:
+                attn_map = q @ k.transpose(-2, -1)
+                attn_map = F.softmax(attn_map, dim=-1).mean(dim=1)
+            else:
+                attn_map = None
+
             return F.scaled_dot_product_attention(
                 q,
                 k,
@@ -679,7 +686,7 @@ class OLMoBlock(nn.Module):
                 attn_mask=attn_mask,
                 dropout_p=dropout_p,
                 is_causal=is_causal,
-            )
+            ), attn_map
 
     def attention(
         self,
@@ -691,7 +698,8 @@ class OLMoBlock(nn.Module):
         drop_mask: Optional[torch.Tensor] = None,
         layer_past: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+        output_attentions: bool = False,
+    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]], Optional[torch.Tensor]]:
         B, T, C = q.size()  # batch size, sequence length, d_model
         dtype = k.dtype
 
@@ -736,21 +744,22 @@ class OLMoBlock(nn.Module):
 
         # Get the attention scores.
         # shape: (B, nh, T, hs)
-        att = self._scaled_dot_product_attention(
+        att, attn_map = self._scaled_dot_product_attention(
             q,
             k,
             v,
             attn_mask=attention_bias,
             drop_mask=drop_mask,
             dropout_p=0.0 if not self.training else self.config.attention_dropout,
-            is_causal=attention_bias is None,
+            is_causal=attention_bias is None, 
+            output_attentions=output_attentions,
         )
 
         # Re-assemble all head outputs side-by-side.
         att = att.transpose(1, 2).contiguous().view(B, T, C)
 
         # Apply output projection.
-        return self.attn_out(att), present
+        return self.attn_out(att), present, attn_map
 
     @abstractmethod
     def forward(
@@ -761,7 +770,8 @@ class OLMoBlock(nn.Module):
         drop_mask: Optional[torch.Tensor] = None,
         layer_past: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+        output_attentions: bool = False,
+    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]], Optional[torch.Tensor]]:
         raise NotImplementedError
 
     @classmethod
@@ -983,7 +993,8 @@ class OLMoSequentialBlock(OLMoBlock):
         drop_mask: Optional[torch.Tensor] = None,
         layer_past: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+        output_attentions: bool = False,
+    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]], Optional[torch.Tensor]]:
         # Get query, key, value projections.
         # shape:
         #  - for regular attn q, k, v: (batch_size, seq_len, d_model)
@@ -1008,11 +1019,11 @@ class OLMoSequentialBlock(OLMoBlock):
 
         # Get attention scores.
         if self._activation_checkpoint_fn is not None:
-            att, cache = self._activation_checkpoint_fn(  # type: ignore
-                self.attention, q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache
+            att, cache, attn_map = self._activation_checkpoint_fn(  # type: ignore
+                self.attention, q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions
             )
         else:
-            att, cache = self.attention(q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache)
+            att, cache, attn_map = self.attention(q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions)
 
         if self.config.norm_after:
             if self._activation_checkpoint_fn is not None:
@@ -1050,7 +1061,7 @@ class OLMoSequentialBlock(OLMoBlock):
         x = self.dropout(x, drop_mask=drop_mask)
         x = og_x + x
 
-        return x, cache
+        return x, cache, attn_map
 
 
 class OLMoLlamaBlock(OLMoBlock):
@@ -1225,20 +1236,45 @@ class OLMoLlamaBlock(OLMoBlock):
 
 
 class OLMoOutput(NamedTuple):
-    logits: torch.FloatTensor
+    logits: Optional[torch.FloatTensor] = None
     """
     A tensor of shape `(batch_size, seq_len, vocab_size)` representing the log probabilities
     for the next token *before* normalization via (log) softmax.
     """
 
-    attn_key_values: Optional[List[Tuple[torch.Tensor, torch.Tensor]]]
+    attn_key_values: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None
     """
     Attention keys and values from each block.
     """
 
-    hidden_states: Optional[Tuple[torch.Tensor]]
+    hidden_states: Optional[Tuple[torch.Tensor]] = None
     """
     Hidden states from each block.
+    """
+    
+    visual_embeddings: Optional[torch.FloatTensor] = None
+    """
+    Visual embeddings from the vision backbone.
+    """
+
+    accuracies_per_layer: Optional[List[torch.FloatTensor]] = None
+    """
+    Accuracies from each block.
+    """
+
+    sampled_visual_embeddings: Optional[torch.FloatTensor] = None
+    """
+    Sampled visual embeddings from the vision backbone.
+    """
+
+    attentions: Optional[Tuple[torch.FloatTensor]] = None
+    """
+    Attention weights from each block.
+    """
+
+    attn_maps_per_layer: Optional[torch.FloatTensor] = None
+    """
+    Attention maps from each block.
     """
 
 
@@ -1354,7 +1390,6 @@ class Residual(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x + self.submodule(x)
 
-USE_FIRST_IMAGE_CROP_ONLY = False
 
 class MolmoVisionBackbone(nn.Module):
     def __init__(self, config: ModelConfig):
@@ -1513,7 +1548,7 @@ class MolmoVisionBackbone(nn.Module):
         # image_features: (batch_size, num_crops(=num_image), num_patch, nximage_emb_dim)
         batch_size, num_image = images.shape[:2]
         image_features = self.encode_image(images)
-
+        # import pdb; pdb.set_trace()
         if cfg.image_padding_embed:
             assert image_masks is not None
             if cfg.image_padding_embed == "pad_embed":
@@ -1547,7 +1582,7 @@ class MolmoVisionBackbone(nn.Module):
                 image_features,
                 (0, 0, 0, pad_w, 0, pad_h, 0, 0, 0, 0),
             )
-
+    
         # image pooling
         image_features = einops.rearrange(
             image_features,
@@ -1568,8 +1603,6 @@ class MolmoVisionBackbone(nn.Module):
 
         h, w = cfg.llm_patches_per_crop()
         image_features = image_features.reshape(batch_size, num_image, h * w, -1)
-        if USE_FIRST_IMAGE_CROP_ONLY: #DEBUGGING ONLY
-            image_features = image_features[:, :1, :, :]
 
         # MLP layer to map the feature.
         if cfg.image_projector == ImageProjectType.mlpx2:
@@ -1584,6 +1617,7 @@ class MolmoVisionBackbone(nn.Module):
         
         # image_features: (batch_size, num_image, num_patch, d_model)
         # cls_embed: (batch_size, num_image, d_model)
+        # print(f"image_features: {image_features.shape}")
         return image_features
 
 
@@ -1818,6 +1852,10 @@ class Molmo(nn.Module):
         last_logits_only: bool = False,
         output_hidden_states: Optional[bool] = None,
         append_last_valid_logits: Optional[torch.Tensor] = None,
+        return_visual_embeddings: bool = False,
+        return_logit_lenses: bool = False,
+        loss_masks: Optional[torch.Tensor] = None,
+        output_attentions: bool = False,
     ) -> OLMoOutput:
         """
         :param input_ids: A tensor of shape `(batch_size, seq_len)`.
@@ -1852,7 +1890,10 @@ class Molmo(nn.Module):
         :param use_cache: If `True`, return key and value tensors for each block.
         :param last_logits_only: If `True`, only compute the logits for the last token of each sequence.
             This can speed up decoding when you only care about the next token.
+        :param return_visual_embeddings: If `True`, return visual embeddings directly after vision backbone processing.
+            This skips the rest of the forward pass and is used for nearest neighbor alignment metrics.
         """
+
         output_hidden_states = output_hidden_states if output_hidden_states is not None else False
 
         if past_key_values:
@@ -1900,13 +1941,16 @@ class Molmo(nn.Module):
             # cls_embed: (batch_size, num_image, d_model)
             image_features = self.vision_backbone(images, image_masks)
             num_image, num_patch = image_features.shape[1:3]
-            if USE_FIRST_IMAGE_CROP_ONLY: #DEBUGGING ONLY
-                image_input_idx = image_input_idx[:, :1, :]
+
             assert image_input_idx.shape == (batch_size, num_image, num_patch)
 
             # inster the image feature into the embedding.
             image_features = image_features.view(batch_size, num_image * num_patch, -1)
             image_input_idx = image_input_idx.view(batch_size, num_image * num_patch)
+
+            # If we only want the visual embeddings, return them now
+            if return_visual_embeddings:
+                visual_embeddings = image_features
 
             valid = image_input_idx >= 0
             batch_idx = torch.arange(batch_size, device=x.device)
@@ -1978,23 +2022,63 @@ class Molmo(nn.Module):
 
         # decoder layers
         all_hidden_states = []
+        accuracies_per_layer = []
+        if return_logit_lenses:
+            labels = input_ids[..., 1:].clone()
+            mask = (loss_masks[..., :-1] == 1) & (labels != 0)  # exclude padding (id == 0)
+
+        if output_attentions:
+            attn_maps_per_layer = []
+        else:
+            attn_maps_per_layer = None
 
         # Apply blocks one-by-one.
+        sampled_visual_embeddings_per_layer = {}  # dict of layer_idx --> [B, D]
+        sample_visual_every_n = 5  # configurable
         if self.config.block_group_size == 1:
             for block_idx, block in enumerate(self.transformer.blocks):
                 if output_hidden_states:
                     # add hidden states
                     all_hidden_states.append(x)
+                if return_logit_lenses:
+                    with torch.no_grad():
+                        h_ln = self.transformer.ln_f(x)
+                        L    = self.transformer.ff_out(h_ln)
+                        if self.config.scale_logits:
+                            L = L / math.sqrt(self.config.d_model)
+                    pred = L[:, :-1, :].argmax(dim=-1)
+                    correct = labels[mask]
+                    pred = pred[mask]
+                    accuracies_per_layer.append((pred == correct).float())
+                    # print(f"Accuracy at layer {block_idx}: {accuracies_per_layer[-1].float().mean()}")
+
+                if return_visual_embeddings and block_idx % sample_visual_every_n == 0:
+                    with torch.no_grad():
+                        B, T, D = x.shape  # T = full seq len
+                        visual_tokens_per_batch = []
+                        for b in range(B):
+                            visual_idxs = image_input_idx[b].reshape(-1)
+                            valid = visual_idxs[visual_idxs >= 0]
+                            if len(valid) == 0:
+                                visual_tokens_per_batch.append(torch.zeros(D, device=x.device))
+                                continue
+                            rand_idx = valid[torch.randint(len(valid), (1,))]
+                            visual_tokens_per_batch.append(x[b, rand_idx])
+                        sampled_vis = torch.stack(visual_tokens_per_batch)  # [B, D]
+                        sampled_visual_embeddings_per_layer[block_idx] = sampled_vis.squeeze()
 
                 layer_past = None if past_key_values is None else past_key_values[block_idx]
                 if should_checkpoint_block(self.activation_checkpointing_strategy, block_idx):
                     # shape: (batch_size, seq_len, d_model)
-                    x, cache = self._activation_checkpoint_fn(
-                        block, x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache
+                    x, cache, attn_map = self._activation_checkpoint_fn(
+                        block, x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions
                     )
                 else:
                     # shape: (batch_size, seq_len, d_model)
-                    x, cache = block(x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache)
+                    x, cache, attn_map = block(x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions)
+                
+                if output_attentions:
+                    attn_maps_per_layer.append(attn_map)
 
                 if attn_key_values is not None:
                     assert cache is not None
@@ -2034,6 +2118,16 @@ class Molmo(nn.Module):
         if output_hidden_states:
             # add final hidden state post-final-layernorm, following HuggingFace's convention
             all_hidden_states.append(x)
+        if return_logit_lenses:
+            with torch.no_grad():
+                L = self.transformer.ff_out(x)
+            if self.config.scale_logits:
+                L = L / math.sqrt(self.config.d_model)
+            #compare top1 with the correct answer
+            pred = L[:, :-1, :].argmax(dim=-1)
+            correct = labels[mask]
+            pred = pred[mask]
+            accuracies_per_layer.append((pred == correct).float())
 
         # Get logits.
         # shape: (batch_size, seq_len or 1, vocab_size)
@@ -2048,8 +2142,25 @@ class Molmo(nn.Module):
             last_valid_logit = logits[
                 torch.arange(logits.shape[0], device=logits.device), append_last_valid_logits]
             logits = torch.cat([logits[:, :-1], last_valid_logit[:, None]], dim=1)
+        if return_logit_lenses:
+            accuracies_per_layer = torch.stack(accuracies_per_layer)
+        else:
+            accuracies_per_layer = None
 
-        return OLMoOutput(logits=logits, attn_key_values=attn_key_values, hidden_states=tuple(all_hidden_states) if output_hidden_states else None)  # type: ignore[arg-type]
+        if output_attentions:
+            attn_maps_per_layer = torch.stack(attn_maps_per_layer)
+        else:
+            attn_maps_per_layer = None
+
+        return OLMoOutput(
+            logits=logits,
+            attn_key_values=attn_key_values,
+            hidden_states=tuple(all_hidden_states) if output_hidden_states else None,
+            visual_embeddings=visual_embeddings if return_visual_embeddings else None,
+            sampled_visual_embeddings=sampled_visual_embeddings_per_layer if return_visual_embeddings else None,
+            accuracies_per_layer=accuracies_per_layer,
+            attn_maps_per_layer=attn_maps_per_layer,
+        )
 
     def get_fsdp_wrap_policy(self, wrap_strategy: Optional[FSDPWrapStrategy] = None):
         if wrap_strategy is None:
@@ -2376,7 +2487,7 @@ class Molmo(nn.Module):
         from .util import resource_path
         if checkpoint_dir.startswith("hf:"):
             from .hf_molmo import load_hf_model
-            return load_hf_model(checkpoint_dir[3:])
+            return load_hf_model(checkpoint_dir[3:], device=device)
 
         # Guess checkpoint type.
         if checkpoint_type is None:

@@ -43,7 +43,10 @@ def main():
     }
 
     # Create preprocessor
-    model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
+    if "hf:" in checkpoint_path:
+        model_config = model.config
+    else:
+        model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
     # Override system prompt kind to avoid length conditioning
     model_config.system_prompt_kind = "style"
     preprocessor = build_mm_preprocessor(

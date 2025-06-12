@@ -402,11 +402,22 @@ class DataFormatter:
                 raise NotImplementedError(self.message_format)
 
             if ix != 0 or self.always_start_with_space:
-                message = " " + message
+                # message = " " + message
+                if type(message) == str and len(message) == 0:
+                    message = " "
+                # elif type(message) == str and message[0] != " ":
+                #     message = " " + message
+                # elif type(message) == list and message[0] != 220:
+                #     message = [220] + message
+                # elif type(message) == int and message != 220:
+                #     message = [220, message]
             out.append(message)
         return out
 
     def get_system_prompt(self, style, for_inference, messages, rng):
+        # Return empty string for 'none' style
+        if style == "none":
+            return ""
 
         # For eval only dataset
         if style == "eval_short_answer":
@@ -547,6 +558,7 @@ class DataFormatter:
         elif isinstance(message, dict):
             # An example that requires a custom prompt
             prompt, response, extra_metadata = self.get_user_prompt(message, is_training, for_inference=for_inference, rng=rng)
+            
             if extra_metadata:
                 metadata.update(extra_metadata)
             if not for_inference:
