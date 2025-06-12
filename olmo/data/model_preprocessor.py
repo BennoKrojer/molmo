@@ -363,13 +363,14 @@ class MultiModalPreprocessor:
 
         original_image_h, original_image_w = image.shape[:2]
         crop_size = base_image_input_size[0]
-
         if self.crop_mode == "resize":
             resized, img_mask = self.resize_image(image, base_image_input_size, is_training, rng)
             resized = self._normalize(resized)
             patches = pixels_to_patches(resized, image_patch_size)
             img_mask = pixels_to_patches(img_mask, image_patch_size)
             img_mask = img_mask.astype(np.float32).mean(axis=-1)
+            img_mask = np.expand_dims(img_mask, 0)
+
 
             per_row = np.full(
                 (image_token_length_w,),
@@ -386,6 +387,35 @@ class MultiModalPreprocessor:
             ]
             joint = np.concatenate(joint, 0, dtype=np.int32)
             return np.expand_dims(patches, 0), joint, None, img_mask
+        
+        elif self.crop_mode == "1image_per_patch":
+            resized, img_mask = self.resize_image(image, (self.image_patch_size, self.image_patch_size), is_training, rng)
+            resized = self._normalize(resized)
+            
+            patch = resized.flatten()  # shape: (patch_dim,)
+            n_patches = self.image_token_length_w * self.image_token_length_h
+            patches = np.tile(patch[None, :], (n_patches, 1))  # shape: (n_patches, patch_dim)
+
+            # dummy mask (all ones)
+            img_mask = np.ones((1, n_patches), dtype=np.float32)
+
+            # Tokens: [<im_start>, PATCH * W * H (+ col tokens), <im_end>]
+            per_row = np.full(
+                (self.image_token_length_w,), self.image_patch_token_id, dtype=np.int32
+            )
+            if self.use_col_tokens:
+                per_row = np.concatenate([per_row, [self.image_col_token_id]], 0)
+            extra_tokens = np.tile(per_row, [self.image_token_length_h])
+
+            joint = [
+                [self.image_start_token_id],
+                extra_tokens,
+                [self.image_end_token_id],
+            ]
+            joint = np.concatenate(joint, 0, dtype=np.int32)
+
+            return np.expand_dims(patches, 0), joint, None, img_mask
+
         if self.crop_mode == "overlap-and-resize-c2":
             # Discard this many patches from the (left/top, right/bottom) of crops
             left_margin, right_margin = overlap_margins
@@ -553,7 +583,13 @@ class MultiModalPreprocessor:
 
             joint = np.concatenate(joint, 0)
             img_mask = np.pad(img_mask, [[0, 1], [0, 0]], constant_values=-1)
-    
+
+            ### AWKWARD HACK to only get global image but not the crops
+            # patches = patches[:1, ...]
+            # patch_ordering = None
+            # img_mask = img_mask[:1, ...]
+            ### END OF AWKWARD HACK
+
             return patches, joint, patch_ordering, img_mask
         else:
             raise NotImplementedError(self.crop_mode)
@@ -613,6 +649,15 @@ class MultiModalPreprocessor:
         """
         crops, image_tokens, patch_ordering, img_mask = self.image_to_patches_and_tokens(
             image, is_training, rng)
+        
+        # DEBUG
+        # print('crops.shape', crops.shape)
+        # print('image_tokens.shape', image_tokens.shape)
+        # if patch_ordering is not None:
+        #     print('patch_ordering.shape', patch_ordering.shape)
+        # print('img_mask.shape', img_mask.shape)
+        # exit()
+
         patch_idx = self.build_image_input_idx(
             image_tokens,
             patch_ordering,
@@ -626,20 +671,28 @@ class MultiModalPreprocessor:
         weight=None,
         is_training=False,
         rng=None,
-        require_image_features=False
+        require_image_features=False,
+        token_id=None
     ):
-        # print("DEBUG: MultiModalPreprocessor called with:", type(messages))
+        # print(f"TRACE: messages: {messages}")
+        # Continue with existing processing
         if len(messages) == 0:
             raise ValueError("Given empty messages")
         if not isinstance(messages[0], str) and len(messages) == 1:
             messages = messages[0]
         if isinstance(messages[0], str):
-            # print("DEBUG: Processing string messages:", messages)
             loss_masks = []
             token_ids = []
             for msg_ix, message in enumerate(messages):
                 has_loss = msg_ix % 2 == 1
-                message_ids = self.tokenizer.encode(message)
+                if type(message) == str:
+                    message_ids = self.tokenizer.encode(message)
+                elif type(message) == list:
+                    message_ids = message
+                elif type(message) == int:
+                    message_ids = [message]
+                else:
+                    raise NotImplementedError(f"Message type {type(message)} not supported")
                 if has_loss:
                     message_ids.append(self.tokenizer.eos_token_id)
                 token_ids += message_ids
@@ -651,7 +704,10 @@ class MultiModalPreprocessor:
             loss_masks = np.array(loss_masks, dtype=np.float32)
             subsegments = None
         else:
-            # print("DEBUG: Processing non-string messages:", type(messages[0]))
+            # Extract token_id from dictionary-style messages if present
+            if isinstance(messages[0], dict) and 'token_id' in messages[0]:
+                token_id = messages[0]['token_id']
+                
             if weight is not None:
                 raise NotImplementedError("Multi-messages with weights")
             # List of lists of user/system/user/system ect. prompts
@@ -661,7 +717,6 @@ class MultiModalPreprocessor:
             for message_set_ix, message_set in enumerate(messages):
                 n = 0
                 for msg_ix, message in enumerate(message_set):
-                    # print(message)
                     has_loss = msg_ix % 2 == 1
                     message_ids = self.tokenizer.encode(message)
                     if has_loss:
@@ -679,6 +734,12 @@ class MultiModalPreprocessor:
                 loss_masks *= math.sqrt(1/len(messages))
             elif self.loss_token_weighting is not None:
                 raise NotImplementedError(self.loss_token_weighting)
+
+        # make sure there is only one whitespace (220) at the beginning
+        # Print the input tokens and their decoded text
+        # print(f"\nInput tokens: {tokens}")
+        # print(f"Decoded text: {self.tokenizer.decode(tokens)}")
+        # print(f"Loss masks: {loss_masks}")
 
         if images is None or (
             isinstance(images, (list, tuple)) and len(images) == 0
@@ -800,6 +861,11 @@ class MultiModalPreprocessor:
             "loss_masks": all_loss_masks,
             "target_tokens": target_tokens,
         }
+        
+        # Add token_id to output if available
+        if token_id is not None:
+            out["token_id"] = token_id
+            
         if image_padding_mask:
             out["image_masks"] = np.concatenate(all_crop_masks, 0)
         if subsegments is not None:
@@ -841,17 +907,24 @@ class Preprocessor:
             image = None
 
         messages, formatter_metadata = self.formater(example, self.is_training, self.for_inference, rng)
+        # print(f"\nMessages: {messages}")
         if self.shuffle_messages and isinstance(messages[0], list):
             # If there are multiple conversations for this example, shuffle their order
             # This might matter if we truncate the tokens to a max sequence length
             rng.shuffle(messages)
+        if 'metadata' in example and example['metadata'].get("token_id") is not None:
+            token_id = example['metadata']['token_id']
+            # print(f"TRACE: Found token_id in example: {token_id}")
+        else:
+            token_id = None
         batch = self.mm_preprocessor(
             image,
             messages,
             weight=example.get("weight"),
             rng=rng,
             is_training=self.is_training,
-            require_image_features=self.require_image_features
+            require_image_features=self.require_image_features,
+            token_id=token_id
         )
         if formatter_metadata is None:
             formatter_metadata = {}

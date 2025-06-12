@@ -8,6 +8,14 @@ import random
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import umap
+from datasets import load_dataset
+import random
+
+# Constants
+NUM_SENTENCES = 100
+USE_MEAN_EMBEDDINGS = False
+VISUALIZATION_METHOD = 'pca'
+BATCH_SIZE = 32  # Default batch size for models with padding token
 
 def stable_cosine_similarity(a, b):
     norm_a = np.linalg.norm(a) + 1e-8
@@ -103,30 +111,204 @@ def get_token_embeddings(model_name, max_vocab=50000):
     print(f"mean norm: {norms.mean():.4f}, std: {norms.std():.4f}, min: {norms.min():.4f}, max: {norms.max():.4f}")
     return emb[:max_vocab]  # clip to 50k if huge
 
-# Example usage
+def load_diverse_sentences(num_sentences=NUM_SENTENCES):
+    """Load a diverse set of sentences from DBPedia-14 dataset."""
+    # Load DBPedia dataset
+    dataset = load_dataset('dbpedia_14', split='train')
+    
+    # Get the content and shuffle
+    sentences = dataset['content']
+    sentences = list(sentences)
+    random.shuffle(sentences)
+    
+    # Select the desired number of sentences
+    selected_sentences = sentences[:num_sentences]
+    
+    print(f"Loaded {len(selected_sentences)} diverse sentences from DBPedia-14")
+    return selected_sentences
+
+def get_layer_embeddings(model, tokenizer, sentences, num_sentences=NUM_SENTENCES, batch_size=8):
+    """Get embeddings for one random token from each sentence at each layer."""
+    # Move model to GPU if available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+    model = model.to(device)
+    
+    # Ensure we don't process more sentences than available
+    sentences = sentences[:num_sentences]
+    total_batches = (len(sentences) + batch_size - 1) // batch_size
+    print(f"Processing {len(sentences)} sentences in {total_batches} batches of size {batch_size}")
+    
+    layer_embeddings = []  # Will store [num_layers, num_sentences, hidden_size]
+    num_layers = None
+    
+    # Process sentences in batches
+    for i in range(0, len(sentences), batch_size):
+        batch_sentences = sentences[i:i + batch_size]
+        current_batch = i // batch_size + 1
+        
+        # Tokenize batch - only use padding if batch_size > 1
+        tokenizer_kwargs = {
+            "return_tensors": "pt",
+            "return_token_type_ids": False,
+            "truncation": True
+        }
+        if batch_size > 1:
+            tokenizer_kwargs["padding"] = True
+            
+        encodings = tokenizer(batch_sentences, **tokenizer_kwargs)
+        # Move encodings to GPU
+        encodings = {k: v.to(device) for k, v in encodings.items()}
+        
+        # Get model outputs with all hidden states
+        with torch.no_grad():
+            outputs = model(**encodings, output_hidden_states=True)
+        
+        # Get all hidden states (tuple of tensors, one per layer)
+        all_hidden_states = outputs.hidden_states  # [num_layers, batch_size, seq_len, hidden_size]
+        
+        if num_layers is None:
+            num_layers = len(all_hidden_states)
+            # Initialize layer_embeddings with the correct number of layers
+            layer_embeddings = [[] for _ in range(num_layers)]
+        
+        # For each sentence in the batch, randomly select one token position
+        for layer_idx in range(num_layers):
+            layer_hidden = all_hidden_states[layer_idx]  # [batch_size, seq_len, hidden_size]
+            
+            for sent_idx in range(len(batch_sentences)):
+                # Get non-padding token positions
+                non_pad_mask = encodings['attention_mask'][sent_idx].bool()
+                valid_positions = torch.where(non_pad_mask)[0]
+                
+                # Randomly select one position
+                if len(valid_positions) > 0:
+                    random_pos = random.choice(valid_positions)
+                    layer_embeddings[layer_idx].append(layer_hidden[sent_idx, random_pos].cpu().numpy())
+        
+        print(f"Processed batch {current_batch}/{total_batches}")
+    
+    # Convert lists to numpy arrays
+    return np.array([np.array(embeddings) for embeddings in layer_embeddings])
+
+def analyze_layer_similarities(layer_embeddings, model_name, static_embeddings):
+    """Analyze cosine similarities between tokens at each layer."""
+    num_layers = len(layer_embeddings)
+    layer_stats = []
+    all_cos_sims = []  # Store all cosine similarities for plotting
+    
+    # First analyze static vocabulary matrix (Layer 0)
+    print("\nComputing static vocabulary matrix similarities...")
+    # Use compute_distances to get 5000 random pairs from the vocabulary
+    static_cos_sims, _ = compute_distances(static_embeddings, num_pairs=5000)
+    print("Finished static vocabulary matrix similarities")
+    
+    static_stats = {
+        'mean': static_cos_sims.mean(),
+        'std': static_cos_sims.std(),
+        'min': static_cos_sims.min(),
+        'max': static_cos_sims.max()
+    }
+    layer_stats.append(static_stats)
+    all_cos_sims.append(static_cos_sims)
+    
+    # Then analyze each transformer layer
+    print("\nComputing transformer layer similarities...")
+    for layer_idx in range(num_layers):
+        print(f"\nProcessing layer {layer_idx + 1}/{num_layers}")
+        embeddings = layer_embeddings[layer_idx]
+        # Compute pairwise cosine similarities
+        cos_sims = []
+        total_pairs = len(embeddings) * (len(embeddings) - 1) // 2
+        pair_count = 0
+        
+        for i in range(len(embeddings)):
+            for j in range(i+1, len(embeddings)):
+                sim = stable_cosine_similarity(embeddings[i], embeddings[j])
+                cos_sims.append(sim)
+                pair_count += 1
+                if pair_count % 100 == 0:  # Print progress every 100 pairs
+                    print(f"Processed {pair_count}/{total_pairs} pairs ({(pair_count/total_pairs)*100:.1f}%)")
+        
+        print(f"Finished layer {layer_idx + 1}")
+        cos_sims = np.array(cos_sims)
+        stats = {
+            'mean': cos_sims.mean(),
+            'std': cos_sims.std(),
+            'min': cos_sims.min(),
+            'max': cos_sims.max()
+        }
+        layer_stats.append(stats)
+        all_cos_sims.append(cos_sims)
+    
+    print("\nCreating visualization...")
+    # Create a single plot showing all distributions
+    plt.figure(figsize=(15, 8))
+    
+    # Plot each layer's distribution
+    layer_numbers = [0, 0.5] + list(range(1, num_layers + 1))  # 0, 0.5, 1, 2, 3, ...
+    for layer_idx, cos_sims in enumerate(all_cos_sims):
+        # Create a violin plot for each layer
+        plt.violinplot(cos_sims, positions=[layer_numbers[layer_idx]], 
+                      showmeans=True, showextrema=True)
+    
+    plt.title(f'Cosine Similarity Distribution Across Layers for {model_name}')
+    plt.xlabel('Layer')
+    plt.ylabel('Cosine Similarity')
+    plt.grid(True, alpha=0.3)
+    plt.xticks(layer_numbers)
+    
+    # Add mean values as text above each violin
+    for layer_idx, stats in enumerate(layer_stats):
+        plt.text(layer_numbers[layer_idx], stats['mean'], 
+                f'{stats["mean"]:.3f}', 
+                ha='center', va='bottom')
+    
+    plt.savefig(f'layer_similarities_combined_{model_name.replace("/", "_")}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Visualization saved")
+    
+    return layer_stats
+
+
 model_names = [
     # "EleutherAI/gpt-j-6B",
     # "Qwen/Qwen2-7B",
     # "tiiuae/falcon-7b",
     # "meta-llama/Llama-3.1-8B-Instruct",
-    # "lmsys/vicuna-7b-v1.5"
+    "lmsys/vicuna-7b-v1.5"
     # "google/gemma-2-9b-it",
     # "allenai/Molmo-7B-D-0924",
-    "allenai/OLMo-1B"
+    # "allenai/OLMo-1B"
 ]
-
-USE_MEAN_EMBEDDINGS = False  # Set to True to use mean embeddings, False for single token comparisons
-TOKENS_PER_MEAN = 50  # Number of tokens to average together
-VISUALIZATION_METHOD = 'pca'  # Choose from 'tsne', 'umap', or 'pca'
 
 for name in model_names:
     print(f"\n{name}")
+    
+    # Load model and tokenizer
+    model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=torch.float32, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(name, trust_remote_code=True)
+    
+    # Adjust batch size if no padding token
+    current_batch_size = 1 if tokenizer.pad_token is None else BATCH_SIZE
+    print(f"Using batch size: {current_batch_size} (padding token {'not' if tokenizer.pad_token is None else ''} available)")
+    
+    # Get initial token embeddings
     emb = get_token_embeddings(name)
     
     # Plot embedding space visualization
     plot_embedding_space(emb, name, method=VISUALIZATION_METHOD)
     
-    # Compute and plot cosine similarities
-    cos_sims, _ = compute_distances(emb, num_pairs=1000, use_mean_embeddings=USE_MEAN_EMBEDDINGS, tokens_per_mean=TOKENS_PER_MEAN)
-    print(f"mean: {cos_sims.mean():.4f}, std: {cos_sims.std():.4f}, min: {cos_sims.min():.4f}, max: {cos_sims.max():.4f}")
-    plot_cosine_histogram(cos_sims, name, use_mean_embeddings=USE_MEAN_EMBEDDINGS)
+    # Load sentences and get layer-wise embeddings
+    sentences = load_diverse_sentences(num_sentences=NUM_SENTENCES)
+    layer_embeddings = get_layer_embeddings(model, tokenizer, sentences, batch_size=current_batch_size)
+    
+    # Analyze layer-wise similarities including static vocabulary matrix
+    layer_stats = analyze_layer_similarities(layer_embeddings, name, emb)
+    
+    # Print layer-wise statistics
+    print("\nLayer-wise statistics:")
+    print(f"Static Vocabulary Matrix (Layer 0): mean={layer_stats[0]['mean']:.4f}, std={layer_stats[0]['std']:.4f}, min={layer_stats[0]['min']:.4f}, max={layer_stats[0]['max']:.4f}")
+    print(f"First Hidden State (Layer 0.5): mean={layer_stats[1]['mean']:.4f}, std={layer_stats[1]['std']:.4f}, min={layer_stats[1]['min']:.4f}, max={layer_stats[1]['max']:.4f}")
+    for layer_idx, stats in enumerate(layer_stats[2:], start=1):
+        print(f"Layer {layer_idx}: mean={stats['mean']:.4f}, std={stats['std']:.4f}, min={stats['min']:.4f}, max={stats['max']:.4f}")

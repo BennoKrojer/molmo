@@ -2,6 +2,12 @@ import logging
 import re
 import shutil
 from os.path import join, exists
+import torch
+from torchvision import transforms
+from PIL import Image
+from pathlib import Path
+import os
+import glob
 
 import datasets
 import numpy as np
@@ -459,3 +465,243 @@ class PixMoPointsEval(Dataset):
             )
         )
 
+
+class TokenImageDataset(Dataset):
+    """Dataset for training on token images with BOS token input."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare token images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "token_images")
+        if exists(local_name):
+            return
+            
+        # Create directory if it doesn't exist
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        
+        # Generate token images if they don't exist
+        from scripts.generate_token_images import main as generate_token_images
+        generate_token_images()
+    
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        """Initialize dataset.
+        
+        Args:
+            split: Dataset split ('train' or 'validation')
+            config: Full TrainConfig object containing all configuration
+            keep_in_memory: Whether to keep dataset in memory
+            **kwargs: Additional arguments that will be set as attributes
+        """
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+            
+        self.split = split
+        self.config = config
+        
+        # Get values from extra_args if provided, otherwise use defaults
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}  # Convert None to empty dict
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.prompt_type = extra_args.get('prompt_type', 'empty')
+        
+        # Update with any provided kwargs
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            
+        # Ensure dataset is downloaded
+        self.download()
+        
+        # Get list of image files
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "token_images")
+        self.image_files = sorted(glob.glob(join(local_name, "token_*.png")))
+        if not self.image_files:
+            raise ValueError(f"No token images found in {local_name}")
+            
+        # Create RNG and shuffle files
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)  # Convert to numpy array for easier indexing
+        rng.shuffle(self.image_files)
+        
+        # Split into train/validation
+        split_idx = int(len(self.image_files) * 0.9)  # 90% for training
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        # Limit dataset size if in debug mode and it's the training split
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)  # Shuffle again to get random subset
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+        
+        # Load tokenizer for decoding token IDs
+        from transformers import AutoTokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+    
+    def __len__(self):
+        return len(self.image_files)
+    
+    def get(self, item, rng):
+        """Get a dataset item.
+        
+        Args:
+            item: Index of item to get
+            rng: Random number generator for reproducibility
+            
+        Returns:
+            Dictionary containing:
+                image: Path to image file
+                message_list: List of messages with token information
+                metadata: Additional metadata
+        """
+        image_path = self.image_files[item]
+        
+        # Get token ID from filename
+        token_id = int(Path(image_path).stem.split('_')[1])
+        
+        # Decode token ID to get actual token text, ensuring we only get the token itself
+        # Use encode then decode to ensure we only get the single token
+        token_text = self.tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
+        # assert self.tokenizer.encode(token_text, add_special_tokens=False) == [token_id]
+
+        # check cycle-consistency of the tokenizer
+        # print(f"CYCLE-CONSISTENT TOKEN ID: {token_id}")
+        # print(f"CYCLE-CONSISTENT TOKEN TEXT: {token_text}")
+        # print(f"CYCLE-CONSISTENT TOKEN IDS FROM TEXT: {self.tokenizer.encode(token_text)}")
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = 'Output the token shown in the image:'
+        elif self.prompt_type == 'copy':
+            prompt = 'Copy the token shown in the image:'
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_id,
+                'token_id': token_id
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'token_id': token_id,
+                'token_text': token_text
+            }
+        }
+    
+    def collate_fn(self, batch):
+        """Collate function for DataLoader."""
+        batch_entry = {}
+        
+        # Keep image paths as a list
+        batch_entry['images'] = [entry['image'] for entry in batch]
+        
+        # Keep message lists
+        batch_entry['message_list'] = [entry['message_list'] for entry in batch]
+        
+        return batch_entry
+
+import os
+import glob
+import logging
+from pathlib import Path
+from os.path import join, exists
+
+import numpy as np
+from torch.utils.data import Dataset
+from transformers import AutoTokenizer
+
+
+class ColorImageDataset(Dataset):
+    """Dataset for training on color images with BOS token input."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare color images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_images")
+        if exists(local_name):
+            return
+        
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        from scripts.generate_color_images import main as generate_color_images
+        generate_color_images()
+
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.config = config
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.prompt_type = extra_args.get('prompt_type', 'empty')
+        
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+        self.download()
+
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_images")
+        self.image_files = sorted(glob.glob(join(local_name, "color_*.png")))
+        if not self.image_files:
+            raise ValueError(f"No color images found in {local_name}")
+
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)
+        rng.shuffle(self.image_files)
+
+        split_idx = int(len(self.image_files) * 0.9)
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+        print(f"LENGTH OF DATASET: {len(self.image_files)}")
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def get(self, item, rng):
+        image_path = self.image_files[item]
+        filename = Path(image_path).stem  # e.g., color_123_red
+        _, token_id_str, *color_parts = filename.split('_')
+        token_id = int(token_id_str)
+        color_name = "_".join(color_parts)
+        print(f"COLOR NAME: {color_name}")
+
+        token_text = self.tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
+
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = 'Output the color shown in the image:'
+        elif self.prompt_type == 'copy':
+            prompt = 'Copy the color name shown in the image:'
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_id,
+                'token_id': token_id
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'token_id': token_id,
+                'token_text': token_text,
+                'color_name': color_name
+            }
+        }
+
+    def collate_fn(self, batch):
+        batch_entry = {
+            'images': [entry['image'] for entry in batch],
+            'message_list': [entry['message_list'] for entry in batch],
+        }
+        return batch_entry

@@ -45,6 +45,7 @@ class MMCollator:
 
     TEXT_KEYS = ["input_tokens", "target_tokens", "loss_masks", "subsegment_ids", "position_ids"]
     IMAGE_KEYS = ["images", "image_masks", "image_input_idx",]
+    ADDITIONAL_KEYS = ["token_id"]
 
     def __init__(self, max_sequence_length=None, include_metadata=True, pad=None,
                  max_crops=None):
@@ -81,6 +82,15 @@ class MMCollator:
         for key in self.IMAGE_KEYS:
             if any(key in ex for ex in batch):
                 out[key] = _collate([ex.get(key) for ex in batch], self.max_crops, pad=self.pad)
+                
+        # Add additional keys like token_id
+        for key in self.ADDITIONAL_KEYS:
+            if any(key in ex for ex in batch):
+                # Convert to tensor if present in any example
+                values = [ex.get(key) for ex in batch]
+                if all(v is not None for v in values):
+                    out[key] = torch.tensor(values, dtype=torch.long)
+                
         out["input_ids"] = out.pop("input_tokens")
         if "target_tokens" in out:
             out["labels"] = out.pop("target_tokens")

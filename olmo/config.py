@@ -1080,6 +1080,9 @@ class DataConfig(BaseConfig):
     dataset: Optional[str] = None
     """Dataset name, will be used int `get_dataset_by_name`"""
 
+    extra_args: Optional[Dict[str, Any]] = None
+    """Additional arguments that can be passed to the dataset without modifying the config schema"""
+
     mixture: Optional[Dict[str, float]] = None
     """Mixture of dataset names and sampling rates"""
 
