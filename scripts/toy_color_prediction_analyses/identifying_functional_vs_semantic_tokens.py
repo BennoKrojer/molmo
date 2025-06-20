@@ -199,26 +199,45 @@ def plot_statistics(results_dir, split_name, position_variances, position_norms,
     plt.savefig(results_dir / f'embedding_stats_{split_name}.png')
     plt.close()
 
-def get_cached_tokens_path(results_dir, split):
+def get_cached_tokens_path(results_dir, split, token_type="final"):
     """Get path for cached tokens."""
-    return results_dir / f"cached_visual_tokens_{split}.npz"
+    return results_dir / f"cached_visual_tokens_{split}_{token_type}.npz"
 
-def save_tokens_to_cache(tokens_dict, cache_path):
-    """Save tokens to cache file."""
-    log.info(f"Saving tokens to cache: {cache_path}")
-    np.savez_compressed(cache_path, **tokens_dict)
+def save_tokens_to_cache(tokens_dict, tokens_before_mlp_dict, results_dir, split):
+    """Save both token types to cache files."""
+    final_cache_path = get_cached_tokens_path(results_dir, split, "final")
+    before_mlp_cache_path = get_cached_tokens_path(results_dir, split, "before_mlp")
+    
+    log.info(f"Saving final tokens to cache: {final_cache_path}")
+    np.savez_compressed(final_cache_path, **tokens_dict)
+    
+    log.info(f"Saving before_MLP tokens to cache: {before_mlp_cache_path}")
+    np.savez_compressed(before_mlp_cache_path, **tokens_before_mlp_dict)
 
-def load_tokens_from_cache(cache_path):
-    """Load tokens from cache file if it exists."""
-    if cache_path.exists():
-        log.info(f"Loading tokens from cache: {cache_path}")
-        data = np.load(cache_path)
-        return {str(i): data[str(i)] for i in range(len(data.files))}
-    return None
+def load_tokens_from_cache(results_dir, split):
+    """Load both token types from cache files if they exist."""
+    final_cache_path = get_cached_tokens_path(results_dir, split, "final")
+    before_mlp_cache_path = get_cached_tokens_path(results_dir, split, "before_mlp")
+    
+    tokens_dict = None
+    tokens_before_mlp_dict = None
+    
+    if final_cache_path.exists():
+        log.info(f"Loading final tokens from cache: {final_cache_path}")
+        data = np.load(final_cache_path)
+        tokens_dict = {str(i): data[str(i)] for i in range(len(data.files))}
+    
+    if before_mlp_cache_path.exists():
+        log.info(f"Loading before_MLP tokens from cache: {before_mlp_cache_path}")
+        data = np.load(before_mlp_cache_path)
+        tokens_before_mlp_dict = {str(i): data[str(i)] for i in range(len(data.files))}
+    
+    return tokens_dict, tokens_before_mlp_dict
 
 def compute_visual_tokens(model, preprocessor, dataset, num_images):
     """Compute visual tokens for all images."""
     tokens_dict = {}
+    tokens_before_mlp_dict = {}
     
     for i in tqdm(range(num_images), desc="Computing visual tokens"):
         try:
@@ -236,39 +255,31 @@ def compute_visual_tokens(model, preprocessor, dataset, num_images):
                 with torch.autocast("cuda", enabled=True, dtype=torch.float16):
                     images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).cuda()
                     image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).cuda() if batch.get("image_masks") is not None else None
-                    image_features = model.vision_backbone(images_tensor, image_masks_tensor)
+                    image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
                     image_features = image_features.float()
+                    tokens_before_MLP = tokens_before_MLP.float()
+                    
                     current_embeddings = image_features.cpu().numpy().squeeze()
+                    current_tokens_before_mlp = tokens_before_MLP.cpu().numpy().squeeze()
+                    
                     tokens_dict[str(i)] = current_embeddings
+                    tokens_before_mlp_dict[str(i)] = current_tokens_before_mlp
 
-                    del images_tensor, image_masks_tensor, image_features
+                    del images_tensor, image_masks_tensor, image_features, tokens_before_MLP
                     clear_gpu_memory()
         except Exception as e:
             log.error(f"Error processing image {i}: {str(e)}")
             continue
             
-    return tokens_dict
+    return tokens_dict, tokens_before_mlp_dict
 
-def process_split(model, preprocessor, dataset, num_images, results_dir):
-    """Process a dataset split and compute embedding statistics."""
-    split = "train" if "train" in str(dataset.split) else "validation"
-    cache_path = get_cached_tokens_path(results_dir, split)
-    
-    # Try to load from cache first
-    tokens_dict = load_tokens_from_cache(cache_path)
-    
-    # Compute tokens if not in cache
-    if tokens_dict is None:
-        if model is None or preprocessor is None:
-            raise ValueError("Model and preprocessor required when cache not available!")
-        tokens_dict = compute_visual_tokens(model, preprocessor, dataset, num_images)
-        save_tokens_to_cache(tokens_dict, cache_path)
-    
+def analyze_token_type(tokens_dict, token_type_name, split, results_dir):
+    """Analyze a specific type of tokens (final or before_MLP)."""
     # Process the tokens
     all_embeddings = []
     per_image_results = {}
     
-    log.info(f"Processing {len(tokens_dict)} images...")
+    log.info(f"Processing {len(tokens_dict)} images for {token_type_name} tokens...")
     
     for img_idx, embeddings in tokens_dict.items():
         try:
@@ -287,7 +298,7 @@ def process_split(model, preprocessor, dataset, num_images, results_dir):
             continue
 
     if not per_image_results:
-        raise ValueError("No valid images were processed successfully!")
+        raise ValueError(f"No valid images were processed successfully for {token_type_name} tokens!")
 
     all_embeddings = np.stack(all_embeddings, axis=0).astype(np.float64)
     
@@ -327,6 +338,7 @@ def process_split(model, preprocessor, dataset, num_images, results_dir):
     
     results = {
         "split": split,
+        "token_type": token_type_name,
         "embedding_shape": list(all_embeddings.shape),
         "aggregate_statistics": {
             "mean_variance_per_chunk": float(np.mean(total_variance_per_position)),
@@ -340,34 +352,59 @@ def process_split(model, preprocessor, dataset, num_images, results_dir):
         "num_images_processed": len(per_image_results)
     }
     
-    output_file = results_dir / f"embedding_analysis_{split}.json"
+    output_file = results_dir / f"embedding_analysis_{split}_{token_type_name}.json"
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
     
-    log.info(f"Successfully processed {len(per_image_results)} images")
+    log.info(f"Successfully processed {len(per_image_results)} images for {token_type_name} tokens")
     log.info(f"Results saved to {output_file}")
     
-    plot_statistics(results_dir, split,
+    plot_statistics(results_dir, f"{split}_{token_type_name}",
                    total_variance_per_position,
                    mean_norms,
                    total_normalized_variance)
     
     return results
 
+def process_split(model, preprocessor, dataset, num_images, results_dir):
+    """Process a dataset split and compute embedding statistics for both token types."""
+    split = "train" if "train" in str(dataset.split) else "validation"
+    
+    # Try to load from cache first
+    tokens_dict, tokens_before_mlp_dict = load_tokens_from_cache(results_dir, split)
+    
+    # Compute tokens if not in cache
+    if tokens_dict is None or tokens_before_mlp_dict is None:
+        if model is None or preprocessor is None:
+            raise ValueError("Model and preprocessor required when cache not available!")
+        tokens_dict, tokens_before_mlp_dict = compute_visual_tokens(model, preprocessor, dataset, num_images)
+        save_tokens_to_cache(tokens_dict, tokens_before_mlp_dict, results_dir, split)
+    
+    # Analyze both token types
+    final_results = analyze_token_type(tokens_dict, "final", split, results_dir)
+    before_mlp_results = analyze_token_type(tokens_before_mlp_dict, "before_mlp", split, results_dir)
+    
+    return final_results, before_mlp_results
+
 def main():
     # Hardcoded parameters
     checkpoint_path = "molmo_data/checkpoints/caption-prompt_1color-per-image/step1600-unsharded"
 
     # Setup results directory
-    ckpt_name = Path(checkpoint_path).name
+    ckpt_name = "caption-prompt_1color-per-image_step1600"
     results_dir = Path("analysis_results/embedding_variances") / ckpt_name
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check if we need to load the model (if cache doesn't exist)
-    train_cache = get_cached_tokens_path(results_dir, "train")
-    val_cache = get_cached_tokens_path(results_dir, "validation")
+    # Check if we need to load the model (if any cache doesn't exist)
+    train_final_cache = get_cached_tokens_path(results_dir, "train", "final")
+    train_before_mlp_cache = get_cached_tokens_path(results_dir, "train", "before_mlp")
+    val_final_cache = get_cached_tokens_path(results_dir, "validation", "final")
+    val_before_mlp_cache = get_cached_tokens_path(results_dir, "validation", "before_mlp")
     
-    if not train_cache.exists() or not val_cache.exists():
+    all_caches_exist = (train_final_cache.exists() and train_before_mlp_cache.exists() and 
+                       val_final_cache.exists() and val_before_mlp_cache.exists())
+    
+    if not all_caches_exist:
         # Load model only if needed
         log.info(f"Loading model from {checkpoint_path}")
         model = Molmo.from_checkpoint(checkpoint_path, device="cuda")
@@ -396,7 +433,7 @@ def main():
         log.info("Processing train split...")
         train_dataset = ColorImageDataset(split="train")
         num_train_images = min(500, len(train_dataset))
-        train_results = process_split(model, preprocessor, train_dataset, num_train_images, results_dir)
+        train_results, train_before_mlp_results = process_split(model, preprocessor, train_dataset, num_train_images, results_dir)
         
         if model is not None:
             clear_gpu_memory()
@@ -405,13 +442,14 @@ def main():
         log.info("Processing validation split...")
         val_dataset = ColorImageDataset(split="validation")
         num_val_images = min(200, len(val_dataset))
-        val_results = process_split(model, preprocessor, val_dataset, num_val_images, results_dir)
+        val_results, val_before_mlp_results = process_split(model, preprocessor, val_dataset, num_val_images, results_dir)
 
     except Exception as e:
         log.error(f"Error during processing: {str(e)}")
         raise
 
     log.info(f"Results saved to {results_dir}")
+    log.info("Analysis completed for both final tokens and tokens before MLP!")
 
 if __name__ == "__main__":
     main()

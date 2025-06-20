@@ -32,9 +32,12 @@ def clear_gpu_memory():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-def process_split(model, preprocessor, dataset, num_images, prompt):
+def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only):
     """Process a dataset split and return results."""
     split_results = []
+    
+    # Initialize statistics tracking for patch positions
+    patch_statistics = {}
     
     # Process each image
     for i in tqdm(range(num_images)):
@@ -67,7 +70,9 @@ def process_split(model, preprocessor, dataset, num_images, prompt):
                 images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).cuda()
                 image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).cuda() if batch.get("image_masks") is not None else None
                 
-                image_features = model.vision_backbone(images_tensor, image_masks_tensor)
+                image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
+                if use_n_token_only:
+                    image_features = image_features[:, :, use_n_token_only, :]
                 image_results["feature_shape"] = list(image_features.shape)
                 
                 # Get token embeddings from the model
@@ -88,29 +93,6 @@ def process_split(model, preprocessor, dataset, num_images, prompt):
                 top_k = 5
                 top_values, top_indices = torch.topk(similarity, k=top_k, dim=-1)
                 
-                # Store results for each chunk
-                for chunk_idx in range(num_chunks):
-                    chunk_results = {
-                        "chunk_name": "Full Image" if chunk_idx == 0 else f"Chunk {chunk_idx}",
-                        "patches": []
-                    }
-                    
-                    for patch_idx in range(patches_per_chunk):
-                        patch_values = top_values[chunk_idx, patch_idx].cpu().numpy().tolist()
-                        patch_indices = top_indices[chunk_idx, patch_idx].cpu().numpy().tolist()
-                        patch_tokens = [decode_token(preprocessor.tokenizer, idx) for idx in patch_indices]
-                        
-                        patch_results = {
-                            "patch_idx": patch_idx,
-                            "nearest_neighbors": [
-                                {"token": token, "similarity": float(sim)}
-                                for token, sim in zip(patch_tokens, patch_values)
-                            ]
-                        }
-                        chunk_results["patches"].append(patch_results)
-                    
-                    image_results["chunks"].append(chunk_results)
-
                 # Clear intermediate tensors
                 del similarity, image_features_norm, token_embeddings_norm
                 clear_gpu_memory()
@@ -122,7 +104,7 @@ def process_split(model, preprocessor, dataset, num_images, prompt):
                     images=images_tensor,
                     image_masks=image_masks_tensor,
                     image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).cuda() if batch.get("image_input_idx") is not None else None,
-                    max_steps=5,
+                    max_steps=150,
                     is_distributed=False
                 )
                 token_ids = output.token_ids[:, 0].detach().cpu().numpy()
@@ -133,6 +115,57 @@ def process_split(model, preprocessor, dataset, num_images, prompt):
                 del images_tensor, image_masks_tensor, image_features, input_ids, output
                 clear_gpu_memory()
 
+                # Normalize true color and generated response for comparison
+                true_color_norm = color_name.strip().lower()
+                generated_response_norm = decoded.strip().lower()
+                
+                # Store results for each chunk and update statistics
+                for chunk_idx in range(num_chunks):
+                    chunk_results = {
+                        "chunk_name": "Full Image" if chunk_idx == 0 else f"Chunk {chunk_idx}",
+                        "patches": []
+                    }
+                    
+                    for patch_idx in range(patches_per_chunk):
+                        patch_values = top_values[chunk_idx, patch_idx].cpu().numpy().tolist()
+                        patch_indices = top_indices[chunk_idx, patch_idx].cpu().numpy().tolist()
+                        patch_tokens = [decode_token(preprocessor.tokenizer, idx) for idx in patch_indices]
+                        
+                        # Normalize patch tokens for comparison
+                        patch_tokens_norm = [token.strip().lower() for token in patch_tokens]
+                        
+                        # Check if true color or generated response appear in top 5
+                        true_color_in_top5 = true_color_norm in patch_tokens_norm
+                        generated_response_in_top5 = generated_response_norm in patch_tokens_norm
+                        
+                        # Initialize patch statistics if not exists
+                        if patch_idx not in patch_statistics:
+                            patch_statistics[patch_idx] = {
+                                "true_color_matches": 0,
+                                "generated_response_matches": 0,
+                                "total_samples": 0
+                            }
+                        
+                        # Update statistics
+                        patch_statistics[patch_idx]["total_samples"] += 1
+                        if true_color_in_top5:
+                            patch_statistics[patch_idx]["true_color_matches"] += 1
+                        if generated_response_in_top5:
+                            patch_statistics[patch_idx]["generated_response_matches"] += 1
+                        
+                        patch_results = {
+                            "patch_idx": patch_idx,
+                            "nearest_neighbors": [
+                                {"token": token, "similarity": float(sim)}
+                                for token, sim in zip(patch_tokens, patch_values)
+                            ],
+                            "true_color_in_top5": true_color_in_top5,
+                            "generated_response_in_top5": generated_response_in_top5
+                        }
+                        chunk_results["patches"].append(patch_results)
+                    
+                    image_results["chunks"].append(chunk_results)
+
         split_results.append(image_results)
         
         # Periodically save results to avoid losing progress
@@ -140,21 +173,23 @@ def process_split(model, preprocessor, dataset, num_images, prompt):
             temp_results = {
                 "partial_results": True,
                 "processed_images": i + 1,
-                "images": split_results
+                "images": split_results,
+                "patch_statistics": patch_statistics
             }
             temp_file = f"temp_results_{i + 1}.json"
             with open(temp_file, 'w', encoding='utf-8') as f:
                 json.dump(temp_results, f, indent=2, ensure_ascii=False)
     
-    return split_results
+    return split_results, patch_statistics
 
 def main():
     # Hardcoded parameters
     checkpoint_path = "molmo_data/checkpoints/caption-prompt_1color-per-image/step1600-unsharded"
+    # checkpoint_path = "molmo_data/checkpoints/caption-prompt_mosaic-image/step3000-unsharded"
+    # prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
     prompt = "Output the color shown in the image:"
-
     # Setup results directory
-    ckpt_name = Path(checkpoint_path).name
+    ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
     results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -178,12 +213,15 @@ def main():
         require_image_features=True
     )
 
+    use_n_token_only = model_config.vision_backbone.use_n_token_only
+
     # Initialize results dictionary
     all_results = {
         "checkpoint": checkpoint_path,
         "prompt": prompt,
         "dataset": "ColorImageDataset",
-        "splits": {}
+        "splits": {},
+        "overall_patch_statistics": {}
     }
 
     try:
@@ -191,10 +229,11 @@ def main():
         log.info("Processing train split...")
         train_dataset = ColorImageDataset(split="train")
         num_train_images = min(200, len(train_dataset))
-        train_results = process_split(model, preprocessor, train_dataset, num_train_images, prompt)
+        train_results, train_patch_statistics = process_split(model, preprocessor, train_dataset, num_train_images, prompt, use_n_token_only)
         all_results["splits"]["train"] = {
             "num_images": num_train_images,
-            "images": train_results
+            "images": train_results,
+            "patch_statistics": train_patch_statistics
         }
         
         # Clear memory before processing validation split
@@ -204,11 +243,46 @@ def main():
         log.info("Processing validation split...")
         val_dataset = ColorImageDataset(split="validation")
         num_val_images = min(200, len(val_dataset))
-        val_results = process_split(model, preprocessor, val_dataset, num_val_images, prompt)
+        val_results, val_patch_statistics = process_split(model, preprocessor, val_dataset, num_val_images, prompt, use_n_token_only)
         all_results["splits"]["validation"] = {
             "num_images": num_val_images,
-            "images": val_results
+            "images": val_results,
+            "patch_statistics": val_patch_statistics
         }
+        
+        # Combine patch statistics across splits
+        combined_patch_statistics = {}
+        for split_name, split_data in all_results["splits"].items():
+            split_stats = split_data["patch_statistics"]
+            for patch_idx, stats in split_stats.items():
+                if patch_idx not in combined_patch_statistics:
+                    combined_patch_statistics[patch_idx] = {
+                        "true_color_matches": 0,
+                        "generated_response_matches": 0,
+                        "total_samples": 0
+                    }
+                combined_patch_statistics[patch_idx]["true_color_matches"] += stats["true_color_matches"]
+                combined_patch_statistics[patch_idx]["generated_response_matches"] += stats["generated_response_matches"]
+                combined_patch_statistics[patch_idx]["total_samples"] += stats["total_samples"]
+        
+        # Add accuracy percentages
+        for patch_idx, stats in combined_patch_statistics.items():
+            total = stats["total_samples"]
+            if total > 0:
+                stats["true_color_accuracy"] = stats["true_color_matches"] / total
+                stats["generated_response_accuracy"] = stats["generated_response_matches"] / total
+        
+        # Sort patch statistics by true_color_accuracy (descending) for easier analysis
+        sorted_patch_statistics = []
+        for patch_idx, stats in combined_patch_statistics.items():
+            stats_with_idx = stats.copy()
+            stats_with_idx["patch_idx"] = patch_idx
+            sorted_patch_statistics.append(stats_with_idx)
+        
+        # Sort by true_color_accuracy descending, then by generated_response_accuracy descending
+        sorted_patch_statistics.sort(key=lambda x: (x.get("true_color_accuracy", 0), x.get("generated_response_accuracy", 0)), reverse=True)
+        
+        all_results["overall_patch_statistics"] = sorted_patch_statistics
 
     except Exception as e:
         log.error(f"Error during processing: {str(e)}")

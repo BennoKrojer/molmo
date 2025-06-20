@@ -1294,6 +1294,7 @@ class Trainer:
                 num_samples = 200  # Number of samples from each modality
                 
                 # Gather visual embeddings from all GPUs
+                print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
                 gathered_visual = [torch.zeros_like(visual_embeddings) for _ in range(dist.get_world_size())]
                 dist.all_gather(gathered_visual, visual_embeddings)
                 # Concatenate along batch dimension

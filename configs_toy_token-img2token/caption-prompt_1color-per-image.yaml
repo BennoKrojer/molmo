@@ -89,9 +89,9 @@ model:
   vit_layers:
   - -2
   - -9
-  image_pooling_h: 2
-  image_pooling_w: 2
-  image_pooling_2d: attention_meanq
+  image_pooling_h: 1
+  image_pooling_w: 1
+  image_pooling_2d: none
   image_projector: mlp
   image_feature_dropout: 0.0
   initializer_range: 0.02

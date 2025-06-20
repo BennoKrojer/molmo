@@ -1,4 +1,4 @@
-run_name: baseline_pixmo-captions
+run_name: baseline_pixmo-captions_resize
 seed: 6198
 epoch: null
 dry_run: false
@@ -236,7 +236,7 @@ evaluators:
 eval_interval: 1000
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/molmo_data/checkpoints/train_mlp-only_pixmo_cap_overlap-and-resize-c2
+save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize
 remote_save_folder: null
 canceled_check_interval: 50
 save_interval: 2000

@@ -289,6 +289,8 @@ class VisionBackboneConfig(BaseConfig):
     residual_dropout: float = 0.0
     initializer_range: float = 0.02
     fsdp_wrap: bool = False
+    # use_n_token_only: int = -1
+    use_n_token_only: List[int] = field(default_factory=list)
 
     # how to preprocess imagse for this ViT
     resize_mode: str = "default"

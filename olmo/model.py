@@ -676,6 +676,7 @@ class OLMoBlock(nn.Module):
             if output_attentions:
                 attn_map = q @ k.transpose(-2, -1)
                 attn_map = F.softmax(attn_map, dim=-1).mean(dim=1)
+                attn_map += attn_mask
             else:
                 attn_map = None
 
@@ -1542,8 +1543,10 @@ class MolmoVisionBackbone(nn.Module):
 
         return image_features
     
-    def forward(self, images: torch.Tensor, image_masks: torch.Tensor) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    def forward(self, images: torch.Tensor, image_masks: torch.Tensor, return_tokens_before_MLP: bool = False) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         cfg = self.config
+        # skip_image_encoder = cfg.vision_backbone.skip_image_encoder
+        skip_image_encoder = True
 
         # image_features: (batch_size, num_crops(=num_image), num_patch, nximage_emb_dim)
         batch_size, num_image = images.shape[:2]
@@ -1605,6 +1608,7 @@ class MolmoVisionBackbone(nn.Module):
         image_features = image_features.reshape(batch_size, num_image, h * w, -1)
 
         # MLP layer to map the feature.
+        tokens_before_MLP = image_features
         if cfg.image_projector == ImageProjectType.mlpx2:
             for module in self.image_projector:
                 image_features = module(image_features)
@@ -1618,7 +1622,10 @@ class MolmoVisionBackbone(nn.Module):
         # image_features: (batch_size, num_image, num_patch, d_model)
         # cls_embed: (batch_size, num_image, d_model)
         # print(f"image_features: {image_features.shape}")
-        return image_features
+        if return_tokens_before_MLP:
+            return image_features, tokens_before_MLP
+        else:
+            return image_features
 
 
 class Molmo(nn.Module):
@@ -1856,6 +1863,8 @@ class Molmo(nn.Module):
         return_logit_lenses: bool = False,
         loss_masks: Optional[torch.Tensor] = None,
         output_attentions: bool = False,
+        subset_of_visual_tokens: Optional[torch.Tensor] = None,
+        precomputed_image_features: Optional[torch.Tensor] = None,
     ) -> OLMoOutput:
         """
         :param input_ids: A tensor of shape `(batch_size, seq_len)`.
@@ -1940,6 +1949,22 @@ class Molmo(nn.Module):
             # shape: (batch_size, num_image, num_patch, d_model)
             # cls_embed: (batch_size, num_image, d_model)
             image_features = self.vision_backbone(images, image_masks)
+            if precomputed_image_features is not None:
+                image_features = precomputed_image_features
+            if subset_of_visual_tokens is not None:
+                image_features = image_features[:,:, subset_of_visual_tokens, :]
+                image_input_idx = image_input_idx[:, :, subset_of_visual_tokens]
+            if type(self.config.vision_backbone.use_n_token_only) == int and self.config.vision_backbone.use_n_token_only != -1:
+                image_features = image_features[:, :, :self.config.vision_backbone.use_n_token_only, :]
+                image_input_idx = image_input_idx[:, :, :self.config.vision_backbone.use_n_token_only]
+                image_features = image_features.contiguous()
+                image_input_idx = image_input_idx.contiguous()
+            elif type(self.config.vision_backbone.use_n_token_only) == list and len(self.config.vision_backbone.use_n_token_only) > 0:
+                image_features = image_features[:, :, self.config.vision_backbone.use_n_token_only, :]
+                image_input_idx = image_input_idx[:, :, self.config.vision_backbone.use_n_token_only]
+                image_features = image_features.contiguous()
+                image_input_idx = image_input_idx.contiguous()
+                # print(f"Using only the first {self.config.vision_backbone.use_n_token_only} tokens for image features. Shape: {image_features.shape}")
             num_image, num_patch = image_features.shape[1:3]
 
             assert image_input_idx.shape == (batch_size, num_image, num_patch)
@@ -2317,7 +2342,9 @@ class Molmo(nn.Module):
         min_steps: Optional[int] = None,
         final_sequence_scorer: Optional[FinalSequenceScorer] = None,
         constraints: Optional[List[Constraint]] = None,
-        is_distributed: bool=False
+        is_distributed: bool=False,
+        subset_of_visual_tokens: Optional[torch.Tensor] = None,
+        precomputed_image_features: Optional[torch.Tensor] = None,
     ) -> OLMoGenerateOutput:
         """
         Generate token IDs using beam search.
@@ -2342,7 +2369,7 @@ class Molmo(nn.Module):
             min_steps=min_steps,
             final_sequence_scorer=final_sequence_scorer,
             constraints=constraints,
-            distributed_model=is_distributed
+            distributed_model=is_distributed,
         )
 
         # Validate inputs.
@@ -2450,6 +2477,8 @@ class Molmo(nn.Module):
                 use_cache=True,
                 last_logits_only=True,
                 append_last_valid_logits=_append_last_valid_logits,
+                subset_of_visual_tokens=subset_of_visual_tokens,
+                precomputed_image_features=precomputed_image_features,
             )
             log_probs = F.log_softmax(output.logits[:, -1, :], dim=-1)
 

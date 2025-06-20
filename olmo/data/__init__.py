@@ -14,7 +14,7 @@ from olmo.data.iterable_dataset_mixture import IterableDatasetMixture
 from olmo.data.model_preprocessor import Preprocessor, MultiModalPreprocessor
 from olmo.data.pixmo_datasets import PixMoPointExplanations as PixMoPointExplanationHF, \
     PixMoDocs, PixMoCount, PixMoPoints, PixMoCapQa, PixMoCap, PixMoPointExplanations, \
-    PixMoAskModelAnything, PixMoPointsEval, TokenImageDataset, ColorImageDataset
+    PixMoAskModelAnything, PixMoPointsEval, TokenImageDataset, ColorImageDataset, ColorMosaicDataset
 from olmo.torch_util import get_global_rank, get_world_size
 
 log = logging.getLogger(__name__)
@@ -218,6 +218,8 @@ def get_dataset_by_name(dataset_name, split, config=None):
         return TokenImageDataset(split=split, config=config, **extra_args)
     elif dataset_name == "color_image":
         return ColorImageDataset(split=split, config=config, **extra_args)
+    elif dataset_name == "color_mosaic":
+        return ColorMosaicDataset(split=split, config=config, **extra_args)
     elif dataset_name == "android_control":
         return AndroidControl(split)
     elif dataset_name in ["scifi_document_qa", "pixmo_docs_other"]:

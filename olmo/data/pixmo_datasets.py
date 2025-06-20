@@ -8,6 +8,7 @@ from PIL import Image
 from pathlib import Path
 import os
 import glob
+import json
 
 import datasets
 import numpy as np
@@ -637,13 +638,15 @@ class ColorImageDataset(Dataset):
         self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
         self.seed = config.data.seed if config else 42
         self.prompt_type = extra_args.get('prompt_type', 'empty')
+        self.grid_size = extra_args.get('grid_size', 12)
         
         for k, v in kwargs.items():
             setattr(self, k, v)
 
         self.download()
-
-        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_images")
+        folder_name = "color_images"
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), folder_name)
+        print(f"DEBUG: local_name = {local_name}")
         self.image_files = sorted(glob.glob(join(local_name, "color_*.png")))
         if not self.image_files:
             raise ValueError(f"No color images found in {local_name}")
@@ -672,7 +675,6 @@ class ColorImageDataset(Dataset):
         _, token_id_str, *color_parts = filename.split('_')
         token_id = int(token_id_str)
         color_name = "_".join(color_parts)
-        print(f"COLOR NAME: {color_name}")
 
         token_text = self.tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
 
@@ -696,6 +698,110 @@ class ColorImageDataset(Dataset):
                 'token_id': token_id,
                 'token_text': token_text,
                 'color_name': color_name
+            }
+        }
+
+    def collate_fn(self, batch):
+        batch_entry = {
+            'images': [entry['image'] for entry in batch],
+            'message_list': [entry['message_list'] for entry in batch],
+        }
+        return batch_entry
+
+class ColorMosaicDataset(Dataset):
+    """Dataset for training on color mosaic images with sequence of color tokens as target."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare color mosaic images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_mosaic_images")
+        if exists(local_name):
+            return
+        
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        from scripts.generate_color_mosaic_images import main as generate_color_mosaic_images
+        generate_color_mosaic_images()
+
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.config = config
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.grid_size = extra_args.get('grid_size', 12)
+        
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+        self.download()
+        folder_name = "color_mosaic_images" if self.grid_size == 12 else "color_mosaic_images_gridsize-" + str(self.grid_size)
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), folder_name)
+        print(f"DEBUG: local_name = {local_name}")
+        self.image_files = sorted(glob.glob(join(local_name, "*.png")))
+        if not self.image_files:
+            raise ValueError(f"No color mosaic images found in {local_name}")
+
+        # Load color sequences from JSON
+        with open(join(local_name, "color_sequences.json"), 'r') as f:
+            self.color_sequences = json.load(f)
+
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)
+        rng.shuffle(self.image_files)
+
+        split_idx = int(len(self.image_files) * 0.9)
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+
+        # Initialize tokenizer and color name to token ID mapping
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+        
+        # Create mapping from color names to token IDs
+        self.color_to_token_id = {}
+        for color_name in set().union(*[set(seq) for seq in self.color_sequences.values()]):
+            # Encode the color name and get the first token ID
+            token_ids = self.tokenizer.encode(color_name, add_special_tokens=False)
+            if token_ids:
+                self.color_to_token_id[color_name] = token_ids[0]
+
+        print(f"LENGTH OF DATASET: {len(self.image_files)}")
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def get(self, item, rng):
+        image_path = self.image_files[item]
+        filename = Path(image_path).name
+        
+        # Get color sequence for this image
+        color_sequence = self.color_sequences[filename]
+        
+        # Convert color names to token IDs
+        token_ids = [self.color_to_token_id[color] for color in color_sequence]
+        
+        # Create prompt
+        prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_ids,  # List of token IDs representing the color sequence
+                'token_ids': token_ids
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'color_sequence': color_sequence,
+                'token_ids': token_ids
             }
         }
 

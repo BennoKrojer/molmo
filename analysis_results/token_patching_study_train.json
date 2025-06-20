@@ -1,0 +1,6467 @@
+{
+  "token_set_results": {
+    "tokens_0": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "amber",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "golden",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "shit",
+          "is_correct": true
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pink",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "buff",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "banana",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "azure",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "sky",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "rust",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "pear",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "wine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "stone",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grass",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "blue",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "ruby",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "red",
+          "is_correct": true
+        }
+      ],
+      "accuracy": 0.87
+    },
+    "tokens_112": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "fern",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "azure",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "tea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "leaf",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "stone",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "orange",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sky",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "red",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        }
+      ],
+      "accuracy": 0.02
+    },
+    "tokens_132": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "fern",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "azure",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "tea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "leaf",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "stone",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "orange",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sky",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "red",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        }
+      ],
+      "accuracy": 0.02
+    },
+    "tokens_143": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "fern",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "azure",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "tea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "leaf",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "stone",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "orange",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sky",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "red",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        }
+      ],
+      "accuracy": 0.02
+    },
+    "tokens_0_112_132_143": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "amber",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "golden",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "shit",
+          "is_correct": true
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pink",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "buff",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "banana",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "azure",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "sky",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "rust",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "pear",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "wine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "stone",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grass",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "blue",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "ruby",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "red",
+          "is_correct": true
+        }
+      ],
+      "accuracy": 0.87
+    },
+    "tokens_0_132_143": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "amber",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "golden",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "shit",
+          "is_correct": true
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pink",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "buff",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "banana",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "azure",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "sky",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "rust",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "pear",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "wine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "stone",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grass",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "blue",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "ruby",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "red",
+          "is_correct": true
+        }
+      ],
+      "accuracy": 0.87
+    },
+    "tokens_0_112_143": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "amber",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "golden",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "shit",
+          "is_correct": true
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pink",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "buff",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "banana",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "apple",
+          "is_correct": true
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "marine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "azure",
+          "is_correct": true
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "leaf",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "sky",
+          "is_correct": true
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "ice",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "rust",
+          "is_correct": true
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "black",
+          "is_correct": true
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "pear",
+          "is_correct": true
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "steel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "orange",
+          "is_correct": true
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": true
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "berry",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "pine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "wine",
+          "is_correct": true
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "stone",
+          "is_correct": true
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "mint",
+          "is_correct": true
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "red",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "coffee",
+          "is_correct": true
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "cream",
+          "is_correct": true
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "forest",
+          "is_correct": true
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "green",
+          "is_correct": true
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "fern",
+          "is_correct": true
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tea",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grass",
+          "is_correct": true
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "grey",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "blue",
+          "is_correct": true
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "ruby",
+          "is_correct": true
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "yellow",
+          "is_correct": true
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "sand",
+          "is_correct": true
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "ocre",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "red",
+          "is_correct": true
+        }
+      ],
+      "accuracy": 0.87
+    },
+    "tokens_112_132_143": {
+      "patching_results": [
+        {
+          "source_idx": 40,
+          "target_idx": 7,
+          "source_color": "mint",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 1,
+          "target_idx": 47,
+          "source_color": "amber",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 15,
+          "source_color": "green",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 8,
+          "source_color": "apple",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 47,
+          "target_idx": 6,
+          "source_color": "golden",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 47,
+          "source_color": "coffee",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 5,
+          "source_color": "forest",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 1,
+          "source_color": "ice",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 13,
+          "source_color": "marine",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 32,
+          "source_color": "apple",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 1,
+          "source_color": "red",
+          "target_color": "amber",
+          "predicted_color": "amber",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 12,
+          "source_color": "brick",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 41,
+          "source_color": "lime",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 34,
+          "source_color": "leaf",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 26,
+          "target_idx": 14,
+          "source_color": "shit",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 28,
+          "target_idx": 37,
+          "source_color": "pink",
+          "target_color": "pine",
+          "predicted_color": "pine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 0,
+          "source_color": "green",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 10,
+          "source_color": "sea",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 27,
+          "source_color": "leaf",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 17,
+          "source_color": "fern",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 9,
+          "target_idx": 13,
+          "source_color": "buff",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 21,
+          "source_color": "sea",
+          "target_color": "fern",
+          "predicted_color": "fern",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 5,
+          "source_color": "cyan",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 6,
+          "source_color": "dark",
+          "target_color": "cyan",
+          "predicted_color": "ice",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 22,
+          "source_color": "camel",
+          "target_color": "camel",
+          "predicted_color": "camel",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 16,
+          "source_color": "red",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 46,
+          "source_color": "ice",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 34,
+          "source_color": "iris",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 24,
+          "source_color": "cream",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 35,
+          "source_color": "marine",
+          "target_color": "brick",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 40,
+          "source_color": "tea",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 39,
+          "target_idx": 23,
+          "source_color": "banana",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 12,
+          "source_color": "black",
+          "target_color": "purple",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 45,
+          "target_idx": 4,
+          "source_color": "lime",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 42,
+          "source_color": "ice",
+          "target_color": "azure",
+          "predicted_color": "azure",
+          "is_correct": false
+        },
+        {
+          "source_idx": 14,
+          "target_idx": 18,
+          "source_color": "apple",
+          "target_color": "tea",
+          "predicted_color": "tea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 5,
+          "target_idx": 14,
+          "source_color": "marine",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 24,
+          "source_color": "cyan",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 29,
+          "source_color": "green",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 23,
+          "source_color": "mint",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 23,
+          "source_color": "sand",
+          "target_color": "yellow",
+          "predicted_color": "yellow",
+          "is_correct": false
+        },
+        {
+          "source_idx": 22,
+          "target_idx": 13,
+          "source_color": "camel",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 42,
+          "target_idx": 17,
+          "source_color": "azure",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 44,
+          "target_idx": 43,
+          "source_color": "leaf",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 4,
+          "source_color": "steel",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 40,
+          "source_color": "red",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 15,
+          "source_color": "grey",
+          "target_color": "gold",
+          "predicted_color": "ocre",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 17,
+          "source_color": "dark",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 44,
+          "source_color": "mint",
+          "target_color": "leaf",
+          "predicted_color": "leaf",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 14,
+          "source_color": "brick",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 20,
+          "source_color": "coffee",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 3,
+          "target_idx": 14,
+          "source_color": "sky",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 2,
+          "target_idx": 20,
+          "source_color": "ice",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 17,
+          "source_color": "orange",
+          "target_color": "green",
+          "predicted_color": "green",
+          "is_correct": false
+        },
+        {
+          "source_idx": 4,
+          "target_idx": 13,
+          "source_color": "rust",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 36,
+          "target_idx": 45,
+          "source_color": "black",
+          "target_color": "lime",
+          "predicted_color": "pear",
+          "is_correct": false
+        },
+        {
+          "source_idx": 20,
+          "target_idx": 13,
+          "source_color": "pear",
+          "target_color": "white",
+          "predicted_color": "white",
+          "is_correct": false
+        },
+        {
+          "source_idx": 41,
+          "target_idx": 31,
+          "source_color": "steel",
+          "target_color": "stone",
+          "predicted_color": "stone",
+          "is_correct": false
+        },
+        {
+          "source_idx": 25,
+          "target_idx": 41,
+          "source_color": "orange",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 29,
+          "target_idx": 9,
+          "source_color": "iris",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 8,
+          "source_color": "berry",
+          "target_color": "wine",
+          "predicted_color": "wine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 15,
+          "target_idx": 47,
+          "source_color": "gold",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 34,
+          "source_color": "brick",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 16,
+          "target_idx": 47,
+          "source_color": "berry",
+          "target_color": "golden",
+          "predicted_color": "golden",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 27,
+          "source_color": "pine",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 37,
+          "target_idx": 25,
+          "source_color": "pine",
+          "target_color": "orange",
+          "predicted_color": "orange",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 14,
+          "source_color": "yellow",
+          "target_color": "apple",
+          "predicted_color": "apple",
+          "is_correct": false
+        },
+        {
+          "source_idx": 8,
+          "target_idx": 32,
+          "source_color": "wine",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 31,
+          "target_idx": 5,
+          "source_color": "stone",
+          "target_color": "marine",
+          "predicted_color": "marine",
+          "is_correct": false
+        },
+        {
+          "source_idx": 48,
+          "target_idx": 3,
+          "source_color": "sea",
+          "target_color": "sky",
+          "predicted_color": "sky",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 9,
+          "source_color": "cream",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 40,
+          "target_idx": 10,
+          "source_color": "mint",
+          "target_color": "sand",
+          "predicted_color": "sand",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 27,
+          "source_color": "coffee",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 4,
+          "source_color": "red",
+          "target_color": "rust",
+          "predicted_color": "rust",
+          "is_correct": false
+        },
+        {
+          "source_idx": 24,
+          "target_idx": 24,
+          "source_color": "dark",
+          "target_color": "dark",
+          "predicted_color": "dark",
+          "is_correct": true
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 29,
+          "source_color": "red",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 16,
+          "source_color": "ocre",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 35,
+          "target_idx": 0,
+          "source_color": "brick",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 43,
+          "target_idx": 46,
+          "source_color": "coffee",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 7,
+          "target_idx": 43,
+          "source_color": "cream",
+          "target_color": "coffee",
+          "predicted_color": "coffee",
+          "is_correct": false
+        },
+        {
+          "source_idx": 34,
+          "target_idx": 48,
+          "source_color": "forest",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 17,
+          "target_idx": 41,
+          "source_color": "green",
+          "target_color": "steel",
+          "predicted_color": "steel",
+          "is_correct": false
+        },
+        {
+          "source_idx": 21,
+          "target_idx": 7,
+          "source_color": "fern",
+          "target_color": "cream",
+          "predicted_color": "cream",
+          "is_correct": false
+        },
+        {
+          "source_idx": 18,
+          "target_idx": 27,
+          "source_color": "tea",
+          "target_color": "tan",
+          "predicted_color": "tan",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 29,
+          "source_color": "sand",
+          "target_color": "iris",
+          "predicted_color": "iris",
+          "is_correct": false
+        },
+        {
+          "source_idx": 0,
+          "target_idx": 46,
+          "source_color": "grass",
+          "target_color": "grey",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 46,
+          "target_idx": 16,
+          "source_color": "grey",
+          "target_color": "berry",
+          "predicted_color": "berry",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 48,
+          "source_color": "silver",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 11,
+          "target_idx": 32,
+          "source_color": "blue",
+          "target_color": "silver",
+          "predicted_color": "grey",
+          "is_correct": false
+        },
+        {
+          "source_idx": 6,
+          "target_idx": 40,
+          "source_color": "cyan",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 19,
+          "target_idx": 40,
+          "source_color": "ruby",
+          "target_color": "mint",
+          "predicted_color": "mint",
+          "is_correct": false
+        },
+        {
+          "source_idx": 32,
+          "target_idx": 38,
+          "source_color": "silver",
+          "target_color": "red",
+          "predicted_color": "red",
+          "is_correct": false
+        },
+        {
+          "source_idx": 12,
+          "target_idx": 9,
+          "source_color": "purple",
+          "target_color": "buff",
+          "predicted_color": "buff",
+          "is_correct": false
+        },
+        {
+          "source_idx": 23,
+          "target_idx": 48,
+          "source_color": "yellow",
+          "target_color": "sea",
+          "predicted_color": "sea",
+          "is_correct": false
+        },
+        {
+          "source_idx": 10,
+          "target_idx": 34,
+          "source_color": "sand",
+          "target_color": "forest",
+          "predicted_color": "forest",
+          "is_correct": false
+        },
+        {
+          "source_idx": 33,
+          "target_idx": 0,
+          "source_color": "ocre",
+          "target_color": "grass",
+          "predicted_color": "grass",
+          "is_correct": false
+        },
+        {
+          "source_idx": 38,
+          "target_idx": 20,
+          "source_color": "red",
+          "target_color": "pear",
+          "predicted_color": "pear",
+          "is_correct": false
+        }
+      ],
+      "accuracy": 0.02
+    }
+  },
+  "overall_results": {
+    "num_samples": 100,
+    "token_sets": [
+      "tokens_0",
+      "tokens_112",
+      "tokens_132",
+      "tokens_143",
+      "tokens_0_112_132_143",
+      "tokens_0_132_143",
+      "tokens_0_112_143",
+      "tokens_112_132_143"
+    ],
+    "accuracies": {
+      "tokens_0": 0.87,
+      "tokens_112": 0.02,
+      "tokens_132": 0.02,
+      "tokens_143": 0.02,
+      "tokens_0_112_132_143": 0.87,
+      "tokens_0_132_143": 0.87,
+      "tokens_0_112_143": 0.87,
+      "tokens_112_132_143": 0.02
+    }
+  }
+}
