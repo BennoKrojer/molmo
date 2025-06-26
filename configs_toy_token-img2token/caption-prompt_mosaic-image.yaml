@@ -162,7 +162,7 @@ data:
   extra_args:
     training_dataset_size_debug: -1
     prompt_type: caption
-    grid_size: 28
+    grid_size: 24
   mixture: null
   root_size_mixture: null
   split: train
