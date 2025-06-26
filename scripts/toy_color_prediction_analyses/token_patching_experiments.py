@@ -17,7 +17,7 @@ from olmo.data import build_mm_preprocessor
 # CONFIG
 # ----------------------------------------------------------------------------
 TOTAL_TOKENS = 144
-SET_OF_PATCH_TOKENS = [[0], [112], [132], [143], [0, 112, 132, 143], [0, 132, 143], [0, 112, 143], [112, 132, 143]]  # tokens to patch between images
+SET_OF_PATCH_TOKENS = [[1], [32], [551], [553], [32, 1, 551, 553]]  # tokens to patch between images
 # PATCH_TOKENS = list(range(TOTAL_TOKENS))
 NUM_SAMPLES = 100  # number of random image pairs to test
 
@@ -111,6 +111,7 @@ def main():
     
     prompt = "Output the color shown in the image:"
     ckpt = "molmo_data/checkpoints/caption-prompt_1color-per-image/step1600-unsharded"
+    ckpt_name = ckpt.split("/")[-2] + "_" + ckpt.split("/")[-1]
     
     # model + preprocessor -----------------------------------------------------
     model = Molmo.from_checkpoint(ckpt, device="cuda")
@@ -151,7 +152,7 @@ def main():
     }
     
     # Load existing results if available
-    out = Path(f"analysis_results/token_patching_study_{split}.json")
+    out = Path(f"analysis_results/token_patching_study_{split}_{ckpt_name}.json")
     if out.exists():
         try:
             with open(out, "r") as f:

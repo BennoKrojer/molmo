@@ -152,8 +152,8 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
 
 def main():
     # Hardcoded parameters
-    # checkpoint_path = "molmo_data/checkpoints/caption-prompt_mosaic-image/step3000-unsharded"
-    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize/step3000-unsharded"
+    checkpoint_path = "molmo_data/checkpoints/caption-prompt_mosaic-image/step3000-unsharded"
+    # checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize/step3000-unsharded"
     prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
     print(f"Prompt: {prompt}")
 

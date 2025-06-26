@@ -48,7 +48,7 @@ def create_mosaic_image(colors, grid_size=28, cell_size=224):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate mosaic images with a 12x12 grid of colors.")
-    parser.add_argument("--output-dir", type=str, default="molmo_data/color_mosaic_images_gridsize-28",
+    parser.add_argument("--output-dir", type=str, default="molmo_data/color_mosaic_images_gridsize-24",
                         help="Directory to save color mosaic images (default: molmo_data/color_mosaic_images)")
     parser.add_argument("--num-images", type=int, default=10000,
                         help="Number of mosaic images to generate (default: 10000)")
@@ -79,10 +79,10 @@ def main():
     
     for i in range(args.num_images):
         # Generate random sequence of colors (144 colors for 12x12 grid)
-        random_colors = random.choices(rgb_colors, k=28*28)
+        random_colors = random.choices(rgb_colors, k=24*24)
         
         # Create the mosaic image
-        mosaic = create_mosaic_image(random_colors, grid_size=28)
+        mosaic = create_mosaic_image(random_colors, grid_size=24)
         
         # Save the mosaic image
         filename = f"{i:03d}.png"
