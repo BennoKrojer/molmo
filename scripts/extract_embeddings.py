@@ -7,7 +7,6 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import cosine
 
 from olmo.config import ModelConfig
 from olmo.model import Molmo
@@ -40,12 +39,18 @@ def compute_and_plot_similarities(embeddings, title, output_path, num_pairs=1000
     """Compute and plot cosine similarities for a set of embeddings."""
     similarities = []
     
+    # Convert to torch tensor for efficient computation
+    embeddings_tensor = torch.tensor(embeddings, dtype=torch.float32)
+    # Normalize embeddings for cosine similarity
+    embeddings_norm = torch.nn.functional.normalize(embeddings_tensor, dim=-1)
+    
     for _ in range(num_pairs):
         i, j = np.random.choice(len(embeddings), 2, replace=False)
-        emb1, emb2 = embeddings[i], embeddings[j]
+        emb1_norm = embeddings_norm[i]
+        emb2_norm = embeddings_norm[j]
         
-        # Use scipy's cosine distance (convert to similarity)
-        sim = cosine(emb1, emb2)
+        # Compute cosine similarity using normalized dot product
+        sim = torch.dot(emb1_norm, emb2_norm).item()
         similarities.append(sim)
     
     similarities = np.array(similarities)
@@ -164,12 +169,18 @@ def main():
     log.info("Computing inter-modality similarities...")
     inter_similarities = []
     
+    # Convert to torch tensors and normalize for efficient computation
+    vocab_embeddings_tensor = torch.tensor(vocab_embeddings, dtype=torch.float32)
+    visual_embeddings_tensor = torch.tensor(visual_embeddings, dtype=torch.float32)
+    vocab_embeddings_norm = torch.nn.functional.normalize(vocab_embeddings_tensor, dim=-1)
+    visual_embeddings_norm = torch.nn.functional.normalize(visual_embeddings_tensor, dim=-1)
+    
     for _ in range(10000):
         i = np.random.randint(0, len(vocab_embeddings))
         j = np.random.randint(0, len(visual_embeddings))
         
-        # Use scipy's cosine distance (convert to similarity)
-        sim = cosine(vocab_embeddings[i], visual_embeddings[j])
+        # Compute cosine similarity using normalized dot product
+        sim = torch.dot(vocab_embeddings_norm[i], visual_embeddings_norm[j]).item()
         inter_similarities.append(sim)
     
     inter_similarities = np.array(inter_similarities)

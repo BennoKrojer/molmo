@@ -388,10 +388,10 @@ def process_split(model, preprocessor, dataset, num_images, results_dir):
 
 def main():
     # Hardcoded parameters
-    checkpoint_path = "molmo_data/checkpoints/caption-prompt_1color-per-image/step1600-unsharded"
-
+    # checkpoint_path = "molmo_data/checkpoints/caption-prompt_1color-per-image/step1600-unsharded"
+    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize/step3000-unsharded"
     # Setup results directory
-    ckpt_name = "caption-prompt_1color-per-image_step1600"
+    ckpt_name = "train_mlp-only_pixmo_cap_resize_step3000"
     results_dir = Path("analysis_results/embedding_variances") / ckpt_name
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -431,7 +431,7 @@ def main():
     try:
         # Process train split
         log.info("Processing train split...")
-        train_dataset = ColorImageDataset(split="train")
+        train_dataset = PixMoCap(split="train", mode='captions')
         num_train_images = min(500, len(train_dataset))
         train_results, train_before_mlp_results = process_split(model, preprocessor, train_dataset, num_train_images, results_dir)
         
@@ -440,7 +440,7 @@ def main():
 
         # Process validation split
         log.info("Processing validation split...")
-        val_dataset = ColorImageDataset(split="validation")
+        val_dataset = PixMoCap(split="validation", mode='captions')
         num_val_images = min(200, len(val_dataset))
         val_results, val_before_mlp_results = process_split(model, preprocessor, val_dataset, num_val_images, results_dir)
 

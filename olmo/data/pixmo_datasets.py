@@ -733,6 +733,7 @@ class ColorMosaicDataset(Dataset):
         self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
         self.seed = config.data.seed if config else 42
         self.grid_size = extra_args.get('grid_size', 12)
+        self.prompt_type = extra_args.get('prompt_type', 'caption')
         
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -788,7 +789,12 @@ class ColorMosaicDataset(Dataset):
         token_ids = [self.color_to_token_id[color] for color in color_sequence]
         
         # Create prompt
-        prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
+        elif self.prompt_type == 'copy':
+            prompt = "Copy over the sequence of color words 1-by-1 from the previous context:"
 
         return {
             'image': image_path,

@@ -53,7 +53,7 @@ model:
   layer_norm_with_affine: true
   layer_norm_eps: 1.0e-06
   attention_layer_norm_with_affine: true
-  max_sequence_length: 800
+  max_sequence_length: 1300
   max_position_embeddings: null
   include_bias: false
   bias_for_layer_norm: null
@@ -169,7 +169,7 @@ data:
   seed: 95818
   shuffle_messages: false
   pad: to_max
-  sequence_length: 800
+  sequence_length: 1300
   shuffle: true
   for_inference: false
   multi_modal: torch
@@ -205,16 +205,16 @@ reset_trainer_state: false
 save_dataloader_state: false
 reset_dataloader_state: false
 sharded_checkpointer: torch_legacy
-max_duration: 3000
-global_train_batch_size: 32
-device_train_batch_size: 8
-device_train_microbatch_size: 8
-device_eval_batch_size: 8
+max_duration: 1600
+global_train_batch_size: 16
+device_train_batch_size: 4
+device_train_microbatch_size: 4
+device_eval_batch_size: 4
 eval_subset_num_batches: -1
 eval_on_load: false
-device_inf_eval_batch_size: 8
+device_inf_eval_batch_size: 4
 inf_eval_subset_num_batches: -1
-device_train_grad_accum: 1
+device_train_grad_accum: 2
 max_grad_norm: 1.0
 multi_component_grad_norm: true
 batch_divisor: global_batch
@@ -246,7 +246,7 @@ time_limit: null
 extra_steps_after_cancel: 10
 python_profiling: false
 torch_profiling: false
-stop_at: 3000
+stop_at: 1600
 stop_after: null
 activation_checkpointing: whole_layer
 fused_loss: null

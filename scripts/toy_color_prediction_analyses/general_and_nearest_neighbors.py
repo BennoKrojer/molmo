@@ -12,6 +12,7 @@ import torch
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from olmo.config import ModelConfig
 from olmo.data import build_mm_preprocessor
@@ -31,6 +32,41 @@ def clear_gpu_memory():
     """Clear CUDA cache to free up memory."""
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+
+def create_interpretability_plot(patch_statistics, output_path):
+    """Create a bar plot showing top 20 token positions by interpretability percentage."""
+    # patch_statistics is already sorted list of dicts with patch statistics
+    if not patch_statistics:
+        log.warning("No patch statistics available for plotting")
+        return
+    
+    # Take top 20 (already sorted by accuracy)
+    top_20 = patch_statistics[:20]
+    
+    # Prepare data for plotting
+    patch_indices = [str(stats["patch_idx"]) for stats in top_20]
+    accuracies = [stats.get("true_color_accuracy", 0) * 100 for stats in top_20]  # Convert to percentage
+    
+    # Create the plot
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(range(len(patch_indices)), accuracies, color='steelblue', alpha=0.7)
+    
+    # Customize the plot
+    plt.xlabel('Token Position')
+    plt.ylabel('Interpretability Percentage (%)')
+    plt.title('Top 20 Token Positions by Interpretability\n(% of times a top-5 NN was a semantic match)')
+    plt.xticks(range(len(patch_indices)), patch_indices, rotation=45)
+    plt.grid(axis='y', alpha=0.3)
+    
+    # Add value labels on bars
+    for i, (bar, accuracy) in enumerate(zip(bars, accuracies)):
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5, 
+                f'{accuracy:.1f}%', ha='center', va='bottom', fontsize=8)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    log.info(f"Interpretability plot saved to {output_path}")
 
 def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only):
     """Process a dataset split and return results."""
@@ -135,8 +171,8 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                         patch_tokens_norm = [token.strip().lower() for token in patch_tokens]
                         
                         # Check if true color or generated response appear in top 5
-                        true_color_in_top5 = true_color_norm in patch_tokens_norm
-                        generated_response_in_top5 = generated_response_norm in patch_tokens_norm
+                        true_color_in_top5 = any(true_color_norm in patch_token_norm for patch_token_norm in patch_tokens_norm)
+                        generated_response_in_top5 = any(generated_response_norm in patch_token_norm for patch_token_norm in patch_tokens_norm)
                         
                         # Initialize patch statistics if not exists
                         if patch_idx not in patch_statistics:
@@ -193,111 +229,127 @@ def main():
     results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load model
-    log.info(f"Loading model from {checkpoint_path}")
-    model = Molmo.from_checkpoint(checkpoint_path, device="cuda")
-    model.eval()
+    # Define output file paths
+    output_file = results_dir / "nearest_neighbors_analysis_color_names.json"
+    plot_file = results_dir / "nearest_neighbors_analysis_color_names_summary_plot.png"
 
-    # Create preprocessor
-    if "hf:" in checkpoint_path:
-        model_config = model.config
+    # Check if results already exist
+    if output_file.exists():
+        log.info(f"Results file already exists at {output_file}, loading existing data...")
+        with open(output_file, 'r', encoding='utf-8') as f:
+            all_results = json.load(f)
+        log.info("Loaded existing results from JSON file")
     else:
-        model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
-    # Override system prompt kind to avoid length conditioning
-    model_config.system_prompt_kind = "style"
-    preprocessor = build_mm_preprocessor(
-        model_config,
-        for_inference=True,
-        shuffle_messages=False,
-        is_training=False,
-        require_image_features=True
-    )
+        log.info("Results file not found, computing new results...")
+        
+        # Load model
+        log.info(f"Loading model from {checkpoint_path}")
+        model = Molmo.from_checkpoint(checkpoint_path, device="cuda")
+        model.eval()
 
-    use_n_token_only = model_config.vision_backbone.use_n_token_only
+        # Create preprocessor
+        if "hf:" in checkpoint_path:
+            model_config = model.config
+        else:
+            model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
+        # Override system prompt kind to avoid length conditioning
+        model_config.system_prompt_kind = "style"
+        preprocessor = build_mm_preprocessor(
+            model_config,
+            for_inference=True,
+            shuffle_messages=False,
+            is_training=False,
+            require_image_features=True
+        )
 
-    # Initialize results dictionary
-    all_results = {
-        "checkpoint": checkpoint_path,
-        "prompt": prompt,
-        "dataset": "ColorImageDataset",
-        "splits": {},
-        "overall_patch_statistics": {}
-    }
+        use_n_token_only = model_config.vision_backbone.use_n_token_only
 
-    try:
-        # Process train split
-        log.info("Processing train split...")
-        train_dataset = ColorImageDataset(split="train")
-        num_train_images = min(200, len(train_dataset))
-        train_results, train_patch_statistics = process_split(model, preprocessor, train_dataset, num_train_images, prompt, use_n_token_only)
-        all_results["splits"]["train"] = {
-            "num_images": num_train_images,
-            "images": train_results,
-            "patch_statistics": train_patch_statistics
+        # Initialize results dictionary
+        all_results = {
+            "checkpoint": checkpoint_path,
+            "prompt": prompt,
+            "dataset": "ColorImageDataset",
+            "splits": {},
+            "overall_patch_statistics": {}
         }
-        
-        # Clear memory before processing validation split
-        clear_gpu_memory()
 
-        # Process validation split
-        log.info("Processing validation split...")
-        val_dataset = ColorImageDataset(split="validation")
-        num_val_images = min(200, len(val_dataset))
-        val_results, val_patch_statistics = process_split(model, preprocessor, val_dataset, num_val_images, prompt, use_n_token_only)
-        all_results["splits"]["validation"] = {
-            "num_images": num_val_images,
-            "images": val_results,
-            "patch_statistics": val_patch_statistics
-        }
-        
-        # Combine patch statistics across splits
-        combined_patch_statistics = {}
-        for split_name, split_data in all_results["splits"].items():
-            split_stats = split_data["patch_statistics"]
-            for patch_idx, stats in split_stats.items():
-                if patch_idx not in combined_patch_statistics:
-                    combined_patch_statistics[patch_idx] = {
-                        "true_color_matches": 0,
-                        "generated_response_matches": 0,
-                        "total_samples": 0
-                    }
-                combined_patch_statistics[patch_idx]["true_color_matches"] += stats["true_color_matches"]
-                combined_patch_statistics[patch_idx]["generated_response_matches"] += stats["generated_response_matches"]
-                combined_patch_statistics[patch_idx]["total_samples"] += stats["total_samples"]
-        
-        # Add accuracy percentages
-        for patch_idx, stats in combined_patch_statistics.items():
-            total = stats["total_samples"]
-            if total > 0:
-                stats["true_color_accuracy"] = stats["true_color_matches"] / total
-                stats["generated_response_accuracy"] = stats["generated_response_matches"] / total
-        
-        # Sort patch statistics by true_color_accuracy (descending) for easier analysis
-        sorted_patch_statistics = []
-        for patch_idx, stats in combined_patch_statistics.items():
-            stats_with_idx = stats.copy()
-            stats_with_idx["patch_idx"] = patch_idx
-            sorted_patch_statistics.append(stats_with_idx)
-        
-        # Sort by true_color_accuracy descending, then by generated_response_accuracy descending
-        sorted_patch_statistics.sort(key=lambda x: (x.get("true_color_accuracy", 0), x.get("generated_response_accuracy", 0)), reverse=True)
-        
-        all_results["overall_patch_statistics"] = sorted_patch_statistics
+        try:
+            # Process train split
+            log.info("Processing train split...")
+            train_dataset = ColorImageDataset(split="train")
+            num_train_images = min(200, len(train_dataset))
+            train_results, train_patch_statistics = process_split(model, preprocessor, train_dataset, num_train_images, prompt, use_n_token_only)
+            all_results["splits"]["train"] = {
+                "num_images": num_train_images,
+                "images": train_results,
+                "patch_statistics": train_patch_statistics
+            }
+            
+            # Clear memory before processing validation split
+            clear_gpu_memory()
 
-    except Exception as e:
-        log.error(f"Error during processing: {str(e)}")
-        # Save partial results if there's an error
-        output_file = results_dir / "nearest_neighbors_analysis_color_names_partial.json"
+            # Process validation split
+            log.info("Processing validation split...")
+            val_dataset = ColorImageDataset(split="validation")
+            num_val_images = min(200, len(val_dataset))
+            val_results, val_patch_statistics = process_split(model, preprocessor, val_dataset, num_val_images, prompt, use_n_token_only)
+            all_results["splits"]["validation"] = {
+                "num_images": num_val_images,
+                "images": val_results,
+                "patch_statistics": val_patch_statistics
+            }
+            
+            # Combine patch statistics across splits
+            combined_patch_statistics = {}
+            for split_name, split_data in all_results["splits"].items():
+                split_stats = split_data["patch_statistics"]
+                for patch_idx, stats in split_stats.items():
+                    if patch_idx not in combined_patch_statistics:
+                        combined_patch_statistics[patch_idx] = {
+                            "true_color_matches": 0,
+                            "generated_response_matches": 0,
+                            "total_samples": 0
+                        }
+                    combined_patch_statistics[patch_idx]["true_color_matches"] += stats["true_color_matches"]
+                    combined_patch_statistics[patch_idx]["generated_response_matches"] += stats["generated_response_matches"]
+                    combined_patch_statistics[patch_idx]["total_samples"] += stats["total_samples"]
+            
+            # Add accuracy percentages
+            for patch_idx, stats in combined_patch_statistics.items():
+                total = stats["total_samples"]
+                if total > 0:
+                    stats["true_color_accuracy"] = stats["true_color_matches"] / total
+                    stats["generated_response_accuracy"] = stats["generated_response_matches"] / total
+            
+            # Sort patch statistics by true_color_accuracy (descending) for easier analysis
+            sorted_patch_statistics = []
+            for patch_idx, stats in combined_patch_statistics.items():
+                stats_with_idx = stats.copy()
+                stats_with_idx["patch_idx"] = patch_idx
+                sorted_patch_statistics.append(stats_with_idx)
+            
+            # Sort by true_color_accuracy descending, then by generated_response_accuracy descending
+            sorted_patch_statistics.sort(key=lambda x: (x.get("true_color_accuracy", 0), x.get("generated_response_accuracy", 0)), reverse=True)
+            
+            all_results["overall_patch_statistics"] = sorted_patch_statistics
+
+        except Exception as e:
+            log.error(f"Error during processing: {str(e)}")
+            # Save partial results if there's an error
+            partial_output_file = results_dir / "nearest_neighbors_analysis_color_names_partial.json"
+            with open(partial_output_file, 'w', encoding='utf-8') as f:
+                json.dump(all_results, f, indent=2, ensure_ascii=False)
+            raise
+
+        # Save final results
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(all_results, f, indent=2, ensure_ascii=False)
-        raise
-
-    # Save final results
-    output_file = results_dir / "nearest_neighbors_analysis_color_names.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(all_results, f, indent=2, ensure_ascii=False)
+        
+        log.info(f"Results saved to {output_file}")
     
-    log.info(f"Results saved to {output_file}")
+    # Create and save interpretability plot (always generate, regardless of whether data was loaded or computed)
+    log.info("Creating interpretability plot...")
+    create_interpretability_plot(all_results["overall_patch_statistics"], plot_file)
 
 if __name__ == "__main__":
     main()

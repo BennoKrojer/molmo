@@ -325,13 +325,13 @@ def compute_across_image_different_color_similarities(all_color_tokens, max_pair
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze cosine similarity among visual tokens of the same color.")
-    parser.add_argument("--checkpoint-path", type=str, default="molmo_data/checkpoints/caption-prompt_mosaic-image/step3000-unsharded",
+    parser.add_argument("--checkpoint-path", type=str, default="molmo_data/checkpoints/caption-prompt_mosaic-image/step1600-unsharded",
                         help="Path to the model checkpoint")
-    parser.add_argument("--data-dir", type=str, default="molmo_data/color_mosaic_images",
+    parser.add_argument("--data-dir", type=str, default="molmo_data/color_mosaic_images_gridsize-24",
                         help="Directory containing color mosaic images and metadata")
     parser.add_argument("--num-images", type=int, default=100,
                         help="Number of images to analyze (default: 100)")
-    parser.add_argument("--output-dir", type=str, default="analysis_results/color_similarities/caption-prompt_mosaic-image_step3000-unsharded",
+    parser.add_argument("--output-dir", type=str, default="analysis_results/color_similarities/caption-prompt_mosaic-image_step1600-unsharded",
                         help="Directory to save analysis results")
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducible subsampling (default: 42)")
