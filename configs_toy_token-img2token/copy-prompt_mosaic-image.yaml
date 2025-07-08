@@ -1,4 +1,4 @@
-run_name: baseline_pixmo-captions_resize
+run_name: copy-prompt_mosaic-image
 seed: 6198
 epoch: null
 dry_run: false
@@ -53,7 +53,7 @@ model:
   layer_norm_with_affine: true
   layer_norm_eps: 1.0e-06
   attention_layer_norm_with_affine: true
-  max_sequence_length: 1600
+  max_sequence_length: 1300
   max_position_embeddings: null
   include_bias: false
   bias_for_layer_norm: null
@@ -70,11 +70,12 @@ model:
   norm_after: false
   precision: amp_bf16
   max_crops: 12
-  # crop_mode: resize
   crop_mode: resize
+  # crop_mode: 1image_per_patch
+  # crop_mode: overlap-and-resize-c2
   use_col_tokens: true
   prompt_type: none
-  system_prompt_kind: style_and_length
+  system_prompt_kind: none
   message_formatting: none
   always_start_with_space: true
   multi_annotation_weighting: null
@@ -157,14 +158,18 @@ scheduler:
   grad_clip_warmup_factor: null
   warmup_min_lr: 0.0
 data:
-  dataset: pixmo_cap
+  dataset: color_mosaic
+  extra_args:
+    training_dataset_size_debug: -1
+    prompt_type: copy
+    grid_size: 24
   mixture: null
   root_size_mixture: null
   split: train
   seed: 95818
   shuffle_messages: false
   pad: to_max
-  sequence_length: 1600
+  sequence_length: 1300
   shuffle: true
   for_inference: false
   multi_modal: torch
@@ -176,71 +181,15 @@ data:
   timeout: 0
 restore_dataloader: true
 fast_forward_batches: null
-evaluators:
-- label: val
-  data:
-    dataset: pixmo_cap
-    mixture: null
-    root_size_mixture: null
-    split: validation
-    seed: null
-    shuffle_messages: false
-    pad: to_max
-    sequence_length: 1600
-    shuffle: false
-    for_inference: false
-    multi_modal: torch
-    num_workers: 2
-    drop_last: true
-    pin_memory: true
-    prefetch_factor: null
-    persistent_workers: true
-    timeout: 0
-  device_eval_batch_size: null
-  subset_num_batches: 128
-  max_examples: null
-  max_new_tokens: 448
-  mm_evaluator: null
-  save_dir: null
-  save_to_checkpoint_dir: false
-  eval_name: null
-  skip_if_metrics_cached: true
-- label: pixmo_points_val
-  data:
-    dataset: pixmo_cap
-    mixture: null
-    root_size_mixture: null
-    split: validation
-    seed: null
-    shuffle_messages: false
-    pad: to_max
-    sequence_length: 1600
-    shuffle: false
-    for_inference: false
-    multi_modal: torch
-    num_workers: 2
-    drop_last: true
-    pin_memory: true
-    prefetch_factor: null
-    persistent_workers: true
-    timeout: 0
-  device_eval_batch_size: null
-  subset_num_batches: 128
-  max_examples: null
-  max_new_tokens: 448
-  mm_evaluator: null
-  save_dir: null
-  save_to_checkpoint_dir: false
-  eval_name: null
-  skip_if_metrics_cached: true
-eval_interval: 1000
+evaluators: []
+eval_interval: -1
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize
+save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/copy-prompt_mosaic-image
 remote_save_folder: null
 canceled_check_interval: 50
-save_interval: 2000
-save_interval_unsharded: 3000
+save_interval: 1500
+save_interval_unsharded: 1500
 save_interval_ephemeral: null
 save_num_checkpoints_to_keep: 10
 save_num_unsharded_checkpoints_to_keep: -1
@@ -256,16 +205,16 @@ reset_trainer_state: false
 save_dataloader_state: false
 reset_dataloader_state: false
 sharded_checkpointer: torch_legacy
-max_duration: 12000
-global_train_batch_size: 8
-device_train_batch_size: 2
-device_train_microbatch_size: 2
-device_eval_batch_size: 2
+max_duration: 1600
+global_train_batch_size: 16
+device_train_batch_size: 4
+device_train_microbatch_size: 4
+device_eval_batch_size: 4
 eval_subset_num_batches: -1
 eval_on_load: false
-device_inf_eval_batch_size: 2
+device_inf_eval_batch_size: 4
 inf_eval_subset_num_batches: -1
-device_train_grad_accum: 4
+device_train_grad_accum: 2
 max_grad_norm: 1.0
 multi_component_grad_norm: true
 batch_divisor: global_batch
@@ -283,7 +232,7 @@ speed_monitor:
   window_size: 20
   gpu_flops_available: null
 console_log_interval: 4
-gen1_gc_interval: 4
+gen1_gc_interval: 1
 compile: null
 fsdp:
   use_orig_params: true
@@ -297,7 +246,7 @@ time_limit: null
 extra_steps_after_cancel: 10
 python_profiling: false
 torch_profiling: false
-stop_at: 12000
+stop_at: 1600
 stop_after: null
 activation_checkpointing: whole_layer
 fused_loss: null

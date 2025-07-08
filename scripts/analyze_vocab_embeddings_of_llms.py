@@ -197,6 +197,38 @@ def analyze_layer_similarities(layer_embeddings, model_name, static_embeddings):
     layer_stats = []
     all_cos_sims = []  # Store all cosine similarities for plotting
     
+    # Save layer-wise embeddings to disk for cross-modal analysis
+    embeddings_dir = Path("analysis_results/cached_text_embeddings") / model_name.replace("/", "_")
+    embeddings_dir.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Saving layer-wise text embeddings to {embeddings_dir}")
+    
+    # Save static vocabulary embeddings as layer 0
+    np.save(embeddings_dir / "layer_0_static_vocab.npy", static_embeddings)
+    print("Saved static vocabulary embeddings")
+    
+    # Save each transformer layer's embeddings
+    for layer_idx in range(num_layers):
+        layer_file = embeddings_dir / f"layer_{layer_idx + 1}_text_embeddings.npy"
+        np.save(layer_file, layer_embeddings[layer_idx])
+        print(f"Saved layer {layer_idx + 1} text embeddings: {layer_embeddings[layer_idx].shape}")
+    
+    # Save metadata
+    metadata = {
+        "model_name": model_name,
+        "num_layers": num_layers,
+        "num_sentences": len(layer_embeddings[0]),
+        "embedding_dim": layer_embeddings[0].shape[1],
+        "static_vocab_size": len(static_embeddings),
+        "static_vocab_dim": static_embeddings.shape[1]
+    }
+    
+    import json
+    with open(embeddings_dir / "metadata.json", "w") as f:
+        json.dump(metadata, f, indent=2)
+    
+    print(f"Saved metadata: {metadata}")
+    
     # First analyze static vocabulary matrix (Layer 0)
     print("\nComputing static vocabulary matrix similarities...")
     # Use compute_distances to get 5000 random pairs from the vocabulary
@@ -273,10 +305,10 @@ def analyze_layer_similarities(layer_embeddings, model_name, static_embeddings):
 
 model_names = [
     # "EleutherAI/gpt-j-6B",
-    # "Qwen/Qwen2-7B",
+    "Qwen/Qwen2-7B",
     # "tiiuae/falcon-7b",
     # "meta-llama/Llama-3.1-8B-Instruct",
-    "lmsys/vicuna-7b-v1.5"
+    # "lmsys/vicuna-7b-v1.5"
     # "google/gemma-2-9b-it",
     # "allenai/Molmo-7B-D-0924",
     # "allenai/OLMo-1B"

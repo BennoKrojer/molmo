@@ -18,6 +18,14 @@ from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+# Add translation library
+try:
+    from googletrans import Translator
+    TRANSLATION_AVAILABLE = True
+except ImportError:
+    TRANSLATION_AVAILABLE = False
+    print("Warning: googletrans not available. Install with: pip install googletrans==4.0.0rc1")
+
 from olmo.config import ModelConfig
 from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
@@ -26,6 +34,117 @@ from olmo.data.pixmo_datasets import PixMoCap
 from olmo.data.model_preprocessor import load_image, resize_and_pad
 
 log = logging.getLogger(__name__)
+
+# Global translator instance
+_translator = None
+_translation_cache = {}
+_cache_file = Path("translation_cache.json")
+_cache_dirty = False
+_cache_save_counter = 0
+
+def load_translation_cache():
+    """Load translation cache from file."""
+    global _translation_cache
+    if _cache_file.exists():
+        try:
+            with open(_cache_file, 'r', encoding='utf-8') as f:
+                _translation_cache = json.load(f)
+            print(f"Loaded {len(_translation_cache)} cached translations from {_cache_file}")
+        except Exception as e:
+            print(f"Could not load translation cache: {e}")
+            _translation_cache = {}
+    else:
+        _translation_cache = {}
+
+def save_translation_cache():
+    """Save translation cache to file."""
+    global _cache_dirty
+    if _cache_dirty:
+        try:
+            with open(_cache_file, 'w', encoding='utf-8') as f:
+                json.dump(_translation_cache, f, indent=2, ensure_ascii=False)
+            print(f"Saved {len(_translation_cache)} translations to cache")
+            _cache_dirty = False
+        except Exception as e:
+            print(f"Could not save translation cache: {e}")
+
+def get_translator():
+    """Get or create a global translator instance."""
+    global _translator
+    if _translator is None and TRANSLATION_AVAILABLE:
+        _translator = Translator()
+        # Load cache when we first create the translator
+        load_translation_cache()
+    return _translator
+
+def contains_chinese(text):
+    """Check if text contains Chinese characters."""
+    if not text:
+        return False
+    # Check for Chinese characters (CJK Unified Ideographs)
+    for char in text:
+        if '\u4e00' <= char <= '\u9fff':
+            return True
+    return False
+
+def translate_chinese_token(token_text):
+    """Translate Chinese tokens to English, return list of possible translations."""
+    global _cache_dirty, _cache_save_counter
+    
+    if not TRANSLATION_AVAILABLE or not contains_chinese(token_text):
+        return [token_text]
+    
+    # Check cache first
+    if token_text in _translation_cache:
+        cached_result = _translation_cache[token_text]
+        if cached_result != token_text:  # If we have a translation
+            return [token_text, cached_result]
+        else:
+            return [token_text]
+    
+    translator = get_translator()
+    if translator is None:
+        return [token_text]
+    
+    try:
+        # Clean the token text
+        clean_text = token_text.strip()
+        if not clean_text:
+            return [token_text]
+        
+        # Translate to English - use 'zh-cn' instead of 'zh' for Chinese
+        result = translator.translate(clean_text, src='zh-cn', dest='en')
+        if result and result.text:
+            translated = result.text.lower().strip()
+            
+            # Cache the result
+            _translation_cache[token_text] = translated
+            _cache_dirty = True
+            _cache_save_counter += 1
+            
+            # Save cache every 100 translations
+            if _cache_save_counter >= 100:
+                save_translation_cache()
+                _cache_save_counter = 0
+            
+            # Return both original and translated versions
+            if translated != clean_text.lower():
+                print(f"Translated '{token_text}' -> '{translated}'")
+                return [token_text, translated]
+            else:
+                return [token_text]
+        else:
+            print(f"Translation failed for '{token_text}': No result")
+            # Cache the failure (store original token)
+            _translation_cache[token_text] = token_text
+            _cache_dirty = True
+            return [token_text]
+    except Exception as e:
+        print(f"Translation failed for '{token_text}': {e}")
+        # Cache the failure (store original token)
+        _translation_cache[token_text] = token_text
+        _cache_dirty = True
+        return [token_text]
 
 def decode_token(tokenizer, idx):
     """Decode a token and ensure it's a proper Unicode string."""
@@ -45,8 +164,15 @@ def normalize_text_for_matching(text):
         'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'in', 'is', 'it', 
         'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'the', 'this', 'these', 
         'those', 'they', 'them', 'their', 'there', 'then', 'than', 'but', 'or', 'so', 'if', 'when', 
-        'where', 'why', 'how', 'what', 'who', 'which', 'can', 'could', 'would', 'should', 'may', 'might',
-        'image', 'photo', 'picture', 'img'  # Also exclude generic image terms
+        'where', 'why', 'how', 'what', 'who', 'which', 'can', 'could', 'would', 'should', 'may', 'might'
+    }
+    
+    # Define visual/task words that indicate interface or visual elements
+    visual_task_words = {
+        'image', 'photo', 'picture', 'img', 'display', 'frame', 'screen', 'view', 'window', 'panel', 'icon', 'cursor', 'pixel', 'resolution', 'monitor', 'camera',
+        'lens', 'focus', 'zoom', 'crop', 'filter', 'edit', 'save', 'load', 'file', 'folder', 'document',
+        'page', 'layout', 'design', 'graphic', 'visual', 'render', 'preview', 'thumbnail', 'gallery',
+        'album', 'slide', 'presentation', 'video', 'clip', 'frame', 'shot', 'capture', 'record'
     }
     
     # Convert to lowercase
@@ -57,7 +183,82 @@ def normalize_text_for_matching(text):
     # Split by whitespace and filter out empty strings and stopwords
     words = [word.strip() for word in text.split() 
              if word.strip() and word.strip() not in stopwords and len(word.strip()) > 1]
-    return words
+    return words, visual_task_words
+
+def check_match_type(token_words, caption_words, visual_task_words):
+    """Check what type of match this is: interpretable, visual_task, or none.
+    
+    Returns:
+        tuple: (match_type, matches_list)
+        match_type: 'interpretable', 'visual_task', or 'none'
+        matches_list: list of match dictionaries
+    """
+    matches = []
+    has_interpretable = False
+    has_visual_task = False
+    
+    for token_word in token_words:
+        # Check for visual/task matches first
+        if token_word in visual_task_words:
+            matches.append({
+                "token_word": token_word,
+                "match_type": "visual_task",
+                "matched_word": token_word
+            })
+            has_visual_task = True
+        
+        # Check for interpretable matches with caption
+        for caption_word in caption_words:
+            if token_word == caption_word:
+                matches.append({
+                    "token_word": token_word,
+                    "match_type": "interpretable", 
+                    "matched_word": caption_word
+                })
+                has_interpretable = True
+    
+    # Determine overall match type (visual_task takes precedence)
+    if has_visual_task:
+        match_type = 'visual_task'
+    elif has_interpretable:
+        match_type = 'interpretable'
+    else:
+        match_type = 'none'
+    
+    return match_type, matches
+
+def check_match_type_with_translation(token_text, caption_words, visual_task_words):
+    """Enhanced matching that includes Chinese translation support.
+    
+    Args:
+        token_text: Original token text (may contain Chinese)
+        caption_words: List of normalized words from the caption
+        visual_task_words: Set of visual/task interface words
+    
+    Returns:
+        tuple: (match_type, matches_list)
+        match_type: 'interpretable', 'visual_task', or 'none'
+        matches_list: list of match dictionaries
+    """
+    # Get all possible translations of the token
+    token_translations = translate_chinese_token(token_text)
+    
+    # Normalize each translation
+    all_token_words = []
+    for translation in token_translations:
+        normalized_words, _ = normalize_text_for_matching(translation)
+        all_token_words.extend(normalized_words)
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_token_words = []
+    for word in all_token_words:
+        if word not in seen:
+            seen.add(word)
+            unique_token_words.append(word)
+    
+    # Use the existing check_match_type function
+    return check_match_type(unique_token_words, caption_words, visual_task_words)
 
 def patch_idx_to_row_col(patch_idx, patches_per_chunk):
     """Convert patch index to row and column coordinates.
@@ -364,7 +565,7 @@ def update_existing_results(results_file_path):
                 model_config = model.config
             else:
                 model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
-            model_config.system_prompt_kind = "style"
+            model_config.system_prompt_kind = "none"
             preprocessor = build_mm_preprocessor(
                 model_config,
                 for_inference=True,
@@ -449,7 +650,7 @@ def update_existing_results(results_file_path):
             ground_truth_caption = image_data.get("ground_truth_caption", "")
             if not ground_truth_caption:
                 ground_truth_caption = image_data.get("caption_text", "")
-            caption_words = normalize_text_for_matching(ground_truth_caption)
+            caption_words, visual_task_words = normalize_text_for_matching(ground_truth_caption)
             
             # Remove caption_words key if it exists
             if "caption_words" in image_data:
@@ -472,7 +673,9 @@ def update_existing_results(results_file_path):
                         token_position_stats[patch_idx] = {
                             "total_occurrences": 0,
                             "interpretable_occurrences": 0,
+                            "visual_task_occurrences": 0,
                             "interpretability_percentage": 0.0,
+                            "visual_task_percentage": 0.0,
                             "patch_row": row,
                             "patch_col": col
                         }
@@ -482,40 +685,68 @@ def update_existing_results(results_file_path):
                     # Get nearest neighbors
                     nearest_neighbors = patch.get("nearest_neighbors", [])
                     
-                    # Check for matches and create detailed match info
-                    matches = []
-                    caption_match = False
+                    # Check for matches using new three-category system
+                    overall_match_type = 'none'
+                    all_matches = []
                     
                     for neighbor in nearest_neighbors:
                         token_text = neighbor.get("token", "")
-                        token_words = normalize_text_for_matching(token_text)
+                        token_words, _ = normalize_text_for_matching(token_text)
                         
-                        # Check for matches with caption words
-                        for token_word in token_words:
-                            for caption_word in caption_words:
-                                if token_word == caption_word:
-                                    matches.append({
-                                        "token": token_text,
-                                        "token_word": token_word,
-                                        "caption_word": caption_word,
+                        # Check what type of match this token has (with translation support)
+                        match_type, matches = check_match_type_with_translation(token_text, caption_words, visual_task_words)
+                        
+                        if match_type != 'none':
+                            # Update overall match type (visual_task takes precedence over interpretable)
+                            if match_type == 'visual_task' or (overall_match_type != 'visual_task' and match_type == 'interpretable'):
+                                overall_match_type = match_type
+                            
+                            # Add detailed match info
+                            for match in matches:
+                                all_matches.append({
+                                    "token": get_display_token(token_text),
+                                    "token_word": match["token_word"],
+                                    "matched_word": match["matched_word"],
+                                    "match_type": match["match_type"],
                                         "similarity": neighbor.get("similarity", 0.0)
                                     })
-                                    caption_match = True
                     
-                    # Update patch data
-                    patch["caption_match"] = caption_match
-
-                    if not matches and "matches" in patch:
-                        del patch["matches"]
-                    elif matches:
-                        patch["matches"] = matches
+                    # Update patch with new visual_task_match field
+                    patch["visual_task_match"] = (overall_match_type == 'visual_task')
+                    
+                    # Update statistics
+                    if overall_match_type == 'interpretable':
                         token_position_stats[patch_idx]["interpretable_occurrences"] += 1
+                    elif overall_match_type == 'visual_task':
+                        token_position_stats[patch_idx]["visual_task_occurrences"] += 1
+                    
+                    # Add detailed matches if any were found and not already present
+                    if all_matches and "matches" not in patch:
+                        # Update matches to use display tokens
+                        display_matches = []
+                        for match in all_matches:
+                            display_matches.append({
+                                "token": get_display_token(match["token"]),
+                                "token_word": match["token_word"],
+                                "matched_word": match["matched_word"],
+                                "match_type": match["match_type"],
+                                "similarity": match["similarity"]
+                            })
+                        patch["matches"] = display_matches
+                    
+                    # Update nearest_neighbors to use display tokens
+                    if "nearest_neighbors" in patch:
+                        for neighbor in patch["nearest_neighbors"]:
+                            if "token" in neighbor:
+                                neighbor["token"] = get_display_token(neighbor["token"])
 
     # Calculate interpretability percentages for token positions
     for pos_stats in token_position_stats.values():
         total = pos_stats["total_occurrences"]
         interpretable = pos_stats["interpretable_occurrences"]
+        visual_task = pos_stats["visual_task_occurrences"]
         pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+        pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
     
     # Add token position statistics to results
     all_results["token_position_statistics"] = token_position_stats
@@ -538,6 +769,9 @@ def update_existing_results(results_file_path):
     plot_path = results_file_path.parent / "token_position_interpretability_plot.png"
     create_token_position_plot(token_position_stats, plot_path)
     
+    # Save any remaining translations to cache
+    save_translation_cache()
+    
     return all_results
 
 def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, images_dir=None, split_name=""):
@@ -547,6 +781,7 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
     # Initialize statistics tracking
     total_visual_tokens = 0
     interpretable_visual_tokens = 0
+    visual_task_visual_tokens = 0
     token_position_stats = {}
     
     # Process each image
@@ -580,7 +815,7 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
             temp_pil_image = None
         
         # Normalize caption words for matching
-        caption_words = normalize_text_for_matching(caption_text)
+        caption_words, visual_task_words = normalize_text_for_matching(caption_text)
         
         # Create example with the provided prompt
         example = {
@@ -668,7 +903,7 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                                 # Check for matches (same logic as below)
                                 caption_match = False
                                 for j, (token_text, similarity_score) in enumerate(zip(patch_tokens, patch_values)):
-                                    token_words = normalize_text_for_matching(token_text)
+                                    token_words, _ = normalize_text_for_matching(token_text)
                                     for token_word in token_words:
                                         for caption_word in caption_words:
                                             if token_word == caption_word:
@@ -719,95 +954,170 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                             token_position_stats[patch_idx] = {
                                 "total_occurrences": 0,
                                 "interpretable_occurrences": 0,
+                                "visual_task_occurrences": 0,
                                 "interpretability_percentage": 0.0,
+                                "visual_task_percentage": 0.0,
                                 "patch_row": row,
                                 "patch_col": col
                             }
                         
                         token_position_stats[patch_idx]["total_occurrences"] += 1
                         
-                        # Check for matches and create detailed match info
-                        matches = []
-                        caption_match = False
+                        # Check for matches using new three-category system
+                        overall_match_type = 'none'
+                        all_matches = []
                         
                         for j, (token_text, similarity_score) in enumerate(zip(patch_tokens, patch_values)):
-                            token_words = normalize_text_for_matching(token_text)
+                            # Check what type of match this token has (with translation support)
+                            match_type, matches = check_match_type_with_translation(token_text, caption_words, visual_task_words)
                             
-                            # Check for matches with caption words
-                            for token_word in token_words:
-                                for caption_word in caption_words:
-                                    if token_word == caption_word:
-                                        matches.append({
-                                            "token": token_text,
-                                            "token_word": token_word,
-                                            "caption_word": caption_word,
+                            if match_type != 'none':
+                                # Update overall match type (visual_task takes precedence over interpretable)
+                                if match_type == 'visual_task' or (overall_match_type != 'visual_task' and match_type == 'interpretable'):
+                                    overall_match_type = match_type
+                                
+                                # Add detailed match info
+                                for match in matches:
+                                    all_matches.append({
+                                        "token": get_display_token(token_text),
+                                        "token_word": match["token_word"],
+                                        "matched_word": match["matched_word"],
+                                        "match_type": match["match_type"],
                                             "similarity": float(similarity_score)
                                         })
-                                        caption_match = True
                         
-                        # Update overall statistics
-                        total_visual_tokens += 1
-                        if caption_match:
-                            interpretable_visual_tokens += 1
-                            token_position_stats[patch_idx]["interpretable_occurrences"] += 1
-                        
+                        # Update patch with new visual_task_match field
                         patch_results = {
                             "patch_idx": patch_idx,
                             "nearest_neighbors": [
-                                {"token": token, "similarity": float(sim)}
+                                {"token": get_display_token(token), "similarity": float(sim)}
                                 for token, sim in zip(patch_tokens, patch_values)
                             ],
-                            "caption_match": caption_match
+                            "match_type": overall_match_type
                         }
+                        
+                        # Update statistics
+                        total_visual_tokens += 1
+                        if overall_match_type == 'interpretable':
+                            interpretable_visual_tokens += 1
+                            token_position_stats[patch_idx]["interpretable_occurrences"] += 1
+                        elif overall_match_type == 'visual_task':
+                            visual_task_visual_tokens += 1
+                            token_position_stats[patch_idx]["visual_task_occurrences"] += 1
                         
                         # Add row/col information based on patch_idx
                         row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
                         patch_results["patch_row"] = row
                         patch_results["patch_col"] = col
                         
-                        # Add matches if any were found
-                        if matches:
-                            patch_results["matches"] = matches
+                        # Add backward compatibility fields
+                        patch_results["caption_match"] = overall_match_type == 'interpretable'
+                        patch_results["visual_task_match"] = overall_match_type == 'visual_task'
+                        
+                        # Add detailed matches if any were found and not already present
+                        if all_matches and "matches" not in patch_results:
+                            # Update matches to use display tokens
+                            display_matches = []
+                            for match in all_matches:
+                                display_matches.append({
+                                    "token": get_display_token(match["token"]),
+                                    "token_word": match["token_word"],
+                                    "matched_word": match["matched_word"],
+                                    "match_type": match["match_type"],
+                                    "similarity": match["similarity"]
+                                })
+                            patch_results["matches"] = display_matches
+                        
+                        # Update nearest_neighbors to use display tokens
+                        if "nearest_neighbors" in patch_results:
+                            for neighbor in patch_results["nearest_neighbors"]:
+                                if "token" in neighbor:
+                                    neighbor["token"] = get_display_token(neighbor["token"])
                         
                         chunk_results["patches"].append(patch_results)
                     
                     image_results["chunks"].append(chunk_results)
 
         split_results.append(image_results)
-        
-        # Periodically save results to avoid losing progress
-        if (i + 1) % 50 == 0:
-            temp_results = {
-                "partial_results": True,
-                "processed_images": i + 1,
-                "images": split_results,
-                "overall_statistics": {
-                    "total_visual_tokens": total_visual_tokens,
-                    "interpretable_visual_tokens": interpretable_visual_tokens,
-                    "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0
-                }
-            }
-            temp_file = f"temp_results_{i + 1}.json"
-            with open(temp_file, 'w', encoding='utf-8') as f:
-                json.dump(temp_results, f, indent=2, ensure_ascii=False)
     
     # Calculate interpretability percentages for token positions
     for pos_stats in token_position_stats.values():
         total = pos_stats["total_occurrences"]
         interpretable = pos_stats["interpretable_occurrences"]
+        visual_task = pos_stats["visual_task_occurrences"]
         pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+        pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
     
     overall_statistics = {
         "total_visual_tokens": total_visual_tokens,
         "interpretable_visual_tokens": interpretable_visual_tokens,
+        "visual_task_visual_tokens": visual_task_visual_tokens,
         "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+        "visual_task_percentage": (visual_task_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
         "token_position_statistics": token_position_stats
     }
     
     return split_results, overall_statistics
+
+def get_display_token(original_token):
+    """Get display version of token, showing translation with original Chinese in brackets."""
+    if not TRANSLATION_AVAILABLE or not contains_chinese(original_token):
+        return original_token
+    
+    # Check cache first
+    if original_token in _translation_cache:
+        cached_result = _translation_cache[original_token]
+        if cached_result != original_token:  # If we have a translation
+            return f"{cached_result} (translated from {original_token})"
+        else:
+            return original_token
+    
+    # If not in cache, try to translate and cache it
+    translator = get_translator()
+    if translator is None:
+        return original_token
+    
+    try:
+        clean_text = original_token.strip()
+        if not clean_text:
+            return original_token
+        
+        result = translator.translate(clean_text, src='zh-cn', dest='en')
+        if result and result.text:
+            translated = result.text.lower().strip()
+            
+            # Cache the result
+            _translation_cache[original_token] = translated
+            global _cache_dirty, _cache_save_counter
+            _cache_dirty = True
+            _cache_save_counter += 1
+            
+            # Save cache every 100 translations
+            if _cache_save_counter >= 100:
+                save_translation_cache()
+                _cache_save_counter = 0
+            
+            if translated != clean_text.lower():
+                print(f"Translated '{original_token}' -> '{translated}'")
+                return f"{translated} (translated from {original_token})"
+            else:
+                return original_token
+        else:
+            # Cache the failure
+            _translation_cache[original_token] = original_token
+            _cache_dirty = True
+            return original_token
+    except Exception as e:
+        print(f"Translation failed for '{original_token}': {e}")
+        # Cache the failure
+        _translation_cache[original_token] = original_token
+        _cache_dirty = True
+        return original_token
+
 def main():
     parser = argparse.ArgumentParser(description="Analyze PixMoCap interpretability")
     parser.add_argument("--update-only", type=str, help="Path to existing JSON file to update without re-running analysis")
+    parser.add_argument("--force-rerun", action="store_true", help="Force re-running analysis even if results file exists")
     args = parser.parse_args()
     
     # If update-only mode, just update the existing file
@@ -835,10 +1145,95 @@ def main():
     
     # Check if results already exist
     output_file = results_dir / "nearest_neighbors_analysis_pixmo_cap.json"
-    if output_file.exists():
+    if output_file.exists() and not args.force_rerun:
         print(f"Results file already exists: {output_file}")
-        print("Use --update-only flag to update existing results, or delete the file to re-run analysis")
+        print("Checking if it needs updates...")
+        
+        # Load existing results to check what needs updating
+        with open(output_file, 'r', encoding='utf-8') as f:
+            existing_results = json.load(f)
+        
+        needs_visual_task_update = False
+        needs_full_update = False
+        
+        # Check if visual_task_match fields are missing
+        for split_name, split_data in existing_results.get("splits", {}).items():
+            for image_data in split_data.get("images", []):
+                for chunk in image_data.get("chunks", []):
+                    for patch in chunk.get("patches", []):
+                        if "visual_task_match" not in patch:
+                            needs_visual_task_update = True
+                            break
+                    if needs_visual_task_update:
+                        break
+                if needs_visual_task_update:
+                    break
+            if needs_visual_task_update:
+                break
+        
+        # Check if images are missing
+        missing_images = False
+        for split_name, split_data in existing_results.get("splits", {}).items():
+            for image_data in split_data.get("images", []):
+                if "image_filename" not in image_data:
+                    missing_images = True
+                    break
+            if missing_images:
+                break
+        
+        # Check if token position statistics are missing
+        missing_token_stats = "token_position_statistics" not in existing_results.get("overall_statistics", {})
+        
+        # Check if priority logic needs updating (visual_task should take precedence now)
+        needs_priority_update = False
+        sample_patch_checked = False
+        for split_name, split_data in existing_results.get("splits", {}).items():
+            for image_data in split_data.get("images", []):
+                for chunk in image_data.get("chunks", []):
+                    for patch in chunk.get("patches", []):
+                        if not sample_patch_checked:
+                            # Check if this patch has both interpretable and visual_task matches
+                            # but visual_task_match is False (indicating old priority logic)
+                            matches = patch.get("matches", [])
+                            has_interpretable_match = any(m.get("match_type") == "interpretable" for m in matches)
+                            has_visual_task_match = any(m.get("match_type") == "visual_task" for m in matches)
+                            current_visual_task_match = patch.get("visual_task_match", False)
+                            
+                            # If we have both types of matches but visual_task_match is False,
+                            # then the old priority logic was used (interpretable took precedence)
+                            if has_interpretable_match and has_visual_task_match and not current_visual_task_match:
+                                needs_priority_update = True
+                                print("- Detected old priority logic: interpretable was taking precedence over visual_task")
+                                break
+                            sample_patch_checked = True
+                    if needs_priority_update:
+                        break
+                if needs_priority_update:
+                    break
+            if needs_priority_update:
+                break
+        
+        if needs_visual_task_update or missing_images or missing_token_stats or needs_priority_update:
+            print("Existing results need updates. Updating...")
+            if needs_visual_task_update:
+                print("- Adding visual_task_match fields")
+            if missing_images:
+                print("- Saving missing images")
+            if missing_token_stats:
+                print("- Adding token position statistics")
+            if needs_priority_update:
+                print("- Updating priority logic: visual_task now takes precedence over interpretable")
+            
+            # Update the existing results
+            update_existing_results(output_file)
+            print("✓ Results updated successfully!")
+            return
+        else:
+            print("✓ Results file is up to date!")
+            print("Use --force-rerun flag to re-run analysis, or delete the file to start fresh")
         return
+
+    print("Running full analysis...")
 
     # Load model
     print(f"Loading model from {checkpoint_path}")
@@ -851,7 +1246,7 @@ def main():
     else:
         model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
     # Override system prompt kind to avoid length conditioning
-    model_config.system_prompt_kind = "style"
+    model_config.system_prompt_kind = "none"
     preprocessor = build_mm_preprocessor(
         model_config,
         for_inference=True,
@@ -900,6 +1295,7 @@ def main():
         # Combine statistics across splits
         combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
         combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
+        combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
         
         # Combine token position statistics
         combined_token_position_stats = {}
@@ -909,21 +1305,28 @@ def main():
                     combined_token_position_stats[pos] = {
                         "total_occurrences": 0,
                         "interpretable_occurrences": 0,
-                        "interpretability_percentage": 0.0
+                        "visual_task_occurrences": 0,
+                        "interpretability_percentage": 0.0,
+                        "visual_task_percentage": 0.0
                     }
                 combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
                 combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
         
         # Recalculate percentages for combined stats
         for pos_stats in combined_token_position_stats.values():
             total = pos_stats["total_occurrences"]
             interpretable = pos_stats["interpretable_occurrences"]
+            visual_task = pos_stats["visual_task_occurrences"]
             pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+            pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
         
         all_results["overall_statistics"] = {
             "total_visual_tokens": combined_total_tokens,
             "interpretable_visual_tokens": combined_interpretable_tokens,
+            "visual_task_visual_tokens": combined_visual_task_tokens,
             "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+            "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
             "train_statistics": train_statistics,
             "validation_statistics": val_statistics,
             "token_position_statistics": combined_token_position_stats
@@ -951,6 +1354,9 @@ def main():
     # Create and save token position plot
     token_plot_file = results_dir / "token_position_interpretability_plot.png"
     create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+
+    # Save any remaining translations to cache
+    save_translation_cache()
 
 if __name__ == "__main__":
     main() 

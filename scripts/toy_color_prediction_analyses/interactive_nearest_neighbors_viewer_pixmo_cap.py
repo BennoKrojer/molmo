@@ -114,6 +114,10 @@ def create_interactive_visualization(
             patch_idx = patch.get("patch_idx", -1)
             row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
             
+            # Check interpretability using the original field
+            is_interpretable = patch.get("caption_match", False)
+            is_visual_task = patch.get("visual_task_match", False)
+            
             # Get nearest neighbors
             nearest_neighbors = patch.get("nearest_neighbors", [])
             nn_text = ""
@@ -125,9 +129,6 @@ def create_interactive_visualization(
                     nn_list.append(f"{i+1}. '{token}' ({similarity:.3f})")
                 nn_text = "\n".join(nn_list)
             
-            # Check if interpretable
-            is_interpretable = patch.get("caption_match", False)
-            
             # Get matches if available
             matches = patch.get("matches", [])
             matches_text = ""
@@ -135,10 +136,23 @@ def create_interactive_visualization(
                 match_list = []
                 for match in matches:
                     token = match.get("token", "")
-                    token_word = match.get("token_word", "")
-                    caption_word = match.get("caption_word", "")
-                    match_list.append(f"'{token}' → '{caption_word}'")
+                    matched_word = match.get("matched_word", "")
+                    match_list.append(f"'{token}' → '{matched_word}'")
                 matches_text = "; ".join(match_list)
+            
+            # Determine color based on interpretability (three-category system)
+            if is_interpretable:
+                color = "#00AA00"  # Green
+                opacity = 0.5
+                category = "Interpretable"
+            elif is_visual_task:
+                color = "#0066CC"  # Blue
+                opacity = 0.4
+                category = "Visual/Task"
+            else:
+                color = "#AA0000"  # Red
+                opacity = 0.2
+                category = "Non-interpretable"
             
             chart_data.append({
                 "patch_idx": patch_idx,
@@ -146,12 +160,15 @@ def create_interactive_visualization(
                 "col": col,
                 "x": col,
                 "y": grid_size - row - 1,  # Flip Y to match image coordinates
+                "match_type": "none",
+                "category": category,
                 "interpretable": is_interpretable,
-                "color": "green" if is_interpretable else "red",
-                "opacity": 0.8 if is_interpretable else 0.4,
+                "visual_task": is_visual_task,
+                "color": color,
+                "opacity": opacity,
                 "nearest_neighbors": nn_text,
                 "matches": matches_text,
-                "tooltip_text": f"Patch ({row},{col})\nInterpretable: {is_interpretable}\n\nTop 5 Nearest Neighbors:\n{nn_text}" + (f"\n\nMatches: {matches_text}" if matches_text else "")
+                "tooltip_text": f"Patch ({row},{col})\nCategory: {category}\n\nTop 5 Nearest Neighbors:\n{nn_text}\n\nCaption Matches:\n{matches_text}"
             })
     
     # Create DataFrame
@@ -179,11 +196,18 @@ def create_interactive_visualization(
                 axis=alt.Axis(orient='left')),
         color=alt.Color('color:N', 
                        scale=None,
-                       legend=alt.Legend(title="Interpretability",
-                                       values=['green', 'red'],
-                                       labelExpr="datum.value == 'green' ? 'Interpretable' : 'Non-interpretable'")),
+                       legend=alt.Legend(title="Category",
+                                       values=['#00AA00', '#0066CC', '#AA0000'],
+                                       labelExpr="datum.value == '#00AA00' ? 'Interpretable' : datum.value == '#0066CC' ? 'Visual/Task' : 'Non-interpretable'")),
         opacity=alt.Opacity('opacity:Q', scale=None, legend=None),
-        tooltip=['patch_idx:O', 'row:O', 'col:O', 'interpretable:O', 'nearest_neighbors:N', 'matches:N'],
+        tooltip=[
+            alt.Tooltip('patch_idx:O', title='Patch Index'),
+            alt.Tooltip('row:O', title='Row'),
+            alt.Tooltip('col:O', title='Column'),
+            alt.Tooltip('category:O', title='Category'),
+            alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
+            alt.Tooltip('matches:N', title='Caption Matches')
+        ],
         size=alt.value(400)  # Make rectangles larger
     ).properties(
         width=grid_size * 40,  # Adjust size based on grid
@@ -280,6 +304,10 @@ def create_image_grid_visualization(
             x_end = x_start + cell_size
             y_end = y_start + cell_size
             
+            # Check interpretability using the original field
+            is_interpretable = patch.get("caption_match", False)
+            is_visual_task = patch.get("visual_task_match", False)
+            
             # Get nearest neighbors
             nearest_neighbors = patch.get("nearest_neighbors", [])
             nn_text = ""
@@ -289,10 +317,7 @@ def create_image_grid_visualization(
                     token = nn.get("token", "")
                     similarity = nn.get("similarity", 0.0)
                     nn_list.append(f"{i+1}. '{token}' ({similarity:.3f})")
-                nn_text = " | ".join(nn_list)  # Use | for better tooltip formatting
-            
-            # Check if interpretable
-            is_interpretable = patch.get("caption_match", False)
+                nn_text = "\n".join(nn_list)
             
             # Get matches if available
             matches = patch.get("matches", [])
@@ -301,9 +326,23 @@ def create_image_grid_visualization(
                 match_list = []
                 for match in matches:
                     token = match.get("token", "")
-                    caption_word = match.get("caption_word", "")
-                    match_list.append(f"'{token}' → '{caption_word}'")
-                matches_text = " | ".join(match_list)
+                    matched_word = match.get("matched_word", "")
+                    match_list.append(f"'{token}' → '{matched_word}'")
+                matches_text = "; ".join(match_list)
+            
+            # Determine color based on interpretability (three-category system)
+            if is_interpretable:
+                color = "#00AA00"  # Green
+                opacity = 0.5
+                category = "Interpretable"
+            elif is_visual_task:
+                color = "#0066CC"  # Blue
+                opacity = 0.4
+                category = "Visual/Task"
+            else:
+                color = "#AA0000"  # Red
+                opacity = 0.2
+                category = "Non-interpretable"
             
             chart_data.append({
                 "patch_idx": patch_idx,
@@ -315,9 +354,12 @@ def create_image_grid_visualization(
                 "y_end": y_end,
                 "x_center": x_start + cell_size/2,
                 "y_center": y_start + cell_size/2,
+                "match_type": "none",
+                "category": category,
                 "interpretable": is_interpretable,
-                "color": "green" if is_interpretable else "red",
-                "opacity": 0.6 if is_interpretable else 0.3,
+                "visual_task": is_visual_task,
+                "color": color,
+                "opacity": opacity,
                 "nearest_neighbors": nn_text,
                 "matches": matches_text,
                 "stroke_width": 2 if is_interpretable else 1
@@ -358,7 +400,7 @@ def create_image_grid_visualization(
             alt.Tooltip('patch_idx:O', title='Patch Index'),
             alt.Tooltip('row:O', title='Row'),
             alt.Tooltip('col:O', title='Column'),
-            alt.Tooltip('interpretable:O', title='Interpretable'),
+            alt.Tooltip('category:O', title='Category'),
             alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
             alt.Tooltip('matches:N', title='Caption Matches')
         ]
@@ -382,7 +424,7 @@ def create_image_grid_visualization(
             alt.Tooltip('patch_idx:O', title='Patch Index'),
             alt.Tooltip('row:O', title='Row'),
             alt.Tooltip('col:O', title='Column'),
-            alt.Tooltip('interpretable:O', title='Interpretable'),
+            alt.Tooltip('category:O', title='Category'),
             alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
             alt.Tooltip('matches:N', title='Caption Matches')
         ]
@@ -409,7 +451,7 @@ def create_image_grid_visualization(
             text=[
                 f"Interactive Nearest Neighbors Viewer - {split_name.title()} Image {image_idx}",
                 f"Caption: {caption[:80]}..." if len(caption) > 80 else f"Caption: {caption}",
-                "Hover over grid cells to see top 5 nearest neighbor words | Green = Interpretable, Red = Non-interpretable"
+                "Hover over grid cells to see top 5 nearest neighbor words | Green = Interpretable, Blue = Visual/Task, Red = Non-interpretable"
             ],
             fontSize=12,
             anchor='start'
@@ -492,46 +534,56 @@ def create_html_with_image_overlay(
             x = col * cell_size
             y = row * cell_size
             
-            # Get nearest neighbors with proper escaping
+            # Check interpretability using the original field
+            is_interpretable = patch.get("caption_match", False)
+            is_visual_task = patch.get("visual_task_match", False)
+            
+            # Get nearest neighbors
             nearest_neighbors = patch.get("nearest_neighbors", [])
-            nn_list = []
+            nn_text = ""
             if nearest_neighbors:
+                nn_list = []
                 for i, nn in enumerate(nearest_neighbors[:5]):  # Top 5
                     token = nn.get("token", "")
                     similarity = nn.get("similarity", 0.0)
-                    
-                    # Debug: Check for problematic characters
-                    if any(char in token for char in ['"', "'", "\\", "\n", "\r", "\t"]):
-                        print(f"    DEBUG: Patch {patch_idx} has problematic token: {repr(token)}")
-                    
-                    # Escape the token properly
-                    safe_token = escape_for_html_attribute(token)
-                    nn_list.append(f"{i+1}. '{safe_token}' ({similarity:.3f})")
+                    nn_list.append(f"{i+1}. '{token}' ({similarity:.3f})")
+                nn_text = "\n".join(nn_list)
             
-            # Check if interpretable
-            is_interpretable = patch.get("caption_match", False)
-            
-            # Get matches if available with proper escaping
+            # Get matches if available
             matches = patch.get("matches", [])
             matches_list = []
             if matches:
                 for match in matches:
                     token = match.get("token", "")
-                    caption_word = match.get("caption_word", "")
+                    matched_word = match.get("matched_word", "")
                     
                     # Debug: Check for problematic characters
                     if any(char in token for char in ['"', "'", "\\", "\n", "\r", "\t"]) or \
-                       any(char in caption_word for char in ['"', "'", "\\", "\n", "\r", "\t"]):
-                        print(f"    DEBUG: Patch {patch_idx} has problematic match: {repr(token)} -> {repr(caption_word)}")
+                       any(char in matched_word for char in ['"', "'", "\\", "\n", "\r", "\t"]):
+                        print(f"    DEBUG: Patch {patch_idx} has problematic match: {repr(token)} -> {repr(matched_word)}")
                     
                     # Escape properly
                     safe_token = escape_for_html_attribute(token)
-                    safe_caption = escape_for_html_attribute(caption_word)
-                    matches_list.append(f"'{safe_token}' → '{safe_caption}'")
+                    safe_matched_word = escape_for_html_attribute(matched_word)
+                    matches_list.append(f"'{safe_token}' → '{safe_matched_word}'")
             
             # Create safe strings for HTML attributes
             nn_attr = escape_for_html_attribute(" | ".join(nn_list))
             matches_attr = escape_for_html_attribute(" | ".join(matches_list))
+            
+            # Determine color based on interpretability (three-category system)
+            if is_interpretable:
+                color = "#00AA00"  # Green
+                opacity = 0.5
+                category = "Interpretable"
+            elif is_visual_task:
+                color = "#0066CC"  # Blue
+                opacity = 0.4
+                category = "Visual/Task"
+            else:
+                color = "#AA0000"  # Red
+                opacity = 0.2
+                category = "Non-interpretable"
             
             patches_data.append({
                 "patch_idx": patch_idx,
@@ -541,9 +593,12 @@ def create_html_with_image_overlay(
                 "y": y,
                 "width": cell_size,
                 "height": cell_size,
+                "match_type": "none",
+                "category": category,
                 "interpretable": is_interpretable,
-                "color": "#00AA00" if is_interpretable else "#AA0000",
-                "opacity": 0.4 if is_interpretable else 0.2,
+                "visual_task": is_visual_task,
+                "color": color,
+                "opacity": opacity,
                 "nearest_neighbors": nn_attr,
                 "matches": matches_attr
             })
@@ -698,7 +753,9 @@ def create_html_with_image_overlay(
                       data-patch-idx="{patch['patch_idx']}"
                       data-row="{patch['row']}"
                       data-col="{patch['col']}"
+                      data-category="{patch['category']}"
                       data-interpretable="{patch['interpretable']}"
+                      data-visual-task="{patch['visual_task']}"
                       data-nn="{patch['nearest_neighbors']}"
                       data-matches="{patch['matches']}"/>
 """
@@ -713,7 +770,11 @@ def create_html_with_image_overlay(
             <h3>Legend:</h3>
             <div class="legend-item">
                 <span class="legend-color" style="background-color: #00AA00;"></span>
-                <span>Interpretable (matches caption)</span>
+                <span>Interpretable (matches caption content)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #0066CC;"></span>
+                <span>Visual/Task (matches visual interface terms)</span>
             </div>
             <div class="legend-item">
                 <span class="legend-color" style="background-color: #AA0000;"></span>
@@ -721,7 +782,7 @@ def create_html_with_image_overlay(
             </div>
         </div>
         
-        <p><strong>Instructions:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Use the "Hide Grid" button to toggle the overlay on/off to see the clean image.</p>
+        <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells are "interpretable" (contain words that match the caption), blue cells are "visual/task" (contain visual interface terms), red cells are "non-interpretable".</p>
     </div>
 
     <script>
@@ -757,7 +818,7 @@ def create_html_with_image_overlay(
                 
                 let tooltipContent = `
                     <strong>Patch (${{row}}, ${{col}}) - Index ${{patchIdx}}</strong><br>
-                    <strong>Interpretable:</strong> ${{interpretable ? 'Yes' : 'No'}}<br><br>
+                    <strong>Category:</strong> ${{e.target.getAttribute('data-category')}}<br><br>
                     <strong>Top 5 Nearest Neighbors:</strong><br>
                     ${{nearestNeighbors.split(' | ').join('<br>')}}
                 `;
@@ -970,7 +1031,7 @@ def main():
     
     html_content += """
     </ul>
-    <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells are "interpretable" (contain words that match the caption), while red cells are not.</p>
+    <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells are "interpretable" (contain words that match the caption), blue cells are "visual/task" (contain visual interface terms), red cells are "non-interpretable".</p>
 </body>
 </html>
 """

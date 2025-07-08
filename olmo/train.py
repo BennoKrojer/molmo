@@ -303,13 +303,19 @@ class Trainer:
             self.moe_args = config_to_moe_args(self.cfg.model)            
 
         # Load vocab_embeddings from a .npy file
-        if Trainer.vocab_embeddings is None:
-            vocab_embeddings_np = np.load('embedding_matrix_qwen2_7b.npy')
-            Trainer.vocab_embeddings = torch.tensor(vocab_embeddings_np, device=self.device)
-            avg_norm = torch.norm(Trainer.vocab_embeddings, dim=-1).mean().item()
-            print(f"Vocabulary embeddings average norm: {avg_norm}")
-        # Calculate the average textual embedding
-        self.text_avg = Trainer.vocab_embeddings.mean(dim=0)
+        if False:  # Soft-remove legacy vocab embeddings loading
+            if Trainer.vocab_embeddings is None:
+                vocab_embeddings_np = np.load('embedding_matrix_qwen2_7b.npy')
+                Trainer.vocab_embeddings = torch.tensor(vocab_embeddings_np, device=self.device)
+                avg_norm = torch.norm(Trainer.vocab_embeddings, dim=-1).mean().item()
+                print(f"Vocabulary embeddings average norm: {avg_norm}")
+            # Calculate the average textual embedding
+            self.text_avg = Trainer.vocab_embeddings.mean(dim=0)
+        else:
+            # Initialize dummy values to avoid attribute errors
+            if Trainer.vocab_embeddings is None:
+                Trainer.vocab_embeddings = None
+            self.text_avg = None
 
     @property
     def dataset(self) -> IterableDataset:
@@ -967,86 +973,89 @@ class Trainer:
         return ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments, per_position_accuracy, per_layer_accuracy
 
     def compute_nearest_neighbor_alignment(self, visual_embeddings, token_ids, vocab_embeddings, step, k=5):
-        print(f"TRACE: visual_embeddings.shape: {visual_embeddings.shape}")
-        print(f"TRACE: token_ids.shape: {token_ids.shape}")
-        print(f"TRACE: vocab_embeddings.shape: {vocab_embeddings.shape}")
-        print(f"TRACE: token_ids: {token_ids}")
-        B, T, D = visual_embeddings.shape
-        V = vocab_embeddings.shape[0]
+        if False:  # Soft-remove nearest neighbor alignment computation
+            print(f"TRACE: visual_embeddings.shape: {visual_embeddings.shape}")
+            print(f"TRACE: token_ids.shape: {token_ids.shape}")
+            print(f"TRACE: vocab_embeddings.shape: {vocab_embeddings.shape}")
+            print(f"TRACE: token_ids: {token_ids}")
+            B, T, D = visual_embeddings.shape
+            V = vocab_embeddings.shape[0]
 
-        vocab_embeddings_norm = F.normalize(vocab_embeddings, p=2, dim=1)
+            vocab_embeddings_norm = F.normalize(vocab_embeddings, p=2, dim=1)
 
-        def compute(similarities, token_ids_expanded, prefix):
-            correct_sim = similarities[torch.arange(similarities.size(0)), token_ids_expanded]
-            ranks = (similarities >= correct_sim.unsqueeze(1)).sum(dim=1)
-            top1 = (ranks == 1).float().mean()
-            top5 = (ranks <= k).float().mean()
-            mean_rank = ranks.float().mean()
-            mrr = (1.0 / ranks.float()).mean()
+            def compute(similarities, token_ids_expanded, prefix):
+                correct_sim = similarities[torch.arange(similarities.size(0)), token_ids_expanded]
+                ranks = (similarities >= correct_sim.unsqueeze(1)).sum(dim=1)
+                top1 = (ranks == 1).float().mean()
+                top5 = (ranks <= k).float().mean()
+                mean_rank = ranks.float().mean()
+                mrr = (1.0 / ranks.float()).mean()
 
-            # Aggregate metrics across GPUs
-            for tensor in [top1, top5, mean_rank, mrr]:
-                dist.all_reduce(tensor)
-                tensor /= get_world_size()
+                # Aggregate metrics across GPUs
+                for tensor in [top1, top5, mean_rank, mrr]:
+                    dist.all_reduce(tensor)
+                    tensor /= get_world_size()
 
-            return {
-                f"{prefix}/top1_accuracy": top1.item(),
-                f"{prefix}/top5_accuracy": top5.item(),
-                f"{prefix}/mean_rank": mean_rank.item(),
-                f"{prefix}/mrr": mrr.item(),
-            }
+                return {
+                    f"{prefix}/top1_accuracy": top1.item(),
+                    f"{prefix}/top5_accuracy": top5.item(),
+                    f"{prefix}/mean_rank": mean_rank.item(),
+                    f"{prefix}/mrr": mrr.item(),
+                }
 
-        pooled = visual_embeddings.mean(dim=1)  # [B, D]
-        pooled_norm = F.normalize(pooled, p=2, dim=1)
-        sim_pooled = pooled_norm @ vocab_embeddings_norm.T  # [B, V]
-        metrics_pooled = compute(sim_pooled, token_ids, "nn_alignment_pooled")
+            pooled = visual_embeddings.mean(dim=1)  # [B, D]
+            pooled_norm = F.normalize(pooled, p=2, dim=1)
+            sim_pooled = pooled_norm @ vocab_embeddings_norm.T  # [B, V]
+            metrics_pooled = compute(sim_pooled, token_ids, "nn_alignment_pooled")
 
-        flat = visual_embeddings.view(B * T, D)
-        flat_norm = F.normalize(flat, p=2, dim=1)
-        sim_all = flat_norm @ vocab_embeddings_norm.T  # [B*T, V]
-        token_ids_expanded = token_ids.repeat_interleave(T)  # [B*T]
-        metrics_all = compute(sim_all, token_ids_expanded, "nn_alignment_all_tokens")
+            flat = visual_embeddings.view(B * T, D)
+            flat_norm = F.normalize(flat, p=2, dim=1)
+            sim_all = flat_norm @ vocab_embeddings_norm.T  # [B*T, V]
+            token_ids_expanded = token_ids.repeat_interleave(T)  # [B*T]
+            metrics_all = compute(sim_all, token_ids_expanded, "nn_alignment_all_tokens")
 
-        def compute_l2_metrics(embeddings, token_ids_expanded, prefix):
-            # Compute L2 distances
-            l2_distances = torch.cdist(embeddings, vocab_embeddings)
-            # Extract the L2 distance for the correct token
-            correct_l2 = l2_distances[torch.arange(l2_distances.size(0)), token_ids_expanded]
-            # Calculate ranks based on L2 distance
-            ranks = (l2_distances <= correct_l2.unsqueeze(1)).sum(dim=1)
-            top1 = (ranks == 1).float().mean()
-            top5 = (ranks <= k).float().mean()
-            mean_rank = ranks.float().mean()
-            mrr = (1.0 / ranks.float()).mean()
+            def compute_l2_metrics(embeddings, token_ids_expanded, prefix):
+                # Compute L2 distances
+                l2_distances = torch.cdist(embeddings, vocab_embeddings)
+                # Extract the L2 distance for the correct token
+                correct_l2 = l2_distances[torch.arange(l2_distances.size(0)), token_ids_expanded]
+                # Calculate ranks based on L2 distance
+                ranks = (l2_distances <= correct_l2.unsqueeze(1)).sum(dim=1)
+                top1 = (ranks == 1).float().mean()
+                top5 = (ranks <= k).float().mean()
+                mean_rank = ranks.float().mean()
+                mrr = (1.0 / ranks.float()).mean()
 
-            # Aggregate metrics across GPUs
-            for tensor in [top1, top5, mean_rank, mrr]:
-                dist.all_reduce(tensor)
-                tensor /= get_world_size()
+                # Aggregate metrics across GPUs
+                for tensor in [top1, top5, mean_rank, mrr]:
+                    dist.all_reduce(tensor)
+                    tensor /= get_world_size()
 
-            return {
-                f"{prefix}/top1_accuracy": top1.item(),
-                f"{prefix}/top5_accuracy": top5.item(),
-                f"{prefix}/mean_rank": mean_rank.item(),
-                f"{prefix}/mrr": mrr.item(),
-            }
+                return {
+                    f"{prefix}/top1_accuracy": top1.item(),
+                    f"{prefix}/top5_accuracy": top5.item(),
+                    f"{prefix}/mean_rank": mean_rank.item(),
+                    f"{prefix}/mrr": mrr.item(),
+                }
 
-        # Compute L2 metrics for pooled embeddings
-        metrics_pooled_l2 = compute_l2_metrics(pooled, token_ids, "nn_alignment_pooled_l2")
+            # Compute L2 metrics for pooled embeddings
+            metrics_pooled_l2 = compute_l2_metrics(pooled, token_ids, "nn_alignment_pooled_l2")
 
-        # Compute L2 metrics for all tokens
-        metrics_all_l2 = compute_l2_metrics(flat, token_ids_expanded, "nn_alignment_all_tokens_l2")
+            # Compute L2 metrics for all tokens
+            metrics_all_l2 = compute_l2_metrics(flat, token_ids_expanded, "nn_alignment_all_tokens_l2")
 
-        # Combine all metrics
-        metrics = {**metrics_pooled, **metrics_all, **metrics_pooled_l2, **metrics_all_l2}
+            # Combine all metrics
+            metrics = {**metrics_pooled, **metrics_all, **metrics_pooled_l2, **metrics_all_l2}
 
-        if step % 1000 == 0 and B > 0:
-            for i in range(min(5, B)):
-                top_indices = sim_pooled[i].topk(5).indices.tolist()
-                log.info(f"NN Sample {i} (true token: {token_ids[i]}): Top matches: {top_indices}")
+            if step % 1000 == 0 and B > 0:
+                for i in range(min(5, B)):
+                    top_indices = sim_pooled[i].topk(5).indices.tolist()
+                    log.info(f"NN Sample {i} (true token: {token_ids[i]}): Top matches: {top_indices}")
 
-        return metrics
-
+            return metrics
+        else:
+            # Return empty metrics when disabled
+            return {}
 
     def evaluate_nn_alignment(self, batch):
         """
@@ -1058,62 +1067,65 @@ class Trainer:
         Returns:
             Dictionary of metrics
         """
-
-        if "token_id" not in batch:
-            available_keys = list(batch.keys())
-            error_msg = f"token_id missing from batch. Available keys: {available_keys}"
-            print(error_msg)
-            return {}
-        
-        print(f"Performing nearest neighbor alignment evaluation on batch with {batch['token_id'].shape[0]} examples")
-        
-        # Move batch to device if needed
-        batch = self.move_to_device(batch, self.device)
-        
-        # Set model to eval mode temporarily
-        was_training = self.fsdp_model.training
-        self.fsdp_model.eval()
-        
-        # Extract visual embeddings with a forward pass
-        with torch.no_grad():
-            # Get the model's vocabulary embedding matrix
-            vocab_embeddings = Trainer.vocab_embeddings
+        if False:  # Soft-remove nearest neighbor alignment evaluation
+            if "token_id" not in batch:
+                available_keys = list(batch.keys())
+                error_msg = f"token_id missing from batch. Available keys: {available_keys}"
+                print(error_msg)
+                return {}
             
-            # Run the forward pass with return_visual_embeddings=True to get visual embeddings directly
-            output = self.fsdp_model(
-                input_ids=batch["input_ids"],
-                attention_mask=batch.get("attention_mask"),
-                attention_bias=batch.get("attention_bias"),
-                response_mask=(batch["loss_masks"] > 0) if "loss_masks" in batch else None,
-                images=batch.get("images"),
-                image_masks=batch.get("image_masks"),
-                image_input_idx=batch.get("image_input_idx"),
-                subsegment_ids=batch.get("subsegment_ids"),
-                position_ids=batch.get("position_ids"),
-                return_visual_embeddings=True,
-                loss_masks=batch.get("loss_masks")
+            print(f"Performing nearest neighbor alignment evaluation on batch with {batch['token_id'].shape[0]} examples")
+            
+            # Move batch to device if needed
+            batch = self.move_to_device(batch, self.device)
+            
+            # Set model to eval mode temporarily
+            was_training = self.fsdp_model.training
+            self.fsdp_model.eval()
+            
+            # Extract visual embeddings with a forward pass
+            with torch.no_grad():
+                # Get the model's vocabulary embedding matrix
+                vocab_embeddings = Trainer.vocab_embeddings
+                
+                # Run the forward pass with return_visual_embeddings=True to get visual embeddings directly
+                output = self.fsdp_model(
+                    input_ids=batch["input_ids"],
+                    attention_mask=batch.get("attention_mask"),
+                    attention_bias=batch.get("attention_bias"),
+                    response_mask=(batch["loss_masks"] > 0) if "loss_masks" in batch else None,
+                    images=batch.get("images"),
+                    image_masks=batch.get("image_masks"),
+                    image_input_idx=batch.get("image_input_idx"),
+                    subsegment_ids=batch.get("subsegment_ids"),
+                    position_ids=batch.get("position_ids"),
+                    return_visual_embeddings=True,
+                    loss_masks=batch.get("loss_masks")
+                )
+                
+                # Get the visual embeddings
+                visual_embeddings = output.visual_embeddings
+                
+                if visual_embeddings is None:
+                    error_msg = "CRITICAL ERROR: Model returned None for visual_embeddings. Check the model forward pass."
+                    log.error(error_msg)
+                    if self.global_step > 0:
+                        raise ValueError(error_msg)
+                    return {}
+            
+            # Restore model to its previous mode
+            self.fsdp_model.train(was_training)
+            
+            # Compute nearest neighbor metrics using the extracted token IDs
+            metrics = self.compute_nearest_neighbor_alignment(
+                visual_embeddings, batch["token_id"], vocab_embeddings, self.global_step
             )
             
-            # Get the visual embeddings
-            visual_embeddings = output.visual_embeddings
-            
-            if visual_embeddings is None:
-                error_msg = "CRITICAL ERROR: Model returned None for visual_embeddings. Check the model forward pass."
-                log.error(error_msg)
-                if self.global_step > 0:
-                    raise ValueError(error_msg)
-                return {}
-        
-        # Restore model to its previous mode
-        self.fsdp_model.train(was_training)
-        
-        # Compute nearest neighbor metrics using the extracted token IDs
-        metrics = self.compute_nearest_neighbor_alignment(
-            visual_embeddings, batch["token_id"], vocab_embeddings, self.global_step
-        )
-        
-        log.info(f"Nearest neighbor alignment metrics: {metrics}")
-        return metrics
+            log.info(f"Nearest neighbor alignment metrics: {metrics}")
+            return metrics
+        else:
+            # Return empty metrics when disabled
+            return {}
 
     def train_step(self, batch: Dict[str, Any], reduce_global_loss: bool = True) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
@@ -1133,26 +1145,27 @@ class Trainer:
         ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments, per_position_accuracy, per_layer_accuracy = self.train_batch(batch)
 
         # Check if we should run nearest neighbor evaluation
-        should_run_nn_eval = batch.get("token_id") is not None and hasattr(self.cfg, 'expensive_logging_interval') and self.global_step % self.cfg.expensive_logging_interval == 0
+        if False:  # Soft-remove nearest neighbor evaluation check
+            should_run_nn_eval = batch.get("token_id") is not None and hasattr(self.cfg, 'expensive_logging_interval') and self.global_step % self.cfg.expensive_logging_interval == 0
 
-        # Validate required keys for nearest neighbor evaluation
-        if should_run_nn_eval:
-            if "images" not in batch or batch["images"] is None:
-                log.warning(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - batch is missing 'images'")
-                should_run_nn_eval = False
-            elif "token_id" not in batch:
-                log.error(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - CRITICAL ERROR - batch is missing 'token_id'. Available keys: {list(batch.keys())}")
-                # Only raise an error after some initial steps to allow for warmup
-                if self.global_step > 10:
-                    raise ValueError(f"CRITICAL ERROR: token_id missing from batch during nearest neighbor evaluation at step {self.global_step}")
-                should_run_nn_eval = False
-            else:
-                log.info(f"Will run nearest neighbor evaluation at step {self.global_step} with {batch['token_id'].shape[0]} examples")
+            # Validate required keys for nearest neighbor evaluation
+            if should_run_nn_eval:
+                if "images" not in batch or batch["images"] is None:
+                    log.warning(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - batch is missing 'images'")
+                    should_run_nn_eval = False
+                elif "token_id" not in batch:
+                    log.error(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - CRITICAL ERROR - batch is missing 'token_id'. Available keys: {list(batch.keys())}")
+                    # Only raise an error after some initial steps to allow for warmup
+                    if self.global_step > 10:
+                        raise ValueError(f"CRITICAL ERROR: token_id missing from batch during nearest neighbor evaluation at step {self.global_step}")
+                    should_run_nn_eval = False
+                else:
+                    log.info(f"Will run nearest neighbor evaluation at step {self.global_step} with {batch['token_id'].shape[0]} examples")
 
-        # Compute nearest neighbor alignment metrics directly from batch if applicable
-        if should_run_nn_eval:
-            nn_metrics = self.evaluate_nn_alignment(batch)
-            metrics.update(nn_metrics)
+            # Compute nearest neighbor alignment metrics directly from batch if applicable
+            if should_run_nn_eval:
+                nn_metrics = self.evaluate_nn_alignment(batch)
+                metrics.update(nn_metrics)
 
         # Collect loss, potentially reducing over all ranks.
         if reduce_global_loss:
@@ -1272,7 +1285,7 @@ class Trainer:
                 metrics[f"train/LayerAccuracy/layer{layer_idx}"] = layer_acc
 
         # Calculate modality gap for the current batch
-        if self.should_log_this_step() and "images" in batch and batch["images"] is not None:
+        if False and self.should_log_this_step() and "images" in batch and batch["images"] is not None:  # Soft-remove modality gap calculation
             with torch.no_grad():
                 output = self.fsdp_model(
                     input_ids=batch["input_ids"],
@@ -1721,14 +1734,15 @@ class Trainer:
                 self.cfg.stop_at = min(self.cfg.stop_at, self.global_step + self.cfg.stop_after)
 
         # Set default NN evaluation interval if not specified
-        if not hasattr(self.cfg, 'expensive_logging_interval'):
-            self.cfg.expensive_logging_interval = 10
+        if False:  # Soft-remove NN evaluation interval setting
+            if not hasattr(self.cfg, 'expensive_logging_interval'):
+                self.cfg.expensive_logging_interval = 10
 
         self._start_time = time.time()
         self._gc_init_state = gc.isenabled()  # cache if garbage collection is enabled, reset on close.
 
         # Log vocabulary embedding statistics at start of training
-        if wandb.run is not None:
+        if False and wandb.run is not None:  # Soft-remove vocab embedding logging
             vocab_norms = torch.norm(Trainer.vocab_embeddings, dim=-1)
             wandb.run.summary["VocabularyEmbeddings/average_norm"] = vocab_norms.mean().item()
             wandb.run.summary["VocabularyEmbeddings/norm_std"] = vocab_norms.std().item()

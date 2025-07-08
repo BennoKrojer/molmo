@@ -1,13 +1,14 @@
 source ../../env/bin/activate
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 # CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --master_port=29503 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/caption-prompt_mosaic-image.yaml
-CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=29501 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/copy-prompt_mosaic-image.yaml
+# CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=29501 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/copy-prompt_mosaic-image.yaml
 
 # CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --master_port=29501 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/caption-prompt_1color-per-image.yaml
 
 # CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=29501 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/caption-prompt_1color-per-image_3token-only.yaml
 
 
+CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=29503 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/baseline_pixmo-captions_olmo-7b_vit-l-14-336.yaml
 
 # CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --master_port=29502 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/baseline_pixmo-captions.yaml
 # if [ "$1" = "small" ]; then
