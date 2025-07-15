@@ -5,6 +5,9 @@ b) we check if any of the top5 nearest neighbors match any word from the ground 
 c) we track token position statistics across all images
 
 This script now supports both PixMo-Cap and Mosaic datasets via the --dataset argument.
+This is the multi-GPU version that uses FSDP for model sharding to handle large models.
+
+Usage: torchrun --nproc_per_node=2 scripts/toy_color_prediction_analyses/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py --ckpt-path <path>
 """
 import logging
 import sys
@@ -15,10 +18,13 @@ import argparse
 import math
 
 import torch
+import torch.distributed as dist
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+from torch.distributed.fsdp import ShardingStrategy, MixedPrecision
 
 # Add translation library
 try:
@@ -28,28 +34,13 @@ except ImportError:
     TRANSLATION_AVAILABLE = False
     print("Warning: googletrans not available. Install with: pip install googletrans==4.0.0rc1")
 
-# Add Accelerate for model sharding
-try:
-    from accelerate import Accelerator
-    ACCELERATE_AVAILABLE = True
-except ImportError:
-    ACCELERATE_AVAILABLE = False
-    print("Warning: accelerate not available. Install with: pip install accelerate")
-
-# Add DeepSpeed for simple model sharding
-try:
-    import deepspeed
-    DEEPSPEED_AVAILABLE = True
-except ImportError:
-    DEEPSPEED_AVAILABLE = False
-    print("Warning: deepspeed not available. Install with: pip install deepspeed")
-
 from olmo.config import ModelConfig
 from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
 from olmo.util import resource_path
 from olmo.data.pixmo_datasets import PixMoCap, ColorMosaicDataset
 from olmo.data.model_preprocessor import load_image, resize_and_pad
+from olmo.torch_util import get_local_rank, get_world_size
 
 log = logging.getLogger(__name__)
 
@@ -634,242 +625,86 @@ def create_color_interpretability_plot(color_statistics, output_path):
     plt.close()
     log.info(f"Color interpretability plot saved to {output_path}")
 
-def update_existing_results(results_file_path):
-    """Update existing results JSON with detailed match information and token position stats."""
-    print(f"Updating existing results file: {results_file_path}")
-    
-    with open(results_file_path, 'r', encoding='utf-8') as f:
-        all_results = json.load(f)
-    
-    # Create images directory
-    images_dir = results_file_path.parent / "images"
-    images_dir.mkdir(exist_ok=True)
-    
-    # Load datasets for image saving
-    train_dataset = PixMoCap(split="train", mode="captions")
-    val_dataset = PixMoCap(split="validation", mode="captions")
-    
-    # Create a preprocessor for image processing
-    try:
-        # Try to get preprocessor from the checkpoint path in results
-        checkpoint_path = all_results.get("checkpoint", "")
-        if checkpoint_path:
-            if "hf:" in checkpoint_path:
-                model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
-                model_config = model.config
-            else:
-                model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
-            model_config.system_prompt_kind = "none"
-            preprocessor = build_mm_preprocessor(
-                model_config,
-                for_inference=True,
-                shuffle_messages=False,
-                is_training=False,
-                require_image_features=True
-            )
-        else:
-            preprocessor = None
-            log.warning("No checkpoint path found, will save images without preprocessing")
-    except Exception as e:
-        log.warning(f"Could not create preprocessor: {e}, will save images without preprocessing")
-        preprocessor = None
-    
-    # Initialize token position statistics
-    token_position_stats = {}
-    images_saved = 0
-    
-    # Determine patches_per_chunk from existing data
-    patches_per_chunk = None
-    for split_name, split_data in all_results.get("splits", {}).items():
-        for image_data in split_data.get("images", []):
-            for chunk in image_data.get("chunks", []):
-                patches_per_chunk = len(chunk.get("patches", []))
-                break
-            if patches_per_chunk:
-                break
-        if patches_per_chunk:
-            break
-    
-    if patches_per_chunk is None:
-        log.warning("Could not determine patches_per_chunk from existing data, defaulting to 144")
-        patches_per_chunk = 144
-    
-    print(f"Detected {patches_per_chunk} patches per chunk (grid size: {int(math.sqrt(patches_per_chunk))}x{int(math.sqrt(patches_per_chunk))})")
-    
-    # Process each split
-    for split_name, split_data in all_results.get("splits", {}).items():
-        print(f"Processing {split_name} split...")
-        print(f"Number of images in {split_name}: {len(split_data.get('images', []))}")
-        
-        # Select appropriate dataset
-        dataset = train_dataset if split_name == "train" else val_dataset
-        
-        for image_data in tqdm(split_data.get("images", [])):
-            image_idx = image_data.get("image_idx", 0)
-            
-            # Collect interpretable patch indices for this image
-            interpretable_patches = set()
-            for chunk in image_data.get("chunks", []):
-                for patch in chunk.get("patches", []):
-                    if patch.get("caption_match", False):
-                        interpretable_patches.add(patch.get("patch_idx", -1))
-            
-            # Save image with token grid overlay (always save/overwrite)
-            try:
-                example_data = dataset.get(image_idx, np.random)
-                image_path = example_data["image"]
-                print(f"Processing image {image_idx}, image_path: {image_path}")
-                
-                # Load the image from file path using PIL, just like the preprocessor does
-                with Image.open(image_path) as pil_image:
-                    # Convert to RGB to ensure compatibility
-                    pil_image = pil_image.convert("RGB")
-                    
-                    # Save both normal and preprocessed images with token grid overlay
-                    image_filename_base = f"{split_name}_image_{image_idx:04d}"
-                    image_save_path = images_dir / f"{image_filename_base}.jpg"
-                    save_image_with_token_grid(pil_image, image_save_path, patches_per_chunk, preprocessor, interpretable_patches)
-                    
-                    # Update image filenames in the data
-                    image_data["image_filename"] = f"{image_filename_base}.jpg"
-                    image_data["image_filename_grid"] = f"{image_filename_base}_grid.jpg"
-                    images_saved += 1
-                    print(f"Successfully saved {image_filename_base}.jpg and {image_filename_base}_grid.jpg with {len(interpretable_patches)} interpretable patches")
-                    
-            except Exception as e:
-                print(f"Could not save image {image_idx} from {split_name}: {e}")
-                log.warning(f"Could not save image {image_idx} from {split_name}: {e}")
-            
-            # Get ground truth caption and normalize
-            ground_truth_caption = image_data.get("ground_truth_caption", "")
-            if not ground_truth_caption:
-                ground_truth_caption = image_data.get("caption_text", "")
-            caption_words, visual_task_words = normalize_text_for_matching(ground_truth_caption)
-            
-            # Remove caption_words key if it exists
-            if "caption_words" in image_data:
-                del image_data["caption_words"]
-            
-            # Process each chunk
-            for chunk in image_data.get("chunks", []):
-                for patch in chunk.get("patches", []):
-                    patch_idx = patch.get("patch_idx", -1)
-                    
-                    # Add row/col information based on patch_idx
-                    if patch_idx >= 0:
-                        row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                        patch["patch_row"] = row
-                        patch["patch_col"] = col
-                    
-                    # Initialize token position stats if not exists
-                    if patch_idx not in token_position_stats:
-                        row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                        token_position_stats[patch_idx] = {
-                            "total_occurrences": 0,
-                            "interpretable_occurrences": 0,
-                            "visual_task_occurrences": 0,
-                            "interpretability_percentage": 0.0,
-                            "visual_task_percentage": 0.0,
-                            "patch_row": row,
-                            "patch_col": col
-                        }
-                    
-                    token_position_stats[patch_idx]["total_occurrences"] += 1
-                    
-                    # Get nearest neighbors
-                    nearest_neighbors = patch.get("nearest_neighbors", [])
-                    
-                    # Check for matches using new three-category system
-                    overall_match_type = 'none'
-                    all_matches = []
-                    
-                    for neighbor in nearest_neighbors:
-                        token_text = neighbor.get("token", "")
-                        token_words, _ = normalize_text_for_matching(token_text)
-                        
-                        # Check what type of match this token has (with translation support)
-                        match_type, matches = check_match_type_with_translation(token_text, caption_words, visual_task_words)
-                        
-                        if match_type != 'none':
-                            # Update overall match type (visual_task takes precedence over interpretable)
-                            if match_type == 'visual_task' or (overall_match_type != 'visual_task' and match_type == 'interpretable'):
-                                overall_match_type = match_type
-                            
-                            # Add detailed match info
-                            for match in matches:
-                                all_matches.append({
-                                    "token": get_display_token(token_text),
-                                    "token_word": match["token_word"],
-                                    "matched_word": match["matched_word"],
-                                    "match_type": match["match_type"],
-                                        "similarity": neighbor.get("similarity", 0.0)
-                                    })
-                    
-                    # Update patch with new visual_task_match field
-                    patch["visual_task_match"] = (overall_match_type == 'visual_task')
-                    
-                    # Update statistics
-                    if overall_match_type == 'interpretable':
-                        token_position_stats[patch_idx]["interpretable_occurrences"] += 1
-                    elif overall_match_type == 'visual_task':
-                        token_position_stats[patch_idx]["visual_task_occurrences"] += 1
-                    
-                    # Add detailed matches if any were found and not already present
-                    if all_matches and "matches" not in patch:
-                        # Update matches to use display tokens
-                        display_matches = []
-                        for match in all_matches:
-                            display_matches.append({
-                                "token": match["token"],  # Already processed with get_display_token
-                                "token_word": match["token_word"],
-                                "matched_word": match["matched_word"],
-                                "match_type": match["match_type"],
-                                "similarity": match["similarity"]
-                            })
-                        patch["matches"] = display_matches
-                    
-                    # Update nearest_neighbors to use display tokens
-                    if "nearest_neighbors" in patch:
-                        for neighbor in patch["nearest_neighbors"]:
-                            if "token" in neighbor:
-                                neighbor["token"] = get_display_token(neighbor["token"])
+def is_already_translated(token_text):
+    """Check if a token has already been translated (contains 'translated from' pattern)."""
+    return " (translated from " in token_text
 
-    # Calculate interpretability percentages for token positions
-    for pos_stats in token_position_stats.values():
-        total = pos_stats["total_occurrences"]
-        interpretable = pos_stats["interpretable_occurrences"]
-        visual_task = pos_stats["visual_task_occurrences"]
-        pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-        pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+def get_display_token(original_token):
+    """Get display version of token, showing translation with original Chinese in brackets."""
+    # If already translated, return as-is
+    if is_already_translated(original_token):
+        return original_token
+        
+    if not TRANSLATION_AVAILABLE or not contains_chinese(original_token):
+        return original_token
     
-    # Add token position statistics to results
-    all_results["token_position_statistics"] = token_position_stats
+    # Check cache first
+    if original_token in _translation_cache:
+        cached_result = _translation_cache[original_token]
+        if cached_result != original_token:  # If we have a translation
+            return f"{cached_result} (translated from {original_token})"
+        else:
+            return original_token
     
-    # Update overall statistics if they exist
-    for split_name, split_data in all_results.get("splits", {}).items():
-        if "statistics" in split_data:
-            split_stats = split_data["statistics"]
-            # Add token position stats to split statistics
-            split_stats["token_position_statistics"] = token_position_stats
+    # If not in cache, try to translate and cache it
+    translator = get_translator()
+    if translator is None:
+        return original_token
     
-    # Save updated results
-    with open(results_file_path, 'w', encoding='utf-8') as f:
-        json.dump(all_results, f, indent=2, ensure_ascii=False)
-    
-    print(f"Updated results saved to {results_file_path}")
-    print(f"Images saved: {images_saved} (saved to {images_dir})")
-    
-    # Create token position plot
-    plot_path = results_file_path.parent / "token_position_interpretability_plot.png"
-    create_token_position_plot(token_position_stats, plot_path)
-    
-    # Save any remaining translations to cache
-    save_translation_cache()
-    
-    return all_results
+    try:
+        clean_text = original_token.strip()
+        if not clean_text:
+            return original_token
+        
+        result = translator.translate(clean_text, src='zh-cn', dest='en')
+        if result and result.text:
+            translated = result.text.lower().strip()
+            
+            # Cache the result
+            _translation_cache[original_token] = translated
+            global _cache_dirty, _cache_save_counter
+            _cache_dirty = True
+            _cache_save_counter += 1
+            
+            # Save cache every 100 translations
+            if _cache_save_counter >= 100:
+                save_translation_cache()
+                _cache_save_counter = 0
+            
+            if translated != clean_text.lower():
+                print(f"Translated '{original_token}' -> '{translated}'")
+                return f"{translated} (translated from {original_token})"
+            else:
+                return original_token
+        else:
+            # Cache the failure
+            _translation_cache[original_token] = original_token
+            _cache_dirty = True
+            return original_token
+    except Exception as e:
+        print(f"Translation failed for '{original_token}': {e}")
+        # Cache the failure
+        _translation_cache[original_token] = original_token
+        _cache_dirty = True
+        return original_token
 
 def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, images_dir=None, split_name="", dataset_type="pixmo_cap"):
-    """Process a dataset split and return results with detailed match information."""
+    """Process a dataset split and return results with distributed processing."""
+    # Distribute images across processes
+    world_size = get_world_size()
+    local_rank = get_local_rank()
+    
+    images_per_process = num_images // world_size
+    start_idx = local_rank * images_per_process
+    end_idx = start_idx + images_per_process
+    
+    # Handle remainder for last process
+    if local_rank == world_size - 1:
+        end_idx = num_images
+    
+    if local_rank == 0:
+        print(f"Process {local_rank}: Processing images {start_idx} to {end_idx-1}")
+    
     split_results = []
     
     # Initialize statistics tracking
@@ -881,8 +716,8 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
     # For mosaic dataset, also track color statistics
     color_statistics = {} if dataset_type == "mosaic" else None
     
-    # Process each image
-    for i in tqdm(range(num_images)):
+    # Process assigned images for this process
+    for i in tqdm(range(start_idx, end_idx), desc=f"Rank {local_rank}"):
         example_data = dataset.get(i, np.random)
         
         # Extract ground truth based on dataset type
@@ -898,25 +733,23 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
             color_sequence = example_data["metadata"]["color_sequence"]
             ground_truth = color_sequence
         
-        # Save image if images_dir is provided
+        # Save image if images_dir is provided (only on main process)
         image_filename = None
         image_filename_grid = None
-        if images_dir is not None:
+        temp_pil_image = None
+        
+        if images_dir is not None and local_rank == 0:
             try:
                 image_path = example_data["image"]
                 # Load the image from file path using PIL, just like the preprocessor does
                 with Image.open(image_path) as pil_image:
                     # Convert to RGB to ensure compatibility
                     pil_image = pil_image.convert("RGB")
-                    
-                    # We'll save the image with token grid overlay after we determine patches_per_chunk
                     temp_pil_image = pil_image  # Store for later use
                     
             except Exception as e:
                 log.warning(f"Could not load image {i}: {e}")
                 temp_pil_image = None
-        else:
-            temp_pil_image = None
         
         # Prepare matching data based on dataset type
         if dataset_type == "pixmo_cap":
@@ -961,8 +794,9 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
         with torch.inference_mode():
             with torch.autocast("cuda", enabled=True, dtype=torch.float16):
                 # Move data to GPU
-                images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).cuda()
-                image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).cuda() if batch.get("image_masks") is not None else None
+                device = torch.device(f"cuda:{local_rank}")
+                images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).to(device)
+                image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).to(device) if batch.get("image_masks") is not None else None
                 
                 image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
                 # Handle use_n_token_only properly
@@ -973,7 +807,17 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 image_results["feature_shape"] = list(image_features.shape)
                 
                 # Get token embeddings from the model
-                token_embeddings = model.transformer.wte.embedding
+                # Instead of trying to access sharded embeddings, use cached version
+                cached_embeddings_path = "analysis_results/cached_text_embeddings/Qwen_Qwen2-7B/layer_0_static_vocab.npy"
+                try:
+                    token_embeddings = torch.from_numpy(np.load(cached_embeddings_path)).to(device)
+                    if local_rank == 0:
+                        print(f"Loaded cached token embeddings from {cached_embeddings_path}, shape: {token_embeddings.shape}")
+                except FileNotFoundError:
+                    if local_rank == 0:
+                        print(f"Cached embeddings not found at {cached_embeddings_path}, trying to access from model...")
+                    # Fallback to model access (this might fail with FSDP)
+                    token_embeddings = model.transformer.wte.embedding.weight
                 
                 # Reshape image features to combine batch and chunks dimensions
                 batch_size, num_chunks, patches_per_chunk, hidden_dim = image_features.shape
@@ -995,12 +839,12 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 clear_gpu_memory()
 
                 # generated output for reference
-                input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).cuda()
+                input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
                 output = model.generate(
                     input_ids=input_ids,
                     images=images_tensor,
                     image_masks=image_masks_tensor,
-                    image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).cuda() if batch.get("image_input_idx") is not None else None,
+                    image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None,
                     max_steps=600 if dataset_type == "mosaic" else 200,  # More steps for mosaic (multiple color tokens)
                     is_distributed=False
                 )
@@ -1019,8 +863,8 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                     ground_truth_token_strings = [decode_token(preprocessor.tokenizer, token_id) for token_id in ground_truth_tokens]
                     image_results["ground_truth_tokens"] = ground_truth_token_strings
 
-                # Now save the image with grid overlay if we have it
-                if temp_pil_image is not None and images_dir is not None:
+                # Now save the image with grid overlay if we have it (only on main process)
+                if temp_pil_image is not None and images_dir is not None and local_rank == 0:
                     try:
                         # Collect interpretable patches for this image
                         interpretable_patches = set()
@@ -1064,9 +908,6 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                         log.warning(f"Could not save image {i} with grid: {e}")
                         image_filename = None
                         image_filename_grid = None
-                else:
-                    image_filename = None
-                    image_filename_grid = None
 
                 # Add image filenames if saved
                 if image_filename:
@@ -1218,108 +1059,103 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
         # Clear memory after each image to prevent OOM
         clear_gpu_memory()
 
-    # Calculate interpretability percentages for token positions
-    for pos_stats in token_position_stats.values():
-        total = pos_stats["total_occurrences"]
-        interpretable = pos_stats["interpretable_occurrences"]
-        visual_task = pos_stats["visual_task_occurrences"]
-        pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-        pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+    # Gather results from all processes
+    all_split_results = [None] * world_size
+    all_token_position_stats = [None] * world_size
+    if dataset_type == "mosaic":
+        all_color_statistics = [None] * world_size
     
-    if dataset_type == "pixmo_cap":
-        overall_statistics = {
-            "total_visual_tokens": total_visual_tokens,
-            "interpretable_visual_tokens": interpretable_visual_tokens,
-            "visual_task_visual_tokens": visual_task_visual_tokens,
-            "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-            "visual_task_percentage": (visual_task_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-            "token_position_statistics": token_position_stats
-        }
-        return split_results, overall_statistics
-    else:  # mosaic
-        return split_results, token_position_stats, color_statistics
-
-def is_already_translated(token_text):
-    """Check if a token has already been translated (contains 'translated from' pattern)."""
-    return " (translated from " in token_text
-
-def get_display_token(original_token):
-    """Get display version of token, showing translation with original Chinese in brackets."""
-    # If already translated, return as-is
-    if is_already_translated(original_token):
-        return original_token
+    # Use all_gather to collect results from all processes
+    dist.all_gather_object(all_split_results, split_results)
+    dist.all_gather_object(all_token_position_stats, token_position_stats)
+    if dataset_type == "mosaic":
+        dist.all_gather_object(all_color_statistics, color_statistics)
+    
+    # Combine results on main process
+    if local_rank == 0:
+        # Flatten the gathered results
+        combined_results = []
+        for process_results in all_split_results:
+            combined_results.extend(process_results)
         
-    if not TRANSLATION_AVAILABLE or not contains_chinese(original_token):
-        return original_token
-    
-    # Check cache first
-    if original_token in _translation_cache:
-        cached_result = _translation_cache[original_token]
-        if cached_result != original_token:  # If we have a translation
-            return f"{cached_result} (translated from {original_token})"
-        else:
-            return original_token
-    
-    # If not in cache, try to translate and cache it
-    translator = get_translator()
-    if translator is None:
-        return original_token
-    
-    try:
-        clean_text = original_token.strip()
-        if not clean_text:
-            return original_token
+        # Combine token position statistics
+        combined_token_position_stats = {}
+        for process_stats in all_token_position_stats:
+            for patch_idx, stats in process_stats.items():
+                if patch_idx not in combined_token_position_stats:
+                    combined_token_position_stats[patch_idx] = {
+                        "total_occurrences": 0,
+                        "interpretable_occurrences": 0,
+                        "visual_task_occurrences": 0,
+                        "interpretability_percentage": 0.0,
+                        "visual_task_percentage": 0.0,
+                        "patch_row": stats.get("patch_row", 0),
+                        "patch_col": stats.get("patch_col", 0)
+                    }
+                combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
+                combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                combined_token_position_stats[patch_idx]["visual_task_occurrences"] += stats["visual_task_occurrences"]
         
-        result = translator.translate(clean_text, src='zh-cn', dest='en')
-        if result and result.text:
-            translated = result.text.lower().strip()
+        # Calculate interpretability percentages for token positions
+        for pos_stats in combined_token_position_stats.values():
+            total = pos_stats["total_occurrences"]
+            interpretable = pos_stats["interpretable_occurrences"]
+            visual_task = pos_stats["visual_task_occurrences"]
+            pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+            pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+        
+        if dataset_type == "pixmo_cap":
+            # Calculate overall statistics
+            total_visual_tokens = sum(pos_stats["total_occurrences"] for pos_stats in combined_token_position_stats.values())
+            interpretable_visual_tokens = sum(pos_stats["interpretable_occurrences"] for pos_stats in combined_token_position_stats.values())
+            visual_task_visual_tokens = sum(pos_stats["visual_task_occurrences"] for pos_stats in combined_token_position_stats.values())
             
-            # Cache the result
-            _translation_cache[original_token] = translated
-            global _cache_dirty, _cache_save_counter
-            _cache_dirty = True
-            _cache_save_counter += 1
+            overall_statistics = {
+                "total_visual_tokens": total_visual_tokens,
+                "interpretable_visual_tokens": interpretable_visual_tokens,
+                "visual_task_visual_tokens": visual_task_visual_tokens,
+                "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+                "visual_task_percentage": (visual_task_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+                "token_position_statistics": combined_token_position_stats
+            }
+            return combined_results, overall_statistics
+        else:  # mosaic
+            # Combine color statistics
+            combined_color_statistics = {}
+            for process_stats in all_color_statistics:
+                for color, stats in process_stats.items():
+                    if color not in combined_color_statistics:
+                        combined_color_statistics[color] = {
+                            "ground_truth_matches": 0,
+                            "total_samples": 0
+                        }
+                    combined_color_statistics[color]["ground_truth_matches"] += stats["ground_truth_matches"]
+                    combined_color_statistics[color]["total_samples"] += stats["total_samples"]
             
-            # Save cache every 100 translations
-            if _cache_save_counter >= 100:
-                save_translation_cache()
-                _cache_save_counter = 0
-            
-            if translated != clean_text.lower():
-                print(f"Translated '{original_token}' -> '{translated}'")
-                return f"{translated} (translated from {original_token})"
-            else:
-                return original_token
+            return combined_results, combined_token_position_stats, combined_color_statistics
+    else:
+        # Non-main processes return None
+        if dataset_type == "pixmo_cap":
+            return None, None
         else:
-            # Cache the failure
-            _translation_cache[original_token] = original_token
-            _cache_dirty = True
-            return original_token
-    except Exception as e:
-        print(f"Translation failed for '{original_token}': {e}")
-        # Cache the failure
-        _translation_cache[original_token] = original_token
-        _cache_dirty = True
-        return original_token
+            return None, None, None
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze PixMoCap or Mosaic interpretability")
+    # Initialize distributed training
+    dist.init_process_group(backend="nccl")
+    local_rank = get_local_rank()
+    world_size = get_world_size()
+    
+    # Set CUDA device
+    torch.cuda.set_device(f"cuda:{local_rank}")
+    device = torch.device(f"cuda:{local_rank}")
+    
+    parser = argparse.ArgumentParser(description="Analyze PixMoCap or Mosaic interpretability (Multi-GPU version)")
     parser.add_argument("--dataset", type=str, choices=["pixmo_cap", "mosaic"], default="pixmo_cap",
                        help="Which dataset to analyze (default: pixmo_cap)")
-    parser.add_argument("--update-only", type=str, help="Path to existing JSON file to update without re-running analysis")
-    parser.add_argument("--ckpt-path", type=str, help="Path to checkpoint to analyze")
+    parser.add_argument("--ckpt-path", type=str, required=True, help="Path to checkpoint to analyze")
     parser.add_argument("--force-rerun", action="store_true", help="Force re-running analysis even if results file exists")
-    parser.add_argument("--use-accelerate", action="store_true", help="Use Accelerate for model sharding to handle large models")
     args = parser.parse_args()
-    
-    # If update-only mode, just update the existing file
-    if args.update_only:
-        results_file = Path(args.update_only)
-        if not results_file.exists():
-            print(f"Error: File {results_file} does not exist")
-            return
-        update_existing_results(results_file)
-        return
     
     # Hardcoded parameters based on dataset
     checkpoint_path = args.ckpt_path
@@ -1336,47 +1172,69 @@ def main():
         num_train_images = 10
         num_val_images = 10
     
-    print(f"Dataset: {args.dataset}")
-    print(f"Prompt: {prompt}")
+    if local_rank == 0:
+        print(f"Dataset: {args.dataset}")
+        print(f"Prompt: {prompt}")
+        print(f"Running on {world_size} processes")
 
-    # Setup results directory
-    ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
-    results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create images directory
-    images_dir = results_dir / "images"
-    images_dir.mkdir(exist_ok=True)
-    
-    # Check if results already exist
-    output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}.json"
-    if output_file.exists() and not args.force_rerun:
-        print(f"Results file already exists: {output_file}")
-        print("Use --force-rerun flag to re-run analysis, or delete the file to start fresh")
-        return
-
-    print("Running full analysis...")
-
-    # Load model with optional Accelerate sharding
-    print(f"Loading model from {checkpoint_path}")
-    if args.use_accelerate:
-        if not ACCELERATE_AVAILABLE:
-            print("Error: Accelerate not available. Install with: pip install accelerate")
+    # Setup results directory (only on main process)
+    if local_rank == 0:
+        ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
+        results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
+        results_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create images directory
+        images_dir = results_dir / "images"
+        images_dir.mkdir(exist_ok=True)
+        
+        # Check if results already exist
+        output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu.json"
+        if output_file.exists() and not args.force_rerun:
+            print(f"Results file already exists: {output_file}")
+            print("Use --force-rerun flag to re-run analysis, or delete the file to start fresh")
             return
-        
-        print("Using Accelerate for model sharding...")
-        accelerator = Accelerator()
-        
-        # Load model on CPU first, then let Accelerate handle device placement
-        model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
-        model.eval()
-        
-        # Prepare model with Accelerate (this will handle sharding)
-        model = accelerator.prepare(model)
-        print(f"Model prepared with Accelerate on device: {next(model.parameters()).device}")
     else:
-        model = Molmo.from_checkpoint(checkpoint_path, device="cuda")
-        model.eval()
+        results_dir = None
+        images_dir = None
+        output_file = None
+
+    # Wait for main process to set up directories
+    dist.barrier()
+
+    if local_rank == 0:
+        print("Running full analysis...")
+
+    # Load model with FSDP
+    if local_rank == 0:
+        print(f"Loading model from {checkpoint_path}")
+    
+    # Load model on CPU first
+    model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
+    model.eval()
+    
+    # Wrap model with FSDP for sharding
+    if local_rank == 0:
+        print("Wrapping model with FSDP for sharding...")
+    
+    # Get FSDP wrap policy from the model
+    wrap_policy = model.get_fsdp_wrap_policy("by_block_and_size")
+    
+    # Wrap model in FSDP
+    model = FSDP(
+        model,
+        sharding_strategy=ShardingStrategy.FULL_SHARD,
+        mixed_precision=MixedPrecision(
+            param_dtype=torch.float16,
+            reduce_dtype=torch.float16,
+            buffer_dtype=torch.float16,
+        ),
+        auto_wrap_policy=wrap_policy,
+        device_id=local_rank,
+        use_orig_params=True,
+    )
+    
+    if local_rank == 0:
+        print(f"Model wrapped with FSDP on device: {device}")
 
     # Create preprocessor
     if "hf:" in checkpoint_path:
@@ -1395,223 +1253,245 @@ def main():
 
     use_n_token_only = model_config.vision_backbone.use_n_token_only
 
-    # Initialize results dictionary
-    all_results = {
-        "checkpoint": checkpoint_path,
-        "prompt": prompt,
-        "dataset": dataset_name,
-        "dataset_type": args.dataset,
-        "splits": {},
-        "overall_statistics": {}
-    }
+    # Initialize results dictionary (only on main process)
+    if local_rank == 0:
+        all_results = {
+            "checkpoint": checkpoint_path,
+            "prompt": prompt,
+            "dataset": dataset_name,
+            "dataset_type": args.dataset,
+            "num_processes": world_size,
+            "splits": {},
+            "overall_statistics": {}
+        }
+    else:
+        all_results = None
 
     try:
-        # Process train split - load dataset just before processing
-        log.info("Processing train split...")
+        # Process train split
+        if local_rank == 0:
+            print("Processing train split...")
         if args.dataset == "pixmo_cap":
             train_dataset = PixMoCap(split="train", mode="captions")
         else:  # mosaic
             train_dataset = ColorMosaicDataset(split="train", grid_size=24)
         
-        train_results = process_split(model, preprocessor, train_dataset, num_train_images, prompt, use_n_token_only, images_dir, "train", args.dataset)
+        train_results = process_split(
+            model, preprocessor, train_dataset, num_train_images, prompt, 
+            use_n_token_only, images_dir, "train", args.dataset
+        )
         
-        if args.dataset == "pixmo_cap":
-            train_images, train_statistics = train_results
-            all_results["splits"]["train"] = {
-                "num_images": num_train_images,
-                "images": train_images,
-                "statistics": train_statistics
-            }
-        else:  # mosaic
-            train_images, train_token_position_stats, train_color_statistics = train_results
-            all_results["splits"]["train"] = {
-                "num_images": num_train_images,
-                "images": train_images,
-                "token_position_statistics": train_token_position_stats,
-                "color_statistics": train_color_statistics
-            }
+        # Only main process handles results
+        if local_rank == 0:
+            if args.dataset == "pixmo_cap":
+                train_images, train_statistics = train_results
+                all_results["splits"]["train"] = {
+                    "num_images": num_train_images,
+                    "images": train_images,
+                    "statistics": train_statistics
+                }
+            else:  # mosaic
+                train_images, train_token_position_stats, train_color_statistics = train_results
+                all_results["splits"]["train"] = {
+                    "num_images": num_train_images,
+                    "images": train_images,
+                    "token_position_statistics": train_token_position_stats,
+                    "color_statistics": train_color_statistics
+                }
         
         # Clear train dataset from memory and clear GPU cache
         del train_dataset
         del train_results
-        if args.dataset == "pixmo_cap":
-            del train_images, train_statistics
-        else:
-            del train_images, train_token_position_stats, train_color_statistics
         clear_gpu_memory()
+        dist.barrier()
 
-        # Process validation split - load dataset just before processing
-        log.info("Processing validation split...")
+        # Process validation split
+        if local_rank == 0:
+            print("Processing validation split...")
         if args.dataset == "pixmo_cap":
             val_dataset = PixMoCap(split="validation", mode="captions")
         else:  # mosaic
             val_dataset = ColorMosaicDataset(split="validation", grid_size=24)
             
-        val_results = process_split(model, preprocessor, val_dataset, num_val_images, prompt, use_n_token_only, images_dir, "validation", args.dataset)
+        val_results = process_split(
+            model, preprocessor, val_dataset, num_val_images, prompt, 
+            use_n_token_only, images_dir, "validation", args.dataset
+        )
         
         # Clear validation dataset from memory immediately after processing
         del val_dataset
         clear_gpu_memory()
+        dist.barrier()
         
-        if args.dataset == "pixmo_cap":
-            val_images, val_statistics = val_results
-            all_results["splits"]["validation"] = {
-                "num_images": num_val_images,
-                "images": val_images,
-                "statistics": val_statistics
-            }
-            
-            # Get train statistics from saved results for combining
-            train_statistics = all_results["splits"]["train"]["statistics"]
-            
-            # Combine statistics across splits
-            combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
-            combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
-            combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
-            
-            # Combine token position statistics
-            combined_token_position_stats = {}
-            for split_stats in [train_statistics, val_statistics]:
-                for pos, stats in split_stats["token_position_statistics"].items():
-                    if pos not in combined_token_position_stats:
-                        combined_token_position_stats[pos] = {
-                            "total_occurrences": 0,
-                            "interpretable_occurrences": 0,
-                            "visual_task_occurrences": 0,
-                            "interpretability_percentage": 0.0,
-                            "visual_task_percentage": 0.0,
-                            "patch_row": stats.get("patch_row", 0),
-                            "patch_col": stats.get("patch_col", 0)
-                        }
-                    combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
-                    combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                    combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
-            
-            # Recalculate percentages for combined stats
-            for pos_stats in combined_token_position_stats.values():
-                total = pos_stats["total_occurrences"]
-                interpretable = pos_stats["interpretable_occurrences"]
-                visual_task = pos_stats["visual_task_occurrences"]
-                pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
-            
-            all_results["overall_statistics"] = {
-                "total_visual_tokens": combined_total_tokens,
-                "interpretable_visual_tokens": combined_interpretable_tokens,
-                "visual_task_visual_tokens": combined_visual_task_tokens,
-                "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                "train_statistics": train_statistics,
-                "validation_statistics": val_statistics,
-                "token_position_statistics": combined_token_position_stats
-            }
-        else:  # mosaic
-            val_images, val_token_position_stats, val_color_statistics = val_results
-            all_results["splits"]["validation"] = {
-                "num_images": num_val_images,
-                "images": val_images,
-                "token_position_statistics": val_token_position_stats,
-                "color_statistics": val_color_statistics
-            }
-            
-            # Combine token position statistics across splits
-            combined_token_position_stats = {}
-            for split_name, split_data in all_results["splits"].items():
-                split_stats = split_data["token_position_statistics"]
-                for patch_idx, stats in split_stats.items():
-                    if patch_idx not in combined_token_position_stats:
-                        combined_token_position_stats[patch_idx] = {
-                            "total_occurrences": 0,
-                            "interpretable_occurrences": 0,
-                            "interpretability_percentage": 0.0,
-                            "patch_row": stats.get("patch_row", 0),
-                            "patch_col": stats.get("patch_col", 0)
-                        }
-                    combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
-                    combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-            
-            # Recalculate percentages for combined stats
-            for pos_stats in combined_token_position_stats.values():
-                total = pos_stats["total_occurrences"]
-                interpretable = pos_stats["interpretable_occurrences"]
-                pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-            
-            # Combine color statistics across splits
-            combined_color_statistics = {}
-            for split_name, split_data in all_results["splits"].items():
-                split_stats = split_data["color_statistics"]
-                for color, stats in split_stats.items():
-                    if color not in combined_color_statistics:
-                        combined_color_statistics[color] = {
-                            "ground_truth_matches": 0,
-                            "total_samples": 0
-                        }
-                    combined_color_statistics[color]["ground_truth_matches"] += stats["ground_truth_matches"]
-                    combined_color_statistics[color]["total_samples"] += stats["total_samples"]
-            
-            # Add accuracy percentages
-            for color, stats in combined_color_statistics.items():
-                total = stats["total_samples"]
-                if total > 0:
-                    stats["ground_truth_accuracy"] = stats["ground_truth_matches"] / total
-            
-            # Sort color statistics by ground_truth_accuracy (descending) for easier analysis
-            sorted_color_statistics = []
-            for color, stats in combined_color_statistics.items():
-                stats_with_color = stats.copy()
-                stats_with_color["color"] = color
-                sorted_color_statistics.append(stats_with_color)
-            
-            # Sort by ground_truth_accuracy descending
-            sorted_color_statistics.sort(key=lambda x: (x.get("ground_truth_accuracy", 0)), reverse=True)
-            
-            # Calculate overall statistics
-            total_interpretable_tokens = sum(stats["interpretable_occurrences"] for stats in combined_token_position_stats.values())
-            total_visual_tokens = sum(stats["total_occurrences"] for stats in combined_token_position_stats.values())
-            
-            all_results["overall_statistics"] = {
-                "total_visual_tokens": total_visual_tokens,
-                "interpretable_visual_tokens": total_interpretable_tokens,
-                "interpretability_percentage": (total_interpretable_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-                "token_position_statistics": combined_token_position_stats,
-                "color_statistics": sorted_color_statistics
-            }
+        # Only main process handles results and saves files
+        if local_rank == 0:
+            if args.dataset == "pixmo_cap":
+                val_images, val_statistics = val_results
+                all_results["splits"]["validation"] = {
+                    "num_images": num_val_images,
+                    "images": val_images,
+                    "statistics": val_statistics
+                }
+                
+                # Get train statistics from saved results for combining
+                train_statistics = all_results["splits"]["train"]["statistics"]
+                
+                # Combine statistics across splits
+                combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
+                combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
+                combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
+                
+                # Combine token position statistics
+                combined_token_position_stats = {}
+                for split_stats in [train_statistics, val_statistics]:
+                    for pos, stats in split_stats["token_position_statistics"].items():
+                        if pos not in combined_token_position_stats:
+                            combined_token_position_stats[pos] = {
+                                "total_occurrences": 0,
+                                "interpretable_occurrences": 0,
+                                "visual_task_occurrences": 0,
+                                "interpretability_percentage": 0.0,
+                                "visual_task_percentage": 0.0,
+                                "patch_row": stats.get("patch_row", 0),
+                                "patch_col": stats.get("patch_col", 0)
+                            }
+                        combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
+                        combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                        combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
+                
+                # Recalculate percentages for combined stats
+                for pos_stats in combined_token_position_stats.values():
+                    total = pos_stats["total_occurrences"]
+                    interpretable = pos_stats["interpretable_occurrences"]
+                    visual_task = pos_stats["visual_task_occurrences"]
+                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                    pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+                
+                all_results["overall_statistics"] = {
+                    "total_visual_tokens": combined_total_tokens,
+                    "interpretable_visual_tokens": combined_interpretable_tokens,
+                    "visual_task_visual_tokens": combined_visual_task_tokens,
+                    "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "train_statistics": train_statistics,
+                    "validation_statistics": val_statistics,
+                    "token_position_statistics": combined_token_position_stats
+                }
+            else:  # mosaic
+                val_images, val_token_position_stats, val_color_statistics = val_results
+                all_results["splits"]["validation"] = {
+                    "num_images": num_val_images,
+                    "images": val_images,
+                    "token_position_statistics": val_token_position_stats,
+                    "color_statistics": val_color_statistics
+                }
+                
+                # Combine token position statistics across splits
+                combined_token_position_stats = {}
+                for split_name, split_data in all_results["splits"].items():
+                    split_stats = split_data["token_position_statistics"]
+                    for patch_idx, stats in split_stats.items():
+                        if patch_idx not in combined_token_position_stats:
+                            combined_token_position_stats[patch_idx] = {
+                                "total_occurrences": 0,
+                                "interpretable_occurrences": 0,
+                                "interpretability_percentage": 0.0,
+                                "patch_row": stats.get("patch_row", 0),
+                                "patch_col": stats.get("patch_col", 0)
+                            }
+                        combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
+                        combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                
+                # Recalculate percentages for combined stats
+                for pos_stats in combined_token_position_stats.values():
+                    total = pos_stats["total_occurrences"]
+                    interpretable = pos_stats["interpretable_occurrences"]
+                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                
+                # Combine color statistics across splits
+                combined_color_statistics = {}
+                for split_name, split_data in all_results["splits"].items():
+                    split_stats = split_data["color_statistics"]
+                    for color, stats in split_stats.items():
+                        if color not in combined_color_statistics:
+                            combined_color_statistics[color] = {
+                                "ground_truth_matches": 0,
+                                "total_samples": 0
+                            }
+                        combined_color_statistics[color]["ground_truth_matches"] += stats["ground_truth_matches"]
+                        combined_color_statistics[color]["total_samples"] += stats["total_samples"]
+                
+                # Add accuracy percentages
+                for color, stats in combined_color_statistics.items():
+                    total = stats["total_samples"]
+                    if total > 0:
+                        stats["ground_truth_accuracy"] = stats["ground_truth_matches"] / total
+                
+                # Sort color statistics by ground_truth_accuracy (descending) for easier analysis
+                sorted_color_statistics = []
+                for color, stats in combined_color_statistics.items():
+                    stats_with_color = stats.copy()
+                    stats_with_color["color"] = color
+                    sorted_color_statistics.append(stats_with_color)
+                
+                # Sort by ground_truth_accuracy descending
+                sorted_color_statistics.sort(key=lambda x: (x.get("ground_truth_accuracy", 0)), reverse=True)
+                
+                # Calculate overall statistics
+                total_interpretable_tokens = sum(stats["interpretable_occurrences"] for stats in combined_token_position_stats.values())
+                total_visual_tokens = sum(stats["total_occurrences"] for stats in combined_token_position_stats.values())
+                
+                all_results["overall_statistics"] = {
+                    "total_visual_tokens": total_visual_tokens,
+                    "interpretable_visual_tokens": total_interpretable_tokens,
+                    "interpretability_percentage": (total_interpretable_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+                    "token_position_statistics": combined_token_position_stats,
+                    "color_statistics": sorted_color_statistics
+                }
 
     except Exception as e:
-        log.error(f"Error during processing: {str(e)}")
-        # Save partial results if there's an error
-        output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_partial.json"
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(all_results, f, indent=2, ensure_ascii=False)
+        if local_rank == 0:
+            log.error(f"Error during processing: {str(e)}")
+            # Save partial results if there's an error
+            output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_partial.json"
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(all_results, f, indent=2, ensure_ascii=False)
         raise
 
-    # Save final results
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(all_results, f, indent=2, ensure_ascii=False)
-    
-    log.info(f"Results saved to {output_file}")
-    log.info(f"Images saved to {images_dir} (Train: {num_train_images}, Validation: {num_val_images})")
-    
-    # Create and save plots based on dataset type
-    if args.dataset == "pixmo_cap":
-        # Create and save interpretability plot
-        plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_summary_plot.png"
-        create_interpretability_plot(all_results["overall_statistics"], plot_file)
-
-        # Create and save token position plot
-        token_plot_file = results_dir / "token_position_interpretability_plot.png"
-        create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
-    else:  # mosaic
-        # Create and save color interpretability plot
-        color_plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_color_plot.png"
-        create_color_interpretability_plot(all_results["overall_statistics"]["color_statistics"], color_plot_file)
+    # Save final results and create plots (only on main process)
+    if local_rank == 0:
+        # Save final results
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(all_results, f, indent=2, ensure_ascii=False)
         
-        # Create token position plot
-        token_plot_file = results_dir / "token_position_interpretability_plot.png"
-        create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+        print(f"Results saved to {output_file}")
+        print(f"Images saved to {images_dir} (Train: {num_train_images}, Validation: {num_val_images})")
+        
+        # Create and save plots based on dataset type
+        if args.dataset == "pixmo_cap":
+            # Create and save interpretability plot
+            plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_summary_plot.png"
+            create_interpretability_plot(all_results["overall_statistics"], plot_file)
 
-    # Save any remaining translations to cache
-    save_translation_cache()
+            # Create and save token position plot
+            token_plot_file = results_dir / "token_position_interpretability_plot_multi-gpu.png"
+            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+        else:  # mosaic
+            # Create and save color interpretability plot
+            color_plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_color_plot.png"
+            create_color_interpretability_plot(all_results["overall_statistics"]["color_statistics"], color_plot_file)
+            
+            # Create token position plot
+            token_plot_file = results_dir / "token_position_interpretability_plot_multi-gpu.png"
+            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+
+        # Save any remaining translations to cache
+        save_translation_cache()
+
+    # Wait for all processes to finish
+    dist.barrier()
+    if local_rank == 0:
+        print("Analysis complete!")
 
 if __name__ == "__main__":
     main() 

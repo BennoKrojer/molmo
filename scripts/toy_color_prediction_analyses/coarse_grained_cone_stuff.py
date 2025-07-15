@@ -15,7 +15,7 @@ from olmo.model import Molmo
 from olmo.data.pixmo_datasets import PixMoCap
 from olmo.util import resource_path
 from olmo.data import build_mm_preprocessor
-
+import argparse
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -175,10 +175,17 @@ def delete_vision_backbone(model):
 
 
 def main():
+
+    # argparse stuff
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint_path", type=str, required=True, default="molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336/step12000-unsharded")
+    parser.add_argument("--text_model_name", type=str, required=True, default="Qwen/Qwen2-7B")
+    args = parser.parse_args()
+
     # Hardcoded parameters
-    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize/step3000-unsharded"
-    text_model_name = "Qwen/Qwen2-7B"  # Which text model to compare against
-    
+    checkpoint_path = args.checkpoint_path
+    text_model_name = args.text_model_name
+     
     # Setup results directory
     ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
     results_dir = Path("analysis_results/anisotropy") / ckpt_name
@@ -470,6 +477,7 @@ def main():
     inter_image_visual_similarities = []  # One random visual token per image
     intra_image_visual_similarities = []  # All visual tokens within each image
     visual_to_text_similarities = []      # Visual tokens vs layer-wise text embeddings
+    visual_to_text_max_similarities = []  # Maximum similarity for each visual token to any text token
     
     # Layer 0: Compare input embeddings (vocabulary matrices)
     log.info("Computing layer 0 similarities (input embeddings)...")
@@ -551,7 +559,11 @@ def main():
     text_similarities = cross_modal_similarity[visual_indices, vocab_indices].cpu().numpy()
     visual_to_text_similarities.append(np.mean(text_similarities))
     
-    log.info(f"Layer 0 (input embeddings) - Inter-image: {inter_image_visual_similarities[0]:.4f}, Intra-image: {intra_image_visual_similarities[0]:.4f}, Visual-to-text: {visual_to_text_similarities[0]:.4f}")
+    # Compute maximum similarities for each visual token
+    max_similarities = torch.max(cross_modal_similarity, dim=1)[0].cpu().numpy()
+    visual_to_text_max_similarities.append(np.mean(max_similarities))
+    
+    log.info(f"Layer 0 (input embeddings) - Inter-image: {inter_image_visual_similarities[0]:.4f}, Intra-image: {intra_image_visual_similarities[0]:.4f}, Visual-to-text: {visual_to_text_similarities[0]:.4f}, Visual-to-text-max: {visual_to_text_max_similarities[0]:.4f}")
     
     # Process transformer layers 1 through N
     for layer_idx in tqdm(range(num_layers), desc="Computing transformer layer similarities"):
@@ -662,8 +674,13 @@ def main():
             text_similarities = cross_modal_similarity[visual_indices, text_indices].cpu().numpy()
             
             visual_to_text_similarities.append(np.mean(text_similarities))
+            
+            # Compute maximum similarities for each visual token
+            max_similarities = torch.max(cross_modal_similarity, dim=1)[0].cpu().numpy()
+            visual_to_text_max_similarities.append(np.mean(max_similarities))
         else:
             visual_to_text_similarities.append(np.nan)
+            visual_to_text_max_similarities.append(np.nan)
     
     # Create the final plots with updated x-axis labels
     log.info("Creating layer-wise similarity plots...")
@@ -714,7 +731,8 @@ def main():
     plt.figure(figsize=(12, 6))
     plt.plot(layer_labels, inter_image_visual_similarities, 'b-', linewidth=2, label='Inter-image Visual')
     plt.plot(layer_labels, intra_image_visual_similarities, 'g-', linewidth=2, label='Intra-image Visual')
-    plt.plot(layer_labels, visual_to_text_similarities, 'r-', linewidth=2, label='Visual-to-Text (Layer-wise)')
+    plt.plot(layer_labels, visual_to_text_similarities, 'r-', linewidth=2, label='Visual-to-Text (Random)')
+    plt.plot(layer_labels, visual_to_text_max_similarities, 'm-', linewidth=2, label='Visual-to-Text (Max)')
     plt.title(f'Visual Token Similarities Across Transformer Layers\n(Layer 0 = Input Embeddings, Text comparison: {text_model_name})')
     plt.xlabel('Layer Index')
     plt.ylabel('Mean Cosine Similarity')
@@ -729,14 +747,16 @@ def main():
     np.save(results_dir / "inter_image_visual_similarities.npy", np.array(inter_image_visual_similarities))
     np.save(results_dir / "intra_image_visual_similarities.npy", np.array(intra_image_visual_similarities))
     np.save(results_dir / "visual_to_text_similarities.npy", np.array(visual_to_text_similarities))
+    np.save(results_dir / "visual_to_text_max_similarities.npy", np.array(visual_to_text_max_similarities))
     
     log.info("Layer-wise similarity analysis complete!")
     
     # Print summary statistics
-    log.info(f"Layer 0 (Input) - Inter-image: {inter_image_visual_similarities[0]:.4f}, Intra-image: {intra_image_visual_similarities[0]:.4f}, Visual-to-text: {visual_to_text_similarities[0]:.4f}")
+    log.info(f"Layer 0 (Input) - Inter-image: {inter_image_visual_similarities[0]:.4f}, Intra-image: {intra_image_visual_similarities[0]:.4f}, Visual-to-text: {visual_to_text_similarities[0]:.4f}, Visual-to-text-max: {visual_to_text_max_similarities[0]:.4f}")
     log.info(f"Inter-image visual similarities: mean={np.nanmean(inter_image_visual_similarities):.4f}, std={np.nanstd(inter_image_visual_similarities):.4f}")
     log.info(f"Intra-image visual similarities: mean={np.nanmean(intra_image_visual_similarities):.4f}, std={np.nanstd(intra_image_visual_similarities):.4f}")
     log.info(f"Visual-to-text similarities: mean={np.nanmean(visual_to_text_similarities):.4f}, std={np.nanstd(visual_to_text_similarities):.4f}")
+    log.info(f"Visual-to-text max similarities: mean={np.nanmean(visual_to_text_max_similarities):.4f}, std={np.nanstd(visual_to_text_max_similarities):.4f}")
     
     # Also compute similarities for the original cached visual embeddings as baseline
     log.info("Computing baseline similarities using original cached visual embeddings...")

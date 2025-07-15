@@ -94,7 +94,7 @@ def plot_cosine_histogram(cosine_sims, model_name, use_mean_embeddings=False):
     plt.savefig(f'{filename}.png')
     plt.close()
 
-def get_token_embeddings(model_name, max_vocab=50000):
+def get_token_embeddings(model_name):
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float32, trust_remote_code=True)
     emb_layer = model.get_input_embeddings()
     
@@ -109,7 +109,7 @@ def get_token_embeddings(model_name, max_vocab=50000):
     
     norms = np.linalg.norm(emb, axis=1)
     print(f"mean norm: {norms.mean():.4f}, std: {norms.std():.4f}, min: {norms.min():.4f}, max: {norms.max():.4f}")
-    return emb[:max_vocab]  # clip to 50k if huge
+    return emb
 
 def load_diverse_sentences(num_sentences=NUM_SENTENCES):
     """Load a diverse set of sentences from DBPedia-14 dataset."""
@@ -305,13 +305,15 @@ def analyze_layer_similarities(layer_embeddings, model_name, static_embeddings):
 
 model_names = [
     # "EleutherAI/gpt-j-6B",
-    "Qwen/Qwen2-7B",
+    # "Qwen/Qwen2-7B",
     # "tiiuae/falcon-7b",
     # "meta-llama/Llama-3.1-8B-Instruct",
     # "lmsys/vicuna-7b-v1.5"
     # "google/gemma-2-9b-it",
     # "allenai/Molmo-7B-D-0924",
     # "allenai/OLMo-1B"
+    # "allenai/OLMoE-1B-7B-0924",
+    "allenai/OLMo-7B-1024-preview"
 ]
 
 for name in model_names:

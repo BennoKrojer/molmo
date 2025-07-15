@@ -865,6 +865,7 @@ class OLMoEBlock(OLMoBlock):
         use_cache: bool = False,
         max_doc_len: Optional[int] = None,
         cu_doc_lens: Optional[torch.Tensor] = None,
+        output_attentions: bool = False,
     ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
         # Get query, key, value projections.
         # shape:
@@ -888,7 +889,7 @@ class OLMoEBlock(OLMoBlock):
 
         # Get attention scores.
         if self._activation_checkpoint_fn is not None:
-            att, cache = self._activation_checkpoint_fn(  # type: ignore
+            att, cache, _ = self._activation_checkpoint_fn(  # type: ignore
                 self.attention,
                 q,
                 k,
@@ -902,7 +903,7 @@ class OLMoEBlock(OLMoBlock):
                 # cu_doc_lens=cu_doc_lens,
             )
         else:
-            att, cache = self.attention(
+            att, cache, _ = self.attention(
                 q,
                 k,
                 v,
@@ -2095,13 +2096,20 @@ class Molmo(nn.Module):
                 layer_past = None if past_key_values is None else past_key_values[block_idx]
                 if should_checkpoint_block(self.activation_checkpointing_strategy, block_idx):
                     # shape: (batch_size, seq_len, d_model)
-                    x, cache, attn_map = self._activation_checkpoint_fn(
-                        block, x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions
-                    )
+                        out = self._activation_checkpoint_fn(
+                            block, x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions
+                        )
+                        if len(out) == 3:
+                            x, cache, attn_map = out
+                        else:
+                            x, cache = out
                 else:
                     # shape: (batch_size, seq_len, d_model)
-                    x, cache, attn_map = block(x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions)
-                
+                    out = block(x, attention_bias=attention_bias, position_ids=position_ids, drop_mask=response_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions)
+                    if len(out) == 3:
+                        x, cache, attn_map = out
+                    else:
+                        x, cache = out
                 if output_attentions:
                     attn_maps_per_layer.append(attn_map)
 

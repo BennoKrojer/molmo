@@ -1,54 +1,54 @@
-run_name: baseline_pixmo-captions_resize_olmo-7b_vit-l-14-336
+run_name: baseline_pixmo-captions_resize_qwen2-7b_siglip
 seed: 6198
 epoch: null
 dry_run: false
 model:
-  d_model: 4096
-  n_heads: 32
-  n_kv_heads: null
-  qkv_bias: false
+  d_model: 3584
+  n_heads: 28
+  n_kv_heads: 4
+  qkv_bias: true
   clip_qkv: null
-  n_layers: 32
+  n_layers: 28
   mlp_ratio: 4
-  mlp_hidden_size: 22016
+  mlp_hidden_size: 37888
   activation_type: swiglu
   block_type: sequential
   block_group_size: 1
   rope: true
   rope_full_precision: true
-  rope_theta: 500000
+  rope_theta: 1000000.0
   vision_backbone:
-    image_model_type: openai
+    image_model_type: siglip
     image_default_input_size:
-    - 336
-    - 336
+    - 378
+    - 378
     image_patch_size: 14
     image_pos_patch_size: 14
-    image_emb_dim: 1024
+    image_emb_dim: 1152
     image_num_heads: 16
     image_num_key_value_heads: 16
-    image_num_layers: 23
-    image_head_dim: 64
-    image_mlp_dim: 4096
-    image_mlp_activations: quick_gelu
+    image_num_layers: 27
+    image_head_dim: 72
+    image_mlp_dim: 4304
+    image_mlp_activations: gelu_pytorch_tanh
     image_dropout_rate: 0.0
-    image_num_pos: 577
-    image_norm_eps: 1.0e-05
+    image_num_pos: 729
+    image_norm_eps: 1.0e-06
     attention_dropout: 0.0
     residual_dropout: 0.0
     initializer_range: 0.02
     fsdp_wrap: false
-    resize_mode: default
-  vit_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_image_encoders/vit-l-14-336.pt
-  llm_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_llms/olmo-1024-preview.pt
+    resize_mode: siglip
+  vit_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_image_encoders/siglip-so400m-14-384.pt
+  llm_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_llms/qwen2-7b.pt
   low_cpu_fsdp: true
   attention_type: sdpa
   float32_attention: true
   attention_dropout: 0.0
-  attention_layer_norm: true
+  attention_layer_norm: false
   residual_dropout: 0.0
   response_residual_dropout: 0.1
-  embedding_dropout: 0
+  embedding_dropout: 0.0
   layer_norm_type: rms
   layer_norm_with_affine: true
   layer_norm_eps: 1.0e-06
@@ -56,18 +56,18 @@ model:
   max_sequence_length: 1600
   max_position_embeddings: null
   include_bias: false
-  bias_for_layer_norm: false
+  bias_for_layer_norm: null
   scale_logits: false
-  vocab_size: 100278
-  embedding_size: 100352
+  vocab_size: 152064
+  embedding_size: 152064
   additional_vocab_size: 128
   new_embedding_init_range: 0.02
   weight_tying: false
-  init_device: meta
+  init_device: null
   init_fn: normal
   init_std: 0.02
-  init_cutoff_factor: 3.0
-  norm_after: true
+  init_cutoff_factor: null
+  norm_after: false
   precision: amp_bf16
   max_crops: 12
   # crop_mode: resize
@@ -98,7 +98,7 @@ model:
   use_position_ids: true
   head_dim: null
   tokenizer:
-    identifier: "allenai/dolma2-tokenizer"
+    identifier: Qwen/Qwen2-7B
     tokenizer_dir: null
   pad_tokenizer: true
   moe_num_experts: 8
@@ -112,7 +112,7 @@ model:
   moe_zloss_weight: null
   moe_dropless: true
   moe_capacity_factor: 1.25
-allow_resume: true
+allow_resume: false
 ft_llm: false
 ft_vit: false
 ft_connector: true
@@ -236,7 +236,7 @@ evaluators:
 eval_interval: 1000
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336
+save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip
 remote_save_folder: null
 canceled_check_interval: 50
 save_interval: 2000

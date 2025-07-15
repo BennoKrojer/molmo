@@ -1,12 +1,13 @@
-"""Interactive Web App for Viewing Nearest Neighbors
+"""Interactive Web App for Viewing Nearest Neighbors - Mosaic Color Data
 
 This script creates an interactive Altair visualization where you can hover over 
 image patches to see the top5 nearest neighbor words for each visual token.
+Specifically designed for color mosaic data format.
 
 Usage:
-    python interactive_nearest_neighbors_viewer.py --results-file path/to/results.json
-    python interactive_nearest_neighbors_viewer.py --results-file path/to/results.json --image-idx 5
-    python interactive_nearest_neighbors_viewer.py --results-file path/to/results.json --split train --image-idx 5
+    python interactive_nearest_neighbors_viewer_mosaic_data.py --results-file path/to/results.json
+    python interactive_nearest_neighbors_viewer_mosaic_data.py --results-file path/to/results.json --image-idx 5
+    python interactive_nearest_neighbors_viewer_mosaic_data.py --results-file path/to/results.json --split train --image-idx 5
 """
 
 import json
@@ -92,7 +93,10 @@ def create_interactive_visualization(
     
     # Extract basic info
     image_idx = image_data.get("image_idx", 0)
-    caption = image_data.get("ground_truth_caption", "No caption available")
+    
+    # Handle color grid format which uses true_color_sequence instead of ground_truth_caption
+    color_sequence = image_data.get("true_color_sequence", [])
+    caption = f"Color sequence: {' '.join(color_sequence)}" if color_sequence else "No color sequence available"
     
     # Get chunks and patches
     chunks = image_data.get("chunks", [])
@@ -114,9 +118,9 @@ def create_interactive_visualization(
             patch_idx = patch.get("patch_idx", -1)
             row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
             
-            # Check interpretability using the original field
-            is_interpretable = patch.get("caption_match", False)
-            is_visual_task = patch.get("visual_task_match", False)
+            # Check interpretability using ground_truth_match (for color matching)
+            is_interpretable = patch.get("ground_truth_match", False)
+            corresponding_color = patch.get("corresponding_color", "")
             
             # Get nearest neighbors
             nearest_neighbors = patch.get("nearest_neighbors", [])
@@ -136,23 +140,36 @@ def create_interactive_visualization(
                 match_list = []
                 for match in matches:
                     token = match.get("token", "")
-                    matched_word = match.get("matched_word", "")
-                    match_list.append(f"'{token}' → '{matched_word}'")
+                    ground_truth_color = match.get("ground_truth_color", "")
+                    match_type = match.get("match_type", "")
+                    match_list.append(f"'{token}' → '{ground_truth_color}' ({match_type})")
                 matches_text = "; ".join(match_list)
             
-            # Determine color based on interpretability (three-category system)
+            # Determine color based on interpretability (simpler for color grids)
             if is_interpretable:
                 color = "#00AA00"  # Green
-                opacity = 0.5
-                category = "Interpretable"
-            elif is_visual_task:
-                color = "#0066CC"  # Blue
-                opacity = 0.4
-                category = "Visual/Task"
+                opacity = 0.6
+                category = "Color Match"
             else:
                 color = "#AA0000"  # Red
-                opacity = 0.2
-                category = "Non-interpretable"
+                opacity = 0.3
+                category = "No Match"
+            
+            # Create tooltip text with color-specific information
+            tooltip_parts = [
+                f"Patch ({row},{col}) - Index {patch_idx}",
+                f"Category: {category}"
+            ]
+            
+            if corresponding_color:
+                tooltip_parts.append(f"Expected Color: {corresponding_color}")
+            
+            tooltip_parts.append(f"\nTop 5 Nearest Neighbors:\n{nn_text}")
+            
+            if matches_text:
+                tooltip_parts.append(f"\nColor Matches:\n{matches_text}")
+            
+            tooltip_text = "\n".join(tooltip_parts)
             
             chart_data.append({
                 "patch_idx": patch_idx,
@@ -160,15 +177,14 @@ def create_interactive_visualization(
                 "col": col,
                 "x": col,
                 "y": grid_size - row - 1,  # Flip Y to match image coordinates
-                "match_type": "none",
                 "category": category,
                 "interpretable": is_interpretable,
-                "visual_task": is_visual_task,
                 "color": color,
                 "opacity": opacity,
                 "nearest_neighbors": nn_text,
                 "matches": matches_text,
-                "tooltip_text": f"Patch ({row},{col})\nCategory: {category}\n\nTop 5 Nearest Neighbors:\n{nn_text}\n\nCaption Matches:\n{matches_text}"
+                "corresponding_color": corresponding_color,
+                "tooltip_text": tooltip_text
             })
     
     # Create DataFrame
@@ -197,16 +213,17 @@ def create_interactive_visualization(
         color=alt.Color('color:N', 
                        scale=None,
                        legend=alt.Legend(title="Category",
-                                       values=['#00AA00', '#0066CC', '#AA0000'],
-                                       labelExpr="datum.value == '#00AA00' ? 'Interpretable' : datum.value == '#0066CC' ? 'Visual/Task' : 'Non-interpretable'")),
+                                       values=['#00AA00', '#AA0000'],
+                                       labelExpr="datum.value == '#00AA00' ? 'Color Match' : 'No Match'")),
         opacity=alt.Opacity('opacity:Q', scale=None, legend=None),
         tooltip=[
             alt.Tooltip('patch_idx:O', title='Patch Index'),
             alt.Tooltip('row:O', title='Row'),
             alt.Tooltip('col:O', title='Column'),
             alt.Tooltip('category:O', title='Category'),
+            alt.Tooltip('corresponding_color:N', title='Expected Color'),
             alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
-            alt.Tooltip('matches:N', title='Caption Matches')
+            alt.Tooltip('matches:N', title='Color Matches')
         ],
         size=alt.value(400)  # Make rectangles larger
     ).properties(
@@ -234,8 +251,8 @@ def create_interactive_visualization(
         title=alt.TitleParams(
             text=[
                 f"Interactive Nearest Neighbors Viewer - {split_name.title()} Image {image_idx}",
-                f"Caption: {caption[:100]}..." if len(caption) > 100 else f"Caption: {caption}",
-                "Hover over cells to see top 5 nearest neighbor words"
+                f"Color Sequence: {caption}",
+                "Hover over cells to see top 5 nearest neighbor words | Green = Color Match, Red = No Match"
             ],
             fontSize=14,
             anchor='start'
@@ -246,222 +263,6 @@ def create_interactive_visualization(
     if output_path:
         final_chart.save(output_path)
         print(f"Interactive visualization saved to {output_path}")
-    
-    return final_chart
-
-def create_image_grid_visualization(
-    image_data: Dict,
-    images_dir: Optional[Path] = None,
-    split_name: str = "unknown",
-    output_path: Optional[str] = None
-) -> Optional[alt.Chart]:
-    """Create a sophisticated visualization with actual image background and interactive grid overlay."""
-    
-    # Extract basic info
-    image_idx = image_data.get("image_idx", 0)
-    caption = image_data.get("ground_truth_caption", "No caption available")
-    
-    # Get chunks and patches
-    chunks = image_data.get("chunks", [])
-    if not chunks:
-        log.warning("No chunks found in image data")
-        return None
-    
-    # Determine patches_per_chunk from the data
-    patches_per_chunk = len(chunks[0].get("patches", []))
-    grid_size = int(math.sqrt(patches_per_chunk))
-    
-    print(f"Processing image {image_idx} with {patches_per_chunk} patches ({grid_size}x{grid_size} grid)")
-    
-    # Try to find the image file
-    image_base64 = None
-    if images_dir:
-        # Look for image files
-        image_filename = image_data.get("image_filename")
-        if image_filename:
-            image_path = images_dir / image_filename
-            if image_path.exists():
-                image_base64 = image_to_base64(str(image_path))
-                print(f"Found image: {image_path}")
-            else:
-                print(f"Image file not found: {image_path}")
-    
-    # Prepare data for Altair
-    chart_data = []
-    
-    # Calculate the size of each grid cell
-    image_size = 512  # Assuming processed images are 512x512 (adjust as needed)
-    cell_size = image_size / grid_size
-    
-    for chunk_idx, chunk in enumerate(chunks):
-        for patch in chunk.get("patches", []):
-            patch_idx = patch.get("patch_idx", -1)
-            row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-            
-            # Calculate pixel coordinates for this patch
-            x_start = col * cell_size
-            y_start = row * cell_size
-            x_end = x_start + cell_size
-            y_end = y_start + cell_size
-            
-            # Check interpretability using the original field
-            is_interpretable = patch.get("caption_match", False)
-            is_visual_task = patch.get("visual_task_match", False)
-            
-            # Get nearest neighbors
-            nearest_neighbors = patch.get("nearest_neighbors", [])
-            nn_text = ""
-            if nearest_neighbors:
-                nn_list = []
-                for i, nn in enumerate(nearest_neighbors[:5]):  # Top 5
-                    token = nn.get("token", "")
-                    similarity = nn.get("similarity", 0.0)
-                    nn_list.append(f"{i+1}. '{token}' ({similarity:.3f})")
-                nn_text = "\n".join(nn_list)
-            
-            # Get matches if available
-            matches = patch.get("matches", [])
-            matches_text = ""
-            if matches:
-                match_list = []
-                for match in matches:
-                    token = match.get("token", "")
-                    matched_word = match.get("matched_word", "")
-                    match_list.append(f"'{token}' → '{matched_word}'")
-                matches_text = "; ".join(match_list)
-            
-            # Determine color based on interpretability (three-category system)
-            if is_interpretable:
-                color = "#00AA00"  # Green
-                opacity = 0.5
-                category = "Interpretable"
-            elif is_visual_task:
-                color = "#0066CC"  # Blue
-                opacity = 0.4
-                category = "Visual/Task"
-            else:
-                color = "#AA0000"  # Red
-                opacity = 0.2
-                category = "Non-interpretable"
-            
-            chart_data.append({
-                "patch_idx": patch_idx,
-                "row": row,
-                "col": col,
-                "x_start": x_start,
-                "y_start": y_start,
-                "x_end": x_end,
-                "y_end": y_end,
-                "x_center": x_start + cell_size/2,
-                "y_center": y_start + cell_size/2,
-                "match_type": "none",
-                "category": category,
-                "interpretable": is_interpretable,
-                "visual_task": is_visual_task,
-                "color": color,
-                "opacity": opacity,
-                "nearest_neighbors": nn_text,
-                "matches": matches_text,
-                "stroke_width": 2 if is_interpretable else 1
-            })
-    
-    # Create DataFrame
-    df = pd.DataFrame(chart_data)
-    
-    # Configure Altair
-    alt.data_transformers.disable_max_rows()
-    
-    charts_to_layer = []
-    
-    # Add image background if available
-    if image_base64:
-        # Create a simple chart with the image as background
-        # Note: Altair doesn't directly support background images, so we'll use a different approach
-        # We'll create a mark_image, but this requires the image to be in the data
-        pass  # For now, we'll just do the grid overlay
-    
-    # Create the base chart
-    base_chart = alt.Chart(df)
-    
-    # Create the grid rectangles with pixel coordinates
-    grid_chart = base_chart.mark_rect(
-        stroke='black',
-        strokeOpacity=0.8,
-        fillOpacity=0.0,  # Make fill transparent so we can see through to the image
-        cornerRadius=1
-    ).encode(
-        x=alt.X('x_start:Q', scale=alt.Scale(domain=[0, image_size]), title='Pixel X'),
-        y=alt.Y('y_start:Q', scale=alt.Scale(domain=[0, image_size]), title='Pixel Y'),
-        x2=alt.X2('x_end:Q'),
-        y2=alt.Y2('y_end:Q'),
-        stroke=alt.Color('color:N', scale=None, legend=None),
-        strokeWidth=alt.StrokeWidth('stroke_width:Q', scale=None, legend=None),
-        tooltip=[
-            alt.Tooltip('patch_idx:O', title='Patch Index'),
-            alt.Tooltip('row:O', title='Row'),
-            alt.Tooltip('col:O', title='Column'),
-            alt.Tooltip('category:O', title='Category'),
-            alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
-            alt.Tooltip('matches:N', title='Caption Matches')
-        ]
-    ).properties(
-        width=image_size,
-        height=image_size
-    )
-    
-    # Add colored fill for interpretable patches
-    fill_chart = base_chart.mark_rect(
-        strokeWidth=0,
-        cornerRadius=1
-    ).encode(
-        x=alt.X('x_start:Q'),
-        y=alt.Y('y_start:Q'),
-        x2=alt.X2('x_end:Q'),
-        y2=alt.Y2('y_end:Q'),
-        fill=alt.Color('color:N', scale=None),
-        opacity=alt.Opacity('opacity:Q', scale=None),
-        tooltip=[
-            alt.Tooltip('patch_idx:O', title='Patch Index'),
-            alt.Tooltip('row:O', title='Row'),
-            alt.Tooltip('col:O', title='Column'),
-            alt.Tooltip('category:O', title='Category'),
-            alt.Tooltip('nearest_neighbors:N', title='Top 5 Nearest Neighbors'),
-            alt.Tooltip('matches:N', title='Caption Matches')
-        ]
-    )
-    
-    # Add text labels for patch indices (smaller font)
-    text_chart = base_chart.mark_text(
-        fontSize=8,
-        color='white',
-        fontWeight='bold',
-        stroke='black',
-        strokeWidth=0.5
-    ).encode(
-        x=alt.X('x_center:Q'),
-        y=alt.Y('y_center:Q'),
-        text=alt.Text('patch_idx:O')
-    )
-    
-    # Combine charts
-    final_chart = (fill_chart + grid_chart + text_chart).resolve_scale(
-        color='independent'
-    ).properties(
-        title=alt.TitleParams(
-            text=[
-                f"Interactive Nearest Neighbors Viewer - {split_name.title()} Image {image_idx}",
-                f"Caption: {caption[:80]}..." if len(caption) > 80 else f"Caption: {caption}",
-                "Hover over grid cells to see top 5 nearest neighbor words | Green = Interpretable, Blue = Visual/Task, Red = Non-interpretable"
-            ],
-            fontSize=12,
-            anchor='start'
-        )
-    )
-    
-    # Save if output path provided
-    if output_path:
-        final_chart.save(output_path)
-        print(f"Interactive visualization with image overlay saved to {output_path}")
     
     return final_chart
 
@@ -476,7 +277,10 @@ def create_html_with_image_overlay(
     
     # Extract basic info
     image_idx = image_data.get("image_idx", 0)
-    caption = image_data.get("ground_truth_caption", "No caption available")
+    
+    # Handle color grid format
+    color_sequence = image_data.get("true_color_sequence", [])
+    caption = f"Color sequence: {' '.join(color_sequence)}" if color_sequence else "No color sequence available"
     
     # Get chunks and patches
     chunks = image_data.get("chunks", [])
@@ -534,9 +338,9 @@ def create_html_with_image_overlay(
             x = col * cell_size
             y = row * cell_size
             
-            # Check interpretability using the original field
-            is_interpretable = patch.get("caption_match", False)
-            is_visual_task = patch.get("visual_task_match", False)
+            # Check interpretability using ground_truth_match
+            is_interpretable = patch.get("ground_truth_match", False)
+            corresponding_color = patch.get("corresponding_color", "")
             
             # Get nearest neighbors
             nearest_neighbors = patch.get("nearest_neighbors", [])
@@ -555,35 +359,29 @@ def create_html_with_image_overlay(
             if matches:
                 for match in matches:
                     token = match.get("token", "")
-                    matched_word = match.get("matched_word", "")
-                    
-                    # Debug: Check for problematic characters
-                    if any(char in token for char in ['"', "'", "\\", "\n", "\r", "\t"]) or \
-                       any(char in matched_word for char in ['"', "'", "\\", "\n", "\r", "\t"]):
-                        print(f"    DEBUG: Patch {patch_idx} has problematic match: {repr(token)} -> {repr(matched_word)}")
+                    ground_truth_color = match.get("ground_truth_color", "")
+                    match_type = match.get("match_type", "")
                     
                     # Escape properly
                     safe_token = escape_for_html_attribute(token)
-                    safe_matched_word = escape_for_html_attribute(matched_word)
-                    matches_list.append(f"'{safe_token}' → '{safe_matched_word}'")
+                    safe_color = escape_for_html_attribute(ground_truth_color)
+                    safe_match_type = escape_for_html_attribute(match_type)
+                    matches_list.append(f"'{safe_token}' → '{safe_color}' ({safe_match_type})")
             
             # Create safe strings for HTML attributes
-            nn_attr = escape_for_html_attribute(" | ".join(nn_list))
+            nn_attr = escape_for_html_attribute(" | ".join([f"{i+1}. '{nn.get('token', '')}' ({nn.get('similarity', 0.0):.3f})" for i, nn in enumerate(nearest_neighbors[:5])]))
             matches_attr = escape_for_html_attribute(" | ".join(matches_list))
+            corresponding_color_attr = escape_for_html_attribute(corresponding_color)
             
-            # Determine color based on interpretability (three-category system)
+            # Determine color based on interpretability
             if is_interpretable:
                 color = "#00AA00"  # Green
-                opacity = 0.5
-                category = "Interpretable"
-            elif is_visual_task:
-                color = "#0066CC"  # Blue
-                opacity = 0.4
-                category = "Visual/Task"
+                opacity = 0.6
+                category = "Color Match"
             else:
                 color = "#AA0000"  # Red
-                opacity = 0.2
-                category = "Non-interpretable"
+                opacity = 0.3
+                category = "No Match"
             
             patches_data.append({
                 "patch_idx": patch_idx,
@@ -593,14 +391,13 @@ def create_html_with_image_overlay(
                 "y": y,
                 "width": cell_size,
                 "height": cell_size,
-                "match_type": "none",
                 "category": category,
                 "interpretable": is_interpretable,
-                "visual_task": is_visual_task,
                 "color": color,
                 "opacity": opacity,
                 "nearest_neighbors": nn_attr,
-                "matches": matches_attr
+                "matches": matches_attr,
+                "corresponding_color": corresponding_color_attr
             })
             total_patches_processed += 1
     
@@ -729,7 +526,7 @@ def create_html_with_image_overlay(
 <body>
     <div class="container">
         <h1 class="title">Interactive Nearest Neighbors Viewer - {split_name.title()} Image {image_idx}</h1>
-        <p class="caption">Caption: {caption}</p>
+        <p class="caption">{caption}</p>
         
         <div class="controls">
             <button id="toggleGrid" class="toggle-button">Hide Grid</button>
@@ -755,7 +552,7 @@ def create_html_with_image_overlay(
                       data-col="{patch['col']}"
                       data-category="{patch['category']}"
                       data-interpretable="{patch['interpretable']}"
-                      data-visual-task="{patch['visual_task']}"
+                      data-corresponding-color="{patch['corresponding_color']}"
                       data-nn="{patch['nearest_neighbors']}"
                       data-matches="{patch['matches']}"/>
 """
@@ -770,19 +567,15 @@ def create_html_with_image_overlay(
             <h3>Legend:</h3>
             <div class="legend-item">
                 <span class="legend-color" style="background-color: #00AA00;"></span>
-                <span>Interpretable (matches caption content)</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background-color: #0066CC;"></span>
-                <span>Visual/Task (matches visual interface terms)</span>
+                <span>Color Match (nearest neighbor matches expected color)</span>
             </div>
             <div class="legend-item">
                 <span class="legend-color" style="background-color: #AA0000;"></span>
-                <span>Non-interpretable</span>
+                <span>No Match</span>
             </div>
         </div>
         
-        <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells are "interpretable" (contain words that match the caption), blue cells are "visual/task" (contain visual interface terms), red cells are "non-interpretable".</p>
+        <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells have nearest neighbors that match the expected color for that position, red cells do not.</p>
     </div>
 
     <script>
@@ -812,19 +605,26 @@ def create_html_with_image_overlay(
                 const patchIdx = e.target.getAttribute('data-patch-idx');
                 const row = e.target.getAttribute('data-row');
                 const col = e.target.getAttribute('data-col');
-                const interpretable = e.target.getAttribute('data-interpretable') === 'true';
+                const category = e.target.getAttribute('data-category');
+                const correspondingColor = e.target.getAttribute('data-corresponding-color');
                 const nearestNeighbors = e.target.getAttribute('data-nn');
                 const matches = e.target.getAttribute('data-matches');
                 
                 let tooltipContent = `
                     <strong>Patch (${{row}}, ${{col}}) - Index ${{patchIdx}}</strong><br>
-                    <strong>Category:</strong> ${{e.target.getAttribute('data-category')}}<br><br>
-                    <strong>Top 5 Nearest Neighbors:</strong><br>
+                    <strong>Category:</strong> ${{category}}<br>
+                `;
+                
+                if (correspondingColor && correspondingColor.trim()) {{
+                    tooltipContent += `<strong>Expected Color:</strong> ${{correspondingColor}}<br>`;
+                }}
+                
+                tooltipContent += `<br><strong>Top 5 Nearest Neighbors:</strong><br>
                     ${{nearestNeighbors.split(' | ').join('<br>')}}
                 `;
                 
                 if (matches && matches.trim()) {{
-                    tooltipContent += `<br><br><strong>Caption Matches:</strong><br>${{matches.split(' | ').join('<br>')}}`;
+                    tooltipContent += `<br><br><strong>Color Matches:</strong><br>${{matches.split(' | ').join('<br>')}}`;
                 }}
                 
                 tooltip.innerHTML = tooltipContent;
@@ -855,17 +655,17 @@ def create_html_with_image_overlay(
     return False
 
 def main():
-    parser = argparse.ArgumentParser(description="Create interactive visualization of nearest neighbors")
+    parser = argparse.ArgumentParser(description="Create interactive visualization of nearest neighbors for color mosaic data")
     
     # Default parameters matching the analysis script
     checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2/step12000-unsharded"
     ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
-    default_results_file = f"analysis_results/nearest_neighbors/{ckpt_name}/nearest_neighbors_analysis_pixmo_cap.json"
+    default_results_file = f"analysis_results/nearest_neighbors/{ckpt_name}/nearest_neighbors_analysis_color_names_mosaic_24x24.json"
     
     parser.add_argument("--results-file", type=str, default=default_results_file,
-                       help=f"Path to the JSON results file from general_and_nearest_neighbors_pixmo_cap.py (default: {default_results_file})")
+                       help=f"Path to the JSON results file from general_and_nearest_neighbors_mosaic-data.py (default: {default_results_file})")
     parser.add_argument("--split", type=str, default="train", choices=["train", "validation"],
-                       help="Which split to visualize (default: validation)")
+                       help="Which split to visualize (default: train)")
     parser.add_argument("--image-idx", type=int, default=None,
                        help="Specific image index to visualize (if not provided, creates visualizations for all images)")
     parser.add_argument("--output-dir", type=str, default=None,
@@ -881,7 +681,7 @@ def main():
         print(f"Error: Results file {results_file} does not exist")
         print(f"Expected path: {results_file}")
         print("\nMake sure you've run the analysis first:")
-        print("python general_and_nearest_neighbors_pixmo_cap.py")
+        print("python general_and_nearest_neighbors_mosaic-data.py")
         return
     
     print(f"Loading results from {results_file}")
@@ -923,7 +723,7 @@ def main():
     if args.output_dir:
         output_dir = Path(args.output_dir)
     else:
-        output_dir = results_file.parent / "interactive_visualizations"
+        output_dir = results_file.parent / "interactive_visualizations_mosaic"
     output_dir.mkdir(exist_ok=True)
     
     # Try to find images directory
@@ -967,7 +767,7 @@ def main():
             print(f"Creating visualization for image {idx}...")
             
             # Determine output filename
-            output_filename = f"interactive_nn_viewer_{args.split}_image_{idx:04d}.html"
+            output_filename = f"interactive_nn_viewer_mosaic_{args.split}_image_{idx:04d}.html"
             output_path = output_dir / output_filename
             
             # Try to create HTML with image background first
@@ -1004,12 +804,12 @@ def main():
     print(f"Open the HTML files in a web browser to explore the nearest neighbors interactively.")
     
     # Create an index file listing all visualizations
-    index_file = output_dir / f"index_{args.split}.html"
+    index_file = output_dir / f"index_mosaic_{args.split}.html"
     html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Interactive Nearest Neighbors Viewer - {args.split.title()} Split</title>
+    <title>Interactive Nearest Neighbors Viewer - Mosaic {args.split.title()} Split</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; }}
         h1 {{ color: #333; }}
@@ -1020,18 +820,18 @@ def main():
     </style>
 </head>
 <body>
-    <h1>Interactive Nearest Neighbors Viewer - {args.split.title()} Split</h1>
-    <p>Click on any link below to open the interactive visualization for that image.</p>
+    <h1>Interactive Nearest Neighbors Viewer - Mosaic Color Data {args.split.title()} Split</h1>
+    <p>Click on any link below to open the interactive visualization for that color grid image.</p>
     <ul>
 """
     
     for idx in indices_to_process:
-        filename = f"interactive_nn_viewer_{args.split}_image_{idx:04d}.html"
+        filename = f"interactive_nn_viewer_mosaic_{args.split}_image_{idx:04d}.html"
         html_content += f'        <li><a href="{filename}">Image {idx:04d}</a></li>\n'
     
     html_content += """
     </ul>
-    <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells are "interpretable" (contain words that match the caption), blue cells are "visual/task" (contain visual interface terms), red cells are "non-interpretable".</p>
+    <p><strong>How to use:</strong> Hover over the colored grid cells to see the top 5 nearest neighbor words for each image patch. Green cells have nearest neighbors that match the expected color for that position, red cells do not.</p>
 </body>
 </html>
 """

@@ -1,22 +1,22 @@
-run_name: baseline_pixmo-captions_resize_olmo-7b_vit-l-14-336
+run_name: baseline_pixmo-captions_resize_olmoe-1b_7b_vit-l-14-336
 seed: 6198
 epoch: null
 dry_run: false
 model:
-  d_model: 4096
-  n_heads: 32
+  d_model: 2048
+  n_heads: 16
   n_kv_heads: null
   qkv_bias: false
   clip_qkv: null
-  n_layers: 32
-  mlp_ratio: 4
-  mlp_hidden_size: 22016
+  n_layers: 16
+  mlp_ratio: 1
+  mlp_hidden_size: null
   activation_type: swiglu
-  block_type: sequential
+  block_type: moe
   block_group_size: 1
   rope: true
   rope_full_precision: true
-  rope_theta: 500000
+  rope_theta: 10000.0
   vision_backbone:
     image_model_type: openai
     image_default_input_size:
@@ -40,26 +40,26 @@ model:
     fsdp_wrap: false
     resize_mode: default
   vit_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_image_encoders/vit-l-14-336.pt
-  llm_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_llms/olmo-1024-preview.pt
+  llm_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_llms/olmoe.pt
   low_cpu_fsdp: true
   attention_type: sdpa
   float32_attention: true
   attention_dropout: 0.0
   attention_layer_norm: true
-  residual_dropout: 0.0
-  response_residual_dropout: 0.1
+  residual_dropout: 0.1
+  response_residual_dropout: 0.0
   embedding_dropout: 0
   layer_norm_type: rms
   layer_norm_with_affine: true
-  layer_norm_eps: 1.0e-06
+  layer_norm_eps: 1.0e-05
   attention_layer_norm_with_affine: true
-  max_sequence_length: 1600
-  max_position_embeddings: null
+  max_sequence_length: 4096
+  max_position_embeddings: 32768
   include_bias: false
   bias_for_layer_norm: false
   scale_logits: false
-  vocab_size: 100278
-  embedding_size: 100352
+  vocab_size: 50280
+  embedding_size: 50304
   additional_vocab_size: 128
   new_embedding_init_range: 0.02
   weight_tying: false
@@ -90,7 +90,7 @@ model:
   - -9
   image_pooling_h: 1
   image_pooling_w: 1
-  image_pooling_2d: none
+  image_pooling_2d: attention_meanq
   image_projector: mlp
   image_feature_dropout: 0.0
   initializer_range: 0.02
@@ -98,21 +98,21 @@ model:
   use_position_ids: true
   head_dim: null
   tokenizer:
-    identifier: "allenai/dolma2-tokenizer"
+    identifier: "allenai/OLMoE-1B-7B-0924"
     tokenizer_dir: null
   pad_tokenizer: true
-  moe_num_experts: 8
-  moe_top_k: 2
+  moe_num_experts: 64
+  moe_top_k: 8
   moe_mlp_impl: sparse
   moe_log_expert_assignment: false
   moe_shared_expert: false
   moe_lbl_in_fp32: false
   moe_interleave: false
-  moe_loss_weight: 0.1
-  moe_zloss_weight: null
+  moe_loss_weight: 0.0
+  moe_zloss_weight: 0.0
   moe_dropless: true
   moe_capacity_factor: 1.25
-allow_resume: true
+allow_resume: false
 ft_llm: false
 ft_vit: false
 ft_connector: true
@@ -236,7 +236,7 @@ evaluators:
 eval_interval: 1000
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336
+save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmoe-1b_7b_vit-l-14-336
 remote_save_folder: null
 canceled_check_interval: 50
 save_interval: 2000

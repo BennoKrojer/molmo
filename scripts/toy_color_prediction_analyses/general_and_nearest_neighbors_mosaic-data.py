@@ -14,6 +14,14 @@ from PIL import Image
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+# Add translation library
+try:
+    from googletrans import Translator
+    TRANSLATION_AVAILABLE = True
+except ImportError:
+    TRANSLATION_AVAILABLE = False
+    print("Warning: googletrans not available. Install with: pip install googletrans==4.0.0rc1")
+
 from olmo.config import ModelConfig
 from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
@@ -21,6 +29,217 @@ from olmo.util import resource_path
 from olmo.data.pixmo_datasets import ColorMosaicDataset
 
 log = logging.getLogger(__name__)
+
+# Global translator instance
+_translator = None
+_translation_cache = {}
+_cache_file = Path("translation_cache_color.json")
+_cache_dirty = False
+_cache_save_counter = 0
+
+def load_translation_cache():
+    """Load translation cache from file."""
+    global _translation_cache
+    if _cache_file.exists():
+        try:
+            with open(_cache_file, 'r', encoding='utf-8') as f:
+                _translation_cache = json.load(f)
+            print(f"Loaded {len(_translation_cache)} cached translations from {_cache_file}")
+        except Exception as e:
+            print(f"Could not load translation cache: {e}")
+            _translation_cache = {}
+    else:
+        _translation_cache = {}
+
+def save_translation_cache():
+    """Save translation cache to file."""
+    global _cache_dirty
+    if _cache_dirty:
+        try:
+            with open(_cache_file, 'w', encoding='utf-8') as f:
+                json.dump(_translation_cache, f, indent=2, ensure_ascii=False)
+            print(f"Saved {len(_translation_cache)} translations to cache")
+            _cache_dirty = False
+        except Exception as e:
+            print(f"Could not save translation cache: {e}")
+
+def get_translator():
+    """Get or create a global translator instance."""
+    global _translator
+    if _translator is None and TRANSLATION_AVAILABLE:
+        _translator = Translator()
+        # Load cache when we first create the translator
+        load_translation_cache()
+    return _translator
+
+def contains_chinese(text):
+    """Check if text contains Chinese characters."""
+    if not text:
+        return False
+    # Check for Chinese characters (CJK Unified Ideographs)
+    for char in text:
+        if '\u4e00' <= char <= '\u9fff':
+            return True
+    return False
+
+def translate_chinese_token(token_text):
+    """Translate Chinese tokens to English, return list of possible translations."""
+    global _cache_dirty, _cache_save_counter
+    
+    if not TRANSLATION_AVAILABLE or not contains_chinese(token_text):
+        return [token_text]
+    
+    # Check cache first
+    if token_text in _translation_cache:
+        cached_result = _translation_cache[token_text]
+        if cached_result != token_text:  # If we have a translation
+            return [token_text, cached_result]
+        else:
+            return [token_text]
+    
+    translator = get_translator()
+    if translator is None:
+        return [token_text]
+    
+    try:
+        # Clean the token text
+        clean_text = token_text.strip()
+        if not clean_text:
+            return [token_text]
+        
+        # Translate to English - use 'zh-cn' instead of 'zh' for Chinese
+        result = translator.translate(clean_text, src='zh-cn', dest='en')
+        if result and result.text:
+            translated = result.text.lower().strip()
+            
+            # Cache the result
+            _translation_cache[token_text] = translated
+            _cache_dirty = True
+            _cache_save_counter += 1
+            
+            # Save cache every 100 translations
+            if _cache_save_counter >= 100:
+                save_translation_cache()
+                _cache_save_counter = 0
+            
+            # Return both original and translated versions
+            if translated != clean_text.lower():
+                print(f"Translated '{token_text}' -> '{translated}'")
+                return [token_text, translated]
+            else:
+                return [token_text]
+        else:
+            print(f"Translation failed for '{token_text}': No result")
+            # Cache the failure (store original token)
+            _translation_cache[token_text] = token_text
+            _cache_dirty = True
+            return [token_text]
+    except Exception as e:
+        print(f"Translation failed for '{token_text}': {e}")
+        # Cache the failure (store original token)
+        _translation_cache[token_text] = token_text
+        _cache_dirty = True
+        return [token_text]
+
+def is_already_translated(token_text):
+    """Check if a token has already been translated (contains 'translated from' pattern)."""
+    return " (translated from " in token_text
+
+def get_display_token(original_token):
+    """Get display version of token, showing translation with original Chinese in brackets."""
+    # If already translated, return as-is
+    if is_already_translated(original_token):
+        return original_token
+        
+    if not TRANSLATION_AVAILABLE or not contains_chinese(original_token):
+        return original_token
+    
+    # Check cache first
+    if original_token in _translation_cache:
+        cached_result = _translation_cache[original_token]
+        if cached_result != original_token:  # If we have a translation
+            return f"{cached_result} (translated from {original_token})"
+        else:
+            return original_token
+    
+    # If not in cache, try to translate and cache it
+    translator = get_translator()
+    if translator is None:
+        return original_token
+    
+    try:
+        clean_text = original_token.strip()
+        if not clean_text:
+            return original_token
+        
+        result = translator.translate(clean_text, src='zh-cn', dest='en')
+        if result and result.text:
+            translated = result.text.lower().strip()
+            
+            # Cache the result
+            _translation_cache[original_token] = translated
+            global _cache_dirty, _cache_save_counter
+            _cache_dirty = True
+            _cache_save_counter += 1
+            
+            # Save cache every 100 translations
+            if _cache_save_counter >= 100:
+                save_translation_cache()
+                _cache_save_counter = 0
+            
+            if translated != clean_text.lower():
+                print(f"Translated '{original_token}' -> '{translated}'")
+                return f"{translated} (translated from {original_token})"
+            else:
+                return original_token
+        else:
+            # Cache the failure
+            _translation_cache[original_token] = original_token
+            _cache_dirty = True
+            return original_token
+    except Exception as e:
+        print(f"Translation failed for '{original_token}': {e}")
+        # Cache the failure
+        _translation_cache[original_token] = original_token
+        _cache_dirty = True
+        return original_token
+
+def check_color_match_with_translation(token_text, ground_truth_color):
+    """Check if a token matches the ground truth color, including Chinese translation support.
+    
+    Args:
+        token_text: Original token text (may contain Chinese)
+        ground_truth_color: Ground truth color word (in English)
+    
+    Returns:
+        tuple: (is_match, match_details)
+        is_match: boolean indicating if there's a match
+        match_details: dict with match information if found
+    """
+    # Get all possible translations of the token
+    token_translations = translate_chinese_token(token_text)
+    
+    # Normalize ground truth color
+    gt_color_norm = ground_truth_color.strip().lower()
+    
+    # Check each translation
+    for translation in token_translations:
+        token_norm = translation.strip().lower()
+        
+        # Skip empty tokens to prevent false matches (empty string matches any substring)
+        if not token_norm:
+            continue
+        
+        # Check for exact match or substring match
+        if token_norm == gt_color_norm or gt_color_norm in token_norm or token_norm in gt_color_norm:
+            return True, {
+                "token": get_display_token(token_text),
+                "token_normalized": token_norm,
+                "ground_truth_color": ground_truth_color,
+                "match_type": "exact" if token_norm == gt_color_norm else "substring"
+            }
+    
+    return False, None
 
 def decode_token(tokenizer, idx):
     """Decode a token and ensure it's a proper Unicode string."""
@@ -206,22 +425,22 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                         patch_indices = top_indices[chunk_idx, patch_idx].cpu().numpy().tolist()
                         patch_tokens = [decode_token(preprocessor.tokenizer, idx) for idx in patch_indices]
                         
-                        # Normalize patch tokens for comparison (lowercase)
-                        patch_tokens_norm = [token.strip().lower() for token in patch_tokens]
-                        
-                        # Check if this patch matches its corresponding ground truth token position
+                        # Check if this patch matches its corresponding ground truth color position
                         ground_truth_match = False
                         corresponding_color = None
-                        if patch_idx < len(ground_truth_token_strings) and patch_idx < len(color_sequence):
-                            gt_token = ground_truth_token_strings[patch_idx]
+                        match_details = []
+                        
+                        if patch_idx < len(color_sequence):
                             corresponding_color = color_sequence[patch_idx].strip().lower()
-                            gt_token_norm = gt_token.strip().lower()
-                            # Use substring matching - check if the ground truth token appears as substring in any top5 token
-                            ground_truth_match = any(
-                                gt_token_norm in patch_token_norm
-                                for patch_token_norm in patch_tokens_norm
-                                if len(patch_token_norm.strip()) > 0 and len(gt_token_norm.strip()) > 0
-                            )
+                            
+                            # Check each of the top-5 nearest neighbor tokens for matches
+                            for j, (token_text, similarity_score) in enumerate(zip(patch_tokens, patch_values)):
+                                is_match, match_detail = check_color_match_with_translation(token_text, corresponding_color)
+                                if is_match:
+                                    ground_truth_match = True
+                                    match_detail["similarity"] = float(similarity_score)
+                                    match_detail["rank"] = j + 1  # 1-based rank
+                                    match_details.append(match_detail)
                         
                         # Initialize patch statistics if not exists
                         if patch_idx not in patch_statistics:
@@ -249,11 +468,18 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                         patch_results = {
                             "patch_idx": patch_idx,
                             "nearest_neighbors": [
-                                {"token": token, "similarity": float(sim)}
+                                {"token": get_display_token(token), "similarity": float(sim)}
                                 for token, sim in zip(patch_tokens, patch_values)
                             ],
-                            "ground_truth_match": ground_truth_match
+                            "ground_truth_match": ground_truth_match,
+                            "corresponding_color": corresponding_color,
+                            "caption_match": ground_truth_match  # For compatibility with interactive viewer
                         }
+                        
+                        # Add detailed match information if any matches were found
+                        if match_details:
+                            patch_results["matches"] = match_details
+                        
                         chunk_results["patches"].append(patch_results)
                     
                     image_results["chunks"].append(chunk_results)
@@ -278,7 +504,7 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
 def main():
     # Hardcoded parameters
     # checkpoint_path = "molmo_data/checkpoints/copy-prompt_mosaic-image/step1600-unsharded"
-    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize/step3000-unsharded"
+    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2/step12000-unsharded"
     prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
     # prompt = "Copy over the sequence of color words 1-by-1 from the previous context:"
     print(f"Prompt: {prompt}")
@@ -432,6 +658,9 @@ def main():
     # Create and save color interpretability plot
     color_plot_file = results_dir / "nearest_neighbors_analysis_color_names_mosaic_24x24_color_plot.png"
     create_color_interpretability_plot(all_results["overall_color_statistics"], color_plot_file)
+
+    # Save any remaining translations to cache
+    save_translation_cache()
 
 if __name__ == "__main__":
     main()

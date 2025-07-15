@@ -1,4 +1,4 @@
-run_name: baseline_pixmo-captions_resize
+run_name: baseline_pixmo-captions_resize_qwen2-7b_dinov2-large-336
 seed: 6198
 epoch: null
 dry_run: false
@@ -18,7 +18,7 @@ model:
   rope_full_precision: true
   rope_theta: 1000000.0
   vision_backbone:
-    image_model_type: openai
+    image_model_type: dino
     image_default_input_size:
     - 336
     - 336
@@ -27,19 +27,19 @@ model:
     image_emb_dim: 1024
     image_num_heads: 16
     image_num_key_value_heads: 16
-    image_num_layers: 23
+    image_num_layers: 24
     image_head_dim: 64
     image_mlp_dim: 4096
-    image_mlp_activations: quick_gelu
+    image_mlp_activations: gelu
     image_dropout_rate: 0.0
     image_num_pos: 577
-    image_norm_eps: 1.0e-05
+    image_norm_eps: 1.0e-06
     attention_dropout: 0.0
     residual_dropout: 0.0
     initializer_range: 0.02
     fsdp_wrap: false
-    resize_mode: default
-  vit_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_image_encoders/vit-l-14-336.pt
+    resize_mode: dino
+  vit_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_image_encoders/dinov2-large-336.pt
   llm_load_path: /mnt/research/scratch/bkroje/molmo_data/pretrained_llms/qwen2-7b.pt
   low_cpu_fsdp: true
   attention_type: sdpa
@@ -116,7 +116,7 @@ allow_resume: false
 ft_llm: false
 ft_vit: false
 ft_connector: true
-ft_embedding: lm_head
+ft_embedding: ln_f
 optimizer:
   name: adamw
   learning_rate: 0.0001
@@ -236,7 +236,7 @@ evaluators:
 eval_interval: 1000
 inf_eval_interval: -1
 inf_evaluators: []
-save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize
+save_folder: /mnt/research/scratch/bkroje/molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336
 remote_save_folder: null
 canceled_check_interval: 50
 save_interval: 2000
@@ -300,4 +300,4 @@ torch_profiling: false
 stop_at: 12000
 stop_after: null
 activation_checkpointing: whole_layer
-fused_loss: null
+fused_loss: null 
