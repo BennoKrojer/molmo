@@ -653,6 +653,12 @@ class ModelConfig(BaseConfig):
     are computed, should only be false for legacy models 
     """
 
+    remove_black_pads: bool = False
+    """
+    If True, zero out black padding tokens before passing to MLP connector.
+    This is an ablation to test how much information padding tokens carry.
+    """
+
     vit_layers: Tuple = (-1,)  # TODO should we fix the offset?
     """
     What layers to use from the VIT

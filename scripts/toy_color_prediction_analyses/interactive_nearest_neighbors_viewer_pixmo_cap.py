@@ -856,14 +856,8 @@ def create_html_with_image_overlay(
 
 def main():
     parser = argparse.ArgumentParser(description="Create interactive visualization of nearest neighbors")
-    
-    # Default parameters matching the analysis script
-    checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2/step12000-unsharded"
-    ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
-    default_results_file = f"analysis_results/nearest_neighbors/{ckpt_name}/nearest_neighbors_analysis_pixmo_cap.json"
-    
-    parser.add_argument("--results-file", type=str, default=default_results_file,
-                       help=f"Path to the JSON results file from general_and_nearest_neighbors_pixmo_cap.py (default: {default_results_file})")
+        
+    parser.add_argument("--results-file", type=str, default="analysis_results/nearest_neighbors/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded/nearest_neighbors_analysis_pixmo_cap.json",
     parser.add_argument("--split", type=str, default="train", choices=["train", "validation"],
                        help="Which split to visualize (default: validation)")
     parser.add_argument("--image-idx", type=int, default=None,

@@ -146,6 +146,7 @@ def build_train_dataloader(train_config: TrainConfig, device=None) -> DataLoader
         device = "cpu"
     assert train_config.device_train_batch_size is not None
     seed = train_config.data.seed if train_config.data.seed is not None else train_config.seed
+    log.info(f"Building train dataloader with seed: {seed}")
     data_config = train_config.data
     if train_config.data.multi_modal in ["torch", "torch_hf"]:
         preprocessor = build_mm_preprocessor(
@@ -263,8 +264,9 @@ def get_dataset_by_name(dataset_name, split, config=None):
     if dataset_name in ["cockatoo_and_transcript_712k_sept6", "pixmo_cap_with_transcripts"]:
         return PixMoCap(split, mode="transcript_and_caption")
     if dataset_name in ["cockatoo_712k_sept6", "pixmo_cap"]:
-        return PixMoCap(split, mode="captions")
-
+        first_sentence_only = False if extra_args is None else extra_args.get("first_sentence_only", False)
+        return PixMoCap(split, mode="captions", first_sentence_only=first_sentence_only)
+    
     if dataset_name == "pointing_eval":
         assert split == "test"
         return PixMoPointsEval()

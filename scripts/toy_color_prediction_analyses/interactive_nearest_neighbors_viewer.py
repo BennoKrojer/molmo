@@ -324,6 +324,10 @@ def create_html_with_image_overlay(
             ground_truth = f"{' '.join(color_sequence)}" if color_sequence else "No color sequence available"
             ground_truth_label = "Color Sequence"
         
+        # Extract generated response
+        generated_response = image_data.get("generated_response", "No generated response available")
+        generated_response_label = "Generated Response"
+        
         # Get chunks and patches
         chunks = image_data.get("chunks", [])
         if not chunks:
@@ -432,6 +436,7 @@ def create_html_with_image_overlay(
         .legend-color {{ width: 20px; height: 20px; border: 1px solid #000; }}
         .tooltip {{ position: absolute; background-color: rgba(0,0,0,0.9); color: white; padding: 10px; border-radius: 5px; font-size: 12px; max-width: 300px; z-index: 1000; pointer-events: none; white-space: pre-line; display: none; }}
         .ground-truth {{ background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #17a2b8; }}
+        .generated-response {{ background-color: #f8e8f8; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #e83e8c; }}
         .controls {{ margin-bottom: 20px; text-align: center; }}
         .toggle-button {{ background-color: #4CAF50; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 10px 0; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; }}
         .toggle-button:hover {{ background-color: #45a049; }}
@@ -475,6 +480,9 @@ def create_html_with_image_overlay(
         
         html_content += f'''
             <div class="patch-overlay" id="patchOverlay"></div>
+        </div>
+        <div class="generated-response">
+            <strong>{generated_response_label}:</strong> {escape_for_html_attribute(generated_response)}
         </div>
         <div class="info-panel">
             <p><strong>Instructions:</strong> Hover over the colored patches to see the top 5 nearest neighbor words for each image region.</p>
@@ -610,9 +618,6 @@ def main():
     
     # Set default results file based on dataset if not provided
     if args.results_file is None:
-        checkpoint_path = "molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2/step12000-unsharded"
-        ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
-        
         if args.dataset == "pixmo_cap":
             args.results_file = f"analysis_results/nearest_neighbors/{ckpt_name}/nearest_neighbors_analysis_pixmo_cap.json"
         else:  # mosaic
@@ -675,10 +680,12 @@ def main():
         preprocessor = None
     
     # Set output directory
+    ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
     if args.output_dir:
         output_dir = Path(args.output_dir)
     else:
-        output_dir = results_file.parent / f"interactive_visualizations_{args.dataset}"
+        identifier = str(results_file.parent.name) + "_" + results_file.name
+        output_dir = results_file.parent / f"interactive_visualizations_{args.dataset}_{identifier}"
     output_dir.mkdir(exist_ok=True)
     
     # Try to find images directory

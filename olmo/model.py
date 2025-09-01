@@ -650,7 +650,7 @@ class OLMoBlock(nn.Module):
         dropout_p: float = 0.0,
         is_causal: bool = False,
         output_attentions: bool = False,
-    ) -> torch.Tensor:
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, Optional[torch.Tensor]]]:
         """
         Computes scaled dot product attention on query, key and value tensors, using an optional
         attention mask if passed, and applying dropout if a probability greater than 0.0 is specified.
@@ -662,7 +662,11 @@ class OLMoBlock(nn.Module):
             r = self.flash_attn_func(
                 q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), dropout_p=dropout_p, causal=is_causal
             )
-            return r.transpose(1, 2)
+            if output_attentions:
+                # For flash attention, we can't easily get attention maps, so return None
+                return r.transpose(1, 2), None
+            else:
+                return r.transpose(1, 2)
         else:
             # torch's sdpa doesn't support GQA, so we're doing this
             assert k.size(1) == v.size(1)
@@ -676,7 +680,8 @@ class OLMoBlock(nn.Module):
             if output_attentions:
                 attn_map = q @ k.transpose(-2, -1)
                 attn_map = F.softmax(attn_map, dim=-1).mean(dim=1)
-                attn_map += attn_mask
+                if attn_mask is not None:
+                    attn_map += attn_mask
             else:
                 attn_map = None
 
@@ -745,7 +750,7 @@ class OLMoBlock(nn.Module):
 
         # Get the attention scores.
         # shape: (B, nh, T, hs)
-        att, attn_map = self._scaled_dot_product_attention(
+        result = self._scaled_dot_product_attention(
             q,
             k,
             v,
@@ -755,6 +760,8 @@ class OLMoBlock(nn.Module):
             is_causal=attention_bias is None, 
             output_attentions=output_attentions,
         )
+        
+        att, attn_map = result
 
         # Re-assemble all head outputs side-by-side.
         att = att.transpose(1, 2).contiguous().view(B, T, C)
@@ -1127,7 +1134,8 @@ class OLMoLlamaBlock(OLMoBlock):
         dropout_p: float = 0.0,
         response_dropout_p: float = 0.0,
         is_causal: bool = False,
-    ) -> torch.Tensor:
+        output_attentions: bool = False,
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, Optional[torch.Tensor]]]:
         # For GQA
         assert k.size(1) == v.size(1)
         num_kv_heads = k.size(1)
@@ -1179,7 +1187,16 @@ class OLMoLlamaBlock(OLMoBlock):
         else:
             raise NotImplementedError(self.config.attention_type)
         att = att.to(og_dtype)
-        return att
+        
+        if output_attentions:
+            # Compute attention map similar to Sequential block
+            attn_map = q @ k.transpose(-2, -1)
+            attn_map = F.softmax(attn_map, dim=-1).mean(dim=1)
+            if attn_mask is not None:
+                attn_map += attn_mask
+            return att, attn_map
+        else:
+            return att
 
     def forward(
         self,
@@ -1189,7 +1206,8 @@ class OLMoLlamaBlock(OLMoBlock):
         drop_mask: Optional[torch.Tensor] = None,
         layer_past: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+        output_attentions: bool = False,
+    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]], Optional[torch.Tensor]]:
         # Get query, key, value projections.
         # shape:
         #  - for regular attn q, k, v: (batch_size, seq_len, d_model)
@@ -1207,11 +1225,11 @@ class OLMoLlamaBlock(OLMoBlock):
 
         # Get attention scores.
         if self._activation_checkpoint_fn is not None:
-            att, cache = self._activation_checkpoint_fn(  # type: ignore
-                self.attention, q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache
+            att, cache, attn_map = self._activation_checkpoint_fn(  # type: ignore
+                self.attention, q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions
             )
         else:
-            att, cache = self.attention(q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache)
+            att, cache, attn_map = self.attention(q, k, v, attention_bias, position_ids=position_ids, drop_mask=drop_mask, layer_past=layer_past, use_cache=use_cache, output_attentions=output_attentions)
 
         # Add attention scores.
         # shape: (B, T, C)
@@ -1234,7 +1252,7 @@ class OLMoLlamaBlock(OLMoBlock):
         x = self.dropout(x, drop_mask=drop_mask)
         x = og_x + x
 
-        return x, cache
+        return x, cache, attn_map
 
 
 class OLMoOutput(NamedTuple):
@@ -1572,6 +1590,8 @@ class MolmoVisionBackbone(nn.Module):
             else:
                 raise ValueError(cfg.image_padding_embed)
 
+
+
         image_features = self.image_feature_dropout(image_features)
 
         image_features = image_features.reshape(
@@ -1623,6 +1643,24 @@ class MolmoVisionBackbone(nn.Module):
         # image_features: (batch_size, num_image, num_patch, d_model)
         # cls_embed: (batch_size, num_image, d_model)
         # print(f"image_features: {image_features.shape}")
+        
+        # NEW: Zero out black padding tokens if configured (after MLP processing)
+        # if cfg.remove_black_pads and image_masks is not None:
+        #     # Create mask for padding tokens (0 = padding, >0 = content)
+        #     # image_masks: (batch_size, num_image, num_patches)
+        #     padding_mask = (image_masks == 0).unsqueeze(-1)  # Add feature dimension
+            
+        #     # Debug prints to verify functionality
+        #     num_padding = padding_mask.sum().item()
+        #     num_total = padding_mask.numel()
+        #     print(f"[remove_black_pads] Zeroing out {num_padding}/{num_total} padding tokens after MLP")
+            
+        #     # Zero out padding token features
+        #     image_features = image_features * (~padding_mask).float()
+            
+        #     # Now padding tokens exist but have zero features
+        #     print(f"[remove_black_pads] Padding tokens zeroed out after MLP. Features norm: {image_features.norm().item():.6f}")
+        
         if return_tokens_before_MLP:
             return image_features, tokens_before_MLP
         else:

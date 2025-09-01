@@ -39,7 +39,7 @@ from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
 from olmo.util import resource_path
 from olmo.data.pixmo_datasets import PixMoCap, ColorMosaicDataset
-from olmo.data.model_preprocessor import load_image, resize_and_pad
+from olmo.data.model_preprocessor import load_image, resize_and_pad, siglip_resize_and_pad
 from olmo.torch_util import get_local_rank, get_world_size
 
 log = logging.getLogger(__name__)
@@ -808,7 +808,14 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 
                 # Get token embeddings from the model
                 # Instead of trying to access sharded embeddings, use cached version
-                cached_embeddings_path = "analysis_results/cached_text_embeddings/Qwen_Qwen2-7B/layer_0_static_vocab.npy"
+                model_identifier = model.config.tokenizer.identifier
+                if "qwen" in model_identifier.lower():
+                    cached_embeddings_path = "analysis_results/cached_text_embeddings/Qwen_Qwen2-7B/layer_0_static_vocab.npy"
+                elif "dolma" in model_identifier.lower():
+                    cached_embeddings_path = "analysis_results/cached_text_embeddings/allenai_OLMo-7B-1024-preview/layer_0_static_vocab.npy"
+                elif "llama" in model_identifier.lower():
+                    cached_embeddings_path = "analysis_results/cached_text_embeddings/meta-llama_Meta-Llama-3-8B/layer_0_static_vocab.npy"
+                
                 try:
                     token_embeddings = torch.from_numpy(np.load(cached_embeddings_path)).to(device)
                     if local_rank == 0:
@@ -1155,6 +1162,8 @@ def main():
                        help="Which dataset to analyze (default: pixmo_cap)")
     parser.add_argument("--ckpt-path", type=str, required=True, help="Path to checkpoint to analyze")
     parser.add_argument("--force-rerun", action="store_true", help="Force re-running analysis even if results file exists")
+    parser.add_argument("--preprocessing_mode", type=str, choices=["padding", "warping"], 
+                       help="Preprocessing mode: 'padding' for black padding, 'warping' for direct resize, or omit for config default")
     args = parser.parse_args()
     
     # Hardcoded parameters based on dataset
@@ -1180,6 +1189,9 @@ def main():
     # Setup results directory (only on main process)
     if local_rank == 0:
         ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
+        # Add preprocessing mode to folder name if specified
+        if args.preprocessing_mode:
+            ckpt_name += f"_{args.preprocessing_mode}"
         results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
         results_dir.mkdir(parents=True, exist_ok=True)
         
@@ -1251,6 +1263,31 @@ def main():
         require_image_features=True
     )
 
+    # Override resize behavior based on preprocessing mode
+    if args.preprocessing_mode == "padding":
+        # Store original resize method
+        original_resize = preprocessor.mm_preprocessor.resize
+        
+        # Override the resize_image method to force black padding
+        def resize_image_with_black_padding(image, output_size, is_training, rng):
+            # Force use of resize_and_pad with black padding regardless of resize mode
+            return resize_and_pad(
+                image, output_size, pad_value=0, rng=rng, is_training=is_training,
+                resize_method="torch-bilinear")
+        
+        preprocessor.mm_preprocessor.resize_image = resize_image_with_black_padding
+    elif args.preprocessing_mode == "warping":
+        # Store original resize method
+        original_resize = preprocessor.mm_preprocessor.resize
+        
+        # Override the resize_image method to force direct resize (no padding)
+        def resize_image_with_warping(image, output_size, is_training, rng):
+            # Force direct resize without padding (stretches image to fill target size)
+            # Use SigLIP method for consistent warping behavior
+            return siglip_resize_and_pad(image, output_size)
+        
+        preprocessor.mm_preprocessor.resize_image = resize_image_with_warping
+
     use_n_token_only = model_config.vision_backbone.use_n_token_only
 
     # Initialize results dictionary (only on main process)
@@ -1261,6 +1298,7 @@ def main():
             "dataset": dataset_name,
             "dataset_type": args.dataset,
             "num_processes": world_size,
+            "preprocessing_mode": args.preprocessing_mode,
             "splits": {},
             "overall_statistics": {}
         }

@@ -343,15 +343,37 @@ class PixMoCap(Dataset):
             "image", [url_to_filename[x] for x in filtered_dataset["image_url"]])
         save_local_dataset(filtered_dataset, local_name, n_procs, n_val=n_val)
 
-    def __init__(self, split, mode, prefix_how_many=True, keep_in_memory=False):
+    def __init__(self, split, mode, prefix_how_many=True, keep_in_memory=False, first_sentence_only=False):
         if split not in ["train", "validation"]:
             raise ValueError(f"Unknown split {split}")
         if mode not in ["transcripts", "captions", "transcript_and_caption", "transcript1_and_caption"]:
             raise ValueError(mode)
         self.split = split
         self.mode = mode
+        self.first_sentence_only = first_sentence_only
         self.data = datasets.load_from_disk(
             join(PIXMO_DATASETS, "cap"), keep_in_memory=keep_in_memory)[split]
+        
+        # Pre-process captions if first_sentence_only is enabled
+        if self.first_sentence_only:
+            logging.info("Pre-processing captions to extract first sentences...")
+            
+            def process_caption(example):
+                caption = example["caption"]
+                sentences = caption.split(".")
+                if len(sentences) > 1:
+                    first_sentence = sentences[0].strip()
+                    if len(first_sentence.split()) < 4:
+                        # Take up to the second period if first sentence is too short
+                        example["caption"] = ".".join(sentences[:2]) + "."
+                    else:
+                        # Take just the first sentence
+                        example["caption"] = first_sentence + "."
+                return example
+            
+            # Use HuggingFace's map method to transform the dataset
+            self.data = self.data.map(process_caption)
+            logging.info("Caption pre-processing complete.")
 
     def __len__(self):
         return len(self.data)
@@ -371,6 +393,7 @@ class PixMoCap(Dataset):
             messages.append(dict(text=transcripts[ix], style="transcript"))
         if self.mode == "transcripts":
             messages += [dict(text=tr, style="transcript") for tr in transcripts]
+        # print(f"DEBUG: messages = {messages}")
         out = dict(
             image=ex["image"],
             message_list=messages,

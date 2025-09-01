@@ -130,6 +130,8 @@ def main(cfg: TrainConfig) -> None:
 
     # Set seed.
     seed_all(cfg.seed)
+    log.info(f"Global seed set to {cfg.seed}")
+    log.info(f"Data seed will be: {cfg.data.seed if cfg.data.seed is not None else cfg.seed}")
 
     # Construct data loader.
     train_loader = build_train_dataloader(cfg, device)
@@ -144,6 +146,7 @@ def main(cfg: TrainConfig) -> None:
 
     # Initialize the model.
     olmo_model = Molmo(cfg.model)
+    log.info(f"Model initialized with seed {cfg.seed}")
 
     # Freeze model components.
     if cfg.model.vision_backbone is not None and not cfg.ft_connector:
@@ -358,7 +361,9 @@ if __name__ == "__main__":
     log.info(f"Multiprocessing start method set to '{mp.get_start_method()}'")
 
     # Initialize process group.
-    dist.init_process_group(backend="nccl")
+    import datetime as dt
+
+    dist.init_process_group(backend="nccl", timeout=dt.timedelta(seconds=3600))
     log.info("Process group initialized")
 
     prepare_cli_environment()

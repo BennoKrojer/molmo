@@ -15,7 +15,7 @@ import random
 NUM_SENTENCES = 100
 USE_MEAN_EMBEDDINGS = False
 VISUALIZATION_METHOD = 'pca'
-BATCH_SIZE = 32  # Default batch size for models with padding token
+BATCH_SIZE = 8  # Default batch size for models with padding token
 
 def stable_cosine_similarity(a, b):
     norm_a = np.linalg.norm(a) + 1e-8

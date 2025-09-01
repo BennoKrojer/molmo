@@ -28,7 +28,10 @@ def clear_gpu_memory():
     """Clear CUDA cache to free up memory."""
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+        torch.cuda.synchronize()  # Wait for all operations to complete
+        torch.cuda.empty_cache()  # Clear cache again
     gc.collect()
+    gc.collect()  # Run garbage collection twice
 
 
 def compute_and_plot_similarities(embeddings, title, output_path, num_pairs=10000):
@@ -405,6 +408,14 @@ def main():
         
         # Process examples and save hidden states
         for i in tqdm(range(num_examples_to_process), desc="Processing examples for hidden states"):
+            # Check GPU memory before processing
+            if torch.cuda.is_available():
+                memory_allocated = torch.cuda.memory_allocated() / 1024**3  # GB
+                memory_reserved = torch.cuda.memory_reserved() / 1024**3   # GB
+                if memory_reserved > 20:  # If using more than 20GB, clear aggressively
+                    log.warning(f"High GPU memory usage: {memory_reserved:.1f}GB reserved, {memory_allocated:.1f}GB allocated")
+                    clear_gpu_memory()
+            
             example_cache_dir = hidden_states_cache_dir / f"ex_{i}"
             example_cache_dir.mkdir(parents=True, exist_ok=True)
             
@@ -429,34 +440,59 @@ def main():
             # Forward pass with hidden states
             with torch.inference_mode():
                 with torch.autocast("cuda", enabled=True, dtype=torch.float16):
+                    # Create input tensors
+                    input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).cuda()
+                    images = torch.tensor(batch.get("images")).unsqueeze(0).cuda()
+                    image_masks = torch.tensor(batch.get("image_masks")).unsqueeze(0).cuda() if batch.get("image_masks") is not None else None
+                    image_input_idx = torch.tensor(batch.get("image_input_idx")).unsqueeze(0).cuda() if batch.get("image_input_idx") is not None else None
+                    
                     output = model(
-                        input_ids=torch.tensor(batch["input_tokens"]).unsqueeze(0).cuda(),
+                        input_ids=input_ids,
                         attention_mask=None,
                         attention_bias=None,
-                        images=torch.tensor(batch.get("images")).unsqueeze(0).cuda(),
-                        image_masks=torch.tensor(batch.get("image_masks")).unsqueeze(0).cuda() if batch.get("image_masks") is not None else None,
-                        image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).cuda() if batch.get("image_input_idx") is not None else None,
+                        images=images,
+                        image_masks=image_masks,
+                        image_input_idx=image_input_idx,
                         output_hidden_states=True,
                         return_visual_embeddings=False
                     )
-            
-            # Save hidden states for each layer
-            hidden_states = output.hidden_states
-            for layer_idx, layer_hidden_states in enumerate(hidden_states):
-                layer_path = example_cache_dir / f"layer_{layer_idx}.npy"
-                np.save(layer_path, layer_hidden_states.detach().cpu().numpy())
-            
-            # Save metadata
-            metadata = {
-                "num_layers": len(hidden_states),
-                "sequence_length": hidden_states[0].shape[1],
-                "hidden_size": hidden_states[0].shape[2]
-            }
-            with open(example_cache_dir / "metadata.json", "w") as f:
-                json.dump(metadata, f)
-            
-            clear_gpu_memory()
-        
+                    
+                    # Immediately move hidden states to CPU and save to avoid GPU memory accumulation
+                    hidden_states = output.hidden_states
+                    for layer_idx, layer_hidden_states in enumerate(hidden_states):
+                        layer_path = example_cache_dir / f"layer_{layer_idx}.npy"
+                        # Move to CPU immediately and save
+                        layer_data = layer_hidden_states.detach().cpu().numpy()
+                        np.save(layer_path, layer_data)
+                        # Delete the CPU copy to free RAM
+                        del layer_data
+                    
+                    # Save metadata
+                    metadata = {
+                        "num_layers": len(hidden_states),
+                        "sequence_length": hidden_states[0].shape[1],
+                        "hidden_size": hidden_states[0].shape[2]
+                    }
+                    
+                    # Explicitly delete GPU tensors
+                    del input_ids, images, output, hidden_states
+                    if image_masks is not None:
+                        del image_masks
+                    if image_input_idx is not None:
+                        del image_input_idx
+                
+                # Save metadata after GPU cleanup
+                with open(example_cache_dir / "metadata.json", "w") as f:
+                    json.dump(metadata, f)
+                
+                # More aggressive memory cleanup
+                clear_gpu_memory()
+                
+                # Additional cleanup every few examples (more frequent if memory is tight)
+                cleanup_interval = 3 if torch.cuda.is_available() and torch.cuda.memory_reserved() / 1024**3 > 15 else 5
+                if i % cleanup_interval == 0:
+                    log.info(f"Processed {i+1}/{num_examples_to_process} examples, clearing memory...")
+                    clear_gpu_memory()
         # Clean up model
         del model, preprocessor
         clear_gpu_memory()
