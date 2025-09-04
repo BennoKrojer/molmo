@@ -666,7 +666,7 @@ class OLMoBlock(nn.Module):
                 # For flash attention, we can't easily get attention maps, so return None
                 return r.transpose(1, 2), None
             else:
-                return r.transpose(1, 2)
+                return r.transpose(1, 2), None
         else:
             # torch's sdpa doesn't support GQA, so we're doing this
             assert k.size(1) == v.size(1)
@@ -1196,7 +1196,8 @@ class OLMoLlamaBlock(OLMoBlock):
                 attn_map += attn_mask
             return att, attn_map
         else:
-            return att
+            # Always return a tuple for consistency with the calling code
+            return att, None
 
     def forward(
         self,
