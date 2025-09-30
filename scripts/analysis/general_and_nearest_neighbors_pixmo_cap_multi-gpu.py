@@ -26,13 +26,14 @@ import matplotlib.pyplot as plt
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 from torch.distributed.fsdp import ShardingStrategy, MixedPrecision
 
-# Add translation library
+# Add translation library (robust to env/version issues)
 try:
     from googletrans import Translator
     TRANSLATION_AVAILABLE = True
-except ImportError:
+except Exception as e:
     TRANSLATION_AVAILABLE = False
-    print("Warning: googletrans not available. Install with: pip install googletrans==4.0.0rc1")
+    print(f"Warning: translation disabled (googletrans import error: {e}). To enable, install compatible versions, e.g.:\n"
+          f"  pip install 'googletrans==4.0.0rc1' 'httpx<0.24' 'httpcore<1.0'")
 
 from olmo.config import ModelConfig
 from olmo.data import build_mm_preprocessor
@@ -688,7 +689,7 @@ def get_display_token(original_token):
         _cache_dirty = True
         return original_token
 
-def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, images_dir=None, split_name="", dataset_type="pixmo_cap"):
+def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, images_dir=None, split_name="", dataset_type="pixmo_cap", llm_layer: int = 0, skip_generate: bool = False, sanity_check_l0_l1: bool = False, sanity_threshold: float = 0.9):
     """Process a dataset split and return results with distributed processing."""
     # Distribute images across processes
     world_size = get_world_size()
@@ -798,13 +799,89 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).to(device)
                 image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).to(device) if batch.get("image_masks") is not None else None
                 
-                image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
-                # Handle use_n_token_only properly
-                if type(use_n_token_only) == int and use_n_token_only != -1:
-                    image_features = image_features[:, :, :use_n_token_only, :]
-                elif type(use_n_token_only) == list and len(use_n_token_only) > 0:
-                    image_features = image_features[:, :, use_n_token_only, :]
+                # Select which features to use for analysis:
+                #  - llm_layer == 0: use vision backbone projected features (existing behavior)
+                #  - llm_layer > 0: use hidden states from the specified LLM layer at visual token positions
+                if llm_layer == 0 and not sanity_check_l0_l1:
+                    image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
+                    # Handle use_n_token_only properly
+                    if type(use_n_token_only) == int and use_n_token_only != -1:
+                        image_features = image_features[:, :, :use_n_token_only, :]
+                    elif type(use_n_token_only) == list and len(use_n_token_only) > 0:
+                        image_features = image_features[:, :, use_n_token_only, :]
+                else:
+                    # Forward through the LLM to get hidden states
+                    input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
+                    image_input_idx_tensor = torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None
+                    output = model(
+                        input_ids=input_ids,
+                        images=images_tensor,
+                        image_masks=image_masks_tensor,
+                        image_input_idx=image_input_idx_tensor,
+                        output_hidden_states=True,
+                        last_logits_only=False,
+                    )
+                    hidden_states = output.hidden_states  # Tuple[Tensor]
+                    # Bound-check layer index against available hidden states
+                    max_layer_index = len(hidden_states) - 1  # includes final ln_f state
+                    assert image_input_idx_tensor is not None, "image_input_idx is required to extract visual tokens from LLM layers"
+                    # Helper to gather features from a specific layer index
+                    def gather_visual_features_from_layer(hs_tensor):
+                        B = hs_tensor.shape[0]
+                        num_chunks_local = image_input_idx_tensor.shape[1]
+                        patches_per_chunk_local = image_input_idx_tensor.shape[2]
+                        d_model_local = hs_tensor.shape[-1]
+                        feats = torch.zeros((B, num_chunks_local, patches_per_chunk_local, d_model_local), device=hs_tensor.device, dtype=hs_tensor.dtype)
+                        flat_positions_local = image_input_idx_tensor.view(B, -1)
+                        valid_mask_local = flat_positions_local >= 0
+                        for b in range(B):
+                            valid_pos = flat_positions_local[b][valid_mask_local[b]]
+                            if valid_pos.numel() == 0:
+                                continue
+                            gathered = hs_tensor[b, valid_pos.long(), :]
+                            feats.view(B, -1, d_model_local)[b, valid_mask_local[b], :] = gathered
+                        return feats
+
+                    image_features_l0_for_sanity = None
+                    if sanity_check_l0_l1:
+                        # Compare layer 0 vs layer 1 visual token embeddings
+                        layer0_index = 0
+                        layer1_index = 1 if max_layer_index >= 1 else max_layer_index
+                        hs0 = hidden_states[layer0_index]
+                        hs1 = hidden_states[layer1_index]
+                        image_features_l0 = gather_visual_features_from_layer(hs0)
+                        image_features_l1 = gather_visual_features_from_layer(hs1)
+                        image_features_l0_for_sanity = image_features_l0
+                        # Compute cosine similarity over valid positions
+                        B, num_chunks, patches_per_chunk, D = image_features_l0.shape
+                        v0 = image_features_l0.view(B, -1, D)
+                        v1 = image_features_l1.view(B, -1, D)
+                        valid = image_input_idx_tensor.view(B, -1) >= 0
+                        # Avoid zero vectors by normalizing and masking
+                        cosims = []
+                        for b in range(B):
+                            if valid[b].any():
+                                a = v0[b][valid[b]]
+                                c = v1[b][valid[b]]
+                                a_n = torch.nn.functional.normalize(a, dim=-1)
+                                c_n = torch.nn.functional.normalize(c, dim=-1)
+                                cos = (a_n * c_n).sum(dim=-1)
+                                cosims.append(cos.detach().float().cpu())
+                        if len(cosims) > 0:
+                            cosims = torch.cat(cosims)
+                            mean_cos = float(cosims.mean().item())
+                            frac_high = float((cosims >= sanity_threshold).float().mean().item())
+                            print(f"[Sanity l0 vs l1] mean_cos={mean_cos:.4f}, frac>= {sanity_threshold} : {frac_high:.4f} (N={cosims.numel()})")
+                        # For downstream NN analysis, pick the requested layer (default 1 when sanity flag is used in your run)
+                        layer_index = min(max(1, llm_layer), max_layer_index)
+                        hs = hidden_states[layer_index]
+                        image_features = gather_visual_features_from_layer(hs)
+                    else:
+                        layer_index = min(llm_layer, max_layer_index)
+                        hs = hidden_states[layer_index]
+                        image_features = gather_visual_features_from_layer(hs)
                 image_results["feature_shape"] = list(image_features.shape)
+                image_results["llm_layer_used"] = llm_layer
                 
                 # Get token embeddings from the model
                 # Instead of trying to access sharded embeddings, use cached version
@@ -840,27 +917,51 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 # Get top-5 most similar tokens for each patch
                 top_k = 5
                 top_values, top_indices = torch.topk(similarity, k=top_k, dim=-1)
+
+                # If sanity enabled, also compute top-5 for layer 0 and print overlap
+                if sanity_check_l0_l1 and 'image_features_l0_for_sanity' in locals() and image_features_l0_for_sanity is not None:
+                    feats0_reshaped = image_features_l0_for_sanity.view(-1, patches_per_chunk, hidden_dim)
+                    feats0_norm = torch.nn.functional.normalize(feats0_reshaped, dim=-1)
+                    sim0 = torch.matmul(feats0_norm, token_embeddings_norm.T)
+                    _, top_indices_l0 = torch.topk(sim0, k=top_k, dim=-1)
+                    # Compute per-patch overlap
+                    A = top_indices.view(-1, top_k)
+                    Bti = top_indices_l0.view(-1, top_k)
+                    valid_mask_flat = (torch.tensor(batch.get("image_input_idx")).view(1, num_chunks, patches_per_chunk) >= 0).reshape(-1).to(A.device)
+                    A_valid = A[valid_mask_flat]
+                    B_valid = Bti[valid_mask_flat]
+                    if A_valid.numel() > 0:
+                        eq = (A_valid.unsqueeze(-1) == B_valid.unsqueeze(-2))
+                        overlap_counts = eq.any(dim=-1).sum(dim=-1).float()
+                        mean_frac = float((overlap_counts / top_k).mean().item())
+                        frac_all5 = float((overlap_counts == top_k).float().mean().item())
+                        print(f"[Sanity top5 overlap l{llm_layer} vs l0] mean_frac={mean_frac:.3f}, frac_all5={frac_all5:.3f}, N={overlap_counts.numel()}")
                 
                 # Clear intermediate tensors
                 del similarity, image_features_norm, token_embeddings_norm
                 clear_gpu_memory()
 
-                # generated output for reference
-                input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
-                output = model.generate(
-                    input_ids=input_ids,
-                    images=images_tensor,
-                    image_masks=image_masks_tensor,
-                    image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None,
-                    max_steps=600 if dataset_type == "mosaic" else 200,  # More steps for mosaic (multiple color tokens)
-                    is_distributed=False
-                )
-                token_ids = output.token_ids[:, 0].detach().cpu().numpy()
-                decoded = preprocessor.tokenizer.decode(token_ids[0])
-                image_results["generated_response"] = decoded
+                # generated output for reference (optional)
+                if not skip_generate:
+                    input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
+                    output = model.generate(
+                        input_ids=input_ids,
+                        images=images_tensor,
+                        image_masks=image_masks_tensor,
+                        image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None,
+                        max_steps=600 if dataset_type == "mosaic" else 200,  # More steps for mosaic (multiple color tokens)
+                        is_distributed=False
+                    )
+                    token_ids = output.token_ids[:, 0].detach().cpu().numpy()
+                    decoded = preprocessor.tokenizer.decode(token_ids[0])
+                    image_results["generated_response"] = decoded
+                else:
+                    image_results["generated_response"] = None
 
                 # Clear GPU tensors
-                del images_tensor, image_masks_tensor, image_features, input_ids, output
+                if not skip_generate:
+                    del input_ids, output
+                del images_tensor, image_masks_tensor, image_features
                 clear_gpu_memory()
 
                 # Add ground truth tokens for mosaic
@@ -1164,6 +1265,16 @@ def main():
     parser.add_argument("--force-rerun", action="store_true", help="Force re-running analysis even if results file exists")
     parser.add_argument("--preprocessing_mode", type=str, choices=["padding", "warping"], 
                        help="Preprocessing mode: 'padding' for black padding, 'warping' for direct resize, or omit for config default")
+    parser.add_argument("--llm_layer", type=int, default=0,
+                       help="If >0, extract visual token embeddings from this LLM layer (0 keeps original vision features)")
+    parser.add_argument("--llm_layers", type=int, nargs='+',
+                       help="Optional list of LLM layer indices to evaluate; saves one result per layer")
+    parser.add_argument("--skip_generate", action="store_true",
+                       help="Skip model.generate() inside loop to avoid extra FSDP comm and desync")
+    parser.add_argument("--sanity_check_l0_l1", action="store_true",
+                       help="Print cosine similarity stats between layer 0 and layer 1 visual tokens")
+    parser.add_argument("--sanity_threshold", type=float, default=0.9,
+                       help="Threshold for l0 vs l1 cosine similarity (default: 0.9)")
     args = parser.parse_args()
     
     # Hardcoded parameters based on dataset
@@ -1185,6 +1296,11 @@ def main():
         print(f"Dataset: {args.dataset}")
         print(f"Prompt: {prompt}")
         print(f"Running on {world_size} processes")
+        print(f"LLM layer for features: {args.llm_layer}")
+        if args.skip_generate:
+            print("Skipping generation during analysis (--skip_generate)")
+        if args.sanity_check_l0_l1:
+            print(f"Sanity check enabled: l0 vs l1 cosine (threshold={args.sanity_threshold})")
 
     # Setup results directory (only on main process)
     if local_rank == 0:
@@ -1200,7 +1316,8 @@ def main():
         images_dir.mkdir(exist_ok=True)
         
         # Check if results already exist
-        output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu.json"
+        layer_suffix = f"_layer{args.llm_layer}" if args.llm_layer and args.llm_layer > 0 else ""
+        output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
         if output_file.exists() and not args.force_rerun:
             print(f"Results file already exists: {output_file}")
             print("Use --force-rerun flag to re-run analysis, or delete the file to start fresh")
@@ -1299,237 +1416,227 @@ def main():
             "dataset_type": args.dataset,
             "num_processes": world_size,
             "preprocessing_mode": args.preprocessing_mode,
+            "llm_layer": args.llm_layer,
+            "skip_generate": args.skip_generate,
             "splits": {},
             "overall_statistics": {}
         }
     else:
         all_results = None
 
-    try:
-        # Process train split
-        if local_rank == 0:
-            print("Processing train split...")
-        if args.dataset == "pixmo_cap":
-            train_dataset = PixMoCap(split="train", mode="captions")
-        else:  # mosaic
-            train_dataset = ColorMosaicDataset(split="train", grid_size=24)
-        
-        train_results = process_split(
-            model, preprocessor, train_dataset, num_train_images, prompt, 
-            use_n_token_only, images_dir, "train", args.dataset
-        )
-        
-        # Only main process handles results
-        if local_rank == 0:
-            if args.dataset == "pixmo_cap":
-                train_images, train_statistics = train_results
-                all_results["splits"]["train"] = {
-                    "num_images": num_train_images,
-                    "images": train_images,
-                    "statistics": train_statistics
-                }
-            else:  # mosaic
-                train_images, train_token_position_stats, train_color_statistics = train_results
-                all_results["splits"]["train"] = {
-                    "num_images": num_train_images,
-                    "images": train_images,
-                    "token_position_statistics": train_token_position_stats,
-                    "color_statistics": train_color_statistics
-                }
-        
-        # Clear train dataset from memory and clear GPU cache
-        del train_dataset
-        del train_results
-        clear_gpu_memory()
-        dist.barrier()
+    # Decide which layers to run
+    if args.llm_layers and len(args.llm_layers) > 0:
+        layers_to_run = args.llm_layers
+    else:
+        # Default: first few (1,2,3,4) then every 4th (8,12,...) up to last block
+        n_layers = model.config.n_layers
+        base_layers = [l for l in [1, 2, 3, 4] if l < n_layers]
+        periodic_layers = list(range(8, n_layers, 4))
+        last_block = n_layers - 1
+        layers_to_run = base_layers + [l for l in periodic_layers if l not in base_layers]
+        if last_block not in layers_to_run and last_block > 0:
+            layers_to_run.append(last_block)
+    if local_rank == 0:
+        print(f"Evaluating layers: {layers_to_run}")
 
-        # Process validation split
-        if local_rank == 0:
-            print("Processing validation split...")
-        if args.dataset == "pixmo_cap":
-            val_dataset = PixMoCap(split="validation", mode="captions")
-        else:  # mosaic
-            val_dataset = ColorMosaicDataset(split="validation", grid_size=24)
-            
-        val_results = process_split(
-            model, preprocessor, val_dataset, num_val_images, prompt, 
-            use_n_token_only, images_dir, "validation", args.dataset
-        )
-        
-        # Clear validation dataset from memory immediately after processing
-        del val_dataset
-        clear_gpu_memory()
-        dist.barrier()
-        
-        # Only main process handles results and saves files
-        if local_rank == 0:
+    try:
+        for target_layer in layers_to_run:
+            if local_rank == 0:
+                print(f"\n=== Evaluating LLM layer {target_layer} ===")
+            # Re-init results container per layer
+            if local_rank == 0:
+                all_results = {
+                    "checkpoint": checkpoint_path,
+                    "prompt": prompt,
+                    "dataset": dataset_name,
+                    "dataset_type": args.dataset,
+                    "num_processes": world_size,
+                    "preprocessing_mode": args.preprocessing_mode,
+                    "llm_layer": target_layer,
+                    "skip_generate": args.skip_generate,
+                    "splits": {},
+                    "overall_statistics": {}
+                }
+            # Process train split
+            if local_rank == 0:
+                print("Processing train split...")
             if args.dataset == "pixmo_cap":
-                val_images, val_statistics = val_results
-                all_results["splits"]["validation"] = {
-                    "num_images": num_val_images,
-                    "images": val_images,
-                    "statistics": val_statistics
-                }
-                
-                # Get train statistics from saved results for combining
-                train_statistics = all_results["splits"]["train"]["statistics"]
-                
-                # Combine statistics across splits
-                combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
-                combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
-                combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
-                
-                # Combine token position statistics
-                combined_token_position_stats = {}
-                for split_stats in [train_statistics, val_statistics]:
-                    for pos, stats in split_stats["token_position_statistics"].items():
-                        if pos not in combined_token_position_stats:
-                            combined_token_position_stats[pos] = {
-                                "total_occurrences": 0,
-                                "interpretable_occurrences": 0,
-                                "visual_task_occurrences": 0,
-                                "interpretability_percentage": 0.0,
-                                "visual_task_percentage": 0.0,
-                                "patch_row": stats.get("patch_row", 0),
-                                "patch_col": stats.get("patch_col", 0)
-                            }
-                        combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
-                        combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                        combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
-                
-                # Recalculate percentages for combined stats
-                for pos_stats in combined_token_position_stats.values():
-                    total = pos_stats["total_occurrences"]
-                    interpretable = pos_stats["interpretable_occurrences"]
-                    visual_task = pos_stats["visual_task_occurrences"]
-                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                    pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
-                
-                all_results["overall_statistics"] = {
-                    "total_visual_tokens": combined_total_tokens,
-                    "interpretable_visual_tokens": combined_interpretable_tokens,
-                    "visual_task_visual_tokens": combined_visual_task_tokens,
-                    "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                    "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                    "train_statistics": train_statistics,
-                    "validation_statistics": val_statistics,
-                    "token_position_statistics": combined_token_position_stats
-                }
+                train_dataset = PixMoCap(split="train", mode="captions")
             else:  # mosaic
-                val_images, val_token_position_stats, val_color_statistics = val_results
-                all_results["splits"]["validation"] = {
-                    "num_images": num_val_images,
-                    "images": val_images,
-                    "token_position_statistics": val_token_position_stats,
-                    "color_statistics": val_color_statistics
-                }
-                
-                # Combine token position statistics across splits
-                combined_token_position_stats = {}
-                for split_name, split_data in all_results["splits"].items():
-                    split_stats = split_data["token_position_statistics"]
-                    for patch_idx, stats in split_stats.items():
-                        if patch_idx not in combined_token_position_stats:
-                            combined_token_position_stats[patch_idx] = {
-                                "total_occurrences": 0,
-                                "interpretable_occurrences": 0,
-                                "interpretability_percentage": 0.0,
-                                "patch_row": stats.get("patch_row", 0),
-                                "patch_col": stats.get("patch_col", 0)
-                            }
-                        combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
-                        combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                
-                # Recalculate percentages for combined stats
-                for pos_stats in combined_token_position_stats.values():
-                    total = pos_stats["total_occurrences"]
-                    interpretable = pos_stats["interpretable_occurrences"]
-                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                
-                # Combine color statistics across splits
-                combined_color_statistics = {}
-                for split_name, split_data in all_results["splits"].items():
-                    split_stats = split_data["color_statistics"]
-                    for color, stats in split_stats.items():
-                        if color not in combined_color_statistics:
-                            combined_color_statistics[color] = {
-                                "ground_truth_matches": 0,
-                                "total_samples": 0
-                            }
-                        combined_color_statistics[color]["ground_truth_matches"] += stats["ground_truth_matches"]
-                        combined_color_statistics[color]["total_samples"] += stats["total_samples"]
-                
-                # Add accuracy percentages
-                for color, stats in combined_color_statistics.items():
-                    total = stats["total_samples"]
-                    if total > 0:
-                        stats["ground_truth_accuracy"] = stats["ground_truth_matches"] / total
-                
-                # Sort color statistics by ground_truth_accuracy (descending) for easier analysis
-                sorted_color_statistics = []
-                for color, stats in combined_color_statistics.items():
-                    stats_with_color = stats.copy()
-                    stats_with_color["color"] = color
-                    sorted_color_statistics.append(stats_with_color)
-                
-                # Sort by ground_truth_accuracy descending
-                sorted_color_statistics.sort(key=lambda x: (x.get("ground_truth_accuracy", 0)), reverse=True)
-                
-                # Calculate overall statistics
-                total_interpretable_tokens = sum(stats["interpretable_occurrences"] for stats in combined_token_position_stats.values())
-                total_visual_tokens = sum(stats["total_occurrences"] for stats in combined_token_position_stats.values())
-                
-                all_results["overall_statistics"] = {
-                    "total_visual_tokens": total_visual_tokens,
-                    "interpretable_visual_tokens": total_interpretable_tokens,
-                    "interpretability_percentage": (total_interpretable_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-                    "token_position_statistics": combined_token_position_stats,
-                    "color_statistics": sorted_color_statistics
-                }
+                train_dataset = ColorMosaicDataset(split="train", grid_size=24)
+            train_results = process_split(
+                model, preprocessor, train_dataset, num_train_images, prompt,
+                use_n_token_only, images_dir, "train", args.dataset, target_layer, args.skip_generate
+            )
+            if local_rank == 0:
+                if args.dataset == "pixmo_cap":
+                    train_images, train_statistics = train_results
+                    all_results["splits"]["train"] = {
+                        "num_images": num_train_images,
+                        "images": train_images,
+                        "statistics": train_statistics
+                    }
+                else:  # mosaic
+                    train_images, train_token_position_stats, train_color_statistics = train_results
+                    all_results["splits"]["train"] = {
+                        "num_images": num_train_images,
+                        "images": train_images,
+                        "token_position_statistics": train_token_position_stats,
+                        "color_statistics": train_color_statistics
+                    }
+            del train_dataset
+            del train_results
+            clear_gpu_memory()
+            dist.barrier()
+            # Process validation split
+            if local_rank == 0:
+                print("Processing validation split...")
+            if args.dataset == "pixmo_cap":
+                val_dataset = PixMoCap(split="validation", mode="captions")
+            else:  # mosaic
+                val_dataset = ColorMosaicDataset(split="validation", grid_size=24)
+            val_results = process_split(
+                model, preprocessor, val_dataset, num_val_images, prompt,
+                use_n_token_only, images_dir, "validation", args.dataset, target_layer, args.skip_generate
+            )
+            del val_dataset
+            clear_gpu_memory()
+            dist.barrier()
+            # Combine and save
+            if local_rank == 0:
+                if args.dataset == "pixmo_cap":
+                    val_images, val_statistics = val_results
+                    all_results["splits"]["validation"] = {
+                        "num_images": num_val_images,
+                        "images": val_images,
+                        "statistics": val_statistics
+                    }
+                    train_statistics = all_results["splits"]["train"]["statistics"]
+                    combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
+                    combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
+                    combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
+                    combined_token_position_stats = {}
+                    for split_stats in [train_statistics, val_statistics]:
+                        for pos, stats in split_stats["token_position_statistics"].items():
+                            if pos not in combined_token_position_stats:
+                                combined_token_position_stats[pos] = {
+                                    "total_occurrences": 0,
+                                    "interpretable_occurrences": 0,
+                                    "visual_task_occurrences": 0,
+                                    "interpretability_percentage": 0.0,
+                                    "visual_task_percentage": 0.0,
+                                    "patch_row": stats.get("patch_row", 0),
+                                    "patch_col": stats.get("patch_col", 0)
+                                }
+                            combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
+                            combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                            combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
+                    for pos_stats in combined_token_position_stats.values():
+                        total = pos_stats["total_occurrences"]
+                        interpretable = pos_stats["interpretable_occurrences"]
+                        visual_task = pos_stats["visual_task_occurrences"]
+                        pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                        pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+                    all_results["overall_statistics"] = {
+                        "total_visual_tokens": combined_total_tokens,
+                        "interpretable_visual_tokens": combined_interpretable_tokens,
+                        "visual_task_visual_tokens": combined_visual_task_tokens,
+                        "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                        "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                        "train_statistics": train_statistics,
+                        "validation_statistics": val_statistics,
+                        "token_position_statistics": combined_token_position_stats
+                    }
+                else:  # mosaic
+                    val_images, val_token_position_stats, val_color_statistics = val_results
+                    all_results["splits"]["validation"] = {
+                        "num_images": num_val_images,
+                        "images": val_images,
+                        "token_position_statistics": val_token_position_stats,
+                        "color_statistics": val_color_statistics
+                    }
+                    combined_token_position_stats = {}
+                    for split_name, split_data in all_results["splits"].items():
+                        split_stats = split_data["token_position_statistics"]
+                        for patch_idx, stats in split_stats.items():
+                            if patch_idx not in combined_token_position_stats:
+                                combined_token_position_stats[patch_idx] = {
+                                    "total_occurrences": 0,
+                                    "interpretable_occurrences": 0,
+                                    "interpretability_percentage": 0.0,
+                                    "patch_row": stats.get("patch_row", 0),
+                                    "patch_col": stats.get("patch_col", 0)
+                                }
+                            combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
+                            combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                    for pos_stats in combined_token_position_stats.values():
+                        total = pos_stats["total_occurrences"]
+                        interpretable = pos_stats["interpretable_occurrences"]
+                        pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                    combined_color_statistics = {}
+                    for split_name, split_data in all_results["splits"].items():
+                        split_stats = split_data["color_statistics"]
+                        for color, stats in split_stats.items():
+                            if color not in combined_color_statistics:
+                                combined_color_statistics[color] = {
+                                    "ground_truth_matches": 0,
+                                    "total_samples": 0
+                                }
+                            combined_color_statistics[color]["ground_truth_matches"] += stats["ground_truth_matches"]
+                            combined_color_statistics[color]["total_samples"] += stats["total_samples"]
+                    for color, stats in combined_color_statistics.items():
+                        total = stats["total_samples"]
+                        if total > 0:
+                            stats["ground_truth_accuracy"] = stats["ground_truth_matches"] / total
+                    sorted_color_statistics = []
+                    for color, stats in combined_color_statistics.items():
+                        stats_with_color = stats.copy()
+                        stats_with_color["color"] = color
+                        sorted_color_statistics.append(stats_with_color)
+                    sorted_color_statistics.sort(key=lambda x: (x.get("ground_truth_accuracy", 0)), reverse=True)
+                    total_interpretable_tokens = sum(stats["interpretable_occurrences"] for stats in combined_token_position_stats.values())
+                    total_visual_tokens = sum(stats["total_occurrences"] for stats in combined_token_position_stats.values())
+                    all_results["overall_statistics"] = {
+                        "total_visual_tokens": total_visual_tokens,
+                        "interpretable_visual_tokens": total_interpretable_tokens,
+                        "interpretability_percentage": (total_interpretable_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+                        "token_position_statistics": combined_token_position_stats,
+                        "color_statistics": sorted_color_statistics
+                    }
+                # Save per-layer outputs
+                if local_rank == 0:
+                    layer_suffix = f"_layer{target_layer}" if target_layer and target_layer > 0 else ""
+                    per_layer_output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
+                    with open(per_layer_output_file, 'w', encoding='utf-8') as f:
+                        json.dump(all_results, f, indent=2, ensure_ascii=False)
+                    print(f"Results saved to {per_layer_output_file}")
+                    if args.dataset == "pixmo_cap":
+                        plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_summary_plot.png"
+                        create_interpretability_plot(all_results["overall_statistics"], plot_file)
+                        token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
+                        create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+                    else:
+                        color_plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_color_plot.png"
+                        create_color_interpretability_plot(all_results["overall_statistics"]["color_statistics"], color_plot_file)
+                        token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
+                        create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
 
     except Exception as e:
         if local_rank == 0:
             log.error(f"Error during processing: {str(e)}")
-            # Save partial results if there's an error
             output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_partial.json"
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(all_results, f, indent=2, ensure_ascii=False)
         raise
 
-    # Save final results and create plots (only on main process)
+    # Save any remaining translations to cache and finish
     if local_rank == 0:
-        # Save final results
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(all_results, f, indent=2, ensure_ascii=False)
-        
-        print(f"Results saved to {output_file}")
-        print(f"Images saved to {images_dir} (Train: {num_train_images}, Validation: {num_val_images})")
-        
-        # Create and save plots based on dataset type
-        if args.dataset == "pixmo_cap":
-            # Create and save interpretability plot
-            plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_summary_plot.png"
-            create_interpretability_plot(all_results["overall_statistics"], plot_file)
-
-            # Create and save token position plot
-            token_plot_file = results_dir / "token_position_interpretability_plot_multi-gpu.png"
-            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
-        else:  # mosaic
-            # Create and save color interpretability plot
-            color_plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_color_plot.png"
-            create_color_interpretability_plot(all_results["overall_statistics"]["color_statistics"], color_plot_file)
-            
-            # Create token position plot
-            token_plot_file = results_dir / "token_position_interpretability_plot_multi-gpu.png"
-            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
-
-        # Save any remaining translations to cache
         save_translation_cache()
+        print(f"Images saved to {images_dir} (Train: {num_train_images}, Validation: {num_val_images})")
+        print("Analysis complete!")
 
     # Wait for all processes to finish
     dist.barrier()
-    if local_rank == 0:
-        print("Analysis complete!")
 
 if __name__ == "__main__":
     main() 
