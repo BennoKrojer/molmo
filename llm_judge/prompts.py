@@ -1,0 +1,29 @@
+IMAGE_PROMPT = """You are a visual interpretation expert specializing in connecting textual concepts to specific image regions. Your task is to analyze a list of candidate words and determine how strongly each one relates to the content within a specified bounding box in an image.
+
+### **Inputs**
+1.  **Image**: An image containing a red bounding box highlighting the region of interest.
+2.  **Candidate Words**: A list of words to evaluate. Here are the candidate words:
+    -   {candidate_words}
+
+### **Instructions**
+1.  **Analyze the Bounded Region**: First, carefully identify the primary objects, attributes (e.g., color, texture, shape), and any text located **inside** the red box.
+2.  **Consider Context**: Use the immediate surroundings outside the box to better understand the function or environment of the highlighted region.
+3.  **Evaluate Each Word**: For each word in the candidate list, judge its relationship to the region based on the criteria below.
+4.  **Generate JSON**: Compile your findings into a single JSON object.
+
+### **Evaluation Guidelines**
+
+* **Direct & Conceptual Links**: A word can be related if it directly names an object, an attribute (like **color** or **shape**), or a concept related to the object's function (e.g., "traffic" for a stop sign) in the region of interest or any other property of the region of interest. Include plausible indirect connections.
+* **Text-Specific Relations**: For regions with text, the connection might be direct or conceptual. The following examples are rough guidelines for the kinds of plausible associations you can make:
+    * The word could be part of the text (e.g., "stop" for a "stop sign").
+    * It might relate to a character or phrase (e.g., "L" for the word 'letter' in the region of interest).
+    * It could be conceptually linked (e.g., "warning" for a sign that says "Caution" in the region of interest).
+
+### **Output Format**
+Return a single JSON object. This object should contain the following fields:
+{{
+    "interpretable": true/false (true is one or more words are related to the region of interest or the image as a whole, false otherwise),
+    "words": ["word1", "word2", ...] (list of words that are related to the region of interest or the image as a whole)
+    "reasoning": "reasoning for your answer"
+}}
+"""
