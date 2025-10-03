@@ -2019,6 +2019,7 @@ class Trainer:
 
         # Save final checkpoint.
         if save_checkpoints:
+            final_checkpoint_path = None
             if (
                 self.cfg.save_interval_unsharded is not None
                 and self.last_unsharded_checkpoint_step != self.global_step
@@ -2026,6 +2027,7 @@ class Trainer:
                 log.info("Saving final unsharded model checkpoint...")
                 checkpoint_path, _ = self.save_checkpoint(CheckpointType.unsharded)
                 log.info(f"Unsharded checkpoint saved to {checkpoint_path}")
+                final_checkpoint_path = checkpoint_path
             elif (
                 self.cfg.save_num_checkpoints_to_keep != 0
                 and self.last_sharded_checkpoint_step != self.global_step
@@ -2033,6 +2035,41 @@ class Trainer:
                 log.info("Saving final checkpoint...")
                 checkpoint_path, _ = self.save_checkpoint(CheckpointType.sharded)
                 log.info(f"Checkpoint saved to {checkpoint_path}")
+                final_checkpoint_path = checkpoint_path
+            
+            # Cleanup all checkpoints except the final one
+            if final_checkpoint_path is not None and get_global_rank() == 0:
+                log.info(f"Cleaning up checkpoints, keeping only {final_checkpoint_path.name}...")
+                save_folder = Path(self.cfg.save_folder)
+                final_checkpoint_name = final_checkpoint_path.name
+                
+                # Count checkpoints before cleanup
+                checkpoint_dirs = [d for d in save_folder.iterdir() 
+                                 if d.is_dir() and d.name.startswith('step')]
+                log.info(f"Found {len(checkpoint_dirs)} checkpoint directories")
+                
+                # Remove all checkpoint directories except the final one
+                removed_count = 0
+                for checkpoint_dir in checkpoint_dirs:
+                    if checkpoint_dir.name != final_checkpoint_name:
+                        log.info(f"Removing checkpoint: {checkpoint_dir.name}")
+                        shutil.rmtree(checkpoint_dir, ignore_errors=True)
+                        removed_count += 1
+                
+                # Also remove 'latest' and 'latest-unsharded' symlinks if they exist and don't point to final checkpoint
+                for link_name in ['latest', 'latest-unsharded']:
+                    link_path = save_folder / link_name
+                    if link_path.exists():
+                        if link_path.is_symlink() and link_path.resolve().name != final_checkpoint_name:
+                            log.info(f"Removing symlink: {link_name}")
+                            link_path.unlink()
+                        elif not link_path.is_symlink() and link_path.name != final_checkpoint_name:
+                            log.info(f"Removing directory: {link_name}")
+                            shutil.rmtree(link_path, ignore_errors=True)
+                
+                log.info(f"Cleanup complete: removed {removed_count} checkpoint directories")
+            
+            barrier()
 
     def close(self, exit_code: int = 0) -> None:
         gc_cuda()
