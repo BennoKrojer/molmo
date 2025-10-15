@@ -60,3 +60,4 @@ analysis_results/embedding_variances/**/*.npz
 
 # API keys and secrets
 llm_judge/api_key.txt
+hf_token.txt

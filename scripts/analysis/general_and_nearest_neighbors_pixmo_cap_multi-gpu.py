@@ -449,14 +449,8 @@ def get_display_token(original_token):
         _cache_dirty = True
         return original_token
 
-def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, split_name="", llm_layers: list = [0], skip_generate: bool = False):
-    """Process a dataset split and return results with distributed processing.
-    
-    Now iterates over images in outer loop and extracts all layer features in one forward pass.
-    
-    Args:
-        llm_layers: List of layer indices to extract features from (0 = vision backbone features)
-    """
+def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, split_name="", llm_layer: int = 0):
+    """Process a dataset split and return results with distributed processing."""
     # Distribute images across processes
     world_size = get_world_size()
     local_rank = get_local_rank()
@@ -472,18 +466,15 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
     if local_rank == 0:
         print(f"Process {local_rank}: Processing images {start_idx} to {end_idx-1}")
     
-    # Initialize results and statistics per layer
-    split_results_per_layer = {layer: [] for layer in llm_layers}
-    statistics_per_layer = {
-        layer: {
-            'total_visual_tokens': 0,
-            'interpretable_visual_tokens': 0,
-            'visual_task_visual_tokens': 0,
-            'token_position_stats': {}
-        } for layer in llm_layers
-    }
+    split_results = []
     
-    # Process assigned images for this process (OUTER LOOP: IMAGES)
+    # Initialize statistics tracking
+    total_visual_tokens = 0
+    interpretable_visual_tokens = 0
+    visual_task_visual_tokens = 0
+    token_position_stats = {}
+    
+    # Process assigned images for this process
     for i in tqdm(range(start_idx, end_idx), desc=f"Rank {local_rank}"):
         example_data = dataset.get(i, np.random)
         
@@ -503,13 +494,16 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
         }
 
         # Preprocess example
-        if local_rank == 0:
-            print(f"[Rank {local_rank}, Image {i}] Starting preprocessing...")
         batch = preprocessor(example, rng=np.random)
-        if local_rank == 0:
-            print(f"[Rank {local_rank}, Image {i}] Preprocessing done, starting inference...")
 
-        # Run inference ONCE to get all hidden states
+        # Initialize image results
+        image_results = {
+            "image_idx": i,
+            "ground_truth_caption": caption_text,
+            "chunks": []
+        }
+
+        # Run inference
         with torch.inference_mode():
             with torch.autocast("cuda", enabled=True, dtype=torch.float16):
                 # Move data to GPU
@@ -517,18 +511,18 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).to(device)
                 image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).to(device) if batch.get("image_masks") is not None else None
                 
-                # Check if we need LLM hidden states (any layer > 0)
-                need_llm_hidden_states = any(layer > 0 for layer in llm_layers)
-                
-                # Get hidden states once if needed (but don't extract all features yet - memory optimization)
-                hidden_states = None
-                image_input_idx_tensor = None
-                input_ids = None
-                
-                if need_llm_hidden_states:
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}] Running model forward pass...")
-                    # Run model ONCE to get all hidden states
+                # Select which features to use for analysis:
+                #  - llm_layer == 0: use vision backbone projected features (existing behavior)
+                #  - llm_layer > 0: use hidden states from the specified LLM layer at visual token positions
+                if llm_layer == 0:
+                    image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
+                    # Handle use_n_token_only properly
+                    if type(use_n_token_only) == int and use_n_token_only != -1:
+                        image_features = image_features[:, :, :use_n_token_only, :]
+                    elif type(use_n_token_only) == list and len(use_n_token_only) > 0:
+                        image_features = image_features[:, :, use_n_token_only, :]
+                else:
+                    # Forward through the LLM to get hidden states
                     input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
                     image_input_idx_tensor = torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None
                     output = model(
@@ -539,24 +533,17 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                         output_hidden_states=True,
                         last_logits_only=False,
                     )
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}] Model forward pass complete, got {len(output.hidden_states)} hidden states")
-                    # Convert tuple to list so we can delete individual elements
-                    hidden_states = list(output.hidden_states)
-                    max_layer_index = len(hidden_states) - 1
-                    del output
-                    clear_gpu_memory()
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}] Cleaned up output, max_layer_index={max_layer_index}")
-                    
-                    # Helper to gather visual features from a specific layer
+                    hidden_states = output.hidden_states  # Tuple[Tensor]
+                    # Bound-check layer index against available hidden states
+                    max_layer_index = len(hidden_states) - 1  # includes final ln_f state
+                    assert image_input_idx_tensor is not None, "image_input_idx is required to extract visual tokens from LLM layers"
+                    # Helper to gather features from a specific layer index
                     def gather_visual_features_from_layer(hs_tensor):
                         B = hs_tensor.shape[0]
                         num_chunks_local = image_input_idx_tensor.shape[1]
                         patches_per_chunk_local = image_input_idx_tensor.shape[2]
                         d_model_local = hs_tensor.shape[-1]
-                        feats = torch.zeros((B, num_chunks_local, patches_per_chunk_local, d_model_local), 
-                                          device=hs_tensor.device, dtype=hs_tensor.dtype)
+                        feats = torch.zeros((B, num_chunks_local, patches_per_chunk_local, d_model_local), device=hs_tensor.device, dtype=hs_tensor.dtype)
                         flat_positions_local = image_input_idx_tensor.view(B, -1)
                         valid_mask_local = flat_positions_local >= 0
                         for b in range(B):
@@ -566,8 +553,14 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                             gathered = hs_tensor[b, valid_pos.long(), :]
                             feats.view(B, -1, d_model_local)[b, valid_mask_local[b], :] = gathered
                         return feats
+
+                    layer_index = min(llm_layer, max_layer_index)
+                    hs = hidden_states[layer_index]
+                    image_features = gather_visual_features_from_layer(hs)
+                image_results["feature_shape"] = list(image_features.shape)
+                image_results["llm_layer_used"] = llm_layer
                 
-                # Get token embeddings from the model (only once, shared across layers)
+                # Get token embeddings from the model
                 # Instead of trying to access sharded embeddings, use cached version
                 model_identifier = model.config.tokenizer.identifier
                 if "qwen" in model_identifier.lower():
@@ -579,285 +572,180 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 
                 try:
                     token_embeddings = torch.from_numpy(np.load(cached_embeddings_path)).to(device)
-                    if local_rank == 0 and i == start_idx:  # Only print once
+                    if local_rank == 0:
                         print(f"Loaded cached token embeddings from {cached_embeddings_path}, shape: {token_embeddings.shape}")
                 except FileNotFoundError:
-                    if local_rank == 0 and i == start_idx:
+                    if local_rank == 0:
                         print(f"Cached embeddings not found at {cached_embeddings_path}, trying to access from model...")
                     # Fallback to model access (this might fail with FSDP)
                     token_embeddings = model.transformer.wte.embedding.weight
                 
+                # Reshape image features to combine batch and chunks dimensions
+                batch_size, num_chunks, patches_per_chunk, hidden_dim = image_features.shape
+                image_features_reshaped = image_features.view(-1, patches_per_chunk, hidden_dim)
+                
+                # Normalize the embeddings for cosine similarity
+                image_features_norm = torch.nn.functional.normalize(image_features_reshaped, dim=-1)
                 token_embeddings_norm = torch.nn.functional.normalize(token_embeddings, dim=-1)
                 
-                # INNER LOOP: Process each layer's features (extract on-demand for memory efficiency)
-                layer_iterator = tqdm(llm_layers, desc=f"Rank {local_rank}, Img {i} - Layers", leave=False) if local_rank == 0 else llm_layers
-                for llm_layer in layer_iterator:
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] Extracting features...")
-                    
-                    # Extract features for THIS layer only
-                    if llm_layer == 0:
-                        # Vision backbone features
-                        image_features, _ = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
-                        if type(use_n_token_only) == int and use_n_token_only != -1:
-                            image_features = image_features[:, :, :use_n_token_only, :]
-                        elif type(use_n_token_only) == list and len(use_n_token_only) > 0:
-                            image_features = image_features[:, :, use_n_token_only, :]
-                    else:
-                        # Extract from hidden states
-                        layer_index = min(llm_layer, max_layer_index)
-                        hs = hidden_states[layer_index]
-                        image_features = gather_visual_features_from_layer(hs)
-                        # Free this hidden state immediately after use
-                        del hs
-                        hidden_states[layer_index] = None
-                        clear_gpu_memory()
-                    
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] Features extracted, shape: {image_features.shape}")
-                    
-                    # Initialize image results for this layer
-                    image_results = {
-                        "image_idx": i,
-                        "ground_truth_caption": caption_text,
-                        "chunks": [],
-                        "feature_shape": list(image_features.shape),
-                        "llm_layer_used": llm_layer
+                # Compute cosine similarity for each patch
+                similarity = torch.matmul(image_features_norm, token_embeddings_norm.T)
+                
+                # Get top-5 most similar tokens for each patch
+                top_k = 5
+                top_values, top_indices = torch.topk(similarity, k=top_k, dim=-1)
+                
+                # Clear intermediate tensors
+                del similarity, image_features_norm, token_embeddings_norm
+                clear_gpu_memory()
+
+                # Clear GPU tensors
+                del images_tensor, image_masks_tensor, image_features
+                clear_gpu_memory()
+
+                # Store results for each chunk
+                for chunk_idx in range(num_chunks):
+                    chunk_results = {
+                        "chunk_name": "Full Image" if chunk_idx == 0 else f"Chunk {chunk_idx}",
+                        "patches": []
                     }
                     
-                    # Reshape image features to combine batch and chunks dimensions
-                    batch_size, num_chunks, patches_per_chunk, hidden_dim = image_features.shape
-                    image_features_reshaped = image_features.view(-1, patches_per_chunk, hidden_dim)
-                    
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] Computing similarities for {num_chunks} chunks, {patches_per_chunk} patches each...")
-                    
-                    # Normalize the embeddings for cosine similarity
-                    image_features_norm = torch.nn.functional.normalize(image_features_reshaped, dim=-1)
-                    
-                    # Compute cosine similarity for each patch
-                    similarity = torch.matmul(image_features_norm, token_embeddings_norm.T)
-                    
-                    # Get top-5 most similar tokens for each patch
-                    top_k = 5
-                    top_values, top_indices = torch.topk(similarity, k=top_k, dim=-1)
-                    
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] Similarities computed, processing patches...")
-                    
-                    # Clear intermediate tensors for this layer
-                    del similarity, image_features_norm
-                    clear_gpu_memory()
-
-                    # generated output for reference (optional, only for first layer to save time)
-                    if not skip_generate and llm_layer == llm_layers[0]:
-                        gen_input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
-                        gen_output = model.generate(
-                            input_ids=gen_input_ids,
-                            images=images_tensor,
-                            image_masks=image_masks_tensor,
-                            image_input_idx=torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None,
-                            max_steps=200,
-                            is_distributed=False
-                        )
-                        token_ids = gen_output.token_ids[:, 0].detach().cpu().numpy()
-                        decoded = preprocessor.tokenizer.decode(token_ids[0])
-                        image_results["generated_response"] = decoded
-                        del gen_input_ids, gen_output
-                        clear_gpu_memory()
-                    else:
-                        image_results["generated_response"] = None
-
-                    # Get layer-specific statistics
-                    layer_stats = statistics_per_layer[llm_layer]
-                    layer_token_position_stats = layer_stats['token_position_stats']
-
-                    # Store results for each chunk
-                    for chunk_idx in range(num_chunks):
-                        chunk_results = {
-                            "chunk_name": "Full Image" if chunk_idx == 0 else f"Chunk {chunk_idx}",
-                            "patches": []
+                    for patch_idx in range(patches_per_chunk):
+                        patch_values = top_values[chunk_idx, patch_idx].cpu().numpy().tolist()
+                        patch_indices = top_indices[chunk_idx, patch_idx].cpu().numpy().tolist()
+                        patch_tokens = [decode_token(preprocessor.tokenizer, idx) for idx in patch_indices]
+                        
+                        # Initialize token position stats if not exists
+                        if patch_idx not in token_position_stats:
+                            row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
+                            token_position_stats[patch_idx] = {
+                                "total_occurrences": 0,
+                                "interpretable_occurrences": 0,
+                                "visual_task_occurrences": 0,
+                                "interpretability_percentage": 0.0,
+                                "visual_task_percentage": 0.0,
+                                "patch_row": row,
+                                "patch_col": col
+                            }
+                        
+                        token_position_stats[patch_idx]["total_occurrences"] += 1
+                        
+                        # Check for matches using three-category system
+                        overall_match_type = 'none'
+                        all_matches = []
+                        
+                        for j, (token_text, similarity_score) in enumerate(zip(patch_tokens, patch_values)):
+                            # Check what type of match this token has (with translation support)
+                            match_type, matches = check_match_type_with_translation(token_text, caption_words, visual_task_words)
+                            
+                            if match_type != 'none':
+                                # Update overall match type (visual_task takes precedence over interpretable)
+                                if match_type == 'visual_task' or (overall_match_type != 'visual_task' and match_type == 'interpretable'):
+                                    overall_match_type = match_type
+                                
+                                # Add detailed match info
+                                for match in matches:
+                                    all_matches.append({
+                                        "token": get_display_token(token_text),
+                                        "token_word": match["token_word"],
+                                        "matched_word": match["matched_word"],
+                                        "match_type": match["match_type"],
+                                        "similarity": float(similarity_score)
+                                    })
+                        
+                        # Update statistics
+                        total_visual_tokens += 1
+                        if overall_match_type == 'interpretable':
+                            interpretable_visual_tokens += 1
+                            token_position_stats[patch_idx]["interpretable_occurrences"] += 1
+                        elif overall_match_type == 'visual_task':
+                            visual_task_visual_tokens += 1
+                            token_position_stats[patch_idx]["visual_task_occurrences"] += 1
+                        
+                        # Add row/col information based on patch_idx
+                        row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
+                        
+                        patch_results = {
+                            "patch_idx": patch_idx,
+                            "patch_row": row,
+                            "patch_col": col,
+                            "nearest_neighbors": [
+                                {"token": get_display_token(token), "similarity": float(sim)}
+                                for token, sim in zip(patch_tokens, patch_values)
+                            ],
+                            "match_type": overall_match_type,
+                            "caption_match": overall_match_type == 'interpretable',
+                            "visual_task_match": overall_match_type == 'visual_task'
                         }
                         
-                        if local_rank == 0:
-                            print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}, Chunk {chunk_idx}] Processing {patches_per_chunk} patches...")
+                        # Add detailed matches if any were found
+                        if all_matches:
+                            patch_results["matches"] = all_matches
                         
-                        patch_range = range(patches_per_chunk)
-                        for patch_idx in patch_range:
-                            patch_values = top_values[chunk_idx, patch_idx].cpu().numpy().tolist()
-                            patch_indices = top_indices[chunk_idx, patch_idx].cpu().numpy().tolist()
-                            patch_tokens = [decode_token(preprocessor.tokenizer, idx) for idx in patch_indices]
-                            
-                            # Initialize token position stats if not exists for this layer
-                            if patch_idx not in layer_token_position_stats:
-                                row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                                layer_token_position_stats[patch_idx] = {
-                                    "total_occurrences": 0,
-                                    "interpretable_occurrences": 0,
-                                    "visual_task_occurrences": 0,
-                                    "interpretability_percentage": 0.0,
-                                    "visual_task_percentage": 0.0,
-                                    "patch_row": row,
-                                    "patch_col": col
-                                }
-                            
-                            layer_token_position_stats[patch_idx]["total_occurrences"] += 1
-                            
-                            # Check for matches using three-category system
-                            overall_match_type = 'none'
-                            all_matches = []
-                            
-                            for j, (token_text, similarity_score) in enumerate(zip(patch_tokens, patch_values)):
-                                # Check what type of match this token has (with translation support)
-                                match_type, matches = check_match_type_with_translation(token_text, caption_words, visual_task_words)
-                                
-                                if match_type != 'none':
-                                    # Update overall match type (visual_task takes precedence over interpretable)
-                                    if match_type == 'visual_task' or (overall_match_type != 'visual_task' and match_type == 'interpretable'):
-                                        overall_match_type = match_type
-                                    
-                                    # Add detailed match info
-                                    for match in matches:
-                                        all_matches.append({
-                                            "token": get_display_token(token_text),
-                                            "token_word": match["token_word"],
-                                            "matched_word": match["matched_word"],
-                                            "match_type": match["match_type"],
-                                            "similarity": float(similarity_score)
-                                        })
-                            
-                            # Update layer-specific statistics
-                            layer_stats['total_visual_tokens'] += 1
-                            if overall_match_type == 'interpretable':
-                                layer_stats['interpretable_visual_tokens'] += 1
-                                layer_token_position_stats[patch_idx]["interpretable_occurrences"] += 1
-                            elif overall_match_type == 'visual_task':
-                                layer_stats['visual_task_visual_tokens'] += 1
-                                layer_token_position_stats[patch_idx]["visual_task_occurrences"] += 1
-                            
-                            # Add row/col information based on patch_idx
-                            row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                            
-                            patch_results = {
-                                "patch_idx": patch_idx,
-                                "patch_row": row,
-                                "patch_col": col,
-                                "nearest_neighbors": [
-                                    {"token": get_display_token(token), "similarity": float(sim)}
-                                    for token, sim in zip(patch_tokens, patch_values)
-                                ],
-                                "match_type": overall_match_type,
-                                "caption_match": overall_match_type == 'interpretable',
-                                "visual_task_match": overall_match_type == 'visual_task'
-                            }
-                            
-                            # Add detailed matches if any were found
-                            if all_matches:
-                                patch_results["matches"] = all_matches
-                            
-                            chunk_results["patches"].append(patch_results)
-                        
-                        if local_rank == 0:
-                            print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}, Chunk {chunk_idx}] {patches_per_chunk} patches processed!")
-                        
-                        image_results["chunks"].append(chunk_results)
+                        chunk_results["patches"].append(patch_results)
                     
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] All chunks processed, cleaning up...")
-                    
-                    # Clear top_values, top_indices, and image_features for this layer
-                    del top_values, top_indices, image_features
-                    clear_gpu_memory()
-                    
-                    # Append image results to layer-specific results
-                    split_results_per_layer[llm_layer].append(image_results)
-                    
-                    if local_rank == 0:
-                        print(f"[Rank {local_rank}, Image {i}, Layer {llm_layer}] ✓ Layer complete!")
-                
-                # Clean up tensors after processing all layers
-                if local_rank == 0:
-                    print(f"[Rank {local_rank}, Image {i}] All {len(llm_layers)} layers complete, cleaning up image tensors...")
-                
-                del images_tensor, image_masks_tensor, token_embeddings, token_embeddings_norm
-                if hidden_states is not None:
-                    del hidden_states
-                if input_ids is not None:
-                    del input_ids
-                if image_input_idx_tensor is not None:
-                    del image_input_idx_tensor
-                clear_gpu_memory()
-                
-                if local_rank == 0:
-                    print(f"[Rank {local_rank}, Image {i}] ✓✓✓ IMAGE COMPLETE ✓✓✓\n")
+                    image_results["chunks"].append(chunk_results)
+
+        split_results.append(image_results)
         
         # Clear memory after each image to prevent OOM
         clear_gpu_memory()
 
-    # Gather results from all processes for each layer
-    combined_results_per_layer = {}
-    combined_statistics_per_layer = {}
+    # Gather results from all processes
+    all_split_results = [None] * world_size
+    all_token_position_stats = [None] * world_size
     
-    for llm_layer in llm_layers:
-        all_split_results = [None] * world_size
-        all_token_position_stats = [None] * world_size
-        
-        # Use all_gather to collect results from all processes for this layer
-        dist.all_gather_object(all_split_results, split_results_per_layer[llm_layer])
-        dist.all_gather_object(all_token_position_stats, statistics_per_layer[llm_layer]['token_position_stats'])
-        
-        # Combine results on main process
-        if local_rank == 0:
-            # Flatten the gathered results
-            combined_results = []
-            for process_results in all_split_results:
-                combined_results.extend(process_results)
-            
-            # Combine token position statistics
-            combined_token_position_stats = {}
-            for process_stats in all_token_position_stats:
-                for patch_idx, stats in process_stats.items():
-                    if patch_idx not in combined_token_position_stats:
-                        combined_token_position_stats[patch_idx] = {
-                            "total_occurrences": 0,
-                            "interpretable_occurrences": 0,
-                            "visual_task_occurrences": 0,
-                            "interpretability_percentage": 0.0,
-                            "visual_task_percentage": 0.0,
-                            "patch_row": stats.get("patch_row", 0),
-                            "patch_col": stats.get("patch_col", 0)
-                        }
-                    combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
-                    combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                    combined_token_position_stats[patch_idx]["visual_task_occurrences"] += stats["visual_task_occurrences"]
-            
-            # Calculate interpretability percentages for token positions
-            for pos_stats in combined_token_position_stats.values():
-                total = pos_stats["total_occurrences"]
-                interpretable = pos_stats["interpretable_occurrences"]
-                visual_task = pos_stats["visual_task_occurrences"]
-                pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
-            
-            # Calculate overall statistics for this layer
-            total_visual_tokens = sum(pos_stats["total_occurrences"] for pos_stats in combined_token_position_stats.values())
-            interpretable_visual_tokens = sum(pos_stats["interpretable_occurrences"] for pos_stats in combined_token_position_stats.values())
-            visual_task_visual_tokens = sum(pos_stats["visual_task_occurrences"] for pos_stats in combined_token_position_stats.values())
-            
-            overall_statistics = {
-                "total_visual_tokens": total_visual_tokens,
-                "interpretable_visual_tokens": interpretable_visual_tokens,
-                "visual_task_visual_tokens": visual_task_visual_tokens,
-                "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-                "visual_task_percentage": (visual_task_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
-                "token_position_statistics": combined_token_position_stats
-            }
-            
-            combined_results_per_layer[llm_layer] = combined_results
-            combined_statistics_per_layer[llm_layer] = overall_statistics
+    # Use all_gather to collect results from all processes
+    dist.all_gather_object(all_split_results, split_results)
+    dist.all_gather_object(all_token_position_stats, token_position_stats)
     
+    # Combine results on main process
     if local_rank == 0:
-        return combined_results_per_layer, combined_statistics_per_layer
+        # Flatten the gathered results
+        combined_results = []
+        for process_results in all_split_results:
+            combined_results.extend(process_results)
+        
+        # Combine token position statistics
+        combined_token_position_stats = {}
+        for process_stats in all_token_position_stats:
+            for patch_idx, stats in process_stats.items():
+                if patch_idx not in combined_token_position_stats:
+                    combined_token_position_stats[patch_idx] = {
+                        "total_occurrences": 0,
+                        "interpretable_occurrences": 0,
+                        "visual_task_occurrences": 0,
+                        "interpretability_percentage": 0.0,
+                        "visual_task_percentage": 0.0,
+                        "patch_row": stats.get("patch_row", 0),
+                        "patch_col": stats.get("patch_col", 0)
+                    }
+                combined_token_position_stats[patch_idx]["total_occurrences"] += stats["total_occurrences"]
+                combined_token_position_stats[patch_idx]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                combined_token_position_stats[patch_idx]["visual_task_occurrences"] += stats["visual_task_occurrences"]
+        
+        # Calculate interpretability percentages for token positions
+        for pos_stats in combined_token_position_stats.values():
+            total = pos_stats["total_occurrences"]
+            interpretable = pos_stats["interpretable_occurrences"]
+            visual_task = pos_stats["visual_task_occurrences"]
+            pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+            pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+        
+        # Calculate overall statistics
+        total_visual_tokens = sum(pos_stats["total_occurrences"] for pos_stats in combined_token_position_stats.values())
+        interpretable_visual_tokens = sum(pos_stats["interpretable_occurrences"] for pos_stats in combined_token_position_stats.values())
+        visual_task_visual_tokens = sum(pos_stats["visual_task_occurrences"] for pos_stats in combined_token_position_stats.values())
+        
+        overall_statistics = {
+            "total_visual_tokens": total_visual_tokens,
+            "interpretable_visual_tokens": interpretable_visual_tokens,
+            "visual_task_visual_tokens": visual_task_visual_tokens,
+            "interpretability_percentage": (interpretable_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+            "visual_task_percentage": (visual_task_visual_tokens / total_visual_tokens * 100) if total_visual_tokens > 0 else 0,
+            "token_position_statistics": combined_token_position_stats
+        }
+        return combined_results, overall_statistics
     else:
         # Non-main processes return None
         return None, None
@@ -878,11 +766,7 @@ def main():
     parser.add_argument("--preprocessing_mode", type=str, choices=["padding", "warping"], 
                        help="Preprocessing mode: 'padding' for black padding, 'warping' for direct resize, or omit for config default")
     parser.add_argument("--llm_layer", type=int, default=0,
-                       help="If >0, extract visual token embeddings from this LLM layer (0 keeps original vision features)")
-    parser.add_argument("--llm_layers", type=int, nargs='+',
-                       help="Optional list of LLM layer indices to evaluate; saves one result per layer")
-    parser.add_argument("--skip_generate", action="store_true",
-                       help="Skip model.generate() inside loop to avoid extra FSDP comm and desync")
+                       help="LLM layer index to extract features from (0 = vision backbone features)")
     args = parser.parse_args()
     
     # Hardcoded parameters
@@ -890,16 +774,17 @@ def main():
     prompt = "Describe this image in detail."
     dataset_name = "PixMoCap"
     output_suffix = "pixmo_cap"
-    num_train_images = 100
-    num_val_images = 100
+    num_train_images = 0
+    num_val_images = 300
+    
+    # Single layer to process
+    target_layer = args.llm_layer
     
     if local_rank == 0:
         print(f"Dataset: PixMo-Cap")
         print(f"Prompt: {prompt}")
         print(f"Running on {world_size} processes")
-        print(f"LLM layer for features: {args.llm_layer}")
-        if args.skip_generate:
-            print("Skipping generation during analysis (--skip_generate)")
+        print(f"LLM layer for features: {target_layer}")
 
     # Setup results directory (only on main process)
     if local_rank == 0:
@@ -911,7 +796,7 @@ def main():
         results_dir.mkdir(parents=True, exist_ok=True)
         
         # Check if results already exist
-        layer_suffix = f"_layer{args.llm_layer}" if args.llm_layer and args.llm_layer > 0 else ""
+        layer_suffix = f"_layer{target_layer}"
         output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
         if output_file.exists() and not args.force_rerun:
             print(f"Results file already exists: {output_file}")
@@ -1001,154 +886,115 @@ def main():
 
     use_n_token_only = model_config.vision_backbone.use_n_token_only
 
-    # Initialize results dictionary (only on main process)
     if local_rank == 0:
-        all_results = {
-            "checkpoint": checkpoint_path,
-            "prompt": prompt,
-            "dataset": dataset_name,
-            "num_processes": world_size,
-            "preprocessing_mode": args.preprocessing_mode,
-            "llm_layer": args.llm_layer,
-            "skip_generate": args.skip_generate,
-            "splits": {},
-            "overall_statistics": {}
-        }
-    else:
-        all_results = None
-
-    # Decide which layers to run
-    if args.llm_layers and len(args.llm_layers) > 0:
-        layers_to_run = args.llm_layers
-    else:
-        # Default: layer 0 (vision features), first few (1,2,3,4) then every 4th (8,12,...) up to last block
-        n_layers = model.config.n_layers
-        base_layers = [l for l in [0, 1, 2, 3, 4] if l < n_layers]
-        periodic_layers = list(range(8, n_layers, 4))
-        last_block = n_layers - 1
-        layers_to_run = base_layers + [l for l in periodic_layers if l not in base_layers]
-        if last_block not in layers_to_run and last_block > 0:
-            layers_to_run.append(last_block)
-    if local_rank == 0:
-        print(f"Evaluating layers: {layers_to_run}")
+        print(f"\n=== Processing LLM layer {target_layer} ===")
 
     try:
-        # Process train split (all layers at once)
+        # Process train split
         if local_rank == 0:
             print("Processing train split...")
         train_dataset = PixMoCap(split="train", mode="captions")
         train_results = process_split(
             model, preprocessor, train_dataset, num_train_images, prompt,
-            use_n_token_only, "train", layers_to_run, args.skip_generate
+            use_n_token_only, "train", target_layer
         )
+        
+        if local_rank == 0:
+            train_images, train_statistics = train_results
+        
         del train_dataset
         clear_gpu_memory()
         dist.barrier()
         
-        # Process validation split (all layers at once)
+        # Process validation split
         if local_rank == 0:
             print("Processing validation split...")
         val_dataset = PixMoCap(split="validation", mode="captions")
         val_results = process_split(
             model, preprocessor, val_dataset, num_val_images, prompt,
-            use_n_token_only, "validation", layers_to_run, args.skip_generate
+            use_n_token_only, "validation", target_layer
         )
         del val_dataset
         clear_gpu_memory()
         dist.barrier()
         
-        # Save results for each layer
+        # Combine and save (only on main process)
         if local_rank == 0:
-            train_results_per_layer, train_statistics_per_layer = train_results
-            val_results_per_layer, val_statistics_per_layer = val_results
+            val_images, val_statistics = val_results
             
-            for target_layer in layers_to_run:
-                if local_rank == 0:
-                    print(f"\n=== Saving results for LLM layer {target_layer} ===")
-                
-                # Get layer-specific results
-                train_images = train_results_per_layer[target_layer]
-                train_statistics = train_statistics_per_layer[target_layer]
-                val_images = val_results_per_layer[target_layer]
-                val_statistics = val_statistics_per_layer[target_layer]
-                
-                # Combine statistics
-                combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
-                combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
-                combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
-                combined_token_position_stats = {}
-                for split_stats in [train_statistics, val_statistics]:
-                    for pos, stats in split_stats["token_position_statistics"].items():
-                        if pos not in combined_token_position_stats:
-                            combined_token_position_stats[pos] = {
-                                "total_occurrences": 0,
-                                "interpretable_occurrences": 0,
-                                "visual_task_occurrences": 0,
-                                "interpretability_percentage": 0.0,
-                                "visual_task_percentage": 0.0,
-                                "patch_row": stats.get("patch_row", 0),
-                                "patch_col": stats.get("patch_col", 0)
-                            }
-                        combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
-                        combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                        combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
-                for pos_stats in combined_token_position_stats.values():
-                    total = pos_stats["total_occurrences"]
-                    interpretable = pos_stats["interpretable_occurrences"]
-                    visual_task = pos_stats["visual_task_occurrences"]
-                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                    pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
-                
-                # Create results dictionary for this layer
-                all_results = {
-                    "checkpoint": checkpoint_path,
-                    "prompt": prompt,
-                    "dataset": dataset_name,
-                    "num_processes": world_size,
-                    "preprocessing_mode": args.preprocessing_mode,
-                    "llm_layer": target_layer,
-                    "skip_generate": args.skip_generate,
-                    "splits": {
-                        "train": {
-                            "num_images": num_train_images,
-                            "images": train_images,
-                            "statistics": train_statistics
-                        },
-                        "validation": {
-                            "num_images": num_val_images,
-                            "images": val_images,
-                            "statistics": val_statistics
+            # Combine statistics
+            combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
+            combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
+            combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
+            combined_token_position_stats = {}
+            for split_stats in [train_statistics, val_statistics]:
+                for pos, stats in split_stats["token_position_statistics"].items():
+                    if pos not in combined_token_position_stats:
+                        combined_token_position_stats[pos] = {
+                            "total_occurrences": 0,
+                            "interpretable_occurrences": 0,
+                            "visual_task_occurrences": 0,
+                            "interpretability_percentage": 0.0,
+                            "visual_task_percentage": 0.0,
+                            "patch_row": stats.get("patch_row", 0),
+                            "patch_col": stats.get("patch_col", 0)
                         }
+                    combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
+                    combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                    combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
+            for pos_stats in combined_token_position_stats.values():
+                total = pos_stats["total_occurrences"]
+                interpretable = pos_stats["interpretable_occurrences"]
+                visual_task = pos_stats["visual_task_occurrences"]
+                pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
+            
+            # Create results dictionary
+            all_results = {
+                "checkpoint": checkpoint_path,
+                "prompt": prompt,
+                "dataset": dataset_name,
+                "num_processes": world_size,
+                "preprocessing_mode": args.preprocessing_mode,
+                "llm_layer": target_layer,
+                "splits": {
+                    "train": {
+                        "num_images": num_train_images,
+                        "images": train_images,
+                        "statistics": train_statistics
                     },
-                    "overall_statistics": {
-                        "total_visual_tokens": combined_total_tokens,
-                        "interpretable_visual_tokens": combined_interpretable_tokens,
-                        "visual_task_visual_tokens": combined_visual_task_tokens,
-                        "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                        "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                        "train_statistics": train_statistics,
-                        "validation_statistics": val_statistics,
-                        "token_position_statistics": combined_token_position_stats
+                    "validation": {
+                        "num_images": num_val_images,
+                        "images": val_images,
+                        "statistics": val_statistics
                     }
+                },
+                "overall_statistics": {
+                    "total_visual_tokens": combined_total_tokens,
+                    "interpretable_visual_tokens": combined_interpretable_tokens,
+                    "visual_task_visual_tokens": combined_visual_task_tokens,
+                    "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "train_statistics": train_statistics,
+                    "validation_statistics": val_statistics,
+                    "token_position_statistics": combined_token_position_stats
                 }
-                
-                # Save per-layer outputs
-                layer_suffix = f"_layer{target_layer}" if target_layer and target_layer > 0 else ""
-                per_layer_output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
-                with open(per_layer_output_file, 'w', encoding='utf-8') as f:
-                    json.dump(all_results, f, indent=2, ensure_ascii=False)
-                print(f"Results saved to {per_layer_output_file}")
-                plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_summary_plot.png"
-                create_interpretability_plot(all_results["overall_statistics"], plot_file)
-                token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
-                create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
+            }
+            
+            # Save outputs
+            layer_suffix = f"_layer{target_layer}"
+            per_layer_output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
+            with open(per_layer_output_file, 'w', encoding='utf-8') as f:
+                json.dump(all_results, f, indent=2, ensure_ascii=False)
+            print(f"Results saved to {per_layer_output_file}")
+            plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_summary_plot.png"
+            create_interpretability_plot(all_results["overall_statistics"], plot_file)
+            token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
+            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
 
     except Exception as e:
         if local_rank == 0:
             log.error(f"Error during processing: {str(e)}")
-            output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu_partial.json"
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(all_results, f, indent=2, ensure_ascii=False)
         raise
 
     # Save any remaining translations to cache and finish
