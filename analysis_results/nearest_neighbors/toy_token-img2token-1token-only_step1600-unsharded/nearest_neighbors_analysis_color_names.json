@@ -1,0 +1,2382 @@
+{
+  "checkpoint": "molmo_data/checkpoints/toy_token-img2token-1token-only/step1600-unsharded",
+  "prompt": "Output the color shown in the image:",
+  "dataset": "ColorImageDataset",
+  "splits": {
+    "train": {
+      "num_images": 49,
+      "images": [
+        {
+          "image_idx": 0,
+          "true_color": "grass",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " navy",
+                      "similarity": 0.0699462890625
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06817626953125
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06781005859375
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.06488037109375
+                    },
+                    {
+                      "token": "驹",
+                      "similarity": 0.0648193359375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "grass"
+        },
+        {
+          "image_idx": 1,
+          "true_color": "amber",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "答应",
+                      "similarity": 0.06939697265625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0684814453125
+                    },
+                    {
+                      "token": "浃",
+                      "similarity": 0.065185546875
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.06488037109375
+                    },
+                    {
+                      "token": "磅",
+                      "similarity": 0.06475830078125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "amber"
+        },
+        {
+          "image_idx": 2,
+          "true_color": "ice",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "吃",
+                      "similarity": 0.0701904296875
+                    },
+                    {
+                      "token": " spacecraft",
+                      "similarity": 0.0697021484375
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.069580078125
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.06939697265625
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06787109375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "ice"
+        },
+        {
+          "image_idx": 3,
+          "true_color": "sky",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " совс",
+                      "similarity": 0.0709228515625
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.07037353515625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06854248046875
+                    },
+                    {
+                      "token": "吃",
+                      "similarity": 0.06719970703125
+                    },
+                    {
+                      "token": " spacecraft",
+                      "similarity": 0.067138671875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "sky"
+        },
+        {
+          "image_idx": 4,
+          "true_color": "rust",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " senza",
+                      "similarity": 0.07025146484375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.070068359375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06640625
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.0648193359375
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.064208984375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "rust"
+        },
+        {
+          "image_idx": 5,
+          "true_color": "marine",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " совс",
+                      "similarity": 0.069091796875
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.0679931640625
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.06756591796875
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.066162109375
+                    },
+                    {
+                      "token": " spacecraft",
+                      "similarity": 0.06585693359375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "marine"
+        },
+        {
+          "image_idx": 6,
+          "true_color": "cyan",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07293701171875
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0693359375
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06689453125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06561279296875
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06536865234375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "ice"
+        },
+        {
+          "image_idx": 7,
+          "true_color": "cream",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " before",
+                      "similarity": 0.06866455078125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0677490234375
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.06683349609375
+                    },
+                    {
+                      "token": "既能",
+                      "similarity": 0.06622314453125
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06610107421875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "cream"
+        },
+        {
+          "image_idx": 8,
+          "true_color": "wine",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0718994140625
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.068115234375
+                    },
+                    {
+                      "token": "眼看",
+                      "similarity": 0.06805419921875
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06634521484375
+                    },
+                    {
+                      "token": "ое",
+                      "similarity": 0.06634521484375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "wine"
+        },
+        {
+          "image_idx": 9,
+          "true_color": "buff",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "bpp",
+                      "similarity": 0.069091796875
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.069091796875
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06829833984375
+                    },
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.06793212890625
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.0662841796875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "buff"
+        },
+        {
+          "image_idx": 10,
+          "true_color": "sand",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "soon",
+                      "similarity": 0.06787109375
+                    },
+                    {
+                      "token": " dictatorship",
+                      "similarity": 0.065673828125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06524658203125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.0650634765625
+                    },
+                    {
+                      "token": "承包",
+                      "similarity": 0.064453125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "sand"
+        },
+        {
+          "image_idx": 11,
+          "true_color": "blue",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.078125
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06927490234375
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.0677490234375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06622314453125
+                    },
+                    {
+                      "token": "yyyy",
+                      "similarity": 0.06610107421875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "blue"
+        },
+        {
+          "image_idx": 12,
+          "true_color": "purple",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.070556640625
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.07037353515625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06646728515625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06597900390625
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.06591796875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "berry"
+        },
+        {
+          "image_idx": 13,
+          "true_color": "white",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07537841796875
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.07391357421875
+                    },
+                    {
+                      "token": " navy",
+                      "similarity": 0.06890869140625
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.068115234375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06597900390625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "white"
+        },
+        {
+          "image_idx": 14,
+          "true_color": "apple",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0714111328125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06976318359375
+                    },
+                    {
+                      "token": " axe",
+                      "similarity": 0.06915283203125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.068603515625
+                    },
+                    {
+                      "token": "yyyy",
+                      "similarity": 0.068359375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "apple"
+        },
+        {
+          "image_idx": 15,
+          "true_color": "gold",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.069580078125
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06695556640625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06585693359375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06561279296875
+                    },
+                    {
+                      "token": "ое",
+                      "similarity": 0.0655517578125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "ocre"
+        },
+        {
+          "image_idx": 16,
+          "true_color": "berry",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0694580078125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0665283203125
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06622314453125
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.06573486328125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.0655517578125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "berry"
+        },
+        {
+          "image_idx": 17,
+          "true_color": "green",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07354736328125
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.066650390625
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.0657958984375
+                    },
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.06524658203125
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06500244140625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "green"
+        },
+        {
+          "image_idx": 18,
+          "true_color": "tea",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.07025146484375
+                    },
+                    {
+                      "token": ".states",
+                      "similarity": 0.06536865234375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.0650634765625
+                    },
+                    {
+                      "token": "吃",
+                      "similarity": 0.06463623046875
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0645751953125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "tea"
+        },
+        {
+          "image_idx": 19,
+          "true_color": "ruby",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0703125
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0689697265625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06829833984375
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.0675048828125
+                    },
+                    {
+                      "token": "ṗ",
+                      "similarity": 0.06634521484375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "ruby"
+        },
+        {
+          "image_idx": 20,
+          "true_color": "pear",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.07147216796875
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07135009765625
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.071044921875
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.0694580078125
+                    },
+                    {
+                      "token": "bpp",
+                      "similarity": 0.06927490234375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "pear"
+        },
+        {
+          "image_idx": 21,
+          "true_color": "fern",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06927490234375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06787109375
+                    },
+                    {
+                      "token": "驹",
+                      "similarity": 0.06719970703125
+                    },
+                    {
+                      "token": "隰",
+                      "similarity": 0.06500244140625
+                    },
+                    {
+                      "token": " borne",
+                      "similarity": 0.06494140625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "fern"
+        },
+        {
+          "image_idx": 22,
+          "true_color": "camel",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "年底前",
+                      "similarity": 0.06878662109375
+                    },
+                    {
+                      "token": "服用",
+                      "similarity": 0.0682373046875
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06719970703125
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0655517578125
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06414794921875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "camel"
+        },
+        {
+          "image_idx": 23,
+          "true_color": "yellow",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.077880859375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0748291015625
+                    },
+                    {
+                      "token": "眼看",
+                      "similarity": 0.06866455078125
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.0679931640625
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.0673828125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "yellow"
+        },
+        {
+          "image_idx": 24,
+          "true_color": "dark",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07562255859375
+                    },
+                    {
+                      "token": " spacecraft",
+                      "similarity": 0.069091796875
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.06707763671875
+                    },
+                    {
+                      "token": " navy",
+                      "similarity": 0.06646728515625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06573486328125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "dark"
+        },
+        {
+          "image_idx": 25,
+          "true_color": "orange",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0748291015625
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07366943359375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0660400390625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06597900390625
+                    },
+                    {
+                      "token": "(off",
+                      "similarity": 0.06488037109375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "orange"
+        },
+        {
+          "image_idx": 26,
+          "true_color": "shit",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.0718994140625
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0679931640625
+                    },
+                    {
+                      "token": " vale",
+                      "similarity": 0.0665283203125
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.06591796875
+                    },
+                    {
+                      "token": "]\")]\n",
+                      "similarity": 0.06549072265625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "shit"
+        },
+        {
+          "image_idx": 27,
+          "true_color": "tan",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "不该",
+                      "similarity": 0.06610107421875
+                    },
+                    {
+                      "token": "承担",
+                      "similarity": 0.06536865234375
+                    },
+                    {
+                      "token": " совс",
+                      "similarity": 0.0653076171875
+                    },
+                    {
+                      "token": "既能",
+                      "similarity": 0.0631103515625
+                    },
+                    {
+                      "token": "bpp",
+                      "similarity": 0.062744140625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "tan"
+        },
+        {
+          "image_idx": 28,
+          "true_color": "pink",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.078125
+                    },
+                    {
+                      "token": "眼看",
+                      "similarity": 0.0721435546875
+                    },
+                    {
+                      "token": "品种",
+                      "similarity": 0.0697021484375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.068359375
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.06536865234375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "pink"
+        },
+        {
+          "image_idx": 29,
+          "true_color": "iris",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.075927734375
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0712890625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.069091796875
+                    },
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.0638427734375
+                    },
+                    {
+                      "token": "숲",
+                      "similarity": 0.06378173828125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "iris"
+        },
+        {
+          "image_idx": 30,
+          "true_color": "rose",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "不该",
+                      "similarity": 0.06866455078125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06842041015625
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.0677490234375
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0670166015625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0660400390625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "rose"
+        },
+        {
+          "image_idx": 31,
+          "true_color": "stone",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.068359375
+                    },
+                    {
+                      "token": " navy",
+                      "similarity": 0.06787109375
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.066162109375
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.0660400390625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.0655517578125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "stone"
+        },
+        {
+          "image_idx": 32,
+          "true_color": "silver",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0712890625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06829833984375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0660400390625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06524658203125
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06494140625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "grey"
+        },
+        {
+          "image_idx": 33,
+          "true_color": "ocre",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.0709228515625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06964111328125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06854248046875
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06805419921875
+                    },
+                    {
+                      "token": "ое",
+                      "similarity": 0.0679931640625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "ocre"
+        },
+        {
+          "image_idx": 34,
+          "true_color": "forest",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " axe",
+                      "similarity": 0.0716552734375
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.071533203125
+                    },
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.06939697265625
+                    },
+                    {
+                      "token": "숲",
+                      "similarity": 0.0684814453125
+                    },
+                    {
+                      "token": " فإذا",
+                      "similarity": 0.0657958984375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "forest"
+        },
+        {
+          "image_idx": 35,
+          "true_color": "brick",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "不该",
+                      "similarity": 0.07073974609375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06964111328125
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.0672607421875
+                    },
+                    {
+                      "token": "ое",
+                      "similarity": 0.06488037109375
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.064208984375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "rust"
+        },
+        {
+          "image_idx": 36,
+          "true_color": "black",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.076416015625
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.06903076171875
+                    },
+                    {
+                      "token": " navy",
+                      "similarity": 0.06805419921875
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.06634521484375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06536865234375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "black"
+        },
+        {
+          "image_idx": 37,
+          "true_color": "pine",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " before",
+                      "similarity": 0.0687255859375
+                    },
+                    {
+                      "token": "inc",
+                      "similarity": 0.06732177734375
+                    },
+                    {
+                      "token": " axe",
+                      "similarity": 0.065185546875
+                    },
+                    {
+                      "token": "]\")]\n",
+                      "similarity": 0.0650634765625
+                    },
+                    {
+                      "token": " received",
+                      "similarity": 0.06463623046875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "pine"
+        },
+        {
+          "image_idx": 38,
+          "true_color": "red",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07568359375
+                    },
+                    {
+                      "token": "千万不要",
+                      "similarity": 0.06536865234375
+                    },
+                    {
+                      "token": "既能",
+                      "similarity": 0.06500244140625
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.0645751953125
+                    },
+                    {
+                      "token": " فإذا",
+                      "similarity": 0.064208984375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "red"
+        },
+        {
+          "image_idx": 39,
+          "true_color": "banana",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.069580078125
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06939697265625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06805419921875
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.06805419921875
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.065673828125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "banana"
+        },
+        {
+          "image_idx": 40,
+          "true_color": "mint",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.07476806640625
+                    },
+                    {
+                      "token": "马上",
+                      "similarity": 0.06549072265625
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.065185546875
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06414794921875
+                    },
+                    {
+                      "token": "bpp",
+                      "similarity": 0.06304931640625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "mint"
+        },
+        {
+          "image_idx": 41,
+          "true_color": "steel",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " jes",
+                      "similarity": 0.07073974609375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06781005859375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.067626953125
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.066650390625
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.06561279296875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "steel"
+        },
+        {
+          "image_idx": 42,
+          "true_color": "azure",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.07080078125
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.07073974609375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0689697265625
+                    },
+                    {
+                      "token": " فإذا",
+                      "similarity": 0.06793212890625
+                    },
+                    {
+                      "token": " совс",
+                      "similarity": 0.06719970703125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "azure"
+        },
+        {
+          "image_idx": 43,
+          "true_color": "coffee",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07464599609375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0728759765625
+                    },
+                    {
+                      "token": "yyyy",
+                      "similarity": 0.06683349609375
+                    },
+                    {
+                      "token": ".ASCII",
+                      "similarity": 0.06585693359375
+                    },
+                    {
+                      "token": "品种",
+                      "similarity": 0.0657958984375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "coffee"
+        },
+        {
+          "image_idx": 44,
+          "true_color": "leaf",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " navy",
+                      "similarity": 0.0706787109375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.07025146484375
+                    },
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.06549072265625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06549072265625
+                    },
+                    {
+                      "token": "yyyy",
+                      "similarity": 0.06512451171875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "leaf"
+        },
+        {
+          "image_idx": 45,
+          "true_color": "lime",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07489013671875
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.07086181640625
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06915283203125
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06787109375
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06756591796875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "pear"
+        },
+        {
+          "image_idx": 46,
+          "true_color": "grey",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.07318115234375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06878662109375
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.0672607421875
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06573486328125
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06463623046875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "grey"
+        },
+        {
+          "image_idx": 47,
+          "true_color": "golden",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": " senza",
+                      "similarity": 0.0697021484375
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.0682373046875
+                    },
+                    {
+                      "token": " glide",
+                      "similarity": 0.0650634765625
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.06439208984375
+                    },
+                    {
+                      "token": "都不能",
+                      "similarity": 0.06414794921875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "golden"
+        },
+        {
+          "image_idx": 48,
+          "true_color": "sea",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "不该",
+                      "similarity": 0.06732177734375
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.0665283203125
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06646728515625
+                    },
+                    {
+                      "token": "吃",
+                      "similarity": 0.06573486328125
+                    },
+                    {
+                      "token": "soon",
+                      "similarity": 0.06573486328125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "sea"
+        }
+      ]
+    },
+    "validation": {
+      "num_images": 6,
+      "images": [
+        {
+          "image_idx": 0,
+          "true_color": "lichen",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "不该",
+                      "similarity": 0.0718994140625
+                    },
+                    {
+                      "token": "驹",
+                      "similarity": 0.06866455078125
+                    },
+                    {
+                      "token": "吃",
+                      "similarity": 0.06829833984375
+                    },
+                    {
+                      "token": "蚀",
+                      "similarity": 0.06732177734375
+                    },
+                    {
+                      "token": " borne",
+                      "similarity": 0.067138671875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "lichen"
+        },
+        {
+          "image_idx": 1,
+          "true_color": "melon",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "soon",
+                      "similarity": 0.06781005859375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.06640625
+                    },
+                    {
+                      "token": " jes",
+                      "similarity": 0.066162109375
+                    },
+                    {
+                      "token": " welche",
+                      "similarity": 0.06524658203125
+                    },
+                    {
+                      "token": " Lyons",
+                      "similarity": 0.0643310546875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "melon"
+        },
+        {
+          "image_idx": 2,
+          "true_color": "earth",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.07147216796875
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0699462890625
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.068603515625
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.068359375
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.06634521484375
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "earth"
+        },
+        {
+          "image_idx": 3,
+          "true_color": "blood",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "凝聚",
+                      "similarity": 0.0677490234375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06756591796875
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.06573486328125
+                    },
+                    {
+                      "token": " axe",
+                      "similarity": 0.0654296875
+                    },
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.064697265625
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "blood"
+        },
+        {
+          "image_idx": 4,
+          "true_color": "umber",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.0711669921875
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.068359375
+                    },
+                    {
+                      "token": "不该",
+                      "similarity": 0.06646728515625
+                    },
+                    {
+                      "token": "不肯",
+                      "similarity": 0.06634521484375
+                    },
+                    {
+                      "token": " senza",
+                      "similarity": 0.06573486328125
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "umber"
+        },
+        {
+          "image_idx": 5,
+          "true_color": "brown",
+          "chunks": [
+            {
+              "chunk_name": "Full Image",
+              "patches": [
+                {
+                  "patch_idx": 0,
+                  "nearest_neighbors": [
+                    {
+                      "token": "imbabwe",
+                      "similarity": 0.08349609375
+                    },
+                    {
+                      "token": "_YELLOW",
+                      "similarity": 0.0736083984375
+                    },
+                    {
+                      "token": "眼看",
+                      "similarity": 0.07110595703125
+                    },
+                    {
+                      "token": " before",
+                      "similarity": 0.07110595703125
+                    },
+                    {
+                      "token": "_bitmap",
+                      "similarity": 0.07098388671875
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "feature_shape": [
+            1,
+            1,
+            1,
+            3584
+          ],
+          "generated_response": "brown"
+        }
+      ]
+    }
+  }
+}

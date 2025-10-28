@@ -2,6 +2,13 @@ import logging
 import re
 import shutil
 from os.path import join, exists
+import torch
+from torchvision import transforms
+from PIL import Image
+from pathlib import Path
+import os
+import glob
+import json
 
 import datasets
 import numpy as np
@@ -336,15 +343,37 @@ class PixMoCap(Dataset):
             "image", [url_to_filename[x] for x in filtered_dataset["image_url"]])
         save_local_dataset(filtered_dataset, local_name, n_procs, n_val=n_val)
 
-    def __init__(self, split, mode, prefix_how_many=True, keep_in_memory=False):
+    def __init__(self, split, mode, prefix_how_many=True, keep_in_memory=False, first_sentence_only=False):
         if split not in ["train", "validation"]:
             raise ValueError(f"Unknown split {split}")
         if mode not in ["transcripts", "captions", "transcript_and_caption", "transcript1_and_caption"]:
             raise ValueError(mode)
         self.split = split
         self.mode = mode
+        self.first_sentence_only = first_sentence_only
         self.data = datasets.load_from_disk(
             join(PIXMO_DATASETS, "cap"), keep_in_memory=keep_in_memory)[split]
+        
+        # Pre-process captions if first_sentence_only is enabled
+        if self.first_sentence_only:
+            logging.info("Pre-processing captions to extract first sentences...")
+            
+            def process_caption(example):
+                caption = example["caption"]
+                sentences = caption.split(".")
+                if len(sentences) > 1:
+                    first_sentence = sentences[0].strip()
+                    if len(first_sentence.split()) < 4:
+                        # Take up to the second period if first sentence is too short
+                        example["caption"] = ".".join(sentences[:2]) + "."
+                    else:
+                        # Take just the first sentence
+                        example["caption"] = first_sentence + "."
+                return example
+            
+            # Use HuggingFace's map method to transform the dataset
+            self.data = self.data.map(process_caption)
+            logging.info("Caption pre-processing complete.")
 
     def __len__(self):
         return len(self.data)
@@ -364,6 +393,7 @@ class PixMoCap(Dataset):
             messages.append(dict(text=transcripts[ix], style="transcript"))
         if self.mode == "transcripts":
             messages += [dict(text=tr, style="transcript") for tr in transcripts]
+        # print(f"DEBUG: messages = {messages}")
         out = dict(
             image=ex["image"],
             message_list=messages,
@@ -459,3 +489,354 @@ class PixMoPointsEval(Dataset):
             )
         )
 
+
+class TokenImageDataset(Dataset):
+    """Dataset for training on token images with BOS token input."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare token images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "token_images")
+        if exists(local_name):
+            return
+            
+        # Create directory if it doesn't exist
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        
+        # Generate token images if they don't exist
+        from scripts.generate_token_images import main as generate_token_images
+        generate_token_images()
+    
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        """Initialize dataset.
+        
+        Args:
+            split: Dataset split ('train' or 'validation')
+            config: Full TrainConfig object containing all configuration
+            keep_in_memory: Whether to keep dataset in memory
+            **kwargs: Additional arguments that will be set as attributes
+        """
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+            
+        self.split = split
+        self.config = config
+        
+        # Get values from extra_args if provided, otherwise use defaults
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}  # Convert None to empty dict
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.prompt_type = extra_args.get('prompt_type', 'empty')
+        
+        # Update with any provided kwargs
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            
+        # Ensure dataset is downloaded
+        self.download()
+        
+        # Get list of image files
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "token_images")
+        self.image_files = sorted(glob.glob(join(local_name, "token_*.png")))
+        if not self.image_files:
+            raise ValueError(f"No token images found in {local_name}")
+            
+        # Create RNG and shuffle files
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)  # Convert to numpy array for easier indexing
+        rng.shuffle(self.image_files)
+        
+        # Split into train/validation
+        split_idx = int(len(self.image_files) * 0.9)  # 90% for training
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        # Limit dataset size if in debug mode and it's the training split
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)  # Shuffle again to get random subset
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+        
+        # Load tokenizer for decoding token IDs
+        from transformers import AutoTokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+    
+    def __len__(self):
+        return len(self.image_files)
+    
+    def get(self, item, rng):
+        """Get a dataset item.
+        
+        Args:
+            item: Index of item to get
+            rng: Random number generator for reproducibility
+            
+        Returns:
+            Dictionary containing:
+                image: Path to image file
+                message_list: List of messages with token information
+                metadata: Additional metadata
+        """
+        image_path = self.image_files[item]
+        
+        # Get token ID from filename
+        token_id = int(Path(image_path).stem.split('_')[1])
+        
+        # Decode token ID to get actual token text, ensuring we only get the token itself
+        # Use encode then decode to ensure we only get the single token
+        token_text = self.tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
+        # assert self.tokenizer.encode(token_text, add_special_tokens=False) == [token_id]
+
+        # check cycle-consistency of the tokenizer
+        # print(f"CYCLE-CONSISTENT TOKEN ID: {token_id}")
+        # print(f"CYCLE-CONSISTENT TOKEN TEXT: {token_text}")
+        # print(f"CYCLE-CONSISTENT TOKEN IDS FROM TEXT: {self.tokenizer.encode(token_text)}")
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = 'Output the token shown in the image:'
+        elif self.prompt_type == 'copy':
+            prompt = 'Copy the token shown in the image:'
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_id,
+                'token_id': token_id
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'token_id': token_id,
+                'token_text': token_text
+            }
+        }
+    
+    def collate_fn(self, batch):
+        """Collate function for DataLoader."""
+        batch_entry = {}
+        
+        # Keep image paths as a list
+        batch_entry['images'] = [entry['image'] for entry in batch]
+        
+        # Keep message lists
+        batch_entry['message_list'] = [entry['message_list'] for entry in batch]
+        
+        return batch_entry
+
+import os
+import glob
+import logging
+from pathlib import Path
+from os.path import join, exists
+
+import numpy as np
+from torch.utils.data import Dataset
+from transformers import AutoTokenizer
+
+
+class ColorImageDataset(Dataset):
+    """Dataset for training on color images with BOS token input."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare color images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_images")
+        if exists(local_name):
+            return
+        
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        from scripts.generate_color_images import main as generate_color_images
+        generate_color_images()
+
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.config = config
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.prompt_type = extra_args.get('prompt_type', 'empty')
+        self.grid_size = extra_args.get('grid_size', 12)
+        
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+        self.download()
+        folder_name = "color_images"
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), folder_name)
+        print(f"DEBUG: local_name = {local_name}")
+        self.image_files = sorted(glob.glob(join(local_name, "color_*.png")))
+        if not self.image_files:
+            raise ValueError(f"No color images found in {local_name}")
+
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)
+        rng.shuffle(self.image_files)
+
+        split_idx = int(len(self.image_files) * 0.9)
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+        print(f"LENGTH OF DATASET: {len(self.image_files)}")
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def get(self, item, rng):
+        image_path = self.image_files[item]
+        filename = Path(image_path).stem  # e.g., color_123_red
+        _, token_id_str, *color_parts = filename.split('_')
+        token_id = int(token_id_str)
+        color_name = "_".join(color_parts)
+
+        token_text = self.tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
+
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = 'Output the color shown in the image:'
+        elif self.prompt_type == 'copy':
+            prompt = 'Copy the color name shown in the image:'
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_id,
+                'token_id': token_id
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'token_id': token_id,
+                'token_text': token_text,
+                'color_name': color_name
+            }
+        }
+
+    def collate_fn(self, batch):
+        batch_entry = {
+            'images': [entry['image'] for entry in batch],
+            'message_list': [entry['message_list'] for entry in batch],
+        }
+        return batch_entry
+
+class ColorMosaicDataset(Dataset):
+    """Dataset for training on color mosaic images with sequence of color tokens as target."""
+    
+    @classmethod
+    def download(cls, n_procs=1, check_sha=False, n_val=1024, cache_only=False):
+        """Download and prepare color mosaic images dataset."""
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), "color_mosaic_images")
+        if exists(local_name):
+            return
+        
+        Path(local_name).mkdir(parents=True, exist_ok=True)
+        from scripts.generate_color_mosaic_images import main as generate_color_mosaic_images
+        generate_color_mosaic_images()
+
+    def __init__(self, split, config=None, keep_in_memory=False, **kwargs):
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.config = config
+        extra_args = getattr(config.data, 'extra_args', {}) if config else {}
+        extra_args = extra_args or {}
+        self.training_dataset_size_debug = extra_args.get('training_dataset_size_debug', -1)
+        self.seed = config.data.seed if config else 42
+        self.grid_size = extra_args.get('grid_size', 12)
+        self.prompt_type = extra_args.get('prompt_type', 'caption')
+        
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+        self.download()
+        folder_name = "color_mosaic_images" if self.grid_size == 12 else "color_mosaic_images_gridsize-" + str(self.grid_size)
+        local_name = join(os.environ.get('MOLMO_DATA_DIR', ''), folder_name)
+        print(f"DEBUG: local_name = {local_name}")
+        self.image_files = sorted(glob.glob(join(local_name, "*.png")))
+        if not self.image_files:
+            raise ValueError(f"No color mosaic images found in {local_name}")
+
+        # Load color sequences from JSON
+        with open(join(local_name, "color_sequences.json"), 'r') as f:
+            self.color_sequences = json.load(f)
+
+        rng = np.random.RandomState(self.seed)
+        self.image_files = np.array(self.image_files)
+        rng.shuffle(self.image_files)
+
+        split_idx = int(len(self.image_files) * 0.9)
+        self.image_files = self.image_files[:split_idx] if split == "train" else self.image_files[split_idx:]
+
+        if self.training_dataset_size_debug > 0 and split == "train":
+            rng.shuffle(self.image_files)
+            self.image_files = self.image_files[:self.training_dataset_size_debug]
+            logging.info(f"Debug mode: Limited training dataset to {self.training_dataset_size_debug} examples")
+
+        # Initialize tokenizer and color name to token ID mapping
+        self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-7B", trust_remote_code=True)
+        
+        # Create mapping from color names to token IDs
+        self.color_to_token_id = {}
+        for color_name in set().union(*[set(seq) for seq in self.color_sequences.values()]):
+            # Encode the color name and get the first token ID
+            token_ids = self.tokenizer.encode(color_name, add_special_tokens=False)
+            if token_ids:
+                self.color_to_token_id[color_name] = token_ids[0]
+
+        print(f"LENGTH OF DATASET: {len(self.image_files)}")
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def get(self, item, rng):
+        image_path = self.image_files[item]
+        filename = Path(image_path).name
+        
+        # Get color sequence for this image
+        color_sequence = self.color_sequences[filename]
+        
+        # Convert color names to token IDs
+        token_ids = [self.color_to_token_id[color] for color in color_sequence]
+        
+        # Create prompt
+        if self.prompt_type == 'empty':
+            prompt = ''
+        elif self.prompt_type == 'caption':
+            prompt = "What is the sequence of colors in this grid of colors, read from left to right like a page?"
+        elif self.prompt_type == 'copy':
+            prompt = "Copy over the sequence of color words 1-by-1 from the previous context:"
+
+        return {
+            'image': image_path,
+            'message_list': [{
+                'style': 'none',
+                'prompt': prompt,
+                'answer': token_ids,  # List of token IDs representing the color sequence
+                'token_ids': token_ids
+            }],
+            'metadata': {
+                'image_path': image_path,
+                'color_sequence': color_sequence,
+                'token_ids': token_ids
+            }
+        }
+
+    def collate_fn(self, batch):
+        batch_entry = {
+            'images': [entry['image'] for entry in batch],
+            'message_list': [entry['message_list'] for entry in batch],
+        }
+        return batch_entry

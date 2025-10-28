@@ -14,7 +14,7 @@ from olmo.data.iterable_dataset_mixture import IterableDatasetMixture
 from olmo.data.model_preprocessor import Preprocessor, MultiModalPreprocessor
 from olmo.data.pixmo_datasets import PixMoPointExplanations as PixMoPointExplanationHF, \
     PixMoDocs, PixMoCount, PixMoPoints, PixMoCapQa, PixMoCap, PixMoPointExplanations, \
-    PixMoAskModelAnything, PixMoPointsEval
+    PixMoAskModelAnything, PixMoPointsEval, TokenImageDataset, ColorImageDataset, ColorMosaicDataset
 from olmo.torch_util import get_global_rank, get_world_size
 
 log = logging.getLogger(__name__)
@@ -146,13 +146,14 @@ def build_train_dataloader(train_config: TrainConfig, device=None) -> DataLoader
         device = "cpu"
     assert train_config.device_train_batch_size is not None
     seed = train_config.data.seed if train_config.data.seed is not None else train_config.seed
+    log.info(f"Building train dataloader with seed: {seed}")
     data_config = train_config.data
     if train_config.data.multi_modal in ["torch", "torch_hf"]:
         preprocessor = build_mm_preprocessor(
             train_config.model, shuffle_messages=data_config.shuffle, is_training=True, require_image_features=True)
         if data_config.dataset:
             datasets = [get_dataset_by_name(
-                data_config.dataset, data_config.split)]
+                data_config.dataset, data_config.split, config=train_config)]
             rates = [1]
         else:
             if data_config.mixture:
@@ -211,8 +212,18 @@ def build_train_dataloader(train_config: TrainConfig, device=None) -> DataLoader
         raise NotImplementedError(train_config.data.multi_modal)
 
 
-def get_dataset_by_name(dataset_name, split):
-    if dataset_name in ["scifi_document_qa", "pixmo_docs_other"]:
+def get_dataset_by_name(dataset_name, split, config=None):
+    extra_args = config.data.extra_args if config and hasattr(config.data, 'extra_args') else {}
+    
+    if dataset_name == "token_image":
+        return TokenImageDataset(split=split, config=config, **extra_args)
+    elif dataset_name == "color_image":
+        return ColorImageDataset(split=split, config=config, **extra_args)
+    elif dataset_name == "color_mosaic":
+        return ColorMosaicDataset(split=split, config=config, **extra_args)
+    elif dataset_name == "android_control":
+        return AndroidControl(split)
+    elif dataset_name in ["scifi_document_qa", "pixmo_docs_other"]:
         return PixMoDocs("other", split=split)
     elif dataset_name in ["scifi_table_qa", "pixmo_docs_tables"]:
         return PixMoDocs("tables", split=split)
@@ -253,8 +264,9 @@ def get_dataset_by_name(dataset_name, split):
     if dataset_name in ["cockatoo_and_transcript_712k_sept6", "pixmo_cap_with_transcripts"]:
         return PixMoCap(split, mode="transcript_and_caption")
     if dataset_name in ["cockatoo_712k_sept6", "pixmo_cap"]:
-        return PixMoCap(split, mode="captions")
-
+        first_sentence_only = False if extra_args is None else extra_args.get("first_sentence_only", False)
+        return PixMoCap(split, mode="captions", first_sentence_only=first_sentence_only)
+    
     if dataset_name == "pointing_eval":
         assert split == "test"
         return PixMoPointsEval()

@@ -5,6 +5,8 @@ import sys
 from os import listdir
 from os.path import join
 from pathlib import Path
+import os
+os.environ["PYTHONBREAKPOINT"] = "pdb.set_trace"
 
 import torch
 import torch.distributed as dist
@@ -128,6 +130,8 @@ def main(cfg: TrainConfig) -> None:
 
     # Set seed.
     seed_all(cfg.seed)
+    log.info(f"Global seed set to {cfg.seed}")
+    log.info(f"Data seed will be: {cfg.data.seed if cfg.data.seed is not None else cfg.seed}")
 
     # Construct data loader.
     train_loader = build_train_dataloader(cfg, device)
@@ -142,6 +146,7 @@ def main(cfg: TrainConfig) -> None:
 
     # Initialize the model.
     olmo_model = Molmo(cfg.model)
+    log.info(f"Model initialized with seed {cfg.seed}")
 
     # Freeze model components.
     if cfg.model.vision_backbone is not None and not cfg.ft_connector:
@@ -203,6 +208,7 @@ def main(cfg: TrainConfig) -> None:
         # so it doesn't re-initialize the parameters
         def dummy_init_fn(module: torch.nn.Module) -> None:
             module.to_empty(device=get_default_device(), recurse=False)
+
 
         param_init_fn = dummy_init_fn
     else:
@@ -280,23 +286,29 @@ def main(cfg: TrainConfig) -> None:
 
             # We save a checkpoint up-front to make sure this won't fail (due to disk space or whatever).
             log.info("Saving pre-train checkpoint...")
-            checkpoint_path, local_checkpoint_cache = trainer.save_checkpoint(checkpoint_type=checkpoint_type)
-            log.info(f"Checkpoint saved to {checkpoint_path}")
+            if cfg.model.vision_backbone is not None and not cfg.ft_connector:
+                # Only save connector weights
+                from save_connector import save_connector_weights
+                save_connector_weights(olmo_model, str(Path(cfg.save_folder) / "connector_weights.pt"))
+            else:
+                # Save full checkpoint
+                checkpoint_path, local_checkpoint_cache = trainer.save_checkpoint(checkpoint_type=checkpoint_type)
+                log.info(f"Checkpoint saved to {checkpoint_path}")
 
-            # And they we verify that we can load it.
-            log.info("Attempting to load pre-train checkpoint...")
-            trainer.restore_checkpoint(
-                checkpoint_path,
-                checkpoint_type=checkpoint_type,
-                local_cache=local_checkpoint_cache,
-                load_dataloader_state=False,
-            )
-            log.info("Checkpoint successfully loaded")
+                # And they we verify that we can load it.
+                log.info("Attempting to load pre-train checkpoint...")
+                trainer.restore_checkpoint(
+                    checkpoint_path,
+                    checkpoint_type=checkpoint_type,
+                    local_cache=local_checkpoint_cache,
+                    load_dataloader_state=False,
+                )
+                log.info("Checkpoint successfully loaded")
 
-            # But now we can remove it so we don't take up unnecessary space.
-            log.info("Removing pre-train checkpoint...")
-            trainer.remove_checkpoint(checkpoint_type=checkpoint_type)
-            log.info("Successfully removed checkpoint")
+                # But now we can remove it so we don't take up unnecessary space.
+                log.info("Removing pre-train checkpoint...")
+                trainer.remove_checkpoint(checkpoint_type=checkpoint_type)
+                log.info("Successfully removed checkpoint")
 
         if cfg.load_path is not None:
             log.info(f"Loading checkpoint from {cfg.load_path}...")
@@ -349,7 +361,9 @@ if __name__ == "__main__":
     log.info(f"Multiprocessing start method set to '{mp.get_start_method()}'")
 
     # Initialize process group.
-    dist.init_process_group(backend="nccl")
+    import datetime as dt
+
+    dist.init_process_group(backend="nccl", timeout=dt.timedelta(seconds=3600))
     log.info("Process group initialized")
 
     prepare_cli_environment()

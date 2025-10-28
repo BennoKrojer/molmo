@@ -289,6 +289,8 @@ class VisionBackboneConfig(BaseConfig):
     residual_dropout: float = 0.0
     initializer_range: float = 0.02
     fsdp_wrap: bool = False
+    # use_n_token_only: int = -1
+    use_n_token_only: List[int] = field(default_factory=list)
 
     # how to preprocess imagse for this ViT
     resize_mode: str = "default"
@@ -649,6 +651,12 @@ class ModelConfig(BaseConfig):
     """
     Use a version of the image padding mask that fixes the an off-by-one error how the embeddings
     are computed, should only be false for legacy models 
+    """
+
+    remove_black_pads: bool = False
+    """
+    If True, zero out black padding tokens before passing to MLP connector.
+    This is an ablation to test how much information padding tokens carry.
     """
 
     vit_layers: Tuple = (-1,)  # TODO should we fix the offset?
@@ -1079,6 +1087,9 @@ class DataConfig(BaseConfig):
 
     dataset: Optional[str] = None
     """Dataset name, will be used int `get_dataset_by_name`"""
+
+    extra_args: Optional[Dict[str, Any]] = None
+    """Additional arguments that can be passed to the dataset without modifying the config schema"""
 
     mixture: Optional[Dict[str, float]] = None
     """Mixture of dataset names and sampling rates"""

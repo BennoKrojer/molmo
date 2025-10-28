@@ -1,0 +1,9 @@
+{
+  "baseline_accuracy": 0.8775510204081632,
+  "perturbed_accuracy": 0.0,
+  "perturbed_position_specific_accuracy": 0.0,
+  "subset_0_accuracy": 0.0,
+  "subset_53_112_143_accuracy": 0.2653061224489796,
+  "patched_accuracy": 0.8775510204081632,
+  "patched_accuracy_with_avg_tokens_1to143": 0.8775510204081632
+}

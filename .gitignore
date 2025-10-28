@@ -56,3 +56,4 @@ site/
 /wandb/
 /scratch/
 core
+analysis_results/embedding_variances/**/*.npz

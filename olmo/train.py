@@ -239,6 +239,11 @@ class Trainer:
     _node_group: Any = None
     _node_group_ranks: Any = None
 
+    # Add a class variable to hold the vocab_embeddings
+    vocab_embeddings: Optional[torch.Tensor] = None
+
+    text_avg: Optional[torch.Tensor] = None
+
     def __post_init__(self):
         if self.cfg.fused_loss:
             import flash_attn
@@ -296,6 +301,21 @@ class Trainer:
             from .config import config_to_moe_args
 
             self.moe_args = config_to_moe_args(self.cfg.model)            
+
+        # Load vocab_embeddings from a .npy file
+        if False:  # Soft-remove legacy vocab embeddings loading
+            if Trainer.vocab_embeddings is None:
+                vocab_embeddings_np = np.load('embedding_matrix_qwen2_7b.npy')
+                Trainer.vocab_embeddings = torch.tensor(vocab_embeddings_np, device=self.device)
+                avg_norm = torch.norm(Trainer.vocab_embeddings, dim=-1).mean().item()
+                print(f"Vocabulary embeddings average norm: {avg_norm}")
+            # Calculate the average textual embedding
+            self.text_avg = Trainer.vocab_embeddings.mean(dim=0)
+        else:
+            # Initialize dummy values to avoid attribute errors
+            if Trainer.vocab_embeddings is None:
+                Trainer.vocab_embeddings = None
+            self.text_avg = None
 
     @property
     def dataset(self) -> IterableDataset:
@@ -757,11 +777,11 @@ class Trainer:
         return labels[..., 1:].contiguous()
 
     def model_forward(
-        self, batch: Dict[str, Any], loss_reduction: str = "mean", compute_z_loss: bool = False
+        self, batch: Dict[str, Any], loss_reduction: str = "mean", compute_z_loss: bool = False, return_logit_lenses: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], torch.Tensor]:
         # shape: (batch_size, seq_len, vocab_size)
         with torch.autocast("cuda", enabled=True, dtype=self.cfg.autocast_precision):
-            logits = self.fsdp_model(
+            output = self.fsdp_model(
                 input_ids=batch["input_ids"],
                 attention_mask=batch.get("attention_mask"),
                 attention_bias=batch.get("attention_bias"),
@@ -771,7 +791,15 @@ class Trainer:
                 image_input_idx=batch.get("image_input_idx"),
                 subsegment_ids=batch.get("subsegment_ids"),
                 position_ids=batch.get("position_ids"),
-            ).logits
+                return_logit_lenses=return_logit_lenses,
+                output_hidden_states=return_logit_lenses,  # Add this line to ensure we collect hidden states
+                loss_masks=batch.get("loss_masks")
+            )
+            logits = output.logits
+            if return_logit_lenses:
+                accuracies_per_layer = output.accuracies_per_layer
+            else:
+                accuracies_per_layer = None
         if "labels" in batch:
             assert "loss_masks" in batch
             assert loss_reduction == "none"
@@ -800,6 +828,7 @@ class Trainer:
                 z_loss = z_loss.view(bs, -1)
 
         accuracy = torch.argmax(logits_for_loss, dim=-1) == labels
+        
         if "labels" in batch:
             ce_loss = ce_loss * loss_masks
             if z_loss is not None:
@@ -809,10 +838,9 @@ class Trainer:
         else:
             accuracy = (accuracy * (labels >= 0))
             accuracy = accuracy.view(bs, -1)
-        return accuracy, ce_loss, z_loss, logits
+        return accuracy, ce_loss, z_loss, logits, accuracies_per_layer
 
-    def train_batch(self, batch: Dict[str, Any]) -> Tuple[torch.Tensor, Optional[torch.Tensor], torch.Tensor]:
-        # Split into micro-batches.
+    def train_batch(self, batch: Dict[str, Any]) -> Tuple[torch.Tensor, Optional[torch.Tensor], torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor], List[float], Optional[List[float]]]:
         micro_batches = self.split_batch(batch)
         has_labels = "labels" in batch
 
@@ -829,54 +857,65 @@ class Trainer:
         else:
             batch_size_in_tokens = batch["input_ids"].numel()
 
-        del batch  # in case this helps reduce memory
+        del batch
 
         ce_batch_loss = torch.tensor(0.0, device=self.device)
         batch_accuracy = torch.tensor(0.0, device=self.device)
         z_batch_loss = None if not self.cfg.softmax_auxiliary_loss else torch.tensor(0.0, device=self.device)
-        lb_batch_loss = (
-            None if self.model.config.block_type != BlockType.moe else torch.tensor(0.0, device=self.device)
-        )
-        moe_z_batch_loss = (
-            None if not self.model.config.moe_zloss_weight else torch.tensor(0.0, device=self.device)
-        )
+        lb_batch_loss = None if self.model.config.block_type != BlockType.moe else torch.tensor(0.0, device=self.device)
+        moe_z_batch_loss = None if not self.model.config.moe_zloss_weight else torch.tensor(0.0, device=self.device)
         expert_assignments = (
-            None
-            if (
-                (self.model.config.block_type != BlockType.moe)
-                or (self.model.config.moe_log_expert_assignment is False)
-            )
+            None if self.model.config.block_type != BlockType.moe or not self.model.config.moe_log_expert_assignment
             else torch.zeros((self.model.config.n_layers, self.model.config.moe_num_experts))
         )
+
+        summed_correct_per_pos = None
+        summed_count_per_pos = None
+
         for micro_batch in micro_batches:
-            accuracy, ce_loss, z_loss, logits = self.model_forward(
-                micro_batch, compute_z_loss=self.cfg.softmax_auxiliary_loss, loss_reduction="none" if has_labels else "sum"
+            # Determine if this is a metric logging step
+            return_logit_lenses = self.global_step % self.cfg.wandb.log_interval == 0
+
+            # Call the model forward function with return_logit_lenses=True during logging steps
+            accuracy, ce_loss, z_loss, logits, accuracy_per_layer = self.model_forward(
+                micro_batch, compute_z_loss=self.cfg.softmax_auxiliary_loss, loss_reduction="none" if has_labels else "sum", return_logit_lenses=return_logit_lenses
             )
+
             if has_labels:
-                accuracy = accuracy.sum()
-                ce_loss = ce_loss.sum()
+                labels = micro_batch["labels"]
+                mask = labels != -100  # [B, T]
+                correct = accuracy.bool() & mask  # [B, T]
+                
+                correct_per_pos = correct.sum(0).float()  # [T]
+                count_per_pos = mask.sum(0).float()       # [T]
+
+                if summed_correct_per_pos is None:
+                    summed_correct_per_pos = correct_per_pos
+                    summed_count_per_pos = count_per_pos
+                else:
+                    summed_correct_per_pos += correct_per_pos
+                    summed_count_per_pos += count_per_pos
+
+                ce_loss_sum = ce_loss.sum(0)  # [T]
                 if z_loss is not None:
-                    z_loss = z_loss.sum()
+                    z_loss_sum = z_loss.sum(0)
+
+                ce_loss = ce_loss_sum.sum()
+                accuracy = correct.sum()
+                if z_loss is not None:
+                    z_loss = z_loss_sum.sum()
 
             ce_loss = ce_loss / batch_size_in_tokens
             accuracy = accuracy / batch_size_in_tokens
 
-            # In case this helps with memory utilization.
-            del micro_batch
-
-            # Update overall CE batch loss.
             ce_batch_loss += ce_loss.detach()
             batch_accuracy += accuracy.detach()
 
-            # Get loss to optimize for.
             if self.cfg.softmax_auxiliary_loss:
                 assert z_loss is not None
                 assert z_batch_loss is not None
                 z_loss = z_loss / batch_size_in_tokens
-
                 loss = ce_loss + z_loss
-
-                # Update overall Z batch loss.
                 z_batch_loss += z_loss.detach()
             else:
                 loss = ce_loss
@@ -904,10 +943,189 @@ class Trainer:
                     loss += moe_z_loss
                     moe_z_batch_loss += moe_z_loss.detach()
 
-            # Run backward pass.
             loss.backward()
 
-        return ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments
+        dist.all_reduce(summed_correct_per_pos)
+        dist.all_reduce(summed_count_per_pos)
+        if accuracy_per_layer is not None:
+            # accuracy_per_layer shape: (n_layers, ?), with variable second dim
+            gathered = [None for _ in range(dist.get_world_size())]
+            dist.all_gather_object(gathered, accuracy_per_layer.cpu())
+
+            # Gathered is a list of (n_layers, ?)
+            # Concatenate along dim=1, then take mean per layer
+            max_layers = gathered[0].size(0)
+            for t in gathered:
+                assert t.size(0) == max_layers, "Mismatch in n_layers"
+
+            per_layer_accuracy = torch.cat(gathered, dim=1).mean(dim=1).to(accuracy_per_layer.device)
+        else:
+            per_layer_accuracy = None
+
+
+        per_position_accuracy = [
+            correct.item() / count.item()
+            for correct, count in zip(summed_correct_per_pos, summed_count_per_pos)
+            if count.item() > 0
+        ]
+
+
+        return ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments, per_position_accuracy, per_layer_accuracy
+
+    def compute_nearest_neighbor_alignment(self, visual_embeddings, token_ids, vocab_embeddings, step, k=5):
+        if False:  # Soft-remove nearest neighbor alignment computation
+            print(f"TRACE: visual_embeddings.shape: {visual_embeddings.shape}")
+            print(f"TRACE: token_ids.shape: {token_ids.shape}")
+            print(f"TRACE: vocab_embeddings.shape: {vocab_embeddings.shape}")
+            print(f"TRACE: token_ids: {token_ids}")
+            B, T, D = visual_embeddings.shape
+            V = vocab_embeddings.shape[0]
+
+            vocab_embeddings_norm = F.normalize(vocab_embeddings, p=2, dim=1)
+
+            def compute(similarities, token_ids_expanded, prefix):
+                correct_sim = similarities[torch.arange(similarities.size(0)), token_ids_expanded]
+                ranks = (similarities >= correct_sim.unsqueeze(1)).sum(dim=1)
+                top1 = (ranks == 1).float().mean()
+                top5 = (ranks <= k).float().mean()
+                mean_rank = ranks.float().mean()
+                mrr = (1.0 / ranks.float()).mean()
+
+                # Aggregate metrics across GPUs
+                for tensor in [top1, top5, mean_rank, mrr]:
+                    dist.all_reduce(tensor)
+                    tensor /= get_world_size()
+
+                return {
+                    f"{prefix}/top1_accuracy": top1.item(),
+                    f"{prefix}/top5_accuracy": top5.item(),
+                    f"{prefix}/mean_rank": mean_rank.item(),
+                    f"{prefix}/mrr": mrr.item(),
+                }
+
+            pooled = visual_embeddings.mean(dim=1)  # [B, D]
+            pooled_norm = F.normalize(pooled, p=2, dim=1)
+            sim_pooled = pooled_norm @ vocab_embeddings_norm.T  # [B, V]
+            metrics_pooled = compute(sim_pooled, token_ids, "nn_alignment_pooled")
+
+            flat = visual_embeddings.view(B * T, D)
+            flat_norm = F.normalize(flat, p=2, dim=1)
+            sim_all = flat_norm @ vocab_embeddings_norm.T  # [B*T, V]
+            token_ids_expanded = token_ids.repeat_interleave(T)  # [B*T]
+            metrics_all = compute(sim_all, token_ids_expanded, "nn_alignment_all_tokens")
+
+            def compute_l2_metrics(embeddings, token_ids_expanded, prefix):
+                # Compute L2 distances
+                l2_distances = torch.cdist(embeddings, vocab_embeddings)
+                # Extract the L2 distance for the correct token
+                correct_l2 = l2_distances[torch.arange(l2_distances.size(0)), token_ids_expanded]
+                # Calculate ranks based on L2 distance
+                ranks = (l2_distances <= correct_l2.unsqueeze(1)).sum(dim=1)
+                top1 = (ranks == 1).float().mean()
+                top5 = (ranks <= k).float().mean()
+                mean_rank = ranks.float().mean()
+                mrr = (1.0 / ranks.float()).mean()
+
+                # Aggregate metrics across GPUs
+                for tensor in [top1, top5, mean_rank, mrr]:
+                    dist.all_reduce(tensor)
+                    tensor /= get_world_size()
+
+                return {
+                    f"{prefix}/top1_accuracy": top1.item(),
+                    f"{prefix}/top5_accuracy": top5.item(),
+                    f"{prefix}/mean_rank": mean_rank.item(),
+                    f"{prefix}/mrr": mrr.item(),
+                }
+
+            # Compute L2 metrics for pooled embeddings
+            metrics_pooled_l2 = compute_l2_metrics(pooled, token_ids, "nn_alignment_pooled_l2")
+
+            # Compute L2 metrics for all tokens
+            metrics_all_l2 = compute_l2_metrics(flat, token_ids_expanded, "nn_alignment_all_tokens_l2")
+
+            # Combine all metrics
+            metrics = {**metrics_pooled, **metrics_all, **metrics_pooled_l2, **metrics_all_l2}
+
+            if step % 1000 == 0 and B > 0:
+                for i in range(min(5, B)):
+                    top_indices = sim_pooled[i].topk(5).indices.tolist()
+                    log.info(f"NN Sample {i} (true token: {token_ids[i]}): Top matches: {top_indices}")
+
+            return metrics
+        else:
+            # Return empty metrics when disabled
+            return {}
+
+    def evaluate_nn_alignment(self, batch):
+        """
+        Run a forward pass to extract visual embeddings and compute nearest neighbor metrics.
+        
+        Args:
+            batch: A batch of data containing images and token IDs
+            
+        Returns:
+            Dictionary of metrics
+        """
+        if False:  # Soft-remove nearest neighbor alignment evaluation
+            if "token_id" not in batch:
+                available_keys = list(batch.keys())
+                error_msg = f"token_id missing from batch. Available keys: {available_keys}"
+                print(error_msg)
+                return {}
+            
+            print(f"Performing nearest neighbor alignment evaluation on batch with {batch['token_id'].shape[0]} examples")
+            
+            # Move batch to device if needed
+            batch = self.move_to_device(batch, self.device)
+            
+            # Set model to eval mode temporarily
+            was_training = self.fsdp_model.training
+            self.fsdp_model.eval()
+            
+            # Extract visual embeddings with a forward pass
+            with torch.no_grad():
+                # Get the model's vocabulary embedding matrix
+                vocab_embeddings = Trainer.vocab_embeddings
+                
+                # Run the forward pass with return_visual_embeddings=True to get visual embeddings directly
+                output = self.fsdp_model(
+                    input_ids=batch["input_ids"],
+                    attention_mask=batch.get("attention_mask"),
+                    attention_bias=batch.get("attention_bias"),
+                    response_mask=(batch["loss_masks"] > 0) if "loss_masks" in batch else None,
+                    images=batch.get("images"),
+                    image_masks=batch.get("image_masks"),
+                    image_input_idx=batch.get("image_input_idx"),
+                    subsegment_ids=batch.get("subsegment_ids"),
+                    position_ids=batch.get("position_ids"),
+                    return_visual_embeddings=True,
+                    loss_masks=batch.get("loss_masks")
+                )
+                
+                # Get the visual embeddings
+                visual_embeddings = output.visual_embeddings
+                
+                if visual_embeddings is None:
+                    error_msg = "CRITICAL ERROR: Model returned None for visual_embeddings. Check the model forward pass."
+                    log.error(error_msg)
+                    if self.global_step > 0:
+                        raise ValueError(error_msg)
+                    return {}
+            
+            # Restore model to its previous mode
+            self.fsdp_model.train(was_training)
+            
+            # Compute nearest neighbor metrics using the extracted token IDs
+            metrics = self.compute_nearest_neighbor_alignment(
+                visual_embeddings, batch["token_id"], vocab_embeddings, self.global_step
+            )
+            
+            log.info(f"Nearest neighbor alignment metrics: {metrics}")
+            return metrics
+        else:
+            # Return empty metrics when disabled
+            return {}
 
     def train_step(self, batch: Dict[str, Any], reduce_global_loss: bool = True) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
@@ -919,11 +1137,35 @@ class Trainer:
         # Zero-gradients.
         self.optim.zero_grad(set_to_none=True)
 
+
         # Move tensors to the right device.
         batch = self.move_to_device(batch, self.device)
 
         # Run forward-backward pass.
-        ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments = self.train_batch(batch)
+        ce_batch_loss, z_batch_loss, batch_accuracy, lb_batch_loss, moe_z_batch_loss, expert_assignments, per_position_accuracy, per_layer_accuracy = self.train_batch(batch)
+
+        # Check if we should run nearest neighbor evaluation
+        if False:  # Soft-remove nearest neighbor evaluation check
+            should_run_nn_eval = batch.get("token_id") is not None and hasattr(self.cfg, 'expensive_logging_interval') and self.global_step % self.cfg.expensive_logging_interval == 0
+
+            # Validate required keys for nearest neighbor evaluation
+            if should_run_nn_eval:
+                if "images" not in batch or batch["images"] is None:
+                    log.warning(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - batch is missing 'images'")
+                    should_run_nn_eval = False
+                elif "token_id" not in batch:
+                    log.error(f"Step {self.global_step}: Cannot run nearest neighbor evaluation - CRITICAL ERROR - batch is missing 'token_id'. Available keys: {list(batch.keys())}")
+                    # Only raise an error after some initial steps to allow for warmup
+                    if self.global_step > 10:
+                        raise ValueError(f"CRITICAL ERROR: token_id missing from batch during nearest neighbor evaluation at step {self.global_step}")
+                    should_run_nn_eval = False
+                else:
+                    log.info(f"Will run nearest neighbor evaluation at step {self.global_step} with {batch['token_id'].shape[0]} examples")
+
+            # Compute nearest neighbor alignment metrics directly from batch if applicable
+            if should_run_nn_eval:
+                nn_metrics = self.evaluate_nn_alignment(batch)
+                metrics.update(nn_metrics)
 
         # Collect loss, potentially reducing over all ranks.
         if reduce_global_loss:
@@ -1032,11 +1274,201 @@ class Trainer:
             for key, value in optim_metrics.items():
                 metrics[f"optim/{key}"] = value.item()
 
+        # Log per-position accuracy
+        if len(per_position_accuracy) < 5:
+            for pos, acc in enumerate(per_position_accuracy):
+                metrics[f"train/PerPositionAccuracy/pos{pos}"] = acc
+
+        # Log per-layer accuracy
+        if per_layer_accuracy is not None:
+            for layer_idx, layer_acc in enumerate(per_layer_accuracy):
+                metrics[f"train/LayerAccuracy/layer{layer_idx}"] = layer_acc
+
+        # Calculate modality gap for the current batch
+        if False and self.should_log_this_step() and "images" in batch and batch["images"] is not None:  # Soft-remove modality gap calculation
+            with torch.no_grad():
+                output = self.fsdp_model(
+                    input_ids=batch["input_ids"],
+                    attention_mask=batch.get("attention_mask"),
+                    attention_bias=batch.get("attention_bias"),
+                    response_mask=(batch["loss_masks"] > 0) if "loss_masks" in batch else None,
+                    images=batch.get("images"),
+                    image_masks=batch.get("image_masks"),
+                    image_input_idx=batch.get("image_input_idx"),
+                    subsegment_ids=batch.get("subsegment_ids"),
+                    position_ids=batch.get("position_ids"),
+                    return_visual_embeddings=True,
+                    loss_masks=batch.get("loss_masks")
+                )
+                visual_embeddings = output.visual_embeddings
+                sampled_visual_embeddings = output.sampled_visual_embeddings
+
+                ####### Sample embeddings for PCA #######
+                num_samples = 200  # Number of samples from each modality
+                
+                # Gather visual embeddings from all GPUs
+                print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
+                gathered_visual = [torch.zeros_like(visual_embeddings) for _ in range(dist.get_world_size())]
+                dist.all_gather(gathered_visual, visual_embeddings)
+                # Concatenate along batch dimension
+                visual_all = torch.cat(gathered_visual, dim=0)  # shape: (total_batch, patch_num, hidden_dim)
+                
+                # Flatten batch and patch dimensions
+                batch_size, patch_num, hidden_dim = visual_all.shape
+                visual_flat = visual_all.reshape(-1, hidden_dim)  # shape: (total_batch * patch_num, hidden_dim)
+                
+                # Sample from flattened visual embeddings
+                if visual_flat.size(0) >= num_samples:
+                    visual_indices = torch.randperm(visual_flat.size(0), device=visual_flat.device)[:num_samples]
+                    visual_samples = visual_flat[visual_indices]
+                else:
+                    # If we have fewer samples than requested, use all of them
+                    visual_samples = visual_flat
+                    num_samples = visual_flat.size(0)
+                
+                # Sample from vocab embeddings
+                vocab_indices = torch.randperm(Trainer.vocab_embeddings.size(0), device=Trainer.vocab_embeddings.device)[:num_samples]
+                vocab_samples = Trainer.vocab_embeddings[vocab_indices]
+                
+                # Combine samples and move to CPU for PCA
+                combined_samples = torch.cat([visual_samples, vocab_samples], dim=0).cpu().numpy()
+                
+                # Perform PCA
+                from sklearn.decomposition import PCA
+                pca = PCA(n_components=3)  # Get top 3 components
+                transformed = pca.fit_transform(combined_samples)
+                
+                # Split back into visual and vocab components
+                visual_pca = transformed[:num_samples]
+                vocab_pca = transformed[num_samples:]
+
+                # Only create and log plot on rank 0
+                if get_global_rank() == 0:
+                    try:
+                        import matplotlib.pyplot as plt
+                        fig = plt.figure(figsize=(10, 10))
+                        ax = fig.add_subplot(111)
+
+                        # Plot visual in one color, vocab in another
+                        ax.scatter(visual_pca[:, 0], visual_pca[:, 1], c='blue', label="Visual", alpha=0.7)
+                        ax.scatter(vocab_pca[:, 0], vocab_pca[:, 1], c='orange', label="Vocab", alpha=0.7)
+
+                        ax.legend()
+                        ax.set_title(f"PCA Visualization at Step {self.global_step}")
+                        ax.set_xlabel("First Principal Component")
+                        ax.set_ylabel("Second Principal Component")
+
+                        # Add to metrics for wandb logging
+                        metrics["pca_plot"] = wandb.Image(fig)
+                        
+                        # Close the figure to free memory
+                        plt.close(fig)
+                    except Exception as e:
+                        log.warning(f"Failed to create PCA plot: {str(e)}")
+
+                # Calculate average norm of visual embeddings
+                visual_norms = torch.norm(visual_embeddings, dim=-1)  # [batch_size, seq_len]
+                avg_visual_norm = visual_norms.mean()
+                dist.all_reduce(avg_visual_norm)
+                avg_visual_norm = avg_visual_norm / dist.get_world_size()
+
+                metrics["VisualEmbeddings/average_norm"] = avg_visual_norm
+                
+                # Calculate std of norms to measure consistency
+                std_visual_norm = visual_norms.std()
+                dist.all_reduce(std_visual_norm)
+                std_visual_norm = std_visual_norm / dist.get_world_size()
+                metrics["VisualEmbeddings/norm_std"] = std_visual_norm
+
+                # Calculate the average visual embedding for the batch
+                visual_avg = visual_embeddings.mean(dim=(0,1))
+                # Calculate the modality gap
+                modality_gap_l2 = torch.norm(1/self.text_avg.shape[-1] *(visual_avg - self.text_avg))
+                dist.all_reduce(modality_gap_l2)    
+                modality_gap_l2 = modality_gap_l2 / dist.get_world_size()
+                metrics["ModalityGap/L2_normalized"] = modality_gap_l2
+                modality_gap_cosine = torch.nn.functional.cosine_similarity(visual_avg, self.text_avg, dim=0)
+                dist.all_reduce(modality_gap_cosine)
+                modality_gap_cosine = modality_gap_cosine / dist.get_world_size()
+                metrics["ModalityGap/cosine"] = modality_gap_cosine
+
+                # Calculate nearest vocab embedding distance for each visual token
+                vocab_embeddings_norm = F.normalize(Trainer.vocab_embeddings, p=2, dim=1)
+                visual_embeddings_norm = F.normalize(visual_embeddings.view(-1, visual_embeddings.size(-1)), p=2, dim=1)
+                # Compute cosine similarities
+                similarities = torch.mm(visual_embeddings_norm, vocab_embeddings_norm.T)
+                # Find the maximum similarity for each visual token
+                max_similarities, _ = similarities.max(dim=1)
+                # Calculate the average maximum similarity
+                avg_max_similarity = max_similarities.mean()
+                dist.all_reduce(avg_max_similarity)
+                avg_max_similarity = avg_max_similarity / dist.get_world_size()
+                metrics["ModalityGap/NearestVocabCosine"] = avg_max_similarity
+
+                # Calculate nearest vocab embedding L2 distance for each visual token
+                # Reshape visual embeddings for batch processing
+                visual_embeddings_flat = visual_embeddings.view(-1, visual_embeddings.size(-1))
+                # Compute L2 distances
+                l2_distances = torch.cdist(visual_embeddings_flat, Trainer.vocab_embeddings)
+                # Find the minimum L2 distance for each visual token
+                min_l2_distances, _ = l2_distances.min(dim=1)
+                # Calculate the average minimum L2 distance
+                avg_min_l2_distance = 1/self.text_avg.shape[-1] * min_l2_distances.mean()
+                dist.all_reduce(avg_min_l2_distance)
+                avg_min_l2_distance = avg_min_l2_distance / dist.get_world_size()
+                metrics["ModalityGap/NearestVocabL2_normalized"] = avg_min_l2_distance
+
+
+            # Calculate intra-modality similarity for visual tokens (layer 0)
+            batch_size, num_patches, hidden_dim = visual_embeddings.shape
+            if batch_size > 1:
+                # Randomly select one patch from each image
+                random_indices = torch.randint(0, num_patches, (batch_size,), device=visual_embeddings.device)
+                selected_patches = visual_embeddings[torch.arange(batch_size), random_indices]  # [B, D]
+
+                # Gather selected patches across GPUs
+                gathered = [torch.zeros_like(selected_patches) for _ in range(dist.get_world_size())]
+                dist.all_gather(gathered, selected_patches)
+                selected_patches = torch.cat(gathered, dim=0)  # [B_total, D]
+
+                if selected_patches.shape[0] > 1:
+                    selected_patches_norm = F.normalize(selected_patches, p=2, dim=1)
+                    similarities = selected_patches_norm @ selected_patches_norm.T
+                    mask = torch.triu(torch.ones_like(similarities), diagonal=1)
+                    num_pairs = mask.sum()
+                    if num_pairs > 0:
+                        avg_similarity = (similarities * mask).sum() / num_pairs
+                        metrics["VisualEmbeddings/intra_modality_cosine_similarity_layer0"] = avg_similarity.item()
+
+            if sampled_visual_embeddings is not None:
+                for layer_idx, embeddings in sampled_visual_embeddings.items():
+                    embeddings_list = [torch.zeros_like(embeddings) for _ in range(dist.get_world_size())]
+                    dist.all_gather(embeddings_list, embeddings)
+                    embeddings = torch.cat(embeddings_list, dim=0)
+
+                    if embeddings.shape[0] <= 1:
+                        continue
+
+                    # Normalize
+                    embeddings_norm = F.normalize(embeddings, p=2, dim=1)
+
+                    # Cosine sim matrix
+                    sim_matrix = embeddings_norm @ embeddings_norm.T
+
+                    # Take upper triangle (excluding diagonal)
+                    mask = torch.triu(torch.ones_like(sim_matrix), diagonal=1)
+                    num_pairs = mask.sum()
+
+                    if num_pairs > 0:
+                        avg_sim = (sim_matrix * mask).sum() / num_pairs
+                        metrics[f"VisualEmbeddings/intra_modality_cosine_similarity_layer{layer_idx}"] = avg_sim.item()
+
+
         return metrics
 
     def eval_batch(self, batch: Dict[str, Any]) -> Tuple[torch.Tensor, torch.Tensor]:
         with torch.autocast("cuda", enabled=True, dtype=self.cfg.autocast_precision):
-            acc, ce_loss, z_loss, logits = self.model_forward(batch, loss_reduction="none", compute_z_loss=True)
+            acc, ce_loss, z_loss, logits, _  = self.model_forward(batch, loss_reduction="none", compute_z_loss=True, return_logit_lenses=False)
         if "labels" in batch:
             loss_masks = batch["loss_masks"] * (batch["loss_masks"] > 0)
             batch_size_in_tokens = loss_masks.sum(-1)
@@ -1301,8 +1733,19 @@ class Trainer:
             else:
                 self.cfg.stop_at = min(self.cfg.stop_at, self.global_step + self.cfg.stop_after)
 
+        # Set default NN evaluation interval if not specified
+        if False:  # Soft-remove NN evaluation interval setting
+            if not hasattr(self.cfg, 'expensive_logging_interval'):
+                self.cfg.expensive_logging_interval = 10
+
         self._start_time = time.time()
         self._gc_init_state = gc.isenabled()  # cache if garbage collection is enabled, reset on close.
+
+        # Log vocabulary embedding statistics at start of training
+        if False and wandb.run is not None:  # Soft-remove vocab embedding logging
+            vocab_norms = torch.norm(Trainer.vocab_embeddings, dim=-1)
+            wandb.run.summary["VocabularyEmbeddings/average_norm"] = vocab_norms.mean().item()
+            wandb.run.summary["VocabularyEmbeddings/norm_std"] = vocab_norms.std().item()
 
         # Disable automatic garbage collection, FSDP doesn't work well with it.
         if self.cfg.gen1_gc_interval is not None:

@@ -473,6 +473,9 @@ def convert_state_dict_qwen2(state_dict, config: ModelConfig, block_type: BlockT
     return out
 
 
+
+
+
 def get_default_load_path(model_name: str) -> str:
     default_load_path = DEFAULT_LOAD_PATHS[model_name]
     return "/".join(default_load_path.split("/")[1:])
@@ -487,6 +490,7 @@ CONVERT_FNS = {
     "olmo_1024_preview": convert_state_dict_olmo_1024_preview,
     "qwen2_7b": convert_state_dict_qwen2,
     "qwen2_72b": convert_state_dict_qwen2,
+    "llama3_8b": convert_state_dict_qwen2,  # Llama 3 has identical structure to Qwen2
 }
 
 
@@ -503,6 +507,7 @@ LLM_HF_SOURCES = {
     "olmo_1024_preview": "allenai/OLMo-7B-1024-preview",
     "qwen2_7b": "Qwen/Qwen2-7B",
     "qwen2_72b": "Qwen/Qwen2-72B",
+    "llama3_8b": "meta-llama/Meta-Llama-3-8B",
 }
 
 

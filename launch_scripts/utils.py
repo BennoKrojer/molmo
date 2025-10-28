@@ -359,6 +359,36 @@ QWEN2_7B = ModelConfig(
     image_padding_embed="pad_and_partial_pad",
 )
 
+LLAMA_3_8B = ModelConfig(
+    vocab_size=128256,
+    additional_vocab_size=128,
+    max_sequence_length=8192,   # or 131072 if targeting Llama 3.1 contexts
+    residual_dropout=0.0,
+    embedding_dropout=0.0,
+    response_residual_dropout=0.0,
+    attention_dropout=0.0,
+    rope=True,
+    qkv_bias=False,             # attention_bias=false in HF config
+    weight_tying=False,
+    include_bias=False,
+    embedding_size=128256,
+    d_model=4096,
+    mlp_hidden_size=28672,
+    n_layers=32,
+    n_heads=32,
+    n_kv_heads=8,               # GQA
+    rope_theta=500000.0,
+    layer_norm_eps=1e-5,
+    layer_norm_type=LayerNormType.rms,
+    tokenizer=TokenizerConfig(
+        identifier="meta-llama/Meta-Llama-3-8B",
+    ),
+    image_pooling_2d="attention_meanq",
+    image_padding_embed="pad_and_partial_pad",
+    block_type="llama",
+)
+
+
 
 QWEN2_72B = ModelConfig(
     init_device="meta",
@@ -400,6 +430,7 @@ DEFAULT_LOAD_PATHS = {
     "olmo_1024_preview": "${oc.env:MOLMO_DATA_DIR}/pretrained_llms/olmo-1024-preview.pt",
     "qwen2_7b": "${oc.env:MOLMO_DATA_DIR}/pretrained_llms/qwen2-7b.pt",
     "qwen2_72b": "${oc.env:MOLMO_DATA_DIR}/pretrained_llms/qwen2-70b.pt",
+    "llama3_8b": "${oc.env:MOLMO_DATA_DIR}/pretrained_llms/llama3-8b.pt",
 }
 
 
@@ -416,6 +447,7 @@ LLMS: Dict[str, ModelConfig] = {
     "olmo_1024_preview": OLMO_1024_PREVIEW,
     "qwen2_7b": QWEN2_7B,
     "qwen2_72b": QWEN2_72B,
+    "llama3_8b": LLAMA_3_8B,
 }
 
 
