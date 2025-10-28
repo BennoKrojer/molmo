@@ -15,11 +15,10 @@ import argparse
 import sys
 from prompts import IMAGE_PROMPT
 from utils import (
-    calculate_square_bbox_from_patch, 
+    calculate_square_bbox_from_center, 
     get_high_confidence_words,
     clip_bbox_to_image,
     draw_bbox_on_image,
-    calculate_expanded_bbox_from_patch,
     process_image_with_mask,
     sample_valid_patch_positions
 )
@@ -101,7 +100,7 @@ def get_gpt_response(client, image, prompt):
         }
         
 
-def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33, bbox_size=3, show_images=False, save_results=None, num_samples=36):
+def run_llm_judge(client, input_json_path, num_images=None, image_indices=None, patch_size=28.0, bbox_size=3, show_images=False, save_results=None, num_samples=36):
     """
     Run LLM judge evaluation on image patches.
     
@@ -109,7 +108,7 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
         client: OpenAI client instance
         input_json_path (str): Path to JSON file containing list of dicts with 'image_path' and 'patches' keys
         image_indices (list): List of specific image indices to process (if None, process all images)
-        patch_size (float): Size of each patch in pixels (calculated automatically from 512/24)
+        patch_size (float): Size of each patch in pixels (calculated automatically from 672/24)
         bbox_size (int): Size of bounding box in patches (e.g., 3 for 3x3)
         show_images (bool): Whether to display images during processing
         save_results (str): Path to save results JSON file (optional)
@@ -134,6 +133,9 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
     if image_indices is not None:
         image_data = [image_data[i] for i in image_indices if i < len(image_data)]
     
+    if num_images is not None:
+        image_data = image_data[:num_images]
+    
     print(f"Processing {len(image_data)} images...")
 
     for idx, image_entry in enumerate(tqdm(image_data)):
@@ -153,7 +155,7 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
         # Process the original image to get both the processed image and mask
         try:
             processed_image, image_mask = process_image_with_mask(image_path)
-            actual_patch_size = 512 / 24  # ~21.33
+            actual_patch_size = 672 / 24  # = 28.0
         except Exception as e:
             print(f"Warning: Could not process image {image_path}: {e}")
             continue
@@ -164,24 +166,24 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
         
         # Sample valid patch positions that don't include padded areas
         try:
-            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=bbox_size, num_samples=num_samples)
+            sampled_center_positions = sample_valid_patch_positions(image_mask, bbox_size=bbox_size, num_samples=num_samples)
         except Exception as e:
             print(f"Warning: Could not sample patch positions for image {image_path}: {e}")
             continue
             
-        if not sampled_positions:
+        if not sampled_center_positions:
             print(f"Warning: No valid patch positions found for image {image_path}")
             continue
             
-        print(f"Sampled {len(sampled_positions)} valid positions for image {os.path.basename(image_path)}")
+        print(f"Sampled {len(sampled_center_positions)} valid center positions for image {os.path.basename(image_path)}")
         
-        for patch_row, patch_col in sampled_positions:
-            bbox = calculate_square_bbox_from_patch(patch_row, patch_col, 
+        for center_row, center_col in sampled_center_positions:
+            bbox = calculate_square_bbox_from_center(center_row, center_col, 
                                                   patch_size=actual_patch_size, size=bbox_size)
             image_with_bbox = draw_bbox_on_image(processed_image, bbox)
             
-            # This function currently defaults to returning the tokens from the middle patch
-            high_conf_tokens = get_high_confidence_words(annotations, patch_row, patch_col, 
+            # Get tokens from the center patch
+            high_conf_tokens = get_high_confidence_words(annotations, center_row, center_col, 
                                                        size=bbox_size)
             
             tokens = [token_info['token'] for token_info in high_conf_tokens]
@@ -194,8 +196,8 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
             
             # Create result object
             result = {
-                'patch_row': patch_row,
-                'patch_col': patch_col,
+                'center_row': center_row,
+                'center_col': center_col,
                 'bbox_size': bbox_size,
                 'high_confidence_tokens': high_conf_tokens,
                 'tokens_used': tokens,
@@ -210,7 +212,7 @@ def run_llm_judge(client, input_json_path, image_indices=None, patch_size=21.33,
             if show_images:
                 image_with_bbox.show()
             
-                print(f"Image: {os.path.basename(image_path)}, Patch: ({patch_row}, {patch_col})")
+                print(f"Image: {os.path.basename(image_path)}, Center Patch: ({center_row}, {center_col})")
                 print(f"Tokens: {tokens}")
                 print(f"Formatted prompt: {formatted_prompt}")
                 print(f"Response: {response}")
@@ -252,8 +254,8 @@ def main():
     # Optional arguments
     parser.add_argument('--image_indices', type=int, nargs='+',
                        help='Specific image indices to process (default: all images)')
-    parser.add_argument('--patch_size', type=float, default=21.33,
-                       help='Size of each patch in pixels (default: 21.33)')
+    parser.add_argument('--patch_size', type=float, default=28.0,
+                       help='Size of each patch in pixels (default: 28.0)')
     parser.add_argument('--bbox_size', type=int, default=3,
                        help='Size of bounding box in patches (default: 3 for 3x3)')
     parser.add_argument('--num_samples', type=int, default=36,
@@ -264,6 +266,8 @@ def main():
                        help='Path to save results json file')
     parser.add_argument('--model', type=str, default='gpt-5',
                        help='OpenAI model to use (default: gpt-5)')
+    parser.add_argument('--num_images', type=int, default=None,
+                       help='Number of images to process from the input JSON (default: all images)')
     
     args = parser.parse_args()
     

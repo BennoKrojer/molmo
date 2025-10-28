@@ -42,7 +42,7 @@ def clip_bbox_to_image(bbox, image_width, image_height):
     
     return (left, top, right, bottom)
 
-def draw_bbox_on_image(image, bbox, outline_color="red", width=3, fill_alpha=30):
+def draw_bbox_on_image(image, bbox, outline_color="red", width=3):
     """
     Draw bounding box on image with better visibility for edge cases.
     
@@ -68,32 +68,6 @@ def draw_bbox_on_image(image, bbox, outline_color="red", width=3, fill_alpha=30)
         return new_image  # Return original image if bbox is invalid
     
     draw = ImageDraw.Draw(new_image)
-    
-    # Draw filled rectangle with transparency for better visibility
-    if fill_alpha > 0:
-        # Create a semi-transparent overlay
-        overlay = Image.new('RGBA', new_image.size, (0, 0, 0, 0))
-        overlay_draw = ImageDraw.Draw(overlay)
-        
-        # Convert color name to RGB if needed
-        if outline_color == "red":
-            fill_color = (255, 0, 0, fill_alpha)
-        elif outline_color == "blue":
-            fill_color = (0, 0, 255, fill_alpha)
-        elif outline_color == "green":
-            fill_color = (0, 255, 0, fill_alpha)
-        else:
-            fill_color = (255, 0, 0, fill_alpha)  # Default to red
-            
-        overlay_draw.rectangle(clipped_bbox, fill=fill_color)
-        
-        # Composite the overlay with the original image
-        new_image = new_image.convert('RGBA')
-        new_image = Image.alpha_composite(new_image, overlay)
-        new_image = new_image.convert('RGB')
-        
-        # Now draw the outline on top
-        draw = ImageDraw.Draw(new_image)
     
     # Draw the outline
     draw.rectangle(clipped_bbox, outline=outline_color, width=width)
@@ -123,147 +97,122 @@ def draw_bbox_on_image(image, bbox, outline_color="red", width=3, fill_alpha=30)
     
     return new_image
 
-def calculate_expanded_bbox_from_patch(row, col, patch_size=24, width=1, height=1):
-    """
-    Calculate bounding box coordinates for a rectangular area of patches.
-    
-    Args:
-        row (int): Starting row index of the patch
-        col (int): Starting column index of the patch  
-        patch_size (int): Size of each patch (default: 24)
-        width (int): Number of patches to include horizontally (default: 1)
-        height (int): Number of patches to include vertically (default: 1)
-        
-    Returns:
-        tuple: (left, top, right, bottom) coordinates of the expanded bounding box
-    """
-    left = col * patch_size
-    top = row * patch_size
-    right = (col + width) * patch_size
-    bottom = (row + height) * patch_size
-    
-    return (left, top, right, bottom)
 
-def calculate_square_bbox_from_patch(row, col, patch_size=24, size=3):
+def calculate_square_bbox_from_center(center_row, center_col, patch_size=28, size=3):
     """
-    Calculate bounding box coordinates for a square area of patches starting from a given patch.
+    Calculate bounding box coordinates for a square area of patches centered on a given patch.
     
     Args:
-        row (int): Starting row index of the patch (top-left corner)
-        col (int): Starting column index of the patch (top-left corner)
-        patch_size (int): Size of each patch (default: 24)
+        center_row (int): Row index of the center patch
+        center_col (int): Column index of the center patch
+        patch_size (int): Size of each patch in pixels (default: 28)
         size (int): Size of the square area (e.g., 3 for 3x3, 5 for 5x5) (default: 3)
         
     Returns:
         tuple: (left, top, right, bottom) coordinates of the square bounding box
     """
-    left = col * patch_size
-    top = row * patch_size
-    right = (col + size) * patch_size
-    bottom = (row + size) * patch_size
+    # Calculate offset from center to top-left corner
+    offset = size // 2
+    
+    # Calculate top-left patch position
+    top_left_row = center_row - offset
+    top_left_col = center_col - offset
+    
+    # Calculate pixel coordinates
+    left = top_left_col * patch_size
+    top = top_left_row * patch_size
+    right = (top_left_col + size) * patch_size
+    bottom = (top_left_row + size) * patch_size
     
     return (left, top, right, bottom)
 
-def get_high_confidence_words(annotations, patch_start_row, patch_start_col, size=3, num_words=5):
+def get_high_confidence_words(annotations, center_row, center_col, size=3, num_words=5):
     """
-    Extract nearest neighbor tokens from annotations within a specified patch area.
+    Extract nearest neighbor tokens from annotations for the center patch.
     
     Args:
         annotations (list): List of annotation dictionaries, each containing patch info and nearest_neighbors
-        patch_start_row (int): Starting row of the patch area
-        patch_start_col (int): Starting column of the patch area 
-        size (int): Size of the square area (e.g., 3 for 3x3) (default: 3)
+        center_row (int): Row index of the center patch
+        center_col (int): Column index of the center patch
+        size (int): Size of the square area (e.g., 3 for 3x3) (default: 3) - kept for API compatibility
         num_words (int): Number of words to return (default: 5)
         
     Returns:
         list: List of dictionaries, each containing token and similarity
     """
-    target_row = patch_start_row + size // 2
-    target_col = patch_start_col + size // 2
-
+    # Direct lookup at center position
     for annotation in annotations:
-        if annotation['patch_row'] == target_row and annotation['patch_col'] == target_col:
+        if annotation['patch_row'] == center_row and annotation['patch_col'] == center_col:
             return annotation['nearest_neighbors'][:num_words]
 
     return []
 
 
-def pad_to_bounding_box(
-    image, offset_height, offset_width, target_height,
-    target_width, value=0
-):
+def resize_and_pad_image(image, desired_size=(336, 336), pad_value=0):
+    """
+    Resize image to fit inside desired_size while preserving aspect ratio,
+    then pad to exactly desired_size.
+    
+    Args:
+        image: numpy array (H, W, 3) with values 0-255 (uint8) or 0-1 (float)
+        desired_size: tuple (height, width)
+        pad_value: value to use for padding (default 0 for black)
+    
+    Returns:
+        padded_image: numpy array (desired_H, desired_W, 3) in range [0, 1]
+        image_mask: numpy array (desired_H, desired_W) bool, True=image, False=padding
+    """
+    import numpy as np
+    import torch
+    import torchvision.transforms as T
+    from torchvision.transforms import InterpolationMode
+    from torchvision.transforms.functional import convert_image_dtype
+    
+    desired_height, desired_width = desired_size
     height, width = image.shape[:2]
-    after_padding_width = target_width - offset_width - width
-    after_padding_height = target_height - offset_height - height
-    return np.pad(image, [
-        [offset_height, after_padding_height],
-        [offset_width, after_padding_width],
-        [0, 0]
-    ], constant_values=value)
-
-
-def normalize_image(image, offset, scale):
-    image -= np.array(offset, dtype=np.float32)[None, None, :]
-    image /= np.array(scale, dtype=np.float32)[None, None, :]
-    return image
-
-
-def resize_and_pad(
-    image,
-    desired_output_size,
-    resize_method="torch-bilinear",
-    pad_value=0,
-    normalize=True,
-    image_mean=OPENAI_CLIP_MEAN,
-    image_std=OPENAI_CLIP_STD,
-):
-    desired_height, desired_width = desired_output_size
-    height, width = image.shape[:2]
-
-    # Cast into float32 since the training code did this in float32 and it (very rarely) effects
-    # the results after rounding.
+    
+    # Calculate scale factor to fit inside box (preserves aspect ratio)
     image_scale_y = np.array(desired_height, np.float32) / np.array(height, np.float32)
     image_scale_x = np.array(desired_width, np.float32) / np.array(width, np.float32)
     image_scale = min(image_scale_x, image_scale_y)
+    
+    # New dimensions after scaling
     scaled_height = int(np.array(height, np.float32) * image_scale)
     scaled_width = int(np.array(width, np.float32) * image_scale)
-
-    if resize_method == "tensorflow":
-        # This how the original training code did resizing, it can produce slightly different
-        # results then using torch resize so we keep it just in case
-        import tensorflow as tf
-        image = tf.image.convert_image_dtype(tf.constant(image), dtype=tf.float32)
-        image = tf.image.resize(
-            image,
-            [scaled_height, scaled_width],
-            method=tf.image.ResizeMethod.BILINEAR,
-            antialias=True,
-        )
-        image = tf.clip_by_value(image, 0.0, 1.0)
-        image = image.numpy()
-    elif resize_method == "torch-bilinear":
-        image = torch.permute(torch.from_numpy(image), [2, 0, 1])
-        image = convert_image_dtype(image)  # resize in float32 to match the training code
-        image = torchvision.transforms.Resize(
-            [scaled_height, scaled_width], InterpolationMode.BILINEAR, antialias=True
-        )(image)
-        image = torch.clip(image, 0.0, 1.0)
-        image = torch.permute(image, [1, 2, 0]).numpy()
-    else:
-        raise NotImplementedError(resize_method)
-
+    
+    # Resize using torch
+    image_tensor = torch.from_numpy(image).permute(2, 0, 1)  # HWC -> CHW
+    image_tensor = convert_image_dtype(image_tensor)  # Convert to float32 [0, 1]
+    
+    resized = T.Resize(
+        [scaled_height, scaled_width],
+        interpolation=InterpolationMode.BILINEAR,
+        antialias=True
+    )(image_tensor)
+    
+    resized = torch.clip(resized, 0.0, 1.0)
+    resized = resized.permute(1, 2, 0).numpy()  # CHW -> HWC
+    
+    # Calculate centered padding
     top_pad = (desired_height - scaled_height) // 2
     left_pad = (desired_width - scaled_width) // 2
+    bottom_pad = desired_height - scaled_height - top_pad
+    right_pad = desired_width - scaled_width - left_pad
+    
+    # Apply padding
     padding = [
-        [top_pad, desired_height - scaled_height - top_pad],
-        [left_pad, desired_width - scaled_width - left_pad],
-        [0, 0]
+        [top_pad, bottom_pad],
+        [left_pad, right_pad],
+        [0, 0]  # No padding on channels
     ]
-    image_mask = np.pad(np.ones_like(image[:, :, 0], dtype=bool), padding[:2])
-    image = np.pad(image, padding, constant_values=pad_value)
-    if normalize:
-        image = normalize_image(image, offset=image_mean, scale=image_std)
-    return image, image_mask
+    
+    padded_image = np.pad(resized, padding, mode='constant', constant_values=pad_value)
+    
+    # Create mask (True where real image, False where padded)
+    image_mask = np.ones((scaled_height, scaled_width), dtype=bool)
+    image_mask = np.pad(image_mask, padding[:2], mode='constant', constant_values=False)
+    
+    return padded_image, image_mask
 
 
 def load_image(image_path):
@@ -282,7 +231,7 @@ def process_image_with_mask(image_path):
         tuple: (processed_image, image_mask) where image_mask is True for real image areas
     """
     image = load_image(image_path)
-    processed_image, image_mask = resize_and_pad(image, (512, 512), normalize=False)
+    processed_image, image_mask = resize_and_pad_image(image, (672, 672))
     processed_image = (processed_image * 255).astype(np.uint8)
     processed_image = Image.fromarray(processed_image)
     return processed_image, image_mask
@@ -290,18 +239,18 @@ def process_image_with_mask(image_path):
 
 def sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=36):
     """
-    Sample random patch positions that fall entirely within the real image area (not padded).
+    Sample random CENTER patch positions where a bbox can fit entirely within the real image area.
     
     Args:
         image_mask (np.ndarray): Boolean mask where True indicates real image areas
         bbox_size (int): Size of the bounding box in patches (e.g., 3 for 3x3)
-        num_samples (int): Number of unique positions to sample
+        num_samples (int): Number of unique center positions to sample
         
     Returns:
-        list: List of (row, col) tuples representing valid patch positions
+        list: List of (center_row, center_col) tuples representing valid center patch positions
     """
-    # Convert 512x512 image mask to 24x24 patch grid
-    patch_size = 512 // 24  # Should be ~21.33, but we'll use integer division
+    # Convert 672x672 image mask to 24x24 patch grid
+    patch_size = 672 // 24  # = 28
     patch_mask = np.zeros((24, 24), dtype=bool)
     
     # Check each patch position to see if it's entirely within the real image
@@ -309,28 +258,32 @@ def sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=36):
         for col in range(24):
             # Calculate pixel boundaries for this patch
             start_row = row * patch_size
-            end_row = min((row + 1) * patch_size, 512)
+            end_row = min((row + 1) * patch_size, 672)
             start_col = col * patch_size  
-            end_col = min((col + 1) * patch_size, 512)
+            end_col = min((col + 1) * patch_size, 672)
             
             # Check if this patch is entirely within the real image
             patch_area = image_mask[start_row:end_row, start_col:end_col]
             if patch_area.all():  # All pixels in this patch are real (not padded)
                 patch_mask[row, col] = True
     
-    # Find valid positions where a bbox_size x bbox_size area can fit entirely in real image
-    valid_positions = []
-    for row in range(24 - bbox_size + 1):
-        for col in range(24 - bbox_size + 1):
-            # Check if bbox_size x bbox_size area starting at (row, col) is entirely valid
-            bbox_area = patch_mask[row:row+bbox_size, col:col+bbox_size]
+    # Find valid CENTER positions where a bbox_size x bbox_size area can fit entirely in real image
+    offset = bbox_size // 2
+    valid_center_positions = []
+    
+    for center_row in range(offset, 24 - offset):
+        for center_col in range(offset, 24 - offset):
+            # Check if bbox centered at (center_row, center_col) is entirely valid
+            top_left_row = center_row - offset
+            top_left_col = center_col - offset
+            bbox_area = patch_mask[top_left_row:top_left_row+bbox_size, top_left_col:top_left_col+bbox_size]
             if bbox_area.all():  # All patches in this bbox are in real image
-                valid_positions.append((row, col))
+                valid_center_positions.append((center_row, center_col))
     
-    # Randomly sample from valid positions
-    if len(valid_positions) < num_samples:
-        print(f"Warning: Only {len(valid_positions)} valid positions found, but {num_samples} requested")
-        return valid_positions
+    # Randomly sample from valid center positions
+    if len(valid_center_positions) < num_samples:
+        print(f"Warning: Only {len(valid_center_positions)} valid center positions found, but {num_samples} requested")
+        return valid_center_positions
     
-    return random.sample(valid_positions, num_samples)
+    return random.sample(valid_center_positions, num_samples)
 
