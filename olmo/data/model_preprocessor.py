@@ -138,6 +138,34 @@ def metaclip_resize(image, desired_output_size):
     return resized, image_mask
 
 
+def openvision_resize(
+    image: np.ndarray,
+    desired_output_size: Tuple[int, int],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Resize for OpenVision2: BILINEAR interpolation with antialias=True, squashes aspect ratio"""
+    image = torch.permute(torch.from_numpy(image), [2, 0, 1])
+    if torch.is_floating_point(image):
+        resized = torchvision.transforms.Resize(
+            desired_output_size,
+            InterpolationMode.BILINEAR,
+            antialias=True,
+        )(image)
+        resized = torch.clip(resized, 0.0, 1.0)
+    else:
+        assert image.dtype == torch.uint8, "OpenVision expects float or uint8 images, but got {}".format(image.dtype)
+        resized = torchvision.transforms.Resize(
+            desired_output_size,
+            InterpolationMode.BILINEAR,
+            antialias=True,
+        )(image)
+        resized = torch.clip(resized, 0, 255).to(torch.float32)
+        resized = resized / 255.0
+    
+    resized = torch.permute(resized, [1, 2, 0]).numpy()
+    image_mask = np.ones_like(resized[:, :, 0], dtype=np.bool_)
+    return resized, image_mask
+
+
 def siglip_resize_and_pad(
     image: np.ndarray,
     desired_output_size: Tuple[int, int],
@@ -313,14 +341,26 @@ class MultiModalPreprocessor:
         self.image_col_token_id = special_tokens[tokenizer.DEFAULT_IM_COL_TOKEN]
         self.image_patch_token_id = special_tokens[tokenizer.DEFAULT_IMAGE_PATCH_TOKEN]
         self.image_prompt_token_id = special_tokens[tokenizer.IMAGE_PROMPT]
+        
+        # DEBUG: Log normalization and resize mode
+        import logging
+        log = logging.getLogger(__name__)
+        log.info(f"★★★ MultiModalPreprocessor initialized: normalize='{self.normalize}', resize='{self.resize}' ★★★")
 
     def _normalize(self, image):
+        import logging
+        log = logging.getLogger(__name__)
+        if not hasattr(self, '_logged_normalize'):
+            log.info(f"PREPROCESSOR NORMALIZE MODE: '{self.normalize}'")
+            self._logged_normalize = True
+        
         if self.normalize == "openai":
             image -= np.array(OPENAI_CLIP_MEAN, dtype=np.float32)[None, None, :]
             image /= np.array(OPENAI_CLIP_STD, dtype=np.float32)[None, None, :]
         elif self.normalize == "siglip":
             image = np.asarray(-1.0, dtype=np.float32) + image * np.asarray(2.0, dtype=np.float32)
-        elif self.normalize == "dino":
+        elif self.normalize == "dino" or self.normalize == "openvision2":
+            # OpenVision2 uses standard ImageNet normalization (same as DINOv2)
             image -= np.array([0.485, 0.456, 0.406], dtype=np.float32)[None, None, :]
             image /= np.array([0.229, 0.224, 0.225], dtype=np.float32)[None, None, :]
         else:
@@ -328,7 +368,9 @@ class MultiModalPreprocessor:
         return image
 
     def resize_image(self, image, output_size, is_training, rng):
-        if self.resize == "siglip":
+        if self.resize == "openvision":
+            return openvision_resize(image, output_size)
+        elif self.resize == "siglip":
             return siglip_resize_and_pad(image, output_size)
         elif self.resize == "dino":
             return dino_resize_and_pad(image, output_size)
@@ -346,6 +388,12 @@ class MultiModalPreprocessor:
         is_training=False,
         rng=None
     ):
+        import logging
+        log = logging.getLogger(__name__)
+        if not hasattr(self, '_logged_image_to_patches'):
+            log.info(f"★★★ image_to_patches_and_tokens called! crop_mode='{self.crop_mode}' ★★★")
+            self._logged_image_to_patches = True
+        
         max_crops = self.max_crops
         overlap_margins = self.overlap_margins
         base_image_input_size = self.base_image_input_size

@@ -545,3 +545,132 @@ class DinoVisionTransformer(nn.Module):
 
         hidden_states = self.transformer(x)
         return hidden_states
+
+
+class OpenVision2Transformer(nn.Module):
+    """
+    Wrapper for OpenVision2 vision encoder from UCSC-VLAA.
+    This adapter converts OpenVision2's interface to match the expected Molmo ViT interface.
+    """
+
+    def __init__(self, config: ModelConfig):
+        super().__init__()
+        self.config = config
+        v_cfg = config.vision_backbone
+        
+        # Import OpenVision2 dependencies
+        try:
+            from open_clip import create_model
+            from huggingface_hub import hf_hub_download
+            import json
+        except ImportError as e:
+            raise ImportError(
+                f"OpenVision2 requires open-clip-torch and huggingface_hub: {e}"
+            )
+        
+        # Get the model name from config (should be a HuggingFace repo path)
+        # Default to OpenVision2 ViT-Large 336 vision-only
+        hf_repo = getattr(v_cfg, 'image_model_name', None) or \
+                  "UCSC-VLAA/openvision2-vit-large-patch14-336-vision-only"
+        
+        # Download config from HuggingFace
+        config_path = hf_hub_download(repo_id=hf_repo, filename='open_clip_config.json')
+        with open(config_path, 'r') as f:
+            model_config = json.load(f)
+        
+        # Create CLIP model with the config
+        # The vision-only checkpoint requires creating full model then loading vision weights
+        model = create_model(
+            model_name='ViT-L-14-336',
+            pretrained=False,
+            **model_config['model_cfg']
+        )
+        
+        # Download and load vision-only weights
+        # Note: vision-only checkpoint contains ONLY vision encoder weights (no 'visual.' prefix)
+        weights_path = hf_hub_download(repo_id=hf_repo, filename='open_clip_pytorch_model.bin')
+        checkpoint = torch.load(weights_path, map_location='cpu')
+        
+        # Load weights into visual encoder
+        model.visual.load_state_dict(checkpoint, strict=False)
+        
+        # Extract the visual encoder
+        self.vision_encoder = model.visual
+        
+        # Ensure output_tokens is enabled (returns (pooled, all_tokens))
+        if not self.vision_encoder.output_tokens:
+            self.vision_encoder.output_tokens = True
+        
+        # Set vision encoder to eval mode for frozen training
+        # LayerNorm/BatchNorm behave differently in train vs eval
+        self.vision_encoder.eval()
+        
+        # OpenVision2 with output_tokens=True returns ONLY patch tokens (no CLS token)
+        self.num_prefix_tokens = 0
+        
+        # Store image dimensions from config
+        self.image_patch_size = v_cfg.image_patch_size
+        self.image_default_input_size = v_cfg.image_default_input_size
+        
+    def set_grad_checkpointing(self):
+        """Enable gradient checkpointing if the encoder supports it"""
+        if hasattr(self.vision_encoder, 'set_grad_checkpointing'):
+            self.vision_encoder.set_grad_checkpointing(True)
+    
+    def reset_parameters(self):
+        """
+        OpenVision2 models are pretrained, so we don't reset parameters.
+        This method exists for interface compatibility.
+        """
+        pass
+
+    def forward(self, x: torch.Tensor, patch_num: int = None) -> List[torch.Tensor]:
+        """
+        Process images through OpenVision2 encoder.
+        
+        Args:
+            x: (batch_size, num_patch, n_pixels) - Flattened patches
+            patch_num: Optional tuple specifying the patch grid dimensions
+        
+        Returns:
+            List[torch.Tensor]: List containing patch features (for multi-layer compatibility)
+        """
+        B, N, D = x.shape
+        
+        # Reconstruct images from flattened patches
+        # x is (B, num_patches, patch_size^2 * 3)
+        # Need to convert to (B, 3, H, W) for OpenVision2
+        patch_size = self.image_patch_size
+        H, W = self.image_default_input_size
+        
+        # Reshape patches to image format
+        # x: (B, N, patch_size^2 * 3) -> (B, 3, H, W)
+        x = x.reshape(B, -1, patch_size, patch_size, 3)
+        
+        # Calculate grid dimensions
+        if patch_num is None:
+            patches_h = H // patch_size
+            patches_w = W // patch_size
+        else:
+            patches_h, patches_w = patch_num
+        
+        # Rearrange patches into image grid
+        x = x.reshape(B, patches_h, patches_w, patch_size, patch_size, 3)
+        x = x.permute(0, 5, 1, 3, 2, 4)  # (B, 3, patches_h, patch_size, patches_w, patch_size)
+        x = x.reshape(B, 3, patches_h * patch_size, patches_w * patch_size)
+        
+        # Ensure vision encoder stays in eval mode even if model.train() was called
+        self.vision_encoder.eval()
+        
+        # OpenVision2 forward pass
+        # With output_tokens=True, returns (pooled_output, all_tokens)
+        # where all_tokens has shape (B, num_patches, hidden_dim)
+        with torch.cuda.amp.autocast(enabled=False):
+            pooled_output, all_tokens = self.vision_encoder(x)
+        
+        # all_tokens contains ONLY patch tokens (no CLS): (B, num_patches, hidden_dim)
+        # For 336x336 images with patch_size=14: (B, 576, 1024)
+        patch_features = all_tokens
+        
+        # Return as list for compatibility with multi-layer extraction
+        return [patch_features]

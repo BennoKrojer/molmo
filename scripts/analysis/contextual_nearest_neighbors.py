@@ -27,7 +27,7 @@ from collections import defaultdict
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 from torch.distributed.fsdp import ShardingStrategy, MixedPrecision
 
-from olmo.config import ModelConfig
+from olmo.config import ModelConfig, TrainConfig
 from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
 from olmo.util import resource_path
@@ -78,6 +78,7 @@ def load_contextual_embeddings(contextual_dir, layer_idx, max_per_token=None):
     Returns:
         embeddings_matrix: torch.Tensor [num_embeddings, hidden_dim]
         embeddings_metadata: List of dicts with caption, position, token info
+        token_to_indices: Dict mapping token_str to list of indices in embeddings_matrix
     """
     layer_dir = Path(contextual_dir) / f"layer_{layer_idx}"
     token_embeddings_file = layer_dir / "token_embeddings.json"
@@ -89,18 +90,53 @@ def load_contextual_embeddings(contextual_dir, layer_idx, max_per_token=None):
     cache_suffix = f"_max{max_per_token}" if max_per_token is not None else ""
     cache_file = layer_dir / f"embeddings_cache{cache_suffix}.pt"
     
-    # Try to load from cache
-    if cache_file.exists():
-        print(f"Loading contextual embeddings from cache: {cache_file}")
-        try:
-            cache_data = torch.load(cache_file, map_location='cpu')
-            embeddings_matrix = cache_data['embeddings']
-            metadata_list = cache_data['metadata']
-            print(f"Loaded {len(metadata_list)} contextual embeddings from cache with shape {embeddings_matrix.shape}")
-            return embeddings_matrix, metadata_list
-        except Exception as e:
-            print(f"Warning: Failed to load cache, will reload from individual files: {e}")
+    # Check if cache exists - REQUIRED!
+    if not cache_file.exists():
+        raise FileNotFoundError(
+            f"\n{'='*80}\n"
+            f"ERROR: Cache file not found: {cache_file}\n"
+            f"{'='*80}\n\n"
+            f"This script now REQUIRES pre-built cache files to avoid disk contention.\n"
+            f"Please run the cache building script first:\n\n"
+            f"  python3 scripts/analysis/precompute_contextual_caches.py --num-workers 1\n\n"
+            f"This will build caches for all layers. Once caches exist, this script will be fast.\n"
+            f"{'='*80}\n"
+        )
     
+    # Load from cache
+    print(f"Loading contextual embeddings from cache: {cache_file}")
+    try:
+        cache_data = torch.load(cache_file, map_location='cpu')
+        embeddings_matrix = cache_data['embeddings']
+        metadata_list = cache_data['metadata']
+        token_to_indices = cache_data.get('token_to_indices', None)
+        
+        # Validate cache integrity
+        if embeddings_matrix.shape[0] != len(metadata_list):
+            raise ValueError(
+                f"Cache corrupted! Embeddings shape {embeddings_matrix.shape} "
+                f"doesn't match metadata length {len(metadata_list)}. "
+                f"Please rebuild cache with --force-rebuild flag."
+            )
+        
+        # Build token_to_indices if not in cache (for backward compatibility)
+        if token_to_indices is None:
+            print("Building token_to_indices mapping...")
+            token_to_indices = defaultdict(list)
+            for idx, meta in enumerate(metadata_list):
+                token_to_indices[meta['token_str']].append(idx)
+            token_to_indices = dict(token_to_indices)
+        
+        print(f"✓ Loaded {len(metadata_list)} contextual embeddings from cache with shape {embeddings_matrix.shape}")
+        return embeddings_matrix, metadata_list, token_to_indices
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to load cache: {e}\n"
+            f"Cache file may be corrupted. Please rebuild with:\n"
+            f"  python3 scripts/analysis/precompute_contextual_caches.py --force-rebuild"
+        )
+    
+    # OLD CODE BELOW - Never reached, but keeping for reference
     # Load from individual files (cache miss or corrupted cache)
     print(f"Loading contextual embeddings from {token_embeddings_file}")
     with open(token_embeddings_file, 'r') as f:
@@ -158,19 +194,28 @@ def load_contextual_embeddings(contextual_dir, layer_idx, max_per_token=None):
     embeddings_matrix = torch.from_numpy(np.stack(embeddings_list, axis=0))
     print(f"Loaded {len(embeddings_list)} contextual embeddings with shape {embeddings_matrix.shape}")
     
+    # Build token_to_indices mapping
+    print("Building token_to_indices mapping...")
+    token_to_indices = defaultdict(list)
+    for idx, meta in enumerate(metadata_list):
+        token_to_indices[meta['token_str']].append(idx)
+    token_to_indices = dict(token_to_indices)
+    print(f"Built mapping for {len(token_to_indices)} unique tokens")
+    
     # Save to cache for future runs
     print(f"Saving embeddings to cache: {cache_file}")
     try:
         cache_data = {
             'embeddings': embeddings_matrix,
-            'metadata': metadata_list
+            'metadata': metadata_list,
+            'token_to_indices': token_to_indices
         }
         torch.save(cache_data, cache_file)
         print(f"Cache saved successfully!")
     except Exception as e:
         print(f"Warning: Failed to save cache: {e}")
     
-    return embeddings_matrix, metadata_list
+    return embeddings_matrix, metadata_list, token_to_indices
 
 
 def patch_idx_to_row_col(patch_idx, patches_per_chunk):
@@ -192,12 +237,14 @@ def clear_gpu_memory():
 
 
 def process_images(model, preprocessor, dataset, num_images, prompt, use_n_token_only, 
-                   contextual_embeddings, contextual_metadata, top_k=5, llm_layer=0):
+                   contextual_embeddings, contextual_metadata, token_to_indices, top_k=5, llm_layer=0):
     """
     Process images and find nearest contextual neighbors for each visual token.
     
     Similar to process_split from general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
     but finds nearest contextual embeddings instead of vocabulary tokens.
+    
+    For each of the top-k nearest neighbors, also finds the same token with lowest similarity.
     
     Uses distributed processing - each process handles a subset of images.
     """
@@ -328,17 +375,74 @@ def process_images(model, preprocessor, dataset, num_images, prompt, use_n_token
                         patch_top_values = top_values[chunk_idx, patch_idx]
                         patch_top_indices = top_indices[chunk_idx, patch_idx]
                         
+                        # Get the patch embedding for finding lowest similarities
+                        patch_embedding = image_features_reshaped[chunk_idx, patch_idx:patch_idx+1, :]  # [1, hidden_dim]
+                        patch_embedding_norm = torch.nn.functional.normalize(patch_embedding, dim=-1)
+                        
                         # Build nearest neighbors list
                         nearest_contextual = []
+                        top_nn_embeddings = []  # Store embeddings for inter-NN comparisons
+                        
                         for val, idx in zip(patch_top_values, patch_top_indices):
                             idx = int(idx)
+                            token_str = contextual_metadata[idx]['token_str']
+                            
+                            # Store embedding for later comparison
+                            top_nn_embeddings.append(contextual_embeddings[idx])
+                            
+                            # Find the same token with lowest similarity
+                            lowest_info = None
+                            if token_str in token_to_indices:
+                                same_token_indices = token_to_indices[token_str]
+                                if len(same_token_indices) > 1:  # Only if there are multiple instances
+                                    # Get embeddings for all instances of this token
+                                    same_token_embeddings = contextual_embeddings[same_token_indices]
+                                    same_token_embeddings_norm = torch.nn.functional.normalize(same_token_embeddings, dim=-1)
+                                    
+                                    # Compute similarities
+                                    same_token_sims = torch.matmul(patch_embedding_norm, same_token_embeddings_norm.T).squeeze(0)
+                                    
+                                    # Find the lowest similarity
+                                    min_idx = torch.argmin(same_token_sims).item()
+                                    min_sim = same_token_sims[min_idx].item()
+                                    min_global_idx = same_token_indices[min_idx]
+                                    
+                                    lowest_info = {
+                                        'token_str': token_str,
+                                        'token_id': contextual_metadata[min_global_idx]['token_id'],
+                                        'caption': contextual_metadata[min_global_idx]['caption'],
+                                        'position': contextual_metadata[min_global_idx]['position'],
+                                        'similarity': float(min_sim),
+                                        'num_instances': len(same_token_indices)
+                                    }
+                            
                             nearest_contextual.append({
-                                'token_str': contextual_metadata[idx]['token_str'],
+                                'token_str': token_str,
                                 'token_id': contextual_metadata[idx]['token_id'],
                                 'caption': contextual_metadata[idx]['caption'],
                                 'position': contextual_metadata[idx]['position'],
-                                'similarity': float(val)
+                                'similarity': float(val),
+                                'lowest_similarity_same_token': lowest_info
                             })
+                        
+                        # Compute similarities between 1st NN and other NNs (2nd, 3rd, 4th, 5th)
+                        if len(top_nn_embeddings) > 1:
+                            first_nn_embedding = top_nn_embeddings[0].unsqueeze(0)  # [1, hidden_dim]
+                            first_nn_norm = torch.nn.functional.normalize(first_nn_embedding, dim=-1)
+                            
+                            # Compute similarities with other NNs
+                            other_nns_embeddings = torch.stack(top_nn_embeddings[1:], dim=0)  # [k-1, hidden_dim]
+                            other_nns_norm = torch.nn.functional.normalize(other_nns_embeddings, dim=-1)
+                            
+                            # Cosine similarities: [k-1]
+                            inter_nn_sims = torch.matmul(first_nn_norm, other_nns_norm.T).squeeze(0)
+                            inter_nn_sims = inter_nn_sims.cpu().numpy()
+                            
+                            # Add to first NN's data
+                            nearest_contextual[0]['similarity_to_other_nns'] = {
+                                f'vs_{i+2}': float(inter_nn_sims[i]) 
+                                for i in range(len(inter_nn_sims))
+                            }
                         
                         # Add row/col info
                         row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
@@ -389,8 +493,8 @@ def main():
                        help="Path to Molmo checkpoint to analyze")
     parser.add_argument("--contextual-dir", type=str, default="molmo_data/contextual_llm_embeddings/allenai_OLMo-7B-1024-preview",
                        help="Directory with contextual embeddings (e.g., molmo_data/contextual_llm_embeddings/allenai_OLMo-7B-1024-preview)")
-    parser.add_argument("--contextual-layer", type=int, required=True,
-                       help="Layer index of contextual embeddings to use")
+    parser.add_argument("--contextual-layer", type=str, required=True,
+                       help="Layer index(es) of contextual embeddings to use. Single layer (e.g., '8') or comma-separated list (e.g., '8,16,24')")
     parser.add_argument("--visual-layer", type=int, default=0,
                        help="Visual layer to extract (0 = vision backbone, >0 = LLM layer)")
     parser.add_argument("--num-images", type=int, default=100,
@@ -405,36 +509,44 @@ def main():
                        help="Output directory for results")
     args = parser.parse_args()
     
+    # Parse contextual layers to process
+    contextual_layers = [int(layer.strip()) for layer in args.contextual_layer.split(",")]
+    
     if local_rank == 0:
         print(f"{'='*80}")
         print(f"Visual-to-Contextual Nearest Neighbors Analysis (Multi-GPU)")
         print(f"{'='*80}\n")
         print(f"Checkpoint: {args.ckpt_path}")
         print(f"Contextual embeddings: {args.contextual_dir}")
-        print(f"Contextual layer: {args.contextual_layer}")
+        print(f"Contextual layers to process: {contextual_layers}")
         print(f"Visual layer: {args.visual_layer}")
         print(f"Dataset split: {args.split}")
         print(f"Number of images: {args.num_images}")
         print(f"Top-k neighbors: {args.top_k}")
         print(f"Running on {world_size} processes")
+        print(f"Processing layers sequentially to save memory")
         print()
     
-    # Load contextual embeddings (on all ranks)
-    if local_rank == 0:
-        print("Loading contextual text embeddings...")
-    contextual_embeddings, contextual_metadata = load_contextual_embeddings(
-        args.contextual_dir,
-        args.contextual_layer,
-        max_per_token=args.max_contextual_per_token
-    )
-    contextual_embeddings = contextual_embeddings.to(device)
-    if local_rank == 0:
-        print(f"Loaded {len(contextual_metadata)} contextual embeddings\n")
-    
     # Load Molmo model on CPU first
+    # Works with both full checkpoints and stripped (MLP-only) checkpoints
     if local_rank == 0:
         print(f"Loading Molmo model from {args.ckpt_path}...")
-    model = Molmo.from_checkpoint(args.ckpt_path, device="cpu")
+    
+    cfg = TrainConfig.load(f"{args.ckpt_path}/config.yaml")
+    cfg.model.init_device = None  # Override init_device to avoid meta tensors
+    
+    model = Molmo(cfg.model)
+    
+    # Load pretrained weights (LLM + ViT)
+    model.reset_with_pretrained_weights()
+    
+    # Load checkpoint weights (works with both full and stripped checkpoints)
+    checkpoint_weights = torch.load(f"{args.ckpt_path}/model.pt", map_location="cpu")
+    model.load_state_dict(checkpoint_weights, strict=False)
+    
+    if local_rank == 0:
+        print(f"Loaded {len(checkpoint_weights)} parameters from checkpoint")
+    
     model.eval()
     
     # Wrap model with FSDP for sharding
@@ -483,73 +595,87 @@ def main():
     if local_rank == 0:
         print()
     
-    # Wait for all processes to be ready
-    dist.barrier()
+    # Process each contextual layer sequentially
+    for layer_idx, contextual_layer in enumerate(contextual_layers):
+        if local_rank == 0:
+            print(f"\n{'='*60}")
+            print(f"Processing contextual layer {contextual_layer} ({layer_idx + 1}/{len(contextual_layers)})")
+            print(f"{'='*60}\n")
+        
+        # Load contextual embeddings for this layer (on all ranks)
+        if local_rank == 0:
+            print(f"Loading contextual text embeddings for layer {contextual_layer}...")
+        contextual_embeddings, contextual_metadata, token_to_indices = load_contextual_embeddings(
+            args.contextual_dir,
+            contextual_layer,
+            max_per_token=args.max_contextual_per_token
+        )
+        contextual_embeddings = contextual_embeddings.to(device)
+        if local_rank == 0:
+            print(f"Loaded {len(contextual_metadata)} contextual embeddings")
+            print(f"Found {len(token_to_indices)} unique tokens\n")
+        
+        # Wait for all processes to be ready
+        dist.barrier()
+        
+        # Process images (distributed across GPUs)
+        prompt = "Describe this image in detail."
+        if local_rank == 0:
+            print(f"Processing {args.num_images} images across {world_size} GPUs...")
+        results = process_images(
+            model, preprocessor, dataset, args.num_images, prompt, use_n_token_only,
+            contextual_embeddings, contextual_metadata, token_to_indices,
+            top_k=args.top_k, llm_layer=args.visual_layer
+        )
+        
+        # Wait for all processes to finish this layer
+        dist.barrier()
+        
+        # Save results (only on main process)
+        if local_rank == 0:
+            # Setup output directory
+            ckpt_name = args.ckpt_path.split("/")[-2] + "_" + args.ckpt_path.split("/")[-1]
+            output_dir = Path(args.output_dir) / ckpt_name
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save results
+            output_file = output_dir / f"contextual_neighbors_visual{args.visual_layer}_contextual{contextual_layer}_multi-gpu.json"
+            print(f"\n✓ Saving results to {output_file}...")
+            
+            output_data = {
+                'checkpoint': args.ckpt_path,
+                'contextual_dir': args.contextual_dir,
+                'contextual_layer': contextual_layer,
+                'visual_layer': args.visual_layer,
+                'split': args.split,
+                'num_images': args.num_images,
+                'num_processes': world_size,
+                'top_k': args.top_k,
+                'results': results
+            }
+            
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=2, ensure_ascii=False)
+            
+            print(f"✓ Layer {contextual_layer} complete! Results saved.")
+        
+        # Wait for main process to finish saving before moving to next layer
+        dist.barrier()
+        
+        # Clear contextual embeddings to free memory
+        del contextual_embeddings, contextual_metadata, token_to_indices
+        torch.cuda.empty_cache()
+        
+        if local_rank == 0:
+            print(f"✓ Cleared contextual embeddings for layer {contextual_layer}\n")
     
-    # Process images (distributed across GPUs)
-    prompt = "Describe this image in detail."
+    # All layers processed
     if local_rank == 0:
-        print(f"Processing {args.num_images} images across {world_size} GPUs...")
-    results = process_images(
-        model, preprocessor, dataset, args.num_images, prompt, use_n_token_only,
-        contextual_embeddings, contextual_metadata,
-        top_k=args.top_k, llm_layer=args.visual_layer
-    )
+        print("="*60)
+        print(f"✓ All {len(contextual_layers)} contextual layer(s) processed successfully!")
+        print("="*60)
     
     # Wait for all processes to finish
-    dist.barrier()
-    
-    # Save results (only on main process)
-    if local_rank == 0:
-        # Setup output directory
-        ckpt_name = args.ckpt_path.split("/")[-2] + "_" + args.ckpt_path.split("/")[-1]
-        output_dir = Path(args.output_dir) / ckpt_name
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save results
-        output_file = output_dir / f"contextual_neighbors_visual{args.visual_layer}_contextual{args.contextual_layer}_multi-gpu.json"
-        print(f"\nSaving results to {output_file}...")
-        
-        output_data = {
-            'checkpoint': args.ckpt_path,
-            'contextual_dir': args.contextual_dir,
-            'contextual_layer': args.contextual_layer,
-            'visual_layer': args.visual_layer,
-            'split': args.split,
-            'num_images': args.num_images,
-            'num_processes': world_size,
-            'top_k': args.top_k,
-            'results': results
-        }
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
-        # Print some example results
-        print(f"\n{'='*80}")
-        print(f"EXAMPLE RESULTS (First image, first 3 patches)")
-        print(f"{'='*80}\n")
-        
-        if results:
-            first_image = results[0]
-            print(f"Image {first_image['image_idx']}")
-            print(f"Ground truth: {first_image['ground_truth_caption'][:100]}...\n")
-            
-            if first_image['chunks']:
-                first_chunk = first_image['chunks'][0]
-                for patch in first_chunk['patches'][:3]:
-                    print(f"Patch {patch['patch_idx']} (row={patch['patch_row']}, col={patch['patch_col']}):")
-                    print("  Top-3 nearest contextual neighbors:")
-                    for i, neighbor in enumerate(patch['nearest_contextual_neighbors'][:3], 1):
-                        print(f"    {i}. '{neighbor['token_str']}' (sim={neighbor['similarity']:.3f})")
-                        print(f"       Caption: {neighbor['caption'][:80]}...")
-                        print(f"       Position: {neighbor['position']}")
-                    print()
-        
-        print(f"\n✓ Analysis complete!")
-        print(f"Results saved to: {output_dir}")
-    
-    # Wait for main process to finish saving
     dist.barrier()
 
 

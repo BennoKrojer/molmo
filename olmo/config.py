@@ -237,6 +237,7 @@ class VisionBackboneType(StrEnum):
     openai = "openai"
     siglip = "siglip"
     dino = "dino"
+    openvision2 = "openvision2"
 
 
 class ImagePaddingEmbed(StrEnum):
@@ -272,6 +273,7 @@ class AttentionType(StrEnum):
 @dataclass
 class VisionBackboneConfig(BaseConfig):
     image_model_type: VisionBackboneType = VisionBackboneType.openai
+    image_model_name: Optional[str] = None  # For models loaded from HuggingFace (e.g., OpenVision2)
     image_default_input_size: Tuple[int, int] = (336, 336)
     image_patch_size: int = 14
     image_pos_patch_size: int = 14

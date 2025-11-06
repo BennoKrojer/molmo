@@ -17,15 +17,15 @@ except ImportError:
     ml_dtypes = None
 
 # Constants
-NUM_CAPTIONS = 500000  # Number of LAION captions to process
-BATCH_SIZE = 32  # Batch size for processing
+NUM_CAPTIONS = 1000000  # Number of LAION captions to process
+BATCH_SIZE =64  # Batch size for processing
 SAVE_FREQUENCY = 1000  # Save progress every N captions
 MAX_CAPTIONS_PER_TOKEN = 20  # Maximum number of embeddings to store per token (reservoir sampling)
 EMBEDDING_DTYPE = 'float8'  # Data type for saving embeddings: 'float32', 'float16', or 'float8' (requires ml_dtypes)
 # Layers to extract - matching general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
 # Default: first few (1,2,3,4) then every 4th (8,12,...) up to last block
 # For 32-layer model: [1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 31]
-LAYERS_TO_EXTRACT = [16,24]  # Will be computed based on model.config.num_hidden_layers
+LAYERS_TO_EXTRACT = [8, 16, 24]  # Will be computed based on model.config.num_hidden_layers
 
 # Dry run mode - only store metadata, not actual embeddings
 DRY_RUN_MODE = False  # Set to True to only store token metadata
@@ -183,6 +183,29 @@ def load_existing_embeddings(layer_dirs, output_dir, layers_to_extract):
         print(f"  Restored reservoir sampling counts")
     
     return progress['captions_processed'], token_seen_counts
+
+def load_vg_phrases(vg_file_path, num_phrases=NUM_CAPTIONS):
+    """Load phrases from Visual Genome phrases file."""
+    if num_phrases is None:
+        print(f"Loading ALL phrases from {vg_file_path}...")
+    else:
+        print(f"Loading {num_phrases} phrases from {vg_file_path}...")
+    
+    phrases = []
+    with open(vg_file_path, 'r', encoding='utf-8') as f:
+        for i, line in enumerate(f):
+            if num_phrases is not None and i >= num_phrases:
+                break
+            
+            phrase = line.strip()
+            if phrase:  # Only add non-empty phrases
+                phrases.append(phrase)
+            
+            if (i + 1) % 100000 == 0:
+                print(f"Loaded {i + 1} phrases...")
+    
+    print(f"Loaded {len(phrases)} phrases from VG phrases file")
+    return phrases
 
 def load_tsv_captions(tsv_file_path, num_captions=NUM_CAPTIONS):
     """Load captions from TSV file."""
@@ -353,13 +376,14 @@ def analyze_tokenizer_output(tokenizer, captions, batch_size, output_dir, start_
     
     return total_tokens, len(captions)
 
-def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract, batch_size, layer_dirs, device, output_dir, start_offset=0, max_captions_per_token=MAX_CAPTIONS_PER_TOKEN, token_seen_counts_init=None, embedding_dtype=EMBEDDING_DTYPE):
+def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract, batch_size, layer_dirs, device, output_dir, start_offset=0, max_captions_per_token=MAX_CAPTIONS_PER_TOKEN, token_seen_counts_init=None, embedding_dtype=EMBEDDING_DTYPE, apply_position_filter=True):
     """
     Extract contextual embeddings for all tokens across captions.
     
     Position filtering (from map_token2caption.py):
-    - Only considers tokens at position >= 2 (skips positions 0 and 1)
-    - Prefers tokens at position >= 10, but falls back to position >= 2 if needed
+    - If apply_position_filter=True: Only considers tokens at position >= 2 (skips positions 0 and 1)
+    - If apply_position_filter=True: Prefers tokens at position >= 10, but falls back to position >= 2 if needed
+    - If apply_position_filter=False: Includes all token positions (0, 1, 2, ...)
     - Uses reservoir sampling to limit storage to max_captions_per_token per token
     
     Storage optimization:
@@ -384,7 +408,10 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
     
     total_batches = (len(captions) + batch_size - 1) // batch_size
     print(f"\nProcessing {len(captions)} captions in {total_batches} batches of size {batch_size}")
-    print(f"Position filtering: skipping positions 0-1, preferring position >= 10")
+    if apply_position_filter:
+        print(f"Position filtering: skipping positions 0-1, preferring position >= 10")
+    else:
+        print(f"Position filtering: DISABLED - including all token positions")
     print(f"Reservoir sampling: max {max_captions_per_token} embeddings per token per layer")
     print(f"Storage dtype: {embedding_dtype} (saves {2 if embedding_dtype == 'float16' else 4 if embedding_dtype == 'float8' else 1}x less storage than float32)")
     
@@ -445,8 +472,8 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
             
             # For each valid token position
             for pos_idx, token_pos in enumerate(valid_positions):
-                # POSITION FILTERING: Skip positions 0 and 1
-                if pos_idx < 2:
+                # POSITION FILTERING: Skip positions 0 and 1 (if enabled)
+                if apply_position_filter and pos_idx < 2:
                     continue
                 
                 filtered_tokens_processed += 1
@@ -454,54 +481,73 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
                 token_str = tokenizer.decode([token_id])
                 
                 # Determine if this is preferred (pos >= 10) or fallback (2 <= pos < 10)
-                is_preferred = pos_idx >= 10
+                # If position filtering is disabled, treat all positions as preferred
+                if apply_position_filter:
+                    is_preferred = pos_idx >= 10
+                else:
+                    is_preferred = True  # All positions are treated equally when filter is disabled
                 
-                # For each layer we want to extract
-                for layer_idx in layers_to_extract:
-                    # Get the hidden state for this token from the specified layer
-                    # layer_idx corresponds to hidden_states[layer_idx] which is output of block layer_idx-1
-                    hidden_state = all_hidden_states[layer_idx][sent_idx, token_pos].cpu().numpy()
-                    
-                    # Get the directory info for this layer
-                    layer_info = layer_dirs[layer_idx]
-                    token_dict = layer_info['token_dict']
-                    
-                    # Initialize token_dict entry with separate lists for preferred and fallback
-                    if token_str not in token_dict:
-                        token_dict[token_str] = {
-                            'preferred': [],  # position >= 10
-                            'fallback': [],   # 2 <= position < 10
-                            'combined': []    # Final combined list (computed at save time)
-                        }
-                    
-                    # Get counts for reservoir sampling
-                    counts = token_seen_counts[layer_idx][token_str]
-                    
-                    # RESERVOIR SAMPLING
-                    if is_preferred:
-                        counts['preferred_count'] += 1
-                        reservoir = token_dict[token_str]['preferred']
-                        count = counts['preferred_count']
-                    else:
-                        counts['fallback_count'] += 1
-                        reservoir = token_dict[token_str]['fallback']
-                        count = counts['fallback_count']
-                    
-                    # Decide whether to store this embedding
-                    should_store = False
-                    replace_idx = None
-                    
-                    if len(reservoir) < max_captions_per_token:
-                        # Reservoir not full, always add
+                # CRITICAL FIX: Make reservoir sampling decision ONCE for ALL layers
+                # Use the first layer to track counts and make decisions
+                first_layer = layers_to_extract[0]
+                first_layer_info = layer_dirs[first_layer]
+                first_token_dict = first_layer_info['token_dict']
+                
+                # Initialize token_dict entry for first layer
+                if token_str not in first_token_dict:
+                    first_token_dict[token_str] = {
+                        'preferred': [],
+                        'fallback': [],
+                        'combined': []
+                    }
+                
+                # Get counts from first layer (shared decision making)
+                counts = token_seen_counts[first_layer][token_str]
+                
+                # Decide which reservoir and get count
+                if is_preferred:
+                    counts['preferred_count'] += 1
+                    reservoir_type = 'preferred'
+                    count = counts['preferred_count']
+                else:
+                    counts['fallback_count'] += 1
+                    reservoir_type = 'fallback'
+                    count = counts['fallback_count']
+                
+                # Make the sampling decision ONCE (applies to all layers)
+                first_reservoir = first_token_dict[token_str][reservoir_type]
+                should_store = False
+                replace_idx = None
+                
+                if len(first_reservoir) < max_captions_per_token:
+                    # Reservoir not full, always add
+                    should_store = True
+                else:
+                    # Reservoir sampling: random chance to replace existing item
+                    j = random.randint(0, count - 1)
+                    if j < max_captions_per_token:
                         should_store = True
-                    else:
-                        # Reservoir sampling: random chance to replace existing item
-                        j = random.randint(0, count - 1)
-                        if j < max_captions_per_token:
-                            should_store = True
-                            replace_idx = j
-                    
-                    if should_store:
+                        replace_idx = j
+                
+                # If we decided to store, do it for ALL layers
+                if should_store:
+                    for layer_idx in layers_to_extract:
+                        # Get the hidden state for this token from the specified layer
+                        hidden_state = all_hidden_states[layer_idx][sent_idx, token_pos].cpu().numpy()
+                        
+                        # Get the directory info for this layer
+                        layer_info = layer_dirs[layer_idx]
+                        token_dict = layer_info['token_dict']
+                        
+                        # Initialize token_dict entry for this layer
+                        if token_str not in token_dict:
+                            token_dict[token_str] = {
+                                'preferred': [],
+                                'fallback': [],
+                                'combined': []
+                            }
+                        
+                        reservoir = token_dict[token_str][reservoir_type]
                         counter = layer_info['counter']
                         
                         if not DRY_RUN_MODE:
@@ -532,9 +578,12 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
                             }
                         
                         # Add or replace in reservoir
-                        if replace_idx is not None:
+                        # CRITICAL: Check if replace_idx is valid for THIS layer's reservoir
+                        # (in case this layer was deleted/corrupted and is being rebuilt)
+                        if replace_idx is not None and replace_idx < len(reservoir):
                             reservoir[replace_idx] = entry
                         else:
+                            # Either no replacement, or reservoir not full yet on this layer
                             reservoir.append(entry)
                         
                         # Increment counter
@@ -625,78 +674,100 @@ def extract_from_reference_layer(model, tokenizer, reference_layer_idx, target_l
             'token_dict': {}
         }
     
-    # Process each caption
-    print(f"\nProcessing {len(caption_positions)} captions...")
+    # Check if model is already wrapped with DataParallel (it should be from main())
+    # Don't wrap it again to avoid double-wrapping issues
+    if use_data_parallel:
+        if isinstance(model, torch.nn.DataParallel):
+            print(f"Model already using DataParallel")
+        else:
+            print(f"WARNING: use_data_parallel=True but model not wrapped. This shouldn't happen.")
+    
+    # Process captions in batches for efficiency
+    print(f"\nProcessing {len(caption_positions)} captions in batches...")
     captions_processed = 0
     sanity_check_done = False
     
-    for caption_idx, (caption, positions_list) in enumerate(tqdm(caption_positions.items(), desc="Processing captions")):
-        # Tokenize the caption
+    # Convert to list for batching
+    caption_items = list(caption_positions.items())
+    batch_size = BATCH_SIZE  # Match the batch size used in normal mode
+    
+    for batch_start in tqdm(range(0, len(caption_items), batch_size), desc="Processing batches"):
+        batch_end = min(batch_start + batch_size, len(caption_items))
+        batch = caption_items[batch_start:batch_end]
+        
+        # Prepare batch
+        batch_captions = [caption for caption, _ in batch]
+        batch_positions_lists = [positions_list for _, positions_list in batch]
+        
+        # Tokenize the batch
         tokenizer_kwargs = {
             "return_tensors": "pt",
             "return_token_type_ids": False,
             "truncation": True,
             "max_length": 512,
-            "padding": False
+            "padding": True  # Pad to same length in batch
         }
         
-        encodings = tokenizer([caption], **tokenizer_kwargs)
+        encodings = tokenizer(batch_captions, **tokenizer_kwargs)
         encodings = {k: v.to(device) for k, v in encodings.items()}
         
-        # Verify tokenization produces expected tokens
-        input_ids = encodings['input_ids'][0]
-        
-        # Get model outputs
+        # Get model outputs for the batch
         with torch.no_grad():
             outputs = model(
                 input_ids=encodings['input_ids'],
+                attention_mask=encodings.get('attention_mask'),
                 output_hidden_states=True,
                 last_logits_only=False,
             )
         
         all_hidden_states = outputs.hidden_states
         
-        # Extract embeddings for each position
-        for position, token_id, token_str in positions_list:
-            # Verify token_id matches (safety check)
-            actual_token_id = input_ids[position].item()
-            if actual_token_id != token_id:
-                print(f"  ⚠️  WARNING: Token mismatch at position {position}!")
-                print(f"     Expected: {token_id} ({token_str})")
-                print(f"     Got: {actual_token_id} ({tokenizer.decode([actual_token_id])})")
-                print(f"     Caption: {caption[:100]}...")
-                continue  # Skip this position
-            # Extract from each target layer
-            for layer_idx in target_layers:
-                hidden_state = all_hidden_states[layer_idx][0, position].cpu().numpy()
+        # Process each caption in the batch
+        for batch_idx, (caption, positions_list) in enumerate(batch):
+            input_ids = encodings['input_ids'][batch_idx]
+            
+            # Extract embeddings for each position
+            for position, token_id, token_str in positions_list:
+                # Verify token_id matches (safety check)
+                actual_token_id = input_ids[position].item()
+                if actual_token_id != token_id:
+                    print(f"  ⚠️  WARNING: Token mismatch at position {position}!")
+                    print(f"     Expected: {token_id} ({token_str})")
+                    print(f"     Got: {actual_token_id} ({tokenizer.decode([actual_token_id])})")
+                    print(f"     Caption: {caption[:100]}...")
+                    continue  # Skip this position
                 
-                layer_info = layer_dirs[layer_idx]
-                counter = layer_info['counter']
-                
-                # Save embedding
-                embeddings_dir = layer_info['embeddings_dir']
-                embedding_path = embeddings_dir / f"emb_{counter:08d}.npy"
-                
-                # Convert to target dtype
-                hidden_state_converted = convert_embedding_dtype(hidden_state, embedding_dtype)
-                np.save(embedding_path, hidden_state_converted)
-                
-                # Add to token dict
-                token_dict = layer_info['token_dict']
-                if token_str not in token_dict:
-                    token_dict[token_str] = []
-                
-                token_dict[token_str].append({
-                    'embedding_path': str(embedding_path.relative_to(layer_info['layer_dir'])),
-                    'caption': caption,
-                    'position': position,
-                    'token_id': token_id,
-                    'dtype': str(hidden_state_converted.dtype)
-                })
-                
-                layer_info['counter'] += 1
-        
-        captions_processed += 1
+                # Extract from each target layer
+                for layer_idx in target_layers:
+                    hidden_state = all_hidden_states[layer_idx][batch_idx, position].cpu().numpy()
+                    
+                    layer_info = layer_dirs[layer_idx]
+                    counter = layer_info['counter']
+                    
+                    # Save embedding
+                    embeddings_dir = layer_info['embeddings_dir']
+                    embedding_path = embeddings_dir / f"emb_{counter:08d}.npy"
+                    
+                    # Convert to target dtype
+                    hidden_state_converted = convert_embedding_dtype(hidden_state, embedding_dtype)
+                    np.save(embedding_path, hidden_state_converted)
+                    
+                    # Add to token dict
+                    token_dict = layer_info['token_dict']
+                    if token_str not in token_dict:
+                        token_dict[token_str] = []
+                    
+                    token_dict[token_str].append({
+                        'embedding_path': str(embedding_path.relative_to(layer_info['layer_dir'])),
+                        'caption': caption,
+                        'position': position,
+                        'token_id': token_id,
+                        'dtype': str(hidden_state_converted.dtype)
+                    })
+                    
+                    layer_info['counter'] += 1
+            
+            captions_processed += 1
         
         # Periodic JSON saving
         if captions_processed % save_frequency == 0:
@@ -712,56 +783,96 @@ def extract_from_reference_layer(model, tokenizer, reference_layer_idx, target_l
                 num_emb = sum(len(embs) for embs in token_dict.values())
                 print(f"  Layer {layer_idx}: {len(token_dict)} tokens, {num_emb} embeddings")
         
-        # Sanity check after first 100 captions
-        if not sanity_check_done and captions_processed == 100:
-            print(f"\n🔍 SANITY CHECK: Comparing embeddings to reference layer...")
+        # Sanity check once after we have at least 2 tokens
+        if not sanity_check_done and len(layer_dirs[target_layers[0]]['token_dict']) >= 2:
+            print(f"\n🔍 SANITY CHECK: Verifying embedding alignment and distinctness...")
             # Load a reference embedding
             ref_layer_dir = output_dir / f"layer_{reference_layer_idx}"
-            first_token = list(layer_dirs[target_layers[0]]['token_dict'].keys())[0]
+            available_tokens = list(layer_dirs[target_layers[0]]['token_dict'].keys())
             
-            # Get first embedding for this token from reference layer
-            ref_json_file = ref_layer_dir / "token_embeddings.json"
-            with open(ref_json_file, 'r') as f:
-                ref_json = json.load(f)
-            
-            if first_token in ref_json:
-                # Handle both list and dict (preferred/fallback) formats
-                ref_data = ref_json[first_token]
-                if isinstance(ref_data, dict):
-                    # Dict format with 'preferred' and 'fallback'
-                    ref_emb_list = ref_data.get('preferred', []) + ref_data.get('fallback', [])
-                else:
-                    # List format
-                    ref_emb_list = ref_data
+            if len(available_tokens) >= 2:
+                first_token = available_tokens[0]
+                second_token = available_tokens[1]
                 
-                if len(ref_emb_list) > 0:
-                    ref_emb_info = ref_emb_list[0]
-                    ref_emb_path = ref_layer_dir / ref_emb_info['embedding_path']
-                    ref_emb = np.load(ref_emb_path)
-                    
-                    # Compare to target layer
-                    target_emb_info = layer_dirs[target_layers[0]]['token_dict'][first_token][0]
-                    target_emb_path = layer_dirs[target_layers[0]]['layer_dir'] / target_emb_info['embedding_path']
-                    target_emb = np.load(target_emb_path)
-                    
-                    # Convert to float32 for comparison (handles all dtypes including float8)
-                    ref_emb_fp32 = convert_from_stored_dtype(ref_emb)
-                    target_emb_fp32 = convert_from_stored_dtype(target_emb)
-                    
-                    # Compute cosine similarity
-                    cos_sim = np.dot(ref_emb_fp32, target_emb_fp32) / (np.linalg.norm(ref_emb_fp32) * np.linalg.norm(target_emb_fp32))
-                    
-                    print(f"  Token: '{first_token}'")
-                    print(f"  Caption: {ref_emb_info['caption'][:60]}...")
-                    print(f"  Position: {ref_emb_info['position']}")
-                    print(f"  Cosine similarity (layer {reference_layer_idx} vs {target_layers[0]}): {cos_sim:.4f}")
-                    
-                    if cos_sim > 0.7:
-                        print(f"  ✓ SANITY CHECK PASSED: High similarity ({cos_sim:.4f}) - embeddings are correctly aligned!")
+                # Get first embedding for this token from reference layer
+                ref_json_file = ref_layer_dir / "token_embeddings.json"
+                with open(ref_json_file, 'r') as f:
+                    ref_json = json.load(f)
+                
+                # Check 1: Same token across different layers (should be similar)
+                if first_token in ref_json:
+                    # Handle both list and dict (preferred/fallback) formats
+                    ref_data = ref_json[first_token]
+                    if isinstance(ref_data, dict):
+                        # Dict format with 'preferred' and 'fallback'
+                        ref_emb_list = ref_data.get('preferred', []) + ref_data.get('fallback', [])
                     else:
-                        print(f"  ❌ WARNING: Low similarity ({cos_sim:.4f}) - something may be wrong!")
-            
-            sanity_check_done = True
+                        # List format
+                        ref_emb_list = ref_data
+                    
+                    if len(ref_emb_list) > 0:
+                        ref_emb_info = ref_emb_list[0]
+                        ref_emb_path = ref_layer_dir / ref_emb_info['embedding_path']
+                        ref_emb = np.load(ref_emb_path)
+                        
+                        # Compare to target layer
+                        target_emb_info = layer_dirs[target_layers[0]]['token_dict'][first_token][0]
+                        target_emb_path = layer_dirs[target_layers[0]]['layer_dir'] / target_emb_info['embedding_path']
+                        target_emb = np.load(target_emb_path)
+                        
+                        # Convert to float32 for comparison (handles all dtypes including float8)
+                        ref_emb_fp32 = convert_from_stored_dtype(ref_emb)
+                        target_emb_fp32 = convert_from_stored_dtype(target_emb)
+                        
+                        # Compute cosine similarity
+                        cos_sim_cross_layer = np.dot(ref_emb_fp32, target_emb_fp32) / (np.linalg.norm(ref_emb_fp32) * np.linalg.norm(target_emb_fp32))
+                        
+                        print(f"\n  CHECK 1: Same token across layers (should be MORE similar than random tokens)")
+                        print(f"  Token: '{first_token}'")
+                        print(f"  Caption: {ref_emb_info['caption'][:60]}...")
+                        print(f"  Position: {ref_emb_info['position']}")
+                        print(f"  Cosine similarity (layer {reference_layer_idx} vs {target_layers[0]}): {cos_sim_cross_layer:.4f}")
+                        
+                        # Check 2: Different/unrelated tokens across the same two layers (baseline)
+                        if second_token in ref_json and second_token in layer_dirs[target_layers[0]]['token_dict']:
+                            # Get second token from reference layer
+                            ref_data_2 = ref_json[second_token]
+                            if isinstance(ref_data_2, dict):
+                                ref_emb_list_2 = ref_data_2.get('preferred', []) + ref_data_2.get('fallback', [])
+                            else:
+                                ref_emb_list_2 = ref_data_2
+                            
+                            if len(ref_emb_list_2) > 0:
+                                ref_emb_info_2 = ref_emb_list_2[0]
+                                ref_emb_path_2 = ref_layer_dir / ref_emb_info_2['embedding_path']
+                                ref_emb_2 = np.load(ref_emb_path_2)
+                                ref_emb_2_fp32 = convert_from_stored_dtype(ref_emb_2)
+                                
+                                # Get second token from target layer
+                                target_emb_info_2 = layer_dirs[target_layers[0]]['token_dict'][second_token][0]
+                                target_emb_path_2 = layer_dirs[target_layers[0]]['layer_dir'] / target_emb_info_2['embedding_path']
+                                target_emb_2 = np.load(target_emb_path_2)
+                                target_emb_2_fp32 = convert_from_stored_dtype(target_emb_2)
+                                
+                                # Baseline: Compare unrelated tokens across layers (token A from ref layer vs token B from target layer)
+                                cos_sim_baseline = np.dot(ref_emb_fp32, target_emb_2_fp32) / (np.linalg.norm(ref_emb_fp32) * np.linalg.norm(target_emb_2_fp32))
+                                
+                                print(f"\n  CHECK 2: Unrelated tokens across layers (baseline - should be LESS similar)")
+                                print(f"  Token from layer {reference_layer_idx}: '{first_token}'")
+                                print(f"  Token from layer {target_layers[0]}: '{second_token}'")
+                                print(f"  Cosine similarity: {cos_sim_baseline:.4f}")
+                                
+                                # Compare the two similarities
+                                print(f"\n  COMPARISON:")
+                                print(f"  Same token across layers:     {cos_sim_cross_layer:.4f}")
+                                print(f"  Unrelated tokens across layers: {cos_sim_baseline:.4f}")
+                                
+                                if cos_sim_cross_layer > cos_sim_baseline:
+                                    print(f"  ✓ SANITY CHECK PASSED: Same token is more similar ({cos_sim_cross_layer:.4f}) than unrelated tokens ({cos_sim_baseline:.4f})!")
+                                else:
+                                    print(f"  ❌ WARNING: Unrelated tokens ({cos_sim_baseline:.4f}) are more similar than same token ({cos_sim_cross_layer:.4f})!")
+                
+                sanity_check_done = True
     
     print(f"\n✓ Extraction complete!")
     for layer_idx in target_layers:
@@ -786,7 +897,7 @@ def extract_from_reference_layer(model, tokenizer, reference_layer_idx, target_l
     
     return layer_dirs
 
-def save_token_embeddings(layer_dirs, output_dir, model_name, layers_extracted, num_captions, max_captions_per_token=MAX_CAPTIONS_PER_TOKEN, embedding_dtype=EMBEDDING_DTYPE):
+def save_token_embeddings(layer_dirs, output_dir, model_name, layers_extracted, num_captions, max_captions_per_token=MAX_CAPTIONS_PER_TOKEN, embedding_dtype=EMBEDDING_DTYPE, dataset_name="cc", apply_position_filter=True):
     """
     Save token embeddings dictionaries to JSON files, one per layer.
     Combines preferred and fallback lists before saving.
@@ -842,6 +953,26 @@ def save_token_embeddings(layer_dirs, output_dir, model_name, layers_extracted, 
     storage_multiplier = dtype_size_map.get(embedding_dtype, 4) / 4.0
     
     # Create global metadata
+    dataset_source = {
+        'cc': 'Conceptual Captions (TSV image captions)',
+        'vg': 'Visual Genome phrases'
+    }.get(dataset_name, 'Unknown')
+    
+    if apply_position_filter:
+        position_filtering_info = {
+            'enabled': True,
+            'description': 'Only tokens at position >= 2 are included',
+            'preferred_positions': 'position >= 10',
+            'fallback_positions': '2 <= position < 10',
+            'note': 'Preferred positions are prioritized; fallback positions supplement if needed'
+        }
+    else:
+        position_filtering_info = {
+            'enabled': False,
+            'description': 'All token positions are included (0, 1, 2, ...)',
+            'note': 'All positions are treated equally without preference'
+        }
+    
     metadata = {
         'model_name': model_name,
         'layers_extracted': layers_extracted,
@@ -851,22 +982,18 @@ def save_token_embeddings(layer_dirs, output_dir, model_name, layers_extracted, 
         'total_embeddings_across_all_layers': total_embeddings,
         'layer_statistics': layer_stats,
         'embedding_dtype': embedding_dtype,
+        'dataset': dataset_name,
+        'data_source': dataset_source,
         'storage_optimization': {
             'dtype': embedding_dtype,
             'bytes_per_value': dtype_size_map.get(embedding_dtype, 4),
             'storage_vs_fp32': f"{storage_multiplier:.1%}",
             'note': 'Embeddings are stored in reduced precision to save disk space'
         },
-        'position_filtering': {
-            'description': 'Only tokens at position >= 2 are included',
-            'preferred_positions': 'position >= 10',
-            'fallback_positions': '2 <= position < 10',
-            'note': 'Preferred positions are prioritized; fallback positions supplement if needed'
-        },
+        'position_filtering': position_filtering_info,
         'sampling_method': 'Reservoir sampling to limit embeddings per token',
         'note': 'Layer indices follow model.forward() hidden_states convention: hidden_states[i] = output of block i-1',
         'structure': 'Each layer has its own subdirectory with token_embeddings.json and embeddings/ folder',
-        'data_source': 'TSV image captions (Train_GCC-training.tsv)',
         'dry_run_mode': DRY_RUN_MODE,
         'note_dry_run': 'Dry run mode stores only token metadata, not actual embeddings' if DRY_RUN_MODE else None
     }
@@ -896,7 +1023,30 @@ def main():
     # Declare global variables first
     global DRY_RUN_MODE
     
-    parser = argparse.ArgumentParser(description="Create contextual embeddings from captions")
+    parser = argparse.ArgumentParser(
+        description="Create contextual embeddings from captions",
+        epilog="""
+Examples:
+  # Process Llama with specific layers
+  python %(prog)s --model meta-llama/Meta-Llama-3-8B --layers 1 2 4 8 16 24
+  
+  # Use negative indices for last layers (model-agnostic)
+  python %(prog)s --model Qwen/Qwen2-7B --layers -1 -2 -4
+  
+  # Mix positive and negative indices
+  python %(prog)s --model allenai/OLMo-7B-1024-preview --layers 1 2 4 -1
+  
+  # Process multiple models
+  python %(prog)s --model Qwen/Qwen2-7B --model allenai/OLMo-7B-1024-preview --layers 8 16 24
+  
+  # Use reference layer to extract from additional layers
+  python %(prog)s --model Qwen/Qwen2-7B --layers 1 2 4 --reference-layer 8
+  
+  # Process limited number of captions
+  python %(prog)s --model Qwen/Qwen2-7B --layers 8 16 24 --num-captions 100000
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--dry-run", action="store_true", 
                        help="Dry run mode: only store token metadata, not actual embeddings")
     parser.add_argument("--num-captions", type=int, default=NUM_CAPTIONS,
@@ -912,29 +1062,60 @@ def main():
                        help="Reference layer to copy token/caption/position selections from. If specified, extracts embeddings for the exact same tokens that were saved in the reference layer.")
     parser.add_argument("--tsv-file", type=str, default="Train_GCC-training.tsv",
                        help="Path to TSV file with captions (default: Train_GCC-training.tsv)")
+    parser.add_argument("--dataset", type=str, default="cc", choices=["cc", "vg"],
+                       help="Dataset to use: 'cc' for Conceptual Captions (TSV file), 'vg' for Visual Genome phrases (default: cc)")
+    parser.add_argument("--vg-file", type=str, default="vg_phrases.txt",
+                       help="Path to Visual Genome phrases file (default: vg_phrases.txt)")
+    parser.add_argument("--model", type=str, action='append', 
+                       help="Model name to process (can be specified multiple times). Examples: allenai/OLMo-7B-1024-preview, Qwen/Qwen2-7B, meta-llama/Meta-Llama-3-8B")
+    parser.add_argument("--layers", type=int, nargs='+', default=None,
+                       help="Layers to extract (e.g., --layers 1 2 4 or --layers 8 16 24). Supports negative indices: -1 for last layer, -2 for second-to-last, etc. If not specified, uses LAYERS_TO_EXTRACT constant or auto-computes")
+    parser.add_argument("--seed", type=int, default=42,
+                       help="Random seed for reservoir sampling (default: 42). Use same seed for reproducibility")
     args = parser.parse_args()
     
     # Set global dry run mode and use num_captions from args
     DRY_RUN_MODE = args.dry_run
     num_captions = None if args.num_captions == -1 else args.num_captions
     
+    # Set random seed for reproducibility
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    print(f"Random seed set to: {args.seed}")
+    
+    # Determine position filtering based on dataset
+    apply_position_filter = (args.dataset == "cc")
+    
     if DRY_RUN_MODE:
         print("🔍 DRY RUN MODE: Only storing token metadata, not actual embeddings")
         print(f"   This will give you a sense of token diversity without massive storage")
-        print(f"   Processing {'ALL' if num_captions is None else num_captions} captions from {args.tsv_file}")
+        if args.dataset == "vg":
+            print(f"   Processing {'ALL' if num_captions is None else num_captions} phrases from {args.vg_file}")
+        else:
+            print(f"   Processing {'ALL' if num_captions is None else num_captions} captions from {args.tsv_file}")
         print()
     
-    print(f"Position filtering: tokens at position >= 2 only (skipping positions 0-1)")
-    print(f"Position preference: prioritizing position >= 10, falling back to 2-9 if needed")
+    print(f"Dataset: {args.dataset.upper()} ({'Conceptual Captions' if args.dataset == 'cc' else 'Visual Genome phrases'})")
+    if apply_position_filter:
+        print(f"Position filtering: tokens at position >= 2 only (skipping positions 0-1)")
+        print(f"Position preference: prioritizing position >= 10, falling back to 2-9 if needed")
+    else:
+        print(f"Position filtering: DISABLED - including all token positions")
     print(f"Reservoir sampling: max {args.max_captions_per_token} embeddings per token per layer")
     print(f"Embedding dtype: {args.embedding_dtype} ({'2x' if args.embedding_dtype == 'float16' else '4x' if args.embedding_dtype == 'float8' else '1x'} storage savings vs float32)")
     print(f"Number of captions: {'ALL' if num_captions is None else f'{num_captions:,}'}")
     print()
     
-    model_names = [
-        "allenai/OLMo-7B-1024-preview"
-        # Add more models as needed
-    ]
+    # Determine which models to process
+    if args.model:
+        model_names = args.model
+    else:
+        # Default models if none specified
+        model_names = [
+            "allenai/OLMo-7B-1024-preview"
+        ]
+        print(f"⚠️  No --model specified, using default: {model_names}")
+        print(f"   Use --model to specify model(s), e.g., --model Qwen/Qwen2-7B\n")
     
     for model_name in model_names:
         print(f"\n{'='*80}")
@@ -944,6 +1125,11 @@ def main():
         # Load tokenizer (always needed)
         print("Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        
+        # Set padding token if not present (needed for Llama models)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+            print(f"Set pad_token to eos_token: {tokenizer.eos_token}")
         
         if not DRY_RUN_MODE:
             # Load model only if not in dry run mode
@@ -975,13 +1161,19 @@ def main():
             device = None
             use_data_parallel = False
         
-        # Create output directory
-        output_dir = Path(args.output_dir) / model_name.replace("/", "_")
+        # Create output directory - automatically add suffix for VG dataset
+        base_output = Path(args.output_dir)
+        if args.dataset == "vg" and not str(base_output).endswith("_vg"):
+            base_output = Path(str(base_output) + "_vg")
+        output_dir = base_output / model_name.replace("/", "_")
         output_dir.mkdir(parents=True, exist_ok=True)
         print(f"Output directory: {output_dir}\n")
         
-        # Load captions from TSV file
-        captions = load_tsv_captions(args.tsv_file, num_captions=num_captions)
+        # Load captions/phrases based on dataset selection
+        if args.dataset == "vg":
+            captions = load_vg_phrases(args.vg_file, num_phrases=num_captions)
+        else:  # args.dataset == "cc"
+            captions = load_tsv_captions(args.tsv_file, num_captions=num_captions)
         
         if DRY_RUN_MODE:
             # Dry run: only tokenizer analysis
@@ -998,11 +1190,30 @@ def main():
             model_config = model.module.config if use_data_parallel else model.config
             n_layers = model_config.num_hidden_layers
             
-            # Use LAYERS_TO_EXTRACT constant if specified, otherwise compute automatically
-            if LAYERS_TO_EXTRACT is not None:
+            # Use layers from command-line args first, then LAYERS_TO_EXTRACT constant, then auto-compute
+            if args.layers is not None:
+                # Convert negative indices to positive (e.g., -1 -> n_layers-1)
+                layers_to_extract = []
+                for layer_idx in args.layers:
+                    if layer_idx < 0:
+                        positive_idx = n_layers + layer_idx
+                        if positive_idx < 0:
+                            raise ValueError(f"Layer index {layer_idx} is out of bounds for model with {n_layers} layers")
+                        layers_to_extract.append(positive_idx)
+                    else:
+                        if layer_idx >= n_layers:
+                            raise ValueError(f"Layer index {layer_idx} is out of bounds for model with {n_layers} layers (0-{n_layers-1})")
+                        layers_to_extract.append(layer_idx)
+                
+                print(f"Model has {n_layers} layers")
+                print(f"Extracting from layers (command-line specified): {layers_to_extract}")
+                if any(idx < 0 for idx in args.layers):
+                    print(f"  (converted from: {args.layers})")
+                print()
+            elif LAYERS_TO_EXTRACT is not None:
                 layers_to_extract = LAYERS_TO_EXTRACT
                 print(f"Model has {n_layers} layers")
-                print(f"Extracting from layers (user-specified): {layers_to_extract}\n")
+                print(f"Extracting from layers (LAYERS_TO_EXTRACT constant): {layers_to_extract}\n")
             else:
                 base_layers = [l for l in [1, 2, 3, 4] if l < n_layers]
                 periodic_layers = list(range(8, n_layers, 4))
@@ -1026,7 +1237,8 @@ def main():
                 print("\nSaving results...")
                 save_token_embeddings(layer_dirs, output_dir, model_name, layers_to_extract,
                                     num_captions=0, max_captions_per_token=args.max_captions_per_token,
-                                    embedding_dtype=args.embedding_dtype)
+                                    embedding_dtype=args.embedding_dtype,
+                                    dataset_name=args.dataset, apply_position_filter=apply_position_filter)
                 
                 print(f"\n✓ Completed processing for {model_name}")
                 print(f"Results saved to: {output_dir}\n")
@@ -1061,7 +1273,8 @@ def main():
                 BATCH_SIZE, layer_dirs, device, output_dir, start_offset, 
                 max_captions_per_token=args.max_captions_per_token,
                 token_seen_counts_init=token_seen_counts,
-                embedding_dtype=args.embedding_dtype
+                embedding_dtype=args.embedding_dtype,
+                apply_position_filter=apply_position_filter
             )
             
             print(f"\n\nTotal embeddings extracted: {total_embeddings}")
@@ -1070,7 +1283,8 @@ def main():
             print("\nSaving final results...")
             save_token_embeddings(layer_dirs, output_dir, model_name, layers_to_extract, 
                                 captions_processed, max_captions_per_token=args.max_captions_per_token,
-                                embedding_dtype=args.embedding_dtype)
+                                embedding_dtype=args.embedding_dtype,
+                                dataset_name=args.dataset, apply_position_filter=apply_position_filter)
         
         print(f"\n✓ Completed processing for {model_name}")
         print(f"Results saved to: {output_dir}\n")

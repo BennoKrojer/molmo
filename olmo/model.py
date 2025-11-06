@@ -53,7 +53,7 @@ from .config import (
 )
 from .exceptions import OLMoConfigurationError
 from .image_vit import ViTMultiHeadDotProductAttention, ResidualAttentionBlock, VisionTransformer, \
-    SiglipVisionTransformer, DinoVisionTransformer
+    SiglipVisionTransformer, DinoVisionTransformer, OpenVision2Transformer
 from .initialization import ModuleType, init_weights, init_normal
 from .safetensors_util import safetensors_file_to_state_dict
 from .torch_util import ensure_finite_
@@ -1470,6 +1470,8 @@ class MolmoVisionBackbone(nn.Module):
             self.image_vit = SiglipVisionTransformer(config)
         elif v_cfg.image_model_type == VisionBackboneType.dino:
             self.image_vit = DinoVisionTransformer(config)
+        elif v_cfg.image_model_type == VisionBackboneType.openvision2:
+            self.image_vit = OpenVision2Transformer(config)
         else:
             raise NotImplementedError(f"Unknown image model type: {v_cfg.image_model_type}")
 

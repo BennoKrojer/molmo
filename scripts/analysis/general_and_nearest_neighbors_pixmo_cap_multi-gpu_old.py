@@ -449,13 +449,11 @@ def get_display_token(original_token):
         _cache_dirty = True
         return original_token
 
-def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, token_embeddings, split_name="", llm_layer: int = 0, generate_captions: bool = False):
+def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_only, token_embeddings, split_name="", llm_layer: int = 0):
     """Process a dataset split and return results with distributed processing."""
     # Distribute images across processes
     world_size = get_world_size()
     local_rank = get_local_rank()
-    
-    print(f"[DEBUG Rank {local_rank}] Entered process_split, num_images={num_images}, world_size={world_size}")
     
     images_per_process = num_images // world_size
     start_idx = local_rank * images_per_process
@@ -465,7 +463,6 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
     if local_rank == world_size - 1:
         end_idx = num_images
     
-    print(f"[DEBUG Rank {local_rank}] Will process images {start_idx} to {end_idx-1}")
     if local_rank == 0:
         print(f"Process {local_rank}: Processing images {start_idx} to {end_idx-1}")
     
@@ -477,15 +474,9 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
     visual_task_visual_tokens = 0
     token_position_stats = {}
     
-    print(f"[DEBUG Rank {local_rank}] About to start loop over {end_idx - start_idx} images")
-    
     # Process assigned images for this process
     for i in tqdm(range(start_idx, end_idx), desc=f"Rank {local_rank}"):
-        if i == start_idx:
-            print(f"[DEBUG Rank {local_rank}] Starting iteration i={i}")
         example_data = dataset.get(i, np.random)
-        if i == start_idx:
-            print(f"[DEBUG Rank {local_rank}] Got example_data for i={i}")
         
         # Extract ground truth caption
         caption_text = ""
@@ -513,26 +504,18 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
         }
 
         # Run inference
-        if i == start_idx:
-            print(f"[DEBUG Rank {local_rank}] About to run inference for i={i}")
         with torch.inference_mode():
             with torch.autocast("cuda", enabled=True, dtype=torch.float16):
                 # Move data to GPU
                 device = torch.device(f"cuda:{local_rank}")
-                if i == start_idx:
-                    print(f"[DEBUG Rank {local_rank}] Moving tensors to device {device}")
                 images_tensor = torch.tensor(batch.get("images")).unsqueeze(0).to(device)
                 image_masks_tensor = torch.tensor(batch.get("image_masks")).unsqueeze(0).to(device) if batch.get("image_masks") is not None else None
                 
-                if i == start_idx:
-                    print(f"[DEBUG Rank {local_rank}] About to call model forward with llm_layer={llm_layer}")
                 # Select which features to use for analysis:
                 #  - llm_layer == 0: use vision backbone projected features (existing behavior)
                 #  - llm_layer > 0: use hidden states from the specified LLM layer at visual token positions
                 if llm_layer == 0:
                     image_features, tokens_before_MLP = model.vision_backbone(images_tensor, image_masks_tensor, return_tokens_before_MLP=True)
-                    if i == start_idx:
-                        print(f"[DEBUG Rank {local_rank}] Got image_features from vision_backbone")
                     # Handle use_n_token_only properly
                     if type(use_n_token_only) == int and use_n_token_only != -1:
                         image_features = image_features[:, :, :use_n_token_only, :]
@@ -554,15 +537,6 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                     # Bound-check layer index against available hidden states
                     max_layer_index = len(hidden_states) - 1  # includes final ln_f state
                     assert image_input_idx_tensor is not None, "image_input_idx is required to extract visual tokens from LLM layers"
-                    
-                    # Check if requested layer is valid
-                    if llm_layer > max_layer_index:
-                        raise ValueError(
-                            f"Requested layer {llm_layer} is out of bounds. "
-                            f"Model has {len(hidden_states)} hidden states (layers 0-{max_layer_index}). "
-                            f"Please use a layer index between 0 and {max_layer_index}."
-                        )
-                    
                     # Helper to gather features from a specific layer index
                     def gather_visual_features_from_layer(hs_tensor):
                         B = hs_tensor.shape[0]
@@ -580,13 +554,12 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                             feats.view(B, -1, d_model_local)[b, valid_mask_local[b], :] = gathered
                         return feats
 
-                    layer_index = llm_layer
+                    layer_index = min(llm_layer, max_layer_index)
                     hs = hidden_states[layer_index]
                     image_features = gather_visual_features_from_layer(hs)
                 image_results["feature_shape"] = list(image_features.shape)
                 image_results["llm_layer_used"] = llm_layer
                 
-                # Use the pre-loaded token embeddings (passed as parameter)
                 # Reshape image features to combine batch and chunks dimensions
                 batch_size, num_chunks, patches_per_chunk, hidden_dim = image_features.shape
                 image_features_reshaped = image_features.view(-1, patches_per_chunk, hidden_dim)
@@ -605,35 +578,6 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
                 # Clear intermediate tensors
                 del similarity, image_features_norm, token_embeddings_norm
                 clear_gpu_memory()
-
-                # Generate caption if requested
-                if generate_captions:
-                    # Important: Ensure FSDP state is clean before generate
-                    torch.cuda.synchronize()
-                    dist.barrier()
-                    input_ids = torch.tensor(batch["input_tokens"]).unsqueeze(0).to(device)
-                    image_input_idx_tensor = torch.tensor(batch.get("image_input_idx")).unsqueeze(0).to(device) if batch.get("image_input_idx") is not None else None
-                    
-                    # Regenerate images_tensor and image_masks_tensor for generation (they were deleted earlier)
-                    images_tensor_gen = torch.tensor(batch.get("images")).unsqueeze(0).to(device)
-                    image_masks_tensor_gen = torch.tensor(batch.get("image_masks")).unsqueeze(0).to(device) if batch.get("image_masks") is not None else None
-                    
-                    output = model.generate(
-                        input_ids=input_ids,
-                        images=images_tensor_gen,
-                        image_masks=image_masks_tensor_gen,
-                        image_input_idx=image_input_idx_tensor,
-                        max_steps=200,
-                        min_steps=4,
-                        is_distributed=False
-                    )
-                    token_ids = output.token_ids[:, 0].detach().cpu().numpy()
-                    decoded = preprocessor.tokenizer.decode(token_ids[0])
-                    image_results["generated_response"] = decoded
-                    
-                    # Clear generation tensors
-                    del input_ids, image_input_idx_tensor, images_tensor_gen, image_masks_tensor_gen, output
-                    clear_gpu_memory()
 
                 # Clear GPU tensors
                 del images_tensor, image_masks_tensor, image_features
@@ -801,118 +745,52 @@ def main():
     parser.add_argument("--force-rerun", action="store_true", help="Force re-running analysis even if results file exists")
     parser.add_argument("--preprocessing_mode", type=str, choices=["padding", "warping"], 
                        help="Preprocessing mode: 'padding' for black padding, 'warping' for direct resize, or omit for config default")
-    parser.add_argument("--llm_layer", type=str, default="0",
-                       help="LLM layer index(es) to extract features from. Single layer (e.g., '0') or comma-separated list (e.g., '0,8,16'). 0 = vision backbone features")
-    parser.add_argument("--generate-captions", action="store_true",
-                       help="Generate and save captions for each image (adds processing time)")
-    parser.add_argument("--output-base-dir", type=str, default="analysis_results/nearest_neighbors",
-                       help="Base directory for saving results (default: analysis_results/nearest_neighbors)")
+    parser.add_argument("--llm_layer", type=int, default=0,
+                       help="LLM layer index to extract features from (0 = vision backbone features)")
     args = parser.parse_args()
     
     # Hardcoded parameters
     checkpoint_path = args.ckpt_path
-    
-    # Auto-detect dataset type from checkpoint path or config
-    # Check if this is a Pixmo Points or Pixmo Captions checkpoint
-    is_pixmo_points = False
-    checkpoint_path_lower = checkpoint_path.lower()
-    
-    # First, try to detect from checkpoint path
-    if "pixmo_points" in checkpoint_path_lower or "pixmo-points" in checkpoint_path_lower:
-        is_pixmo_points = True
-    elif "pixmo_cap" in checkpoint_path_lower or "pixmo-cap" in checkpoint_path_lower:
-        is_pixmo_points = False
-    else:
-        # If unclear from path, try to load config and check dataset field
-        try:
-            temp_cfg = TrainConfig.load(f"{checkpoint_path}/config.yaml")
-            if hasattr(temp_cfg, 'data') and hasattr(temp_cfg.data, 'dataset'):
-                if "points" in temp_cfg.data.dataset.lower():
-                    is_pixmo_points = True
-        except Exception as e:
-            if local_rank == 0:
-                print(f"Warning: Could not auto-detect dataset type from config: {e}")
-                print("Defaulting to Pixmo Captions")
-    
-    # Set prompt and dataset parameters based on detected type
-    if is_pixmo_points:
-        prompt = "Point to the objects in this image."
-        dataset_name = "PixMoPoints"
-        output_suffix = "pixmo_points"
-        dataset_mode = "points"
-    else:
-        prompt = "Describe this image in detail."
-        dataset_name = "PixMoCap"
-        output_suffix = "pixmo_cap"
-        dataset_mode = "captions"
-    
+    prompt = "Describe this image in detail."
+    dataset_name = "PixMoCap"
+    output_suffix = "pixmo_cap"
     num_train_images = 0
     num_val_images = 300
     
-    # Parse layers to process
-    target_layers = [int(layer.strip()) for layer in args.llm_layer.split(",")]
+    # Single layer to process
+    target_layer = args.llm_layer
     
     if local_rank == 0:
-        print(f"Auto-detected dataset type: {'Pixmo Points' if is_pixmo_points else 'Pixmo Captions'}")
-        print(f"Dataset: {dataset_name}")
-        print(f"Dataset mode: {dataset_mode}")
+        print(f"Dataset: PixMo-Cap")
         print(f"Prompt: {prompt}")
         print(f"Running on {world_size} processes")
-        print(f"LLM layers to process: {target_layers}")
-        print(f"Generate captions: {args.generate_captions}")
-        print(f"Processing layers sequentially to avoid OOM")
-        print()
+        print(f"LLM layer for features: {target_layer}")
 
-    # Setup base results directory (only on main process)
+    # Setup results directory (only on main process)
     if local_rank == 0:
         ckpt_name = checkpoint_path.split("/")[-2] + "_" + checkpoint_path.split("/")[-1]
         # Add preprocessing mode to folder name if specified
         if args.preprocessing_mode:
             ckpt_name += f"_{args.preprocessing_mode}"
-        results_dir = Path(args.output_base_dir) / ckpt_name
+        results_dir = Path("analysis_results/nearest_neighbors") / ckpt_name
         results_dir.mkdir(parents=True, exist_ok=True)
         
-        # Check which layers need to be processed
-        layers_to_process = []
-        for target_layer in target_layers:
-            layer_suffix = f"_layer{target_layer}"
-            output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
-            if output_file.exists() and not args.force_rerun:
-                print(f"Layer {target_layer}: Results already exist, skipping")
-            else:
-                layers_to_process.append(target_layer)
-        
-        if not layers_to_process:
-            print("All requested layers already processed. Use --force-rerun to reprocess.")
-            # Signal other processes to exit
-            num_layers_tensor = torch.tensor([0], device=device)
-            dist.broadcast(num_layers_tensor, src=0)
+        # Check if results already exist
+        layer_suffix = f"_layer{target_layer}"
+        output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
+        if output_file.exists() and not args.force_rerun:
+            print(f"Results file already exists: {output_file}")
+            print("Use --force-rerun flag to re-run analysis, or delete the file to start fresh")
             return
-        else:
-            print(f"Will process {len(layers_to_process)} layer(s): {layers_to_process}")
-            # Broadcast the actual layers to process (not just the count)
-            layers_tensor = torch.tensor(layers_to_process + [0] * (len(target_layers) - len(layers_to_process)), device=device)
-            num_layers_tensor = torch.tensor([len(layers_to_process)], device=device)
-            dist.broadcast(num_layers_tensor, src=0)
-            dist.broadcast(layers_tensor, src=0)
     else:
         results_dir = None
-        # Receive number of layers to process
-        num_layers_tensor = torch.tensor([0], device=device)
-        dist.broadcast(num_layers_tensor, src=0)
-        if num_layers_tensor.item() == 0:
-            return
-        # Receive the actual layers to process
-        layers_tensor = torch.tensor([0] * len(target_layers), device=device)
-        dist.broadcast(layers_tensor, src=0)
-        num_layers = num_layers_tensor.item()
-        layers_to_process = layers_tensor[:num_layers].tolist()
+        output_file = None
 
     # Wait for main process to set up directories
     dist.barrier()
 
     if local_rank == 0:
-        print("\n=== Loading model (once for all layers) ===")
+        print("Running full analysis...")
 
     # Load model with FSDP
     if local_rank == 0:
@@ -925,15 +803,10 @@ def main():
     
     model = Molmo(cfg.model)
     
-    # Load pretrained weights (LLM + ViT) - all ranks load simultaneously
-    # Note: This requires sufficient CPU RAM (approximately world_size * model_size)
-    if local_rank == 0:
-        print("Loading pretrained weights (LLM + ViT)...")
+    # Load pretrained weights (LLM + ViT)
     model.reset_with_pretrained_weights()
     
     # Load checkpoint weights (works with both full and stripped checkpoints)
-    if local_rank == 0:
-        print("Loading checkpoint weights...")
     checkpoint_weights = torch.load(f"{checkpoint_path}/model.pt", map_location="cpu")
     model.load_state_dict(checkpoint_weights, strict=False)
     
@@ -1008,7 +881,7 @@ def main():
 
     use_n_token_only = model_config.vision_backbone.use_n_token_only
 
-    # Load token embeddings once for all layers
+    # Load token embeddings once for all processing
     if local_rank == 0:
         print("Loading cached token embeddings...")
     model_identifier = model.config.tokenizer.identifier
@@ -1029,185 +902,121 @@ def main():
         # Fallback to model access (this might fail with FSDP)
         token_embeddings = model.transformer.wte.embedding.weight
 
-    # Process each layer sequentially
-    for layer_idx, target_layer in enumerate(layers_to_process):
+    if local_rank == 0:
+        print(f"\n=== Processing LLM layer {target_layer} ===")
+
+    try:
+        # Process train split
         if local_rank == 0:
-            print(f"\n{'='*60}")
-            print(f"Processing layer {target_layer} ({layer_idx + 1}/{len(layers_to_process)})")
-            print(f"{'='*60}")
-
-        try:
-            # Process train split (skip if num_train_images = 0)
-            if num_train_images > 0:
-                if local_rank == 0:
-                    print("Processing train split...")
-                train_dataset = PixMoCap(split="train", mode=dataset_mode)
-                train_results = process_split(
-                    model, preprocessor, train_dataset, num_train_images, prompt,
-                    use_n_token_only, token_embeddings, "train", target_layer, args.generate_captions
-                )
-                
-                if local_rank == 0:
-                    train_images, train_statistics = train_results
-                
-                del train_dataset
-                clear_gpu_memory()
-                dist.barrier()
-            else:
-                # Create empty results for train split
-                if local_rank == 0:
-                    print("Skipping train split (num_train_images = 0)")
-                # All ranks need to define these variables, not just rank 0
-                train_images = []
-                train_statistics = {
-                    "total_visual_tokens": 0,
-                    "interpretable_visual_tokens": 0,
-                    "visual_task_visual_tokens": 0,
-                    "interpretability_percentage": 0,
-                    "visual_task_percentage": 0,
-                    "token_position_statistics": {}
-                }
-                dist.barrier()
-            
-            # Process validation split
-            print(f"[DEBUG Rank {local_rank}] About to process validation split")
-            if local_rank == 0:
-                print("Processing validation split...")
-            print(f"[DEBUG Rank {local_rank}] Creating PixMoCap dataset with mode={dataset_mode}")
-            val_dataset = PixMoCap(split="validation", mode=dataset_mode)
-            print(f"[DEBUG Rank {local_rank}] Dataset created, calling process_split")
-            val_results = process_split(
-                model, preprocessor, val_dataset, num_val_images, prompt,
-                use_n_token_only, token_embeddings, "validation", target_layer, args.generate_captions
-            )
-            print(f"[DEBUG Rank {local_rank}] Returned from process_split")
-            del val_dataset
-            clear_gpu_memory()
-            dist.barrier()
-            
-            # Combine and save (only on main process)
-            if local_rank == 0: 
-                val_images, val_statistics = val_results
-                
-                # Combine statistics
-                combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
-                combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
-                combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
-                combined_token_position_stats = {}
-                for split_stats in [train_statistics, val_statistics]:
-                    for pos, stats in split_stats["token_position_statistics"].items():
-                        if pos not in combined_token_position_stats:
-                            combined_token_position_stats[pos] = {
-                                "total_occurrences": 0,
-                                "interpretable_occurrences": 0,
-                                "visual_task_occurrences": 0,
-                                "interpretability_percentage": 0.0,
-                                "visual_task_percentage": 0.0,
-                                "patch_row": stats.get("patch_row", 0),
-                                "patch_col": stats.get("patch_col", 0)
-                            }
-                        combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
-                        combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
-                        combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
-                for pos_stats in combined_token_position_stats.values():
-                    total = pos_stats["total_occurrences"]
-                    interpretable = pos_stats["interpretable_occurrences"]
-                    visual_task = pos_stats["visual_task_occurrences"]
-                    pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
-                    pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
-                
-                # Create results dictionary
-                all_results = {
-                    "checkpoint": checkpoint_path,
-                    "prompt": prompt,
-                    "dataset": dataset_name,
-                    "num_processes": world_size,
-                    "preprocessing_mode": args.preprocessing_mode,
-                    "llm_layer": target_layer,
-                    "splits": {
-                        "train": {
-                            "num_images": num_train_images,
-                            "images": train_images,
-                            "statistics": train_statistics
-                        },
-                        "validation": {
-                            "num_images": num_val_images,
-                            "images": val_images,
-                            "statistics": val_statistics
-                        }
-                    },
-                    "overall_statistics": {
-                        "total_visual_tokens": combined_total_tokens,
-                        "interpretable_visual_tokens": combined_interpretable_tokens,
-                        "visual_task_visual_tokens": combined_visual_task_tokens,
-                        "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                        "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
-                        "train_statistics": train_statistics,
-                        "validation_statistics": val_statistics,
-                        "token_position_statistics": combined_token_position_stats
-                    }
-                }
-                
-                # Save outputs
-                layer_suffix = f"_layer{target_layer}"
-                per_layer_output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
-                with open(per_layer_output_file, 'w', encoding='utf-8') as f:
-                    json.dump(all_results, f, indent=2, ensure_ascii=False)
-                print(f"✓ Layer {target_layer}: Results saved to {per_layer_output_file}")
-                plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_summary_plot.png"
-                create_interpretability_plot(all_results["overall_statistics"], plot_file)
-                token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
-                create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
-
-        except Exception as e:
-            if local_rank == 0:
-                log.error(f"Error processing layer {target_layer}: {str(e)}")
-            raise
+            print("Processing train split...")
+        train_dataset = PixMoCap(split="train", mode="captions")
+        train_results = process_split(
+            model, preprocessor, train_dataset, num_train_images, prompt,
+            use_n_token_only, token_embeddings, "train", target_layer
+        )
         
-        # Wait for all processes to finish this layer before moving to next
+        if local_rank == 0:
+            train_images, train_statistics = train_results
+        
+        del train_dataset
+        clear_gpu_memory()
         dist.barrier()
         
+        # Process validation split
         if local_rank == 0:
-            print(f"✓ Layer {target_layer} complete!")
+            print("Processing validation split...")
+        val_dataset = PixMoCap(split="validation", mode="captions")
+        val_results = process_split(
+            model, preprocessor, val_dataset, num_val_images, prompt,
+            use_n_token_only, token_embeddings, "validation", target_layer
+        )
+        del val_dataset
+        clear_gpu_memory()
+        dist.barrier()
         
-        # If there are more layers to process, reset FSDP state completely
-        if layer_idx < len(layers_to_process) - 1:
-            if local_rank == 0:
-                print("Unwrapping and re-wrapping model to reset FSDP state...")
+        # Combine and save (only on main process)
+        if local_rank == 0:
+            val_images, val_statistics = val_results
             
-            # Unwrap the FSDP model to get the underlying model
-            unwrapped_model = model.module if hasattr(model, 'module') else model
+            # Combine statistics
+            combined_total_tokens = train_statistics["total_visual_tokens"] + val_statistics["total_visual_tokens"]
+            combined_interpretable_tokens = train_statistics["interpretable_visual_tokens"] + val_statistics["interpretable_visual_tokens"]
+            combined_visual_task_tokens = train_statistics["visual_task_visual_tokens"] + val_statistics["visual_task_visual_tokens"]
+            combined_token_position_stats = {}
+            for split_stats in [train_statistics, val_statistics]:
+                for pos, stats in split_stats["token_position_statistics"].items():
+                    if pos not in combined_token_position_stats:
+                        combined_token_position_stats[pos] = {
+                            "total_occurrences": 0,
+                            "interpretable_occurrences": 0,
+                            "visual_task_occurrences": 0,
+                            "interpretability_percentage": 0.0,
+                            "visual_task_percentage": 0.0,
+                            "patch_row": stats.get("patch_row", 0),
+                            "patch_col": stats.get("patch_col", 0)
+                        }
+                    combined_token_position_stats[pos]["total_occurrences"] += stats["total_occurrences"]
+                    combined_token_position_stats[pos]["interpretable_occurrences"] += stats["interpretable_occurrences"]
+                    combined_token_position_stats[pos]["visual_task_occurrences"] += stats["visual_task_occurrences"]
+            for pos_stats in combined_token_position_stats.values():
+                total = pos_stats["total_occurrences"]
+                interpretable = pos_stats["interpretable_occurrences"]
+                visual_task = pos_stats["visual_task_occurrences"]
+                pos_stats["interpretability_percentage"] = (interpretable / total * 100) if total > 0 else 0.0
+                pos_stats["visual_task_percentage"] = (visual_task / total * 100) if total > 0 else 0.0
             
-            # Delete the FSDP wrapper
-            del model
-            torch.cuda.synchronize()
-            clear_gpu_memory()
-            dist.barrier()
+            # Create results dictionary
+            all_results = {
+                "checkpoint": checkpoint_path,
+                "prompt": prompt,
+                "dataset": dataset_name,
+                "num_processes": world_size,
+                "preprocessing_mode": args.preprocessing_mode,
+                "llm_layer": target_layer,
+                "splits": {
+                    "train": {
+                        "num_images": num_train_images,
+                        "images": train_images,
+                        "statistics": train_statistics
+                    },
+                    "validation": {
+                        "num_images": num_val_images,
+                        "images": val_images,
+                        "statistics": val_statistics
+                    }
+                },
+                "overall_statistics": {
+                    "total_visual_tokens": combined_total_tokens,
+                    "interpretable_visual_tokens": combined_interpretable_tokens,
+                    "visual_task_visual_tokens": combined_visual_task_tokens,
+                    "interpretability_percentage": (combined_interpretable_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "visual_task_percentage": (combined_visual_task_tokens / combined_total_tokens * 100) if combined_total_tokens > 0 else 0,
+                    "train_statistics": train_statistics,
+                    "validation_statistics": val_statistics,
+                    "token_position_statistics": combined_token_position_stats
+                }
+            }
             
-            # Re-wrap the model with FSDP
-            model = FSDP(
-                unwrapped_model,
-                sharding_strategy=ShardingStrategy.FULL_SHARD,
-                mixed_precision=MixedPrecision(
-                    param_dtype=torch.float16,
-                    reduce_dtype=torch.float16,
-                    buffer_dtype=torch.float16,
-                ),
-                auto_wrap_policy=wrap_policy,
-                device_id=local_rank,
-                use_orig_params=True,
-            )
-            
-            dist.barrier()
-            if local_rank == 0:
-                print("Model re-wrapped with fresh FSDP state\n")
+            # Save outputs
+            layer_suffix = f"_layer{target_layer}"
+            per_layer_output_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}.json"
+            with open(per_layer_output_file, 'w', encoding='utf-8') as f:
+                json.dump(all_results, f, indent=2, ensure_ascii=False)
+            print(f"Results saved to {per_layer_output_file}")
+            plot_file = results_dir / f"nearest_neighbors_analysis_{output_suffix}_multi-gpu{layer_suffix}_summary_plot.png"
+            create_interpretability_plot(all_results["overall_statistics"], plot_file)
+            token_plot_file = results_dir / f"token_position_interpretability_plot_multi-gpu{layer_suffix}.png"
+            create_token_position_plot(all_results["overall_statistics"]["token_position_statistics"], token_plot_file)
 
-    # All layers processed
+    except Exception as e:
+        if local_rank == 0:
+            log.error(f"Error during processing: {str(e)}")
+        raise
+
+    # Save any remaining translations to cache and finish
     if local_rank == 0:
         save_translation_cache()
-        print("="*60)
-        print(f"✓ All {len(layers_to_process)} layer(s) processed successfully!")
-        print("="*60)
+        print("Analysis complete!")
 
     # Wait for all processes to finish
     dist.barrier()
