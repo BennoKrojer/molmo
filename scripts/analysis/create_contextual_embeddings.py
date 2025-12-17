@@ -74,8 +74,21 @@ def convert_embedding_dtype(embedding, target_dtype='float16'):
     elif target_dtype == 'float8':
         # True fp8 requires ml_dtypes library
         if ml_dtypes is not None:
+            # float8_e4m3fn has limited range: ~[-448, 448]
+            # Clip outliers to prevent NaN (typically affects <1% of values)
+            FLOAT8_MAX = 448.0
+            embedding_clipped = np.clip(embedding, -FLOAT8_MAX, FLOAT8_MAX)
+            
+            # Check if clipping was needed
+            num_clipped = np.sum(np.abs(embedding) > FLOAT8_MAX)
+            if num_clipped > 0:
+                # Only print warning occasionally (not for every embedding)
+                import random
+                if random.random() < 0.01:  # 1% of the time
+                    print(f"  Note: Clipped {num_clipped}/{embedding.size} values to float8 range (normal for outliers)")
+            
             # Use e4m3fn (4-bit exponent, 3-bit mantissa) which is good for ML
-            return embedding.astype(ml_dtypes.float8_e4m3fn)
+            return embedding_clipped.astype(ml_dtypes.float8_e4m3fn)
         else:
             print("Warning: ml_dtypes not available for fp8, falling back to float16")
             return embedding.astype(np.float16)
@@ -535,6 +548,28 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
                         # Get the hidden state for this token from the specified layer
                         hidden_state = all_hidden_states[layer_idx][sent_idx, token_pos].cpu().numpy()
                         
+                        # CRITICAL: Check for NaN IMMEDIATELY - FAIL LOUDLY if detected
+                        if np.isnan(hidden_state).any():
+                            error_msg = (
+                                f"\n{'='*80}\n"
+                                f"CRITICAL ERROR: NaN detected in hidden state!\n"
+                                f"{'='*80}\n"
+                                f"Layer: {layer_idx}\n"
+                                f"Caption: {caption}\n"
+                                f"Token: '{token_str}' (ID: {token_id})\n"
+                                f"Position: {pos_idx}\n"
+                                f"NaN count: {np.isnan(hidden_state).sum()}/{hidden_state.size}\n"
+                                f"NaN indices: {np.where(np.isnan(hidden_state))[0][:20].tolist()}\n"
+                                f"{'='*80}\n"
+                                f"This indicates a numerical instability in the model forward pass.\n"
+                                f"Possible causes:\n"
+                                f"  - Model weights have NaN/Inf\n"
+                                f"  - Numerical overflow in float32 (try mixed precision)\n"
+                                f"  - Specific caption triggers instability\n"
+                                f"{'='*80}\n"
+                            )
+                            raise ValueError(error_msg)
+                        
                         # Get the directory info for this layer
                         layer_info = layer_dirs[layer_idx]
                         token_dict = layer_info['token_dict']
@@ -557,6 +592,17 @@ def extract_contextual_embeddings(model, tokenizer, captions, layers_to_extract,
                             
                             # Convert to target dtype for storage optimization
                             hidden_state_converted = convert_embedding_dtype(hidden_state, embedding_dtype)
+                            
+                            # Double-check: verify no NaN after dtype conversion
+                            # (convert back to check since float8 can't be checked directly)
+                            if embedding_dtype in ['float8', 'float16']:
+                                check_array = convert_from_stored_dtype(hidden_state_converted)
+                                if np.isnan(check_array).any():
+                                    raise ValueError(
+                                        f"NaN introduced during dtype conversion to {embedding_dtype}!\n"
+                                        f"Layer {layer_idx}, token '{token_str}', caption: {caption}"
+                                    )
+                            
                             np.save(embedding_path, hidden_state_converted)
                             
                             # Create entry
@@ -741,6 +787,24 @@ def extract_from_reference_layer(model, tokenizer, reference_layer_idx, target_l
                 for layer_idx in target_layers:
                     hidden_state = all_hidden_states[layer_idx][batch_idx, position].cpu().numpy()
                     
+                    # CRITICAL: Check for NaN IMMEDIATELY - FAIL LOUDLY if detected
+                    if np.isnan(hidden_state).any():
+                        error_msg = (
+                            f"\n{'='*80}\n"
+                            f"CRITICAL ERROR: NaN detected in hidden state! (Reference Mode)\n"
+                            f"{'='*80}\n"
+                            f"Layer: {layer_idx}\n"
+                            f"Caption: {caption}\n"
+                            f"Token: '{token_str}' (ID: {token_id})\n"
+                            f"Position: {position}\n"
+                            f"NaN count: {np.isnan(hidden_state).sum()}/{hidden_state.size}\n"
+                            f"NaN indices: {np.where(np.isnan(hidden_state))[0][:20].tolist()}\n"
+                            f"{'='*80}\n"
+                            f"This indicates a numerical instability in the model forward pass.\n"
+                            f"{'='*80}\n"
+                        )
+                        raise ValueError(error_msg)
+                    
                     layer_info = layer_dirs[layer_idx]
                     counter = layer_info['counter']
                     
@@ -750,6 +814,24 @@ def extract_from_reference_layer(model, tokenizer, reference_layer_idx, target_l
                     
                     # Convert to target dtype
                     hidden_state_converted = convert_embedding_dtype(hidden_state, embedding_dtype)
+                    
+                    # Double-check: verify no NaN after dtype conversion
+                    if embedding_dtype in ['float8', 'float16']:
+                        check_array = convert_from_stored_dtype(hidden_state_converted)
+                        if np.isnan(check_array).any():
+                            # Debug: show the values that caused overflow
+                            abs_max = np.abs(hidden_state).max()
+                            abs_min = np.abs(hidden_state[hidden_state != 0]).min() if np.any(hidden_state != 0) else 0
+                            raise ValueError(
+                                f"NaN introduced during dtype conversion to {embedding_dtype}!\n"
+                                f"Layer {layer_idx}, token '{token_str}', caption: {caption}\n"
+                                f"Hidden state range before conversion: [{hidden_state.min():.4f}, {hidden_state.max():.4f}]\n"
+                                f"Absolute max: {abs_max:.4f}, Absolute min (non-zero): {abs_min:.8f}\n"
+                                f"float8_e4m3fn range: ~[-448, 448]\n"
+                                f"Values outside float8 range: {np.sum(np.abs(hidden_state) > 448)} / {hidden_state.size}\n"
+                                f"→ Hidden state values are too large for float8!"
+                            )
+                    
                     np.save(embedding_path, hidden_state_converted)
                     
                     # Add to token dict

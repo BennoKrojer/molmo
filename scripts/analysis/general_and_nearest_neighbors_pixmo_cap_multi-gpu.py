@@ -37,7 +37,7 @@ from olmo.config import ModelConfig, TrainConfig
 from olmo.data import build_mm_preprocessor
 from olmo.model import Molmo
 from olmo.util import resource_path
-from olmo.data.pixmo_datasets import PixMoCap
+from olmo.data.pixmo_datasets import PixMoCap, PixMoPoints
 from olmo.data.model_preprocessor import resize_and_pad, siglip_resize_and_pad
 from olmo.torch_util import get_local_rank, get_world_size
 
@@ -488,10 +488,19 @@ def process_split(model, preprocessor, dataset, num_images, prompt, use_n_token_
             print(f"[DEBUG Rank {local_rank}] Got example_data for i={i}")
         
         # Extract ground truth caption
+        # For PixMoCap: extract from "text" field
+        # For PixMoPoints: extract from "label" field (combine all labels)
         caption_text = ""
         if "message_list" in example_data and len(example_data["message_list"]) > 0:
-            message = example_data["message_list"][0]
-            caption_text = message.get("text", "")
+            if "text" in example_data["message_list"][0]:
+                # PixMoCap format: has "text" field
+                message = example_data["message_list"][0]
+                caption_text = message.get("text", "")
+            elif "label" in example_data["message_list"][0]:
+                # PixMoPoints format: has "label" field
+                # Combine all labels from all messages
+                labels = [msg.get("label", "") for msg in example_data["message_list"] if "label" in msg]
+                caption_text = " ".join(labels)
         
         # Normalize caption words for matching
         caption_words, visual_task_words = normalize_text_for_matching(caption_text)
@@ -812,27 +821,59 @@ def main():
     # Hardcoded parameters
     checkpoint_path = args.ckpt_path
     
-    # Auto-detect dataset type from checkpoint path or config
+    # Load config to detect dataset type (more reliable than path detection)
     # Check if this is a Pixmo Points or Pixmo Captions checkpoint
     is_pixmo_points = False
-    checkpoint_path_lower = checkpoint_path.lower()
+    points_kind = "basic"  # Default for points
+    points_counting = False  # Default: pointing mode (not counting)
     
-    # First, try to detect from checkpoint path
-    if "pixmo_points" in checkpoint_path_lower or "pixmo-points" in checkpoint_path_lower:
-        is_pixmo_points = True
-    elif "pixmo_cap" in checkpoint_path_lower or "pixmo-cap" in checkpoint_path_lower:
-        is_pixmo_points = False
+    # Load config to check dataset field
+    cfg_path = f"{checkpoint_path}/config.yaml"
+    temp_cfg = TrainConfig.load(cfg_path)
+    
+    if hasattr(temp_cfg, 'data') and hasattr(temp_cfg.data, 'dataset'):
+        dataset_name = temp_cfg.data.dataset
+        dataset_name_lower = dataset_name.lower()
+        
+        # Use the same mapping as get_dataset_by_name in olmo/data/__init__.py
+        # This ensures we use the exact same parameters as during training
+        if dataset_name in ["pointing_high_freq", "pixmo_points_high_freq"]:
+            is_pixmo_points = True
+            points_kind = "high_frequency"
+            points_counting = False
+        elif dataset_name in ["point_count_high_freq", "pixmo_points_high_freq_counting"]:
+            is_pixmo_points = True
+            points_kind = "high_frequency"
+            points_counting = True
+        elif dataset_name in ["pointing", "pixmo_points"]:
+            is_pixmo_points = True
+            points_kind = "basic"
+            points_counting = False
+        elif dataset_name in ["point_count", "pixmo_points_counting"]:
+            is_pixmo_points = True
+            points_kind = "basic"
+            points_counting = True
+        elif "cap" in dataset_name_lower:
+            is_pixmo_points = False
+        else:
+            # Fallback: if dataset name contains "points" but doesn't match above patterns
+            if "points" in dataset_name_lower:
+                is_pixmo_points = True
+                # Try to infer from dataset name
+                if "counting" in dataset_name_lower:
+                    points_counting = True
+                if "high" in dataset_name_lower:
+                    points_kind = "high_frequency"
     else:
-        # If unclear from path, try to load config and check dataset field
-        try:
-            temp_cfg = TrainConfig.load(f"{checkpoint_path}/config.yaml")
-            if hasattr(temp_cfg, 'data') and hasattr(temp_cfg.data, 'dataset'):
-                if "points" in temp_cfg.data.dataset.lower():
-                    is_pixmo_points = True
-        except Exception as e:
+        # Fallback to path-based detection if config doesn't have dataset field
+        checkpoint_path_lower = checkpoint_path.lower()
+        if "pixmo_points" in checkpoint_path_lower or "pixmo-points" in checkpoint_path_lower:
+            is_pixmo_points = True
+        elif "pixmo_cap" in checkpoint_path_lower or "pixmo-cap" in checkpoint_path_lower:
+            is_pixmo_points = False
+        else:
             if local_rank == 0:
-                print(f"Warning: Could not auto-detect dataset type from config: {e}")
-                print("Defaulting to Pixmo Captions")
+                print(f"Warning: Could not detect dataset type from config. Defaulting to Pixmo Captions")
     
     # Set prompt and dataset parameters based on detected type
     if is_pixmo_points:
@@ -853,9 +894,12 @@ def main():
     target_layers = [int(layer.strip()) for layer in args.llm_layer.split(",")]
     
     if local_rank == 0:
-        print(f"Auto-detected dataset type: {'Pixmo Points' if is_pixmo_points else 'Pixmo Captions'}")
+        print(f"Auto-detected dataset type from config: {'Pixmo Points' if is_pixmo_points else 'Pixmo Captions'}")
         print(f"Dataset: {dataset_name}")
-        print(f"Dataset mode: {dataset_mode}")
+        if is_pixmo_points:
+            print(f"Points kind: {points_kind}, counting: {points_counting}")
+        else:
+            print(f"Dataset mode: {dataset_mode}")
         print(f"Prompt: {prompt}")
         print(f"Running on {world_size} processes")
         print(f"LLM layers to process: {target_layers}")
@@ -925,22 +969,46 @@ def main():
     
     model = Molmo(cfg.model)
     
-    # Load pretrained weights (LLM + ViT) - all ranks load simultaneously
-    # Note: This requires sufficient CPU RAM (approximately world_size * model_size)
-    if local_rank == 0:
-        print("Loading pretrained weights (LLM + ViT)...")
-    model.reset_with_pretrained_weights()
+    # Check checkpoint size to determine if it's a full or stripped checkpoint
+    # Full checkpoints (with trained LLM/ViT) are ~29GB and contain all weights
+    # Stripped checkpoints (connector-only) are ~200MB and only contain connector weights
+    import os
+    checkpoint_file = f"{checkpoint_path}/model.pt"
+    checkpoint_size_gb = os.path.getsize(checkpoint_file) / (1024**3)
     
-    # Load checkpoint weights (works with both full and stripped checkpoints)
+    # If checkpoint is > 1GB, it's a full checkpoint with all weights
+    is_full_checkpoint = checkpoint_size_gb > 1.0
+    
+    if not is_full_checkpoint:
+        # Small checkpoint - only contains connector weights, need to load pretrained LLM/ViT
+        if local_rank == 0:
+            print(f"Detected stripped checkpoint ({checkpoint_size_gb:.2f} GB)")
+            print("Loading pretrained weights (LLM + ViT)...")
+        model.reset_with_pretrained_weights()
+    else:
+        if local_rank == 0:
+            print(f"Detected full checkpoint ({checkpoint_size_gb:.2f} GB)")
+            print("Skipping pretrained weights loading (checkpoint contains all weights)")
+    
+    # Load checkpoint weights
     if local_rank == 0:
         print("Loading checkpoint weights...")
-    checkpoint_weights = torch.load(f"{checkpoint_path}/model.pt", map_location="cpu")
+    checkpoint_weights = torch.load(checkpoint_file, map_location="cpu")
     model.load_state_dict(checkpoint_weights, strict=False)
     
+    # Free checkpoint memory immediately
+    num_params = len(checkpoint_weights)
+    del checkpoint_weights
+    import gc
+    gc.collect()
+    
     if local_rank == 0:
-        print(f"Loaded {len(checkpoint_weights)} parameters from checkpoint")
+        print(f"Loaded {num_params} parameter tensors from checkpoint")
     
     model.eval()
+    
+    # Synchronize all ranks before FSDP wrapping to avoid race conditions
+    dist.barrier()
     
     # Wrap model with FSDP for sharding
     if local_rank == 0:
@@ -1035,13 +1103,16 @@ def main():
             print(f"\n{'='*60}")
             print(f"Processing layer {target_layer} ({layer_idx + 1}/{len(layers_to_process)})")
             print(f"{'='*60}")
-
+        
         try:
             # Process train split (skip if num_train_images = 0)
             if num_train_images > 0:
                 if local_rank == 0:
                     print("Processing train split...")
-                train_dataset = PixMoCap(split="train", mode=dataset_mode)
+                if is_pixmo_points:
+                    train_dataset = PixMoPoints(split="train", kind=points_kind, counting=points_counting)
+                else:
+                    train_dataset = PixMoCap(split="train", mode=dataset_mode)
                 train_results = process_split(
                     model, preprocessor, train_dataset, num_train_images, prompt,
                     use_n_token_only, token_embeddings, "train", target_layer, args.generate_captions
@@ -1073,8 +1144,12 @@ def main():
             print(f"[DEBUG Rank {local_rank}] About to process validation split")
             if local_rank == 0:
                 print("Processing validation split...")
-            print(f"[DEBUG Rank {local_rank}] Creating PixMoCap dataset with mode={dataset_mode}")
-            val_dataset = PixMoCap(split="validation", mode=dataset_mode)
+            if is_pixmo_points:
+                print(f"[DEBUG Rank {local_rank}] Creating PixMoPoints dataset with kind={points_kind}, counting={points_counting}")
+                val_dataset = PixMoPoints(split="validation", kind=points_kind, counting=points_counting)
+            else:
+                print(f"[DEBUG Rank {local_rank}] Creating PixMoCap dataset with mode={dataset_mode}")
+                val_dataset = PixMoCap(split="validation", mode=dataset_mode)
             print(f"[DEBUG Rank {local_rank}] Dataset created, calling process_split")
             val_results = process_split(
                 model, preprocessor, val_dataset, num_val_images, prompt,
@@ -1170,37 +1245,11 @@ def main():
         if local_rank == 0:
             print(f"✓ Layer {target_layer} complete!")
         
-        # If there are more layers to process, reset FSDP state completely
+        # Clean up between layers
         if layer_idx < len(layers_to_process) - 1:
-            if local_rank == 0:
-                print("Unwrapping and re-wrapping model to reset FSDP state...")
-            
-            # Unwrap the FSDP model to get the underlying model
-            unwrapped_model = model.module if hasattr(model, 'module') else model
-            
-            # Delete the FSDP wrapper
-            del model
             torch.cuda.synchronize()
             clear_gpu_memory()
             dist.barrier()
-            
-            # Re-wrap the model with FSDP
-            model = FSDP(
-                unwrapped_model,
-                sharding_strategy=ShardingStrategy.FULL_SHARD,
-                mixed_precision=MixedPrecision(
-                    param_dtype=torch.float16,
-                    reduce_dtype=torch.float16,
-                    buffer_dtype=torch.float16,
-                ),
-                auto_wrap_policy=wrap_policy,
-                device_id=local_rank,
-                use_orig_params=True,
-            )
-            
-            dist.barrier()
-            if local_rank == 0:
-                print("Model re-wrapped with fresh FSDP state\n")
 
     # All layers processed
     if local_rank == 0:

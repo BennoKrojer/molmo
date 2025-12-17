@@ -339,6 +339,7 @@ def main():
     parser.add_argument('--layer', type=str, default='contextual16', help='Contextual layer identifier (e.g., contextual16); visual layer inferred in filename')
     parser.add_argument('--use-cropped-region', action='store_true', help='Optionally pass cropped region as second image')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+    parser.add_argument('--debug', action='store_true', help='Enable verbose debug logging (skip reasons always shown)')
 
     args = parser.parse_args()
 
@@ -354,23 +355,32 @@ def main():
         checkpoint_name = f"train_mlp-only_pixmo_cap_resize_{args.llm}_{args.vision_encoder}"
         model_name = f"{args.llm}_{args.vision_encoder}"
 
-    # Input discovery: contextual_nearest_neighbors.py saves to
-    # analysis_results/contextual_nearest_neighbors/<ckpt_name_step>/contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
+    # Input discovery: contextual_nearest_neighbors_allLayers.py saves to
+    # analysis_results/contextual_nearest_neighbors/<ckpt_name_step>/contextual_neighbors_visual{v}_allLayers_multi-gpu.json
+    # These files contain neighbors from ALL contextual layers, with each neighbor having a 'contextual_layer' field
     base_dir = Path(args.base_dir)
     ckpt_dir = base_dir / f"{checkpoint_name}_step12000-unsharded"
-    # Try to find a file with "contextual_neighbors_visual" and matching contextual layer number from args.layer
+    # Try to find an allLayers file (we'll filter by contextual layer later)
     input_json = None
-    target_layer = args.layer.replace('contextual', '')
+    target_layer = int(args.layer.replace('contextual', ''))
     if ckpt_dir.exists():
-        for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
-            # Extract the contextual layer number from filename using regex
-            match = re.search(r'_contextual(\d+)_multi-gpu\.json$', str(cand))
-            if match:
-                file_layer = match.group(1)
-                # Match exact layer number (handles contextual0 specially)
-                if file_layer == target_layer or (args.layer == 'contextual0' and file_layer == '0'):
-                    input_json = cand
-                    break
+        # Look for allLayers files first (new format)
+        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
+        if allLayers_files:
+            # Use the first allLayers file (they all contain all layers, just different visual layers)
+            # We'll filter by contextual layer when processing
+            input_json = allLayers_files[0]
+        else:
+            # Fallback to old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
+            for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
+                # Extract the contextual layer number from filename using regex
+                match = re.search(r'_contextual(\d+)_multi-gpu\.json$', str(cand))
+                if match:
+                    file_layer = int(match.group(1))
+                    # Match exact layer number (handles contextual0 specially)
+                    if file_layer == target_layer or (args.layer == 'contextual0' and file_layer == 0):
+                        input_json = cand
+                        break
     if input_json is None:
         print(f"ERROR: Contextual NN JSON not found in {ckpt_dir} for layer {args.layer}")
         sys.exit(1)
@@ -419,6 +429,15 @@ def main():
     # Limit to num_images
     results = []
     images_processed = 0
+    
+    # Debug counters
+    debug_stats = {
+        'images_skipped_no_file': 0,
+        'images_skipped_no_valid_patches': 0,
+        'patches_skipped_no_neighbors': 0,
+        'patches_skipped_no_words': 0,
+        'patches_processed': 0,
+    }
 
     # Use streaming parser - process items one at a time instead of loading all into memory
     import ijson
@@ -435,13 +454,19 @@ def main():
             example = dataset.get(image_idx, np.random)
             image_path = example["image"]
             if not os.path.exists(image_path):
-                print(f"Warning: Image not found at {image_path}")
+                debug_stats['images_skipped_no_file'] += 1
+                print(f"SKIP Image {image_idx}: File not found at {image_path}")
                 continue
 
             processed_image, image_mask = process_image_with_mask(image_path)
 
             # We will sample patches uniformly from valid positions (since contextual JSON includes all patches)
             sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
+            
+            if not sampled_positions:
+                debug_stats['images_skipped_no_valid_patches'] += 1
+                print(f"SKIP Image {image_idx}: No valid patch positions found")
+                continue
 
             image_result_entries = []
 
@@ -453,7 +478,13 @@ def main():
                 for p in ch.get('patches', []):
                     row = p.get('patch_row', 0)
                     col = p.get('patch_col', 0)
-                    patch_map[(row, col)] = p.get('nearest_contextual_neighbors', [])
+                    all_neighbors = p.get('nearest_contextual_neighbors', [])
+                    # Use ALL neighbors - don't filter by contextual layer
+                    # The --layer argument is just for identifying which file/visual layer to use
+                    patch_map[(row, col)] = all_neighbors
+            
+            if args.debug:
+                print(f"[DEBUG] Image {image_idx}: Found {len(patch_map)} patches in JSON, sampled {len(sampled_positions)} positions")
 
             for patch_row, patch_col in sampled_positions:
                 bbox_size = 3
@@ -461,16 +492,24 @@ def main():
                 bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
                 image_with_bbox = draw_bbox_on_image(processed_image, bbox)
 
+                # Calculate center patch coordinates (same as run_single_model_with_viz.py)
+                # The JSON stores patches at their CENTER positions, not top-left corner
                 center_row = patch_row + bbox_size // 2
                 center_col = patch_col + bbox_size // 2
                 nearest_contextual = patch_map.get((center_row, center_col), [])
                 if not nearest_contextual:
+                    debug_stats['patches_skipped_no_neighbors'] += 1
+                    print(f"SKIP Image {image_idx} patch ({patch_row},{patch_col}) center ({center_row},{center_col}): No neighbors found in patch_map")
                     continue
 
                 # Extract full words from tokens
                 words = extract_words_from_contextual(nearest_contextual)
                 if not words:
+                    debug_stats['patches_skipped_no_words'] += 1
+                    print(f"SKIP Image {image_idx} patch ({patch_row},{patch_col}): No words extracted from {len(nearest_contextual)} neighbors")
                     continue
+                
+                debug_stats['patches_processed'] += 1
 
                 # Select prompt variant based on whether we send a cropped region
                 cropped_image = None
@@ -555,6 +594,16 @@ def main():
     print(f"Results: {acc}/{total} ({pct:.1f}%)")
     print(f"Saved to: {output_json_path}")
     print(f"Visualizations: {viz_dir}")
+    print(f"{'='*60}")
+    
+    # Always print skip statistics - important to know why things failed
+    print(f"\n{'='*60}")
+    print("SKIP STATISTICS:")
+    print(f"  Images skipped (file not found): {debug_stats['images_skipped_no_file']}")
+    print(f"  Images skipped (no valid patches): {debug_stats['images_skipped_no_valid_patches']}")
+    print(f"  Patches skipped (no neighbors): {debug_stats['patches_skipped_no_neighbors']}")
+    print(f"  Patches skipped (no words): {debug_stats['patches_skipped_no_words']}")
+    print(f"  Patches processed: {debug_stats['patches_processed']}")
     print(f"{'='*60}\n")
 
 

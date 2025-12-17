@@ -386,7 +386,7 @@ def main():
     parser.add_argument(
         '--nn-results-dir',
         type=str,
-        default='analysis_results/llm_judge_nearest_neighbors_OLD',
+        default='analysis_results/llm_judge_nearest_neighbors',
         help='Directory containing LLM judge nearest neighbors results (for layer 0)'
     )
     parser.add_argument(

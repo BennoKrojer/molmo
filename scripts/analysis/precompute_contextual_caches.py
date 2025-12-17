@@ -276,7 +276,7 @@ def find_all_layer_dirs(contextual_base):
 def main():
     parser = argparse.ArgumentParser(description="Precompute embedding caches for contextual embeddings")
     parser.add_argument("--contextual-base", type=str, 
-                       default="molmo_data/contextual_llm_embeddings",
+                       default="molmo_data/contextual_llm_embeddings_vg",
                        help="Base directory containing all contextual embeddings")
     parser.add_argument("--llm-names", type=str, nargs="+", default=None,
                        help="Specific LLM names to process (default: all)")

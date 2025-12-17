@@ -1445,15 +1445,17 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
             const imageHeight = rect.height;
             
             // Find available data for current layer (try NN first, then logit, then contextual VG, then CC)
+            // Note: JSON keys are strings, so convert currentLayer to string
+            const layerKey = String(currentLayer);
             let referenceData = null;
-            if (allData.nn[currentLayer]) {{
-                referenceData = allData.nn[currentLayer];
-            }} else if (allData.logitlens[currentLayer]) {{
-                referenceData = allData.logitlens[currentLayer];
-            }} else if (allData.contextual_vg[currentLayer]) {{
-                referenceData = allData.contextual_vg[currentLayer];
-            }} else if (allData.contextual_cc[currentLayer]) {{
-                referenceData = allData.contextual_cc[currentLayer];
+            if (allData.nn[layerKey]) {{
+                referenceData = allData.nn[layerKey];
+            }} else if (allData.logitlens[layerKey]) {{
+                referenceData = allData.logitlens[layerKey];
+            }} else if (allData.contextual_vg[layerKey]) {{
+                referenceData = allData.contextual_vg[layerKey];
+            }} else if (allData.contextual_cc[layerKey]) {{
+                referenceData = allData.contextual_cc[layerKey];
             }}
             
             if (!referenceData) {{
@@ -1516,10 +1518,12 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         // Update all three results panels simultaneously
         function updateResults(patchIdx) {{
             // Get data for this patch across all analysis types
-            const nnData = allData.nn[currentLayer] && allData.nn[currentLayer][patchIdx];
-            const logitData = allData.logitlens[currentLayer] && allData.logitlens[currentLayer][patchIdx];
-            const ctxVgData = allData.contextual_vg[currentLayer] && allData.contextual_vg[currentLayer][patchIdx];
-            const ctxCcData = allData.contextual_cc[currentLayer] && allData.contextual_cc[currentLayer][patchIdx];
+            // Note: JSON keys are strings, so convert currentLayer to string
+            const layerKey = String(currentLayer);
+            const nnData = allData.nn[layerKey] && allData.nn[layerKey][patchIdx];
+            const logitData = allData.logitlens[layerKey] && allData.logitlens[layerKey][patchIdx];
+            const ctxVgData = allData.contextual_vg[layerKey] && allData.contextual_vg[layerKey][patchIdx];
+            const ctxCcData = allData.contextual_cc[layerKey] && allData.contextual_cc[layerKey][patchIdx];
             const interpData = interpretabilityData[patchIdx];
             
             // Update patch info at top

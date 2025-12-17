@@ -13,29 +13,38 @@ import seaborn as sns
 from collections import defaultdict
 
 def load_results(results_dir):
-    """Load all results JSON files and extract interpretability percentages."""
+    """Load all results JSON files and extract interpretability percentages.
+    Only loads layer 0 results to match the heatmap title."""
     results_dir = Path(results_dir)
     
     # Dictionary to store: {llm: {vision_encoder: accuracy}}
     data = defaultdict(dict)
     
-    # Find all results JSON files
+    # Find all results JSON files, but only for layer 0
+    # Exclude ablations directory to avoid conflicts (ablations are variants, not main models)
     for results_file in results_dir.glob("**/results_*.json"):
-        with open(results_file, 'r') as f:
-            spresults = json.load(f)
-        
-        llm = spresults.get('llm')
-        vision_encoder = spresults.get('vision_encoder')
-        accuracy = spresults.get('accuracy', 0.0)
-        
-        if llm and vision_encoder:
-            data[llm][vision_encoder] = accuracy
+        path_str = str(results_file)
+        # Skip ablations directory
+        if '/ablations/' in path_str:
+            continue
+        # Filter to only layer 0: check if path contains "layer0" (not "layer1", "layer2", etc.)
+        if 'layer0' in path_str.lower() or '/layer0_' in path_str or '_layer0/' in path_str:
+            with open(results_file, 'r') as f:
+                spresults = json.load(f)
+            
+            llm = spresults.get('llm')
+            vision_encoder = spresults.get('vision_encoder')
+            accuracy = spresults.get('accuracy', 0.0)
+            
+            if llm and vision_encoder:
+                data[llm][vision_encoder] = accuracy
     
     return data
 
 
 def load_category_results(results_dir):
-    """Load all results JSON files and extract category-specific percentages (concrete, abstract, global)."""
+    """Load all results JSON files and extract category-specific percentages (concrete, abstract, global).
+    Only loads layer 0 results to match the heatmap title."""
     results_dir = Path(results_dir)
     
     # Dictionary to store: {category: {llm: {vision_encoder: percentage}}}
@@ -45,8 +54,17 @@ def load_category_results(results_dir):
         'global': defaultdict(dict)
     }
     
-    # Find all results JSON files
+    # Find all results JSON files, but only for layer 0
+    # Exclude ablations directory to avoid conflicts (ablations are variants, not main models)
     for results_file in results_dir.glob("**/results_*.json"):
+        path_str = str(results_file)
+        # Skip ablations directory
+        if '/ablations/' in path_str:
+            continue
+        # Filter to only layer 0: check if path contains "layer0" (not "layer1", "layer2", etc.)
+        if 'layer0' not in path_str.lower() and '/layer0_' not in path_str and '_layer0/' not in path_str:
+            continue
+        
         with open(results_file, 'r') as f:
             spresults = json.load(f)
         

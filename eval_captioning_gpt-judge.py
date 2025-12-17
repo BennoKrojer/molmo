@@ -402,14 +402,28 @@ def load_results_and_images(results_file: Path, split: str, max_images: int) -> 
     with open(results_file, 'r', encoding='utf-8') as f:
         results = json.load(f)
     
-    # Get split data
-    split_data = results.get("splits", {}).get(split, {})
-    if not split_data:
-        raise ValueError(f"No data found for split '{split}'")
+    # Handle two possible JSON formats:
+    # 1. Old format: {"splits": {"validation": {"images": [...]}}}
+    # 2. New format: {"split": "validation", "outputs": [...]}
     
-    images = split_data.get("images", [])
+    images = None
+    
+    # Try old format first
+    if "splits" in results:
+        split_data = results.get("splits", {}).get(split, {})
+        if split_data:
+            images = split_data.get("images", [])
+    
+    # Try new format if old format didn't work
+    if images is None and "outputs" in results:
+        json_split = results.get("split", "")
+        if json_split != split:
+            raise ValueError(f"JSON file contains split '{json_split}' but requested split is '{split}'")
+        # Convert outputs format to expected format
+        images = results.get("outputs", [])
+    
     if not images:
-        raise ValueError(f"No images found in split '{split}'")
+        raise ValueError(f"No data found for split '{split}'")
     
     log.info(f"Found {len(images)} images in {split} split")
     
@@ -446,10 +460,25 @@ def main():
                        help="Evaluate ground-truth captions instead of generated (upper bound)")
     parser.add_argument("--fallback-dataset-images", action="store_true",
                        help="If images are missing/unreadable, load from PixMoCap by image_idx for evaluation/visualization")
+    parser.add_argument("--output-dir", type=str, default=None,
+                       help="Override output directory (default: same directory as input file)")
     
     args = parser.parse_args()
     
     results_file = Path(args.results_file)
+    
+    # Determine output directory
+    if args.output_dir:
+        output_dir = Path(args.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        # Use current working directory if we're in a captioning evaluation directory
+        # (scripts cd into it before running), otherwise use input file's directory
+        cwd = Path.cwd()
+        if "captioning_evaluation" in str(cwd):
+            output_dir = cwd
+        else:
+            output_dir = results_file.parent
     
     try:
         # Prepare output file path
@@ -461,8 +490,8 @@ def main():
                 project_root = Path(__file__).resolve().parent
                 output_file = project_root / f"llm_judge_upper_bound_{args.split}.json"
             else:
-                # Save alongside input JSON, using a similar stem
-                output_file = results_file.parent / f"{results_file.stem}_llm_judge_{args.split}.json"
+                # Save in the specified output directory, using input file's stem
+                output_file = output_dir / f"{results_file.stem}_llm_judge_{args.split}.json"
 
         # Fast path: if visualization requested and an evaluation JSON already exists, only create visualizations
         if args.create_visualizations and output_file.exists() and not args.resume:
@@ -474,7 +503,7 @@ def main():
             if not images_dir.exists():
                 log.warning(f"Images directory not found at {images_dir}")
                 images_dir = None
-            viz_dir = results_file.parent / "visualized_llm_caption_judgement"
+            viz_dir = output_file.parent / "visualized_llm_caption_judgement"
             viz_dir.mkdir(exist_ok=True)
 
             made = 0
@@ -523,7 +552,7 @@ def main():
         # Create visualization directory if requested
         viz_dir = None
         if args.create_visualizations:
-            viz_dir = results_file.parent / "visualized_llm_caption_judgement"
+            viz_dir = output_file.parent / "visualized_llm_caption_judgement"
             viz_dir.mkdir(exist_ok=True)
             log.info(f"Visualizations will be saved to {viz_dir}")
         
@@ -563,8 +592,11 @@ def main():
             if args.resume and image_idx in processed_indices:
                 log.info(f"Skipping image {image_idx}: already evaluated (resume)")
                 continue
-            ground_truth_caption = image_data.get("ground_truth_caption", "")
-            generated_caption = image_data.get("generated_response", "")
+            # Handle both field name formats:
+            # Old format: "ground_truth_caption", "generated_response"
+            # New format: "ground_truth", "generated_output"
+            ground_truth_caption = image_data.get("ground_truth_caption") or image_data.get("ground_truth", "")
+            generated_caption = image_data.get("generated_response") or image_data.get("generated_output", "")
             image_filename = image_data.get("image_filename", "")
             
             log.info(f"Evaluating image {i+1}/{len(images_to_process)} (index {image_idx})")
@@ -769,7 +801,7 @@ def main():
         
         # Backfill visualizations for all evaluated items (including resumed ones)
         if args.create_visualizations:
-            viz_dir = results_file.parent / "visualized_llm_caption_judgement"
+            viz_dir = output_file.parent / "visualized_llm_caption_judgement"
             viz_dir.mkdir(exist_ok=True)
             made = 0
             for ev in evaluation_results.get("evaluations", []):

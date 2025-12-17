@@ -355,6 +355,8 @@ def main():
     parser.add_argument('--skip-if-exists', action='store_true', help='Skip if any output exists (complete or incomplete)')
     parser.add_argument('--resume', action='store_true', help='Resume incomplete runs instead of regenerating from scratch')
     parser.add_argument('--force', action='store_true', help='Force regeneration even if output exists (overrides skip flags)')
+    parser.add_argument('--checkpoint-name', type=str, default=None, help='Override checkpoint name (for ablations, etc.)')
+    parser.add_argument('--model-name', type=str, default=None, help='Override model name for output directory (for ablations, etc.)')
     
     args = parser.parse_args()
     
@@ -364,7 +366,15 @@ def main():
     np.random.seed(args.seed)
     
     # Construct paths
-    if args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
+    if args.checkpoint_name is not None:
+        # Use provided checkpoint name (for ablations)
+        checkpoint_name = args.checkpoint_name
+        if args.model_name is not None:
+            model_name = args.model_name
+        else:
+            # Extract model name from checkpoint name
+            model_name = checkpoint_name.replace("train_mlp-only_pixmo_cap_resize_", "").replace("train_mlp-only_pixmo_cap_", "").replace("train_mlp-only_pixmo_points_resize_", "").replace("_step12000-unsharded", "")
+    elif args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
         checkpoint_name = f"train_mlp-only_pixmo_cap_resize_{args.llm}_{args.vision_encoder}_seed10"
         model_name = f"{args.llm}_{args.vision_encoder}_seed10"
     else:
@@ -430,11 +440,16 @@ def main():
                 print("=" * 60)
                 return
             elif args.skip_if_complete and not is_complete:
+                # Output exists but is incomplete - will resume or continue
+                action = "RESUMING" if args.resume else "CONTINUING"
                 print("=" * 60)
-                print(f"REGENERATING: {args.llm} + {args.vision_encoder} layer {args.layer}")
+                print(f"{action}: {args.llm} + {args.vision_encoder} layer {args.layer}")
                 print(f"Reason: {message}")
-                print(f"Will overwrite: {existing_dir}")
-                print(f"New output: {output_dir}")
+                print(f"Existing output: {existing_dir}")
+                if args.resume:
+                    print(f"Will resume from existing {actual_count} examples and process remaining {args.num_images - actual_count} examples")
+                else:
+                    print(f"Will continue processing to reach {args.num_images} examples")
                 print("=" * 60)
     
     # NOW create directories (after skip check)
@@ -498,9 +513,19 @@ def main():
         all_indices = set(range(num_images_to_process))
         remaining_indices = sorted(all_indices - processed_indices)
         image_indices = remaining_indices
-        print(f"Already processed {len(processed_indices)} images, {len(remaining_indices)} remaining")
+        print(f"Already processed {len(processed_indices)} images (indices: {sorted(processed_indices)[:10]}{'...' if len(processed_indices) > 10 else ''})")
+        print(f"Remaining to process: {len(remaining_indices)} images (indices: {remaining_indices[:10]}{'...' if len(remaining_indices) > 10 else ''})")
+        print(f"Total images to process: {num_images_to_process} (requested: {args.num_images}, available: {len(all_images_data)})")
     else:
         image_indices = list(range(num_images_to_process))
+        print(f"Processing {num_images_to_process} images from scratch (requested: {args.num_images}, available: {len(all_images_data)})")
+    
+    if len(image_indices) == 0:
+        print("WARNING: No images to process! All images have already been processed.")
+        print(f"Existing total: {total}, Requested: {args.num_images}")
+        return
+    
+    print(f"Starting to process {len(image_indices)} images...")
     
     for list_idx in tqdm(image_indices, desc="Processing images"):
         if list_idx >= len(all_images_data):

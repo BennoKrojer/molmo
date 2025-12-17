@@ -110,6 +110,20 @@ GENERAL_PROMPTS_V1 = {
         "{question}?\n{options}\nReturn only the letter of the correct answer",
         "Help me answer this question: \"{question}\", by stating which of the following options is correct\n{options}."
     ],
+    "left_right": [
+        "Where is {label}?",
+        "Where is the {label}?",
+        "Where can I find {label}?",
+        "Where can I find the {label}?",
+        "Where is {label} located?",
+        "Where is the {label} located?",
+        "Is {label} on the left or right?",
+        "Is the {label} on the left or right?",
+        "What side is {label} on?",
+        "What side is the {label} on?",
+        "Which side is {label} on?",
+        "Which side is the {label} on?",
+    ],
     "pointing": [
         "Point to {label}\nPlease say 'This isn't in the image.' if it is not in the image.",
         "Point to all occurrences of \"{label}\"",
@@ -257,6 +271,7 @@ STYLE_TO_GENERAL_PROMPT = {
     "count_then_point": "count_then_point",
     "only_count": "only_count",
     "plain": "plain",
+    "left_right": "left_right",
 }
 
 
@@ -291,6 +306,7 @@ DEMO_STYLES = [
     "pointing",
     "user_qa",
     "long_caption",
+    "left_right",
 ]
 
 
@@ -358,6 +374,19 @@ class DataFormatter:
         else:
             return point_txt
 
+    def format_spatial(self, example):
+        """Format output for spatial classification task (left/right/top/bottom)."""
+        if "position" not in example:
+            return None
+        
+        position = example["position"]  # 'left', 'right', 'top', or 'bottom'
+        label = example["label"]
+        
+        # Capitalize first letter of label for the answer
+        label_cap = label[0].upper() + label[1:] if label else ""
+        
+        return f"{label_cap} is on the {position} of the image."
+
     def format_options(self, example):
         if "options" in example:
             prefixes = "abcdefg".upper()
@@ -415,8 +444,8 @@ class DataFormatter:
         return out
 
     def get_system_prompt(self, style, for_inference, messages, rng):
-        # Return empty string for 'none' style
-        if style == "none":
+        # Return empty string for 'none' style or None style
+        if style == "none" or style is None:
             return ""
 
         # For eval only dataset
@@ -487,6 +516,13 @@ class DataFormatter:
                     else:
                         prompt = example["label_cased"]
                 output = self.format_points(example)
+            elif style == "left_right" or style == "spatial" or style == "top_bottom":
+                # For spatial tasks, prompt is "Where is X?"
+                if "label" in example:
+                    prompt = f"Where is {example['label'].lower()}?"
+                else:
+                    prompt = example.get("question", "")
+                output = self.format_spatial(example)
             elif "question" in example and ("options" in example or "unlabelled_options" in example):
                 output, prompt, metadata = self.format_options(example)
             elif "question" in example:
@@ -514,6 +550,17 @@ class DataFormatter:
                             prompt = example["label_cased"]
                         prompt = apply_keyword_prompt(GENERAL_PROMPTS_V1[style], dict(example, label=prompt), rng, dbg=self.debug)
                     output = self.format_points(example)
+                elif style == "left_right" or style == "spatial" or style == "top_bottom":
+                    if "question" in example:
+                        prompt = example["question"]
+                    else:
+                        if "label" in example:
+                            prompt = example["label"].lower()
+                        else:
+                            prompt = example.get("label_cased", "")
+                        # Use left_right prompts for both (they're generic enough)
+                        prompt = apply_keyword_prompt(GENERAL_PROMPTS_V1.get("left_right", ["{label}"]), dict(example, label=prompt), rng, dbg=self.debug)
+                    output = self.format_spatial(example)
                 elif "prompt" in example:
                     prompt = example["prompt"]
                 elif "question" in example and ("options" in example or "unlabelled_options" in example):

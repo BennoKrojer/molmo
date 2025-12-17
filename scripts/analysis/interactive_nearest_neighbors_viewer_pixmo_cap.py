@@ -857,7 +857,7 @@ def create_html_with_image_overlay(
 def main():
     parser = argparse.ArgumentParser(description="Create interactive visualization of nearest neighbors")
         
-    parser.add_argument("--results-file", type=str, default="analysis_results/nearest_neighbors/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded/nearest_neighbors_analysis_pixmo_cap.json",
+    parser.add_argument("--results-file", type=str, default="analysis_results/nearest_neighbors/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded/nearest_neighbors_analysis_pixmo_cap.json", help="Path to the results file")
     parser.add_argument("--split", type=str, default="train", choices=["train", "validation"], help="Which split to visualize (default validation)")
     parser.add_argument("--image-idx", type=int, default=None,
                        help="Specific image index to visualize (if not provided, creates visualizations for all images)")

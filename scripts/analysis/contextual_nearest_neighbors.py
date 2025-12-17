@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+import gc
 import json
 import math
 import numpy as np
@@ -495,8 +496,8 @@ def main():
                        help="Directory with contextual embeddings (e.g., molmo_data/contextual_llm_embeddings/allenai_OLMo-7B-1024-preview)")
     parser.add_argument("--contextual-layer", type=str, required=True,
                        help="Layer index(es) of contextual embeddings to use. Single layer (e.g., '8') or comma-separated list (e.g., '8,16,24')")
-    parser.add_argument("--visual-layer", type=int, default=0,
-                       help="Visual layer to extract (0 = vision backbone, >0 = LLM layer)")
+    parser.add_argument("--visual-layer", type=str, default="0",
+                       help="Visual layer(s) to extract. Single layer (e.g., '8') or comma-separated list (e.g., '8,16,24'). Must match contextual-layer count. 0 = vision backbone, >0 = LLM layer")
     parser.add_argument("--num-images", type=int, default=100,
                        help="Number of images to process")
     parser.add_argument("--split", type=str, default="validation", choices=["train", "validation"],
@@ -509,8 +510,19 @@ def main():
                        help="Output directory for results")
     args = parser.parse_args()
     
-    # Parse contextual layers to process
+    # Parse contextual layers and visual layers to process
     contextual_layers = [int(layer.strip()) for layer in args.contextual_layer.split(",")]
+    visual_layers = [int(layer.strip()) for layer in args.visual_layer.split(",")]
+    
+    # Validate that visual_layers and contextual_layers match (for matching pairs)
+    if len(visual_layers) != len(contextual_layers):
+        raise ValueError(
+            f"visual_layer and contextual_layer must have the same number of layers. "
+            f"Got {len(visual_layers)} visual layers and {len(contextual_layers)} contextual layers."
+        )
+    
+    # Create matching pairs
+    layer_pairs = list(zip(visual_layers, contextual_layers))
     
     if local_rank == 0:
         print(f"{'='*80}")
@@ -518,8 +530,7 @@ def main():
         print(f"{'='*80}\n")
         print(f"Checkpoint: {args.ckpt_path}")
         print(f"Contextual embeddings: {args.contextual_dir}")
-        print(f"Contextual layers to process: {contextual_layers}")
-        print(f"Visual layer: {args.visual_layer}")
+        print(f"Layer pairs to process (visual_layer, contextual_layer): {layer_pairs}")
         print(f"Dataset split: {args.split}")
         print(f"Number of images: {args.num_images}")
         print(f"Top-k neighbors: {args.top_k}")
@@ -527,25 +538,53 @@ def main():
         print(f"Processing layers sequentially to save memory")
         print()
     
-    # Load Molmo model on CPU first
-    # Works with both full checkpoints and stripped (MLP-only) checkpoints
+    # Load model with FSDP
     if local_rank == 0:
-        print(f"Loading Molmo model from {args.ckpt_path}...")
+        print(f"Loading model from {args.ckpt_path}")
     
+    # Load model on CPU first
+    # Works with both full checkpoints and stripped (MLP-only) checkpoints
     cfg = TrainConfig.load(f"{args.ckpt_path}/config.yaml")
     cfg.model.init_device = None  # Override init_device to avoid meta tensors
     
     model = Molmo(cfg.model)
     
-    # Load pretrained weights (LLM + ViT)
-    model.reset_with_pretrained_weights()
+    # Check checkpoint size to determine if it's a full or stripped checkpoint
+    # Full checkpoints (with trained LLM/ViT) are ~29GB and contain all weights
+    # Stripped checkpoints (connector-only) are ~200MB and only contain connector weights
+    import os
+    checkpoint_file = f"{args.ckpt_path}/model.pt"
+    checkpoint_size_gb = os.path.getsize(checkpoint_file) / (1024**3)
     
-    # Load checkpoint weights (works with both full and stripped checkpoints)
-    checkpoint_weights = torch.load(f"{args.ckpt_path}/model.pt", map_location="cpu")
+    # If checkpoint is > 1GB, it's a full checkpoint with all weights
+    is_full_checkpoint = checkpoint_size_gb > 1.0
+    
+    if not is_full_checkpoint:
+        # Small checkpoint - only contains connector weights, need to load pretrained LLM/ViT
+        if local_rank == 0:
+            print(f"Detected stripped checkpoint ({checkpoint_size_gb:.2f} GB)")
+            print("Loading pretrained weights (LLM + ViT)...")
+        model.reset_with_pretrained_weights()
+        if local_rank == 0:
+            print("Pretrained weights loaded")
+    else:
+        if local_rank == 0:
+            print(f"Detected full checkpoint ({checkpoint_size_gb:.2f} GB)")
+            print("Skipping pretrained weights loading (checkpoint contains all weights)")
+    
+    # Load checkpoint weights (all ranks load in parallel for speed)
+    if local_rank == 0:
+        print("Loading checkpoint weights...")
+    checkpoint_weights = torch.load(checkpoint_file, map_location="cpu")
     model.load_state_dict(checkpoint_weights, strict=False)
     
+    # Free checkpoint memory immediately
+    num_params = len(checkpoint_weights)
+    del checkpoint_weights
+    gc.collect()
+    
     if local_rank == 0:
-        print(f"Loaded {len(checkpoint_weights)} parameters from checkpoint")
+        print(f"Loaded {num_params} parameter tensors from checkpoint")
     
     model.eval()
     
@@ -553,8 +592,10 @@ def main():
     if local_rank == 0:
         print("Wrapping model with FSDP for sharding...")
     
+    # Get FSDP wrap policy from the model
     wrap_policy = model.get_fsdp_wrap_policy("by_block_and_size")
     
+    # Wrap model in FSDP
     model = FSDP(
         model,
         sharding_strategy=ShardingStrategy.FULL_SHARD,
@@ -595,11 +636,11 @@ def main():
     if local_rank == 0:
         print()
     
-    # Process each contextual layer sequentially
-    for layer_idx, contextual_layer in enumerate(contextual_layers):
+    # Process each matching layer pair sequentially
+    for layer_idx, (visual_layer, contextual_layer) in enumerate(layer_pairs):
         if local_rank == 0:
             print(f"\n{'='*60}")
-            print(f"Processing contextual layer {contextual_layer} ({layer_idx + 1}/{len(contextual_layers)})")
+            print(f"Processing layer pair: visual{visual_layer} vs contextual{contextual_layer} ({layer_idx + 1}/{len(layer_pairs)})")
             print(f"{'='*60}\n")
         
         # Load contextual embeddings for this layer (on all ranks)
@@ -625,7 +666,7 @@ def main():
         results = process_images(
             model, preprocessor, dataset, args.num_images, prompt, use_n_token_only,
             contextual_embeddings, contextual_metadata, token_to_indices,
-            top_k=args.top_k, llm_layer=args.visual_layer
+            top_k=args.top_k, llm_layer=visual_layer
         )
         
         # Wait for all processes to finish this layer
@@ -639,14 +680,14 @@ def main():
             output_dir.mkdir(parents=True, exist_ok=True)
             
             # Save results
-            output_file = output_dir / f"contextual_neighbors_visual{args.visual_layer}_contextual{contextual_layer}_multi-gpu.json"
+            output_file = output_dir / f"contextual_neighbors_visual{visual_layer}_contextual{contextual_layer}_multi-gpu.json"
             print(f"\n✓ Saving results to {output_file}...")
             
             output_data = {
                 'checkpoint': args.ckpt_path,
                 'contextual_dir': args.contextual_dir,
                 'contextual_layer': contextual_layer,
-                'visual_layer': args.visual_layer,
+                'visual_layer': visual_layer,
                 'split': args.split,
                 'num_images': args.num_images,
                 'num_processes': world_size,
@@ -672,7 +713,7 @@ def main():
     # All layers processed
     if local_rank == 0:
         print("="*60)
-        print(f"✓ All {len(contextual_layers)} contextual layer(s) processed successfully!")
+        print(f"✓ All {len(layer_pairs)} layer pair(s) processed successfully!")
         print("="*60)
     
     # Wait for all processes to finish

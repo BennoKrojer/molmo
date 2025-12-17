@@ -1307,7 +1307,7 @@ class Trainer:
                 num_samples = 200  # Number of samples from each modality
                 
                 # Gather visual embeddings from all GPUs
-                print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
+                # print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
                 gathered_visual = [torch.zeros_like(visual_embeddings) for _ in range(dist.get_world_size())]
                 dist.all_gather(gathered_visual, visual_embeddings)
                 # Concatenate along batch dimension
@@ -1851,6 +1851,13 @@ class Trainer:
                     )
                     global_batch_size = batch_size * get_world_size()  # assumes batch size equal across ranks
                     self.global_step += 1
+                    
+                    # DEBUG: Print token details for first batch (commented out for production)
+                    # if first_batch and get_global_rank() == 0:
+                    #     log.info("="*80)
+                    #     log.info("DEBUG [olmo/train.py first_batch]: Training batch token details")
+                    #     ...
+                    
                     self.global_train_examples_seen_this_epoch += global_batch_size
                     self.global_train_tokens_seen += global_batch_size * seq_len
                     speed_monitor.batch_start(
@@ -1985,6 +1992,11 @@ class Trainer:
 
                         # Reset model to 'train' mode.
                         self.fsdp_model.train()
+                    
+                    # DEBUG: Validation generation test (commented out for production)
+                    # Uncomment for debugging generation during training
+                    # if (self.global_step % 500 == 0 and hasattr(self.cfg.data, 'dataset') and self.cfg.data.dataset == "left_right"):
+                    #     ... (validation generation code)
 
                     # End of batch.
                     first_batch = False

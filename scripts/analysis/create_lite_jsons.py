@@ -20,7 +20,8 @@ from scripts.analysis.create_unified_viewer import (
     scan_analysis_results,
     get_checkpoint_name,
     LLMS,
-    VISION_ENCODERS
+    VISION_ENCODERS,
+    ABLATIONS
 )
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -77,7 +78,7 @@ def process_single_file(file_type: str, layer: int, input_path: Path, output_pat
         create_lite_nn_json(input_path, output_path, num_images, split)
     elif file_type == "Logit Lens":
         create_lite_logitlens_json(input_path, output_path, num_images)
-    elif file_type == "Contextual NN":
+    elif file_type.startswith("Contextual NN"):
         create_lite_contextual_json(input_path, output_path, num_images)
     
     return {
@@ -96,46 +97,72 @@ def main():
                        help="Which split to use (default: validation)")
     parser.add_argument("--workers", type=int, default=multiprocessing.cpu_count(),
                        help=f"Number of parallel workers (default: {multiprocessing.cpu_count()} CPUs)")
+    parser.add_argument("--ablations-only", action="store_true",
+                       help="Only process ablation studies, skip main experiments")
     
     args = parser.parse_args()
     
     log.info("=" * 70)
     log.info("STEP 1: Scanning for JSONs (using unified viewer logic)")
     log.info("=" * 70)
-    log.info(f"Models to scan: {len(LLMS)} LLMs × {len(VISION_ENCODERS)} VEs = {len(LLMS) * len(VISION_ENCODERS)} total\n")
     
     # FIRST: Collect all files to process (don't process yet!)
     files_to_process = []  # List of (type, layer, input_path, output_path)
     
-    for llm in LLMS:
-        for ve in VISION_ENCODERS:
-            checkpoint_name = get_checkpoint_name(llm, ve)
-            
-            # Scan using the SAME logic as unified viewer
-            analysis_results = scan_analysis_results(checkpoint_name)
-            
-            # Collect NN files
-            for layer, json_path in analysis_results["nn"].items():
-                output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
-                output_file = output_dir / json_path.name
-                files_to_process.append(("NN", layer, json_path, output_file, checkpoint_name))
-            
-            # Collect Logit Lens files
-            for layer, json_path in analysis_results["logitlens"].items():
-                output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
-                output_file = output_dir / json_path.name
-                files_to_process.append(("Logit Lens", layer, json_path, output_file, checkpoint_name))
-            
-            # Collect Contextual NN files
-            for layer, json_path in analysis_results["contextual"].items():
-                output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
-                output_file = output_dir / json_path.name
-                files_to_process.append(("Contextual NN", layer, json_path, output_file, checkpoint_name))
+    # Process main experiments
+    if not args.ablations_only:
+        log.info(f"Main experiments: {len(LLMS)} LLMs × {len(VISION_ENCODERS)} VEs = {len(LLMS) * len(VISION_ENCODERS)} total\n")
+        
+        for llm in LLMS:
+            for ve in VISION_ENCODERS:
+                checkpoint_name = get_checkpoint_name(llm, ve)
+                
+                # Scan using the SAME logic as unified viewer
+                analysis_results = scan_analysis_results(checkpoint_name)
+                
+                # Collect NN files
+                for layer, json_path in analysis_results["nn"].items():
+                    output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+                    output_file = output_dir / json_path.name
+                    files_to_process.append(("NN", layer, json_path, output_file, checkpoint_name))
+                
+                # Collect Logit Lens files
+                for layer, json_path in analysis_results["logitlens"].items():
+                    output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+                    output_file = output_dir / json_path.name
+                    files_to_process.append(("Logit Lens", layer, json_path, output_file, checkpoint_name))
+                
+                # Collect Contextual NN files
+                for layer, json_path in analysis_results["contextual_cc"].items():
+                    output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+                    output_file = output_dir / json_path.name
+                    files_to_process.append(("Contextual NN (CC)", layer, json_path, output_file, checkpoint_name))
+                
+                for layer, json_path in analysis_results["contextual_vg"].items():
+                    output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+                    output_file = output_dir / json_path.name
+                    files_to_process.append(("Contextual NN (VG)", layer, json_path, output_file, checkpoint_name))
+    
+    # Process ablations
+    log.info(f"Ablation studies: {len(ABLATIONS)} total\n")
+    
+    for ablation in ABLATIONS:
+        checkpoint_name = ablation["name"]
+        base_path = ablation["base_path"]
+        
+        # Scan using the SAME logic as unified viewer
+        analysis_results = scan_analysis_results(checkpoint_name, base_path=base_path)
+        
+        # Collect NN files
+        for layer, json_path in analysis_results["nn"].items():
+            output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+            output_file = output_dir / json_path.name
+            files_to_process.append(("NN", layer, json_path, output_file, checkpoint_name))
     
     # Show summary
     nn_count = sum(1 for x in files_to_process if x[0] == "NN")
     ll_count = sum(1 for x in files_to_process if x[0] == "Logit Lens")
-    ctx_count = sum(1 for x in files_to_process if x[0] == "Contextual NN")
+    ctx_count = sum(1 for x in files_to_process if x[0].startswith("Contextual NN"))
     
     log.info("=" * 70)
     log.info("SUMMARY: Files to process")

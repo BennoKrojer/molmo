@@ -323,7 +323,7 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
             'ax': axes[2],
             'data': contextual_data,
             'title': 'Contextual NN',
-            'xlabel': 'Contextual Layer'
+            'xlabel': 'Layer'
         }
     ]
     
@@ -466,7 +466,7 @@ def main():
     parser.add_argument(
         '--nn-layer0-dir',
         type=str,
-        default='analysis_results/llm_judge_nearest_neighbors_OLD',
+        default='analysis_results/llm_judge_nearest_neighbors',
         help='Directory containing layer 0 results for contextual NN'
     )
     parser.add_argument(

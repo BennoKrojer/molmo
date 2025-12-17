@@ -13,7 +13,7 @@ from olmo.data.dataset import DeterministicDataset
 from olmo.data.iterable_dataset_mixture import IterableDatasetMixture
 from olmo.data.model_preprocessor import Preprocessor, MultiModalPreprocessor
 from olmo.data.pixmo_datasets import PixMoPointExplanations as PixMoPointExplanationHF, \
-    PixMoDocs, PixMoCount, PixMoPoints, PixMoCapQa, PixMoCap, PixMoPointExplanations, \
+    PixMoDocs, PixMoCount, PixMoPoints, PixMoPointsLeftRight, PixMoPointsSpatial, PixMoPointsTopBottom, PixMoCapQa, PixMoCap, PixMoPointExplanations, \
     PixMoAskModelAnything, PixMoPointsEval, TokenImageDataset, ColorImageDataset, ColorMosaicDataset
 from olmo.torch_util import get_global_rank, get_world_size
 
@@ -241,6 +241,12 @@ def get_dataset_by_name(dataset_name, split, config=None):
         return PixMoPoints(kind="basic", split=split, counting=False)
     elif dataset_name in ["point_count", "pixmo_points_counting"]:
         return PixMoPoints(kind="basic", split=split, counting=True)
+    elif dataset_name in ["left_right", "pixmo_points_left_right"]:
+        return PixMoPointsLeftRight(kind="basic", split=split)
+    elif dataset_name in ["spatial", "pixmo_points_spatial"]:
+        return PixMoPointsSpatial(kind="basic", split=split)
+    elif dataset_name in ["top_bottom", "pixmo_points_top_bottom"]:
+        return PixMoPointsTopBottom(kind="basic", split=split)
 
     # PixMo-Point-Explanations
     elif dataset_name in ["point_qa", "pixmo_pointing_explanations"]:
