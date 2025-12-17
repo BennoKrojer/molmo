@@ -1,6 +1,6 @@
 # V-Lens Paper Figures
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_USERNAME/YOUR_REPO/blob/main/paper_plots/paper_figures.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/BennoKrojer/molmo/blob/interp/paper_plots/paper_figures.ipynb)
 
 All data and plotting code for the paper figures. Self-contained, no external dependencies on large files.
 
