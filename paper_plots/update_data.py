@@ -192,17 +192,139 @@ def format_data_dict(data, var_name):
     return "\n".join(lines)
 
 
+# =============================================================================
+# LAYER ALIGNMENT DATA (for histogram plots)
+# =============================================================================
+
+CONTEXTUAL_NN_DIR = RESULTS_DIR / "contextual_nearest_neighbors"
+
+# Layer configurations per LLM (Qwen has 28 layers, others have 32)
+VISION_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]
+VISION_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]
+LLM_LAYERS_DEFAULT = [1, 2, 4, 8, 16, 24, 30, 31]
+LLM_LAYERS_QWEN = [1, 2, 4, 8, 16, 24, 26, 27]
+
+def get_vision_layers(llm):
+    return VISION_LAYERS_QWEN if 'qwen' in llm else VISION_LAYERS_DEFAULT
+
+def get_llm_layers(llm):
+    return LLM_LAYERS_QWEN if 'qwen' in llm else LLM_LAYERS_DEFAULT
+
+ALIGNMENT_MODELS = [
+    ("llama3-8b", "dinov2-large-336"),
+    ("llama3-8b", "siglip"),
+    ("llama3-8b", "vit-l-14-336"),
+    ("olmo-7b", "dinov2-large-336"),
+    ("olmo-7b", "siglip"),
+    ("olmo-7b", "vit-l-14-336"),
+    ("qwen2-7b", "dinov2-large-336"),
+    ("qwen2-7b", "siglip"),
+    ("qwen2-7b", "vit-l-14-336"),
+]
+
+
+def find_contextual_model_dir(llm, encoder):
+    """Find the model directory for contextual NN results."""
+    if llm == "qwen2-7b" and encoder == "vit-l-14-336":
+        pattern = f"*{llm}_{encoder}_seed10_step12000-unsharded"
+    else:
+        pattern = f"*{llm}_{encoder}_step12000-unsharded"
+    
+    matches = list(CONTEXTUAL_NN_DIR.glob(pattern))
+    matches = [m for m in matches if 'lite' not in str(m)]
+    return matches[0] if matches else None
+
+
+def load_layer_alignment_data(skip_if_slow=False):
+    """
+    Load layer alignment data: which LLM layers NNs come from for each vision layer.
+    
+    Returns: {model_key: {vision_layer: {llm_layer: count}}}
+    
+    Warning: This reads large JSON files and can take several minutes.
+    """
+    if skip_if_slow:
+        print("  Skipping layer alignment (--skip-alignment flag)")
+        return {}
+    
+    all_data = {}
+    
+    for llm, encoder in ALIGNMENT_MODELS:
+        model_key = f"{llm}+{encoder}"
+        print(f"  {model_key}...")
+        
+        model_dir = find_contextual_model_dir(llm, encoder)
+        if not model_dir:
+            print(f"    ERROR: Directory not found")
+            continue
+        
+        # Use model-specific vision layers
+        vision_layers = get_vision_layers(llm)
+        counts = {vl: defaultdict(int) for vl in vision_layers}
+        
+        for vl in vision_layers:
+            json_file = model_dir / f"contextual_neighbors_visual{vl}_allLayers.json"
+            if not json_file.exists():
+                print(f"    Warning: visual{vl} not found")
+                continue
+            
+            print(f"    Loading visual{vl}...", end=" ", flush=True)
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+            
+            total_nns = 0
+            for result in data.get('results', []):
+                for chunk in result.get('chunks', []):
+                    for patch in chunk.get('patches', []):
+                        for nn in patch.get('nearest_contextual_neighbors', []):
+                            layer = nn.get('contextual_layer')
+                            if layer is not None:
+                                counts[vl][layer] += 1
+                                total_nns += 1
+            
+            print(f"{total_nns:,} NNs")
+        
+        # Convert defaultdict to regular dict for JSON serialization
+        all_data[model_key] = {vl: dict(lc) for vl, lc in counts.items()}
+    
+    return all_data
+
+
 def main():
     parser = argparse.ArgumentParser(description='Update paper figures data')
     parser.add_argument('--extract-only', action='store_true', 
                         help='Only print extracted data (for manual update)')
+    parser.add_argument('--skip-alignment', action='store_true',
+                        help='Skip layer alignment data (slow to extract)')
+    parser.add_argument('--alignment-only', action='store_true',
+                        help='Only extract layer alignment data')
     args = parser.parse_args()
     
     print("Extracting data from analysis_results...")
     print(f"  NN dir: {NN_DIR}")
     print(f"  LogitLens dir: {LOGITLENS_DIR}")
     print(f"  Contextual dir: {CONTEXTUAL_DIR}")
+    print(f"  Contextual NN dir: {CONTEXTUAL_NN_DIR}")
     print()
+    
+    if args.alignment_only:
+        # Only extract layer alignment
+        print("Extracting layer alignment data (this takes several minutes)...")
+        layer_alignment_data = load_layer_alignment_data(skip_if_slow=False)
+        
+        # Load existing data.json and update just layer_alignment
+        data_json_path = Path(__file__).parent / "data.json"
+        if data_json_path.exists():
+            with open(data_json_path, 'r') as f:
+                output_data = json.load(f)
+        else:
+            output_data = {}
+        output_data['layer_alignment'] = layer_alignment_data
+        
+        with open(data_json_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        print(f"✓ Updated layer_alignment in {data_json_path}")
+        return
     
     nn_data = load_nn_results()
     logitlens_data = load_logitlens_results()
@@ -210,6 +332,14 @@ def main():
     
     print(f"Found: {len(nn_data)} NN, {len(logitlens_data)} LogitLens, {len(contextual_data)} Contextual model combos")
     print()
+    
+    # Layer alignment data (optional, slow)
+    layer_alignment_data = None
+    if not args.skip_alignment:
+        print("Extracting layer alignment data (this takes several minutes)...")
+        layer_alignment_data = load_layer_alignment_data(skip_if_slow=False)
+        print(f"Found: {len(layer_alignment_data)} models with layer alignment data")
+        print()
     
     # Print data for copy-paste
     print("=" * 60)
@@ -229,6 +359,9 @@ def main():
         'logitlens': logitlens_data,
         'contextual': contextual_data
     }
+    if layer_alignment_data:
+        output_data['layer_alignment'] = layer_alignment_data
+    
     data_json_path = Path(__file__).parent / "data.json"
     with open(data_json_path, 'w') as f:
         json.dump(output_data, f, indent=2)

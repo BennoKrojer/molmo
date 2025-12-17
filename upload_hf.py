@@ -15,12 +15,12 @@ repo_name = "BennoKrojer/vl_embedding_spaces"  # change as needed
 # except:
 #     pass  # repo might already exist
 
-# Upload the entire checkpoint folder
-checkpoint_path = "analysis_results/contextual_nearest_neighbors"
+# Upload the entire hf_sharing folder
+checkpoint_path = "hf_sharing"
 
 api.upload_folder(
     folder_path=checkpoint_path,
     repo_id=repo_name,
-    path_in_repo="contextual_nearest_neighbors",
+    path_in_repo="hf_sharing",
     token=token
 )
