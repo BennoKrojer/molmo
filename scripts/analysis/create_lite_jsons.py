@@ -133,12 +133,17 @@ def main():
                     files_to_process.append(("Logit Lens", layer, json_path, output_file, checkpoint_name))
                 
                 # Collect Contextual NN files
-                for layer, json_path in analysis_results["contextual_cc"].items():
+                for layer, json_path in analysis_results.get("contextual", {}).items():
+                    output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
+                    output_file = output_dir / json_path.name
+                    files_to_process.append(("Contextual NN", layer, json_path, output_file, checkpoint_name))
+                
+                for layer, json_path in analysis_results.get("contextual_cc", {}).items():
                     output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
                     output_file = output_dir / json_path.name
                     files_to_process.append(("Contextual NN (CC)", layer, json_path, output_file, checkpoint_name))
                 
-                for layer, json_path in analysis_results["contextual_vg"].items():
+                for layer, json_path in analysis_results.get("contextual_vg", {}).items():
                     output_dir = json_path.parent.parent / f"{json_path.parent.name}{args.suffix}"
                     output_file = output_dir / json_path.name
                     files_to_process.append(("Contextual NN (VG)", layer, json_path, output_file, checkpoint_name))

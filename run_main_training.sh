@@ -11,7 +11,8 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 export NCCL_TIMEOUT=1800000
 export TORCH_DISTRIBUTED_TIMEOUT=1800000
 
-CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --master_port=29503 --nproc_per_node=4 scripts/train.py configs/rest/baseline_pixmo-points_olmo-7b_vit-l-14-336.yaml
+# CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --master_port=29505 --nproc_per_node=4 scripts/train.py configs/baseline_pixmo-captions_olmo-7b_vit-l-14-336.yaml
+CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=29503 --nproc_per_node=4 scripts/train.py configs/rest/baseline_pixmo-captions_qwen2-7b_vit-l-14-336_seed10_unfreeze-llm.yaml
 
 # CUDA_VISIBLE_DEVICES=4,5,6,7 TORCH_DISTRIBUTED_DEBUG=DETAIL NCCL_DEBUG=INFO torchrun --master_port=29506 --nproc_per_node=4 scripts/train.py configs_toy_token-img2token/baseline_pixmo-captions_llama3-8b_siglip.yaml
 # CUDA_VISIBLE_DEVICES=4,5,6,7 TORCH_DISTRIBUTED_DEBUG=DETAIL NCCL_DEBUG=INFO torchrun --master_port=29506 --nproc_per_node=4 scripts/train.py configs/baseline_pixmo-captions_llama3-8b_dinov2-large-336.yaml

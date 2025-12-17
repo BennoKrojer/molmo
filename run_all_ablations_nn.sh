@@ -4,21 +4,24 @@ source ../../env/bin/activate
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 # Define ablation checkpoints
+# ABLATION_CHECKPOINTS=(
+    # "train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336"
+    # "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear"
+    # "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10"
+    # "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11"
+    # "train_mlp-only_pixmo_points_resize_olmo-7b_vit-l-14-336"
+# )
 ABLATION_CHECKPOINTS=(
-    "train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336"
-    "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear"
-    "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10"
-    "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11"
-    "train_mlp-only_pixmo_points_resize_olmo-7b_vit-l-14-336"
+    "train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm"
 )
 
 # Define the layers to analyze (passed as comma-separated to python script)
-LAYERS="0,1,2,3,4,8,12,16,20,24,28,29,30,31"
+LAYERS="0"
 
 # CUDA settings
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=4,5,6,7
 NPROC=4
-MASTER_PORT=29525
+MASTER_PORT=29526
 
 # Base script path
 SCRIPT_PATH="/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py"
@@ -46,7 +49,6 @@ for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
         "$SCRIPT_PATH" \
         --ckpt-path "$checkpoint_path" \
         --llm_layer "$LAYERS" \
-        # --generate-captions \
         --output-base-dir "analysis_results/nearest_neighbors/ablations"
     
     # Check if command succeeded

@@ -17,8 +17,9 @@ echo "Running analysis for dataset: $DATASET ($([ "$DATASET" == "cc" ] && echo "
 echo ""
 
 # Define the LLMs and vision encoders
-LLMS=("llama3-8b" "olmo-7b" "qwen2-7b")
-VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip" "openvision2-l-14-336")
+# LLMS=("llama3-8b" "olmo-7b" "qwen2-7b")
+LLMS=("olmo-7b" "llama3-8b" "qwen2-7b")
+VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip")
 
 # Map LLMs to their contextual embedding directories
 declare -A LLM_TO_CONTEXTUAL_DIR
@@ -27,15 +28,17 @@ LLM_TO_CONTEXTUAL_DIR["olmo-7b"]="allenai_OLMo-7B-1024-preview"
 LLM_TO_CONTEXTUAL_DIR["qwen2-7b"]="Qwen_Qwen2-7B"
 
 # Contextual nearest neighbors parameters
-NUM_IMAGES=300
+# Using 304 instead of 300 because 304 is divisible by 8 GPUs (304/8 = 38)
+NUM_IMAGES=304
 
-# CUDA settings
-export CUDA_VISIBLE_DEVICES=0,1,2,3
-NPROC=4
+# CUDA settings - 8 GPUs for faster processing
+# (The slower script loads one layer at a time, so no OOM risk)
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+NPROC=8  # Each GPU processes fewer images = faster overall
 MASTER_PORT=29527
 
-# Base script path
-SCRIPT_PATH="/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors.py"
+# Base script path - using SLOWER but CORRECT version (no distributed sharding bugs)
+SCRIPT_PATH="/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_slower.py"
 
 # Base path for contextual embeddings (depends on dataset)
 if [ "$DATASET" == "cc" ]; then
@@ -142,16 +145,22 @@ for llm in "${LLMS[@]}"; do
             continue
         fi
         
-        # Convert array to comma-separated string
+        # Convert layers array to comma-separated string
+        # Process all visual layers in ONE call to avoid reloading checkpoint multiple times
+        # The allLayers script will automatically compare each visual layer to ALL contextual layers
         layers_str=$(IFS=,; echo "${layers_with_cache[*]}")
         
-        echo "Running analysis for contextual layers: ${layers_str} (model loaded once)..."
+        echo "Running analysis for ALL layers (model loaded once):"
+        echo "  Visual layers to process: ${layers_str}"
+        echo "  Contextual layers available: ${layers_with_cache[*]}"
+        echo "  → Each visual layer will be compared to ALL contextual layers"
+        echo "  Using SLOWER but CORRECT version (sequential layer iteration, no sharding)"
         
         torchrun --nproc_per_node=$NPROC --master_port=$MASTER_PORT \
             "$SCRIPT_PATH" \
             --ckpt-path "$checkpoint_path" \
             --contextual-dir "$contextual_dir" \
-            --contextual-layer "$layers_str" \
+            --visual-layer "$layers_str" \
             --num-images $NUM_IMAGES \
             --output-dir "$OUTPUT_DIR"
         
@@ -159,7 +168,7 @@ for llm in "${LLMS[@]}"; do
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed for ${llm} + ${vision_encoder}"
         else
-            echo "SUCCESS: Completed ${llm} + ${vision_encoder}"
+            echo "SUCCESS: Completed ${llm} + ${vision_encoder} for all layers"
         fi
         
         echo ""

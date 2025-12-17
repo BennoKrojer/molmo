@@ -3,14 +3,17 @@
 source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 # Define the LLMs and vision encoders
-LLMS=("llama3-8b" "olmo-7b" "qwen2-7b")
-VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip" "openvision2-l-14-336")
+# LLMS=("llama3-8b" "olmo-7b" "qwen2-7b")
+# VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip")
+LLMS=("olmo-7b")
+VISION_ENCODERS=("vit-l-14-336")
 
 # Evaluation settings
 SPLIT="validation"
 MAX_IMAGES=300
 EVAL_SCRIPT="eval_captioning_gpt-judge.py"
 CAPTIONING_RESULTS_BASE="analysis_results/captioning_evaluation"
+CAPTIONS_BASE_DIR="analysis_results/captions"
 
 # Function to run evaluation on a JSON file
 run_eval() {
@@ -46,7 +49,7 @@ run_eval() {
     echo "Running evaluation for: $json_path"
     echo "  Output directory: $captioning_dir"
     
-    # Run evaluation on the original JSON, but save output in captioning directory
+    # Run evaluation on the captions JSON, but save output in captioning directory
     cd "$captioning_dir" || exit 1
     python3 "$abs_eval_script" \
         --results_file "$abs_json_path" \
@@ -68,6 +71,7 @@ run_eval() {
 
 echo "=========================================="
 echo "Running Captioning Evaluation on All Model Combinations"
+echo "Reading from: ${CAPTIONS_BASE_DIR}/"
 echo "Evaluating up to ${MAX_IMAGES} images per model"
 echo "=========================================="
 
@@ -81,11 +85,11 @@ for llm in "${LLMS[@]}"; do
             checkpoint_name="train_mlp-only_pixmo_cap_resize_${llm}_${vision_encoder}"
         fi
         
-        results_dir="analysis_results/nearest_neighbors/${checkpoint_name}_step12000-unsharded"
+        captions_dir="${CAPTIONS_BASE_DIR}/${checkpoint_name}_step12000-unsharded"
         
-        # Check if results directory exists
-        if [ ! -d "$results_dir" ]; then
-            echo "WARNING: Results directory not found: $results_dir"
+        # Check if captions directory exists
+        if [ ! -d "$captions_dir" ]; then
+            echo "WARNING: Captions directory not found: $captions_dir"
             echo "Skipping ${llm} + ${vision_encoder}"
             continue
         fi
@@ -93,19 +97,19 @@ for llm in "${LLMS[@]}"; do
         echo ""
         echo "------------------------------------------"
         echo "Processing: ${llm} + ${vision_encoder}"
-        echo "Directory: ${results_dir}"
+        echo "Directory: ${captions_dir}"
         echo "------------------------------------------"
         
-        # Look for layer0 JSON file (which has captions from --generate-captions)
-        layer0_json="${results_dir}/nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer0.json"
+        # Look for generated_captions.json file
+        captions_json="${captions_dir}/generated_captions.json"
         
-        if [ -f "$layer0_json" ]; then
-            echo "Found layer0 JSON with captions: $(basename $layer0_json)"
-            run_eval "$layer0_json" "$checkpoint_name"
+        if [ -f "$captions_json" ]; then
+            echo "Found captions JSON: $(basename $captions_json)"
+            run_eval "$captions_json" "$checkpoint_name"
         else
-            echo "WARNING: Layer0 JSON not found (no captions available)"
-            echo "  Expected: $layer0_json"
-            echo "  Run nearest neighbors analysis with --generate-captions first"
+            echo "WARNING: Captions JSON not found"
+            echo "  Expected: $captions_json"
+            echo "  Run caption generation first"
         fi
         
         echo ""
@@ -120,10 +124,10 @@ echo "Captioning evaluation results are organized in:"
 echo "  ${CAPTIONING_RESULTS_BASE}/"
 echo ""
 echo "For each model combination you'll find:"
-echo "  - Evaluation output: nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer0_llm_judge_${SPLIT}.json"
+echo "  - Evaluation output: generated_captions_llm_judge_${SPLIT}.json"
 echo "  - Visualizations: interactive_visualizations_*/"
 echo ""
-echo "Input JSONs remain in their original locations:"
-echo "  analysis_results/nearest_neighbors/{model_name}_step12000-unsharded/"
+echo "Input JSONs are in:"
+echo "  ${CAPTIONS_BASE_DIR}/{checkpoint_name}_step12000-unsharded/generated_captions.json"
 echo ""
 

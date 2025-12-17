@@ -18,11 +18,12 @@ NUM_SAMPLES=1
 SPLIT="validation"
 USE_CROPPED_REGION=true  # Set to true to use cropped region prompt
 SEED=42  # Random seed for reproducibility
+DEBUG=false  # Set to true to enable debug logging
 BASE_DIR="analysis_results/contextual_nearest_neighbors"
 OUTPUT_BASE="analysis_results/llm_judge_contextual_nn"
 
 # Model combinations
-LLMS=("olmo-7b" "qwen2-7b" "llama3-8b")
+LLMS=("olmo-7b" "llama3-8b" "qwen2-7b")
 VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip")
 
 echo "=========================================="
@@ -63,20 +64,62 @@ process_model_layers() {
     fi
     
     # Find all available contextual layers for this model
-    # Files are named: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
-    # We extract the contextual layer number (c) from the filename
-    available_layers=($(ls "$ctxt_dir" | grep "^contextual_neighbors_visual[0-9]*_contextual[0-9]*_multi-gpu.json$" | sed 's/.*_contextual\([0-9]*\)_multi-gpu.json/\1/' | sort -n | uniq))
+    # Files can be either:
+    #   - New format: contextual_neighbors_visual{v}_allLayers_multi-gpu.json (contains all layers)
+    #   - Old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json (one layer per file)
     
-    if [ ${#available_layers[@]} -eq 0 ]; then
-        echo "WARNING: No contextual neighbor files found in: $ctxt_dir"
-        echo "Skipping ${llm} + ${encoder}"
-        return 1
+    # Check for allLayers format first (try both with and without _multi-gpu suffix)
+    allLayers_file=$(ls "$ctxt_dir" | grep "^contextual_neighbors_visual[0-9]*_allLayers.json$" | head -1)
+    if [ -z "$allLayers_file" ]; then
+        # Fallback to old naming with _multi-gpu suffix
+        allLayers_file=$(ls "$ctxt_dir" | grep "^contextual_neighbors_visual[0-9]*_allLayers_multi-gpu.json$" | head -1)
+    fi
+    
+    if [ -n "$allLayers_file" ]; then
+        # Extract available layers from the JSON file's contextual_layers_used field
+        available_layers=($(python3 -c "import json; f=open('$ctxt_dir/$allLayers_file'); data=json.load(f); layers=set(data.get('contextual_layers_used', [])); layers.add(0); print(' '.join(map(str, sorted(layers))))" 2>/dev/null))
+        
+        if [ ${#available_layers[@]} -eq 0 ]; then
+            echo "WARNING: Could not extract contextual layers from allLayers file: $allLayers_file"
+            echo "Skipping ${llm} + ${encoder}"
+            return 1
+        fi
+    else
+        # Fallback to old format: extract layer numbers from filenames
+        available_layers=($(ls "$ctxt_dir" | grep "^contextual_neighbors_visual[0-9]*_contextual[0-9]*_multi-gpu.json$" | sed 's/.*_contextual\([0-9]*\)_multi-gpu.json/\1/' | sort -n | uniq))
+        
+        if [ ${#available_layers[@]} -eq 0 ]; then
+            echo "WARNING: No contextual neighbor files found in: $ctxt_dir"
+            echo "Skipping ${llm} + ${encoder}"
+            return 1
+        fi
+        
+        # Ensure layer0 is included
+        if [[ ! " ${available_layers[@]} " =~ " 0 " ]]; then
+            available_layers=(0 "${available_layers[@]}")
+        fi
     fi
     
     echo "Processing ${llm} + ${encoder}: ${#available_layers[@]} contextual layers (${available_layers[*]})"
     
     # Run evaluation for each contextual layer SEQUENTIALLY
     for layer in "${available_layers[@]}"; do
+        # Check if output already exists (skip if it does)
+        model_name="${llm}_${encoder}"
+        if [ "$llm" == "qwen2-7b" ] && [ "$encoder" == "vit-l-14-336" ]; then
+            model_name="${llm}_${encoder}_seed10"
+        fi
+        output_dir_name="llm_judge_${model_name}_contextual${layer}_gpt5"
+        if [ "$USE_CROPPED_REGION" = true ]; then
+            output_dir_name="${output_dir_name}_cropped"
+        fi
+        output_json="$OUTPUT_BASE/${output_dir_name}/results_${SPLIT}.json"
+        
+        if [ -f "$output_json" ]; then
+            echo "  Contextual layer $layer: Output already exists, skipping..."
+            continue
+        fi
+        
         echo "  Contextual layer $layer: Starting evaluation..."
         
         log_file="$OUTPUT_BASE/log_${llm}_${encoder}_contextual${layer}.txt"
@@ -94,6 +137,7 @@ process_model_layers() {
             --seed $SEED \
             --layer "contextual${layer}" \
             $([ "$USE_CROPPED_REGION" = true ] && echo "--use-cropped-region") \
+            $([ "$DEBUG" = true ] && echo "--debug") \
             > "$log_file" 2>&1
         
         exit_code=$?

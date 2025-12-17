@@ -364,8 +364,11 @@ def main():
     input_json = None
     target_layer = int(args.layer.replace('contextual', ''))
     if ckpt_dir.exists():
-        # Look for allLayers files first (new format)
-        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
+        # Look for allLayers files first (new format - try both with and without _multi-gpu suffix)
+        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers.json"))
+        if not allLayers_files:
+            # Fallback to old naming with _multi-gpu suffix
+            allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
         if allLayers_files:
             # Use the first allLayers file (they all contain all layers, just different visual layers)
             # We'll filter by contextual layer when processing

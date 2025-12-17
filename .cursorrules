@@ -1,0 +1,100 @@
+# Project-wide Cursor rules for this codebase
+
+## Error Handling
+- NEVER use try-except blocks to silently catch and hide errors
+- Let errors fail loudly so they can be debugged properly
+- Only use try-except for specific, expected errors with explicit recovery logic
+- Exception: It's okay to catch ImportError for optional dependencies, but be explicit about fallback behavior
+- in most cases, simply DO NOT use try except and just let the error happen
+
+## running commands yourself
+- always when running commands or scripts yourself, use the environment i already set up: 
+source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)
+- always run the command in the background so that I can keep chatting with you while it runs
+
+
+This is what the research is about:
+
+\title{The surprising interpretability of vision tokens in LLMs}
+
+\begin{abstract}
+In this paper we shed light on a puzzling question:
+How can frozen LLMs integrate non-linguistic input, such as visual soft prompt tokens?
+More colloquially: How does an LLM convert visual tokens into ``words'' it can understand?
+Specifically, across various vision and language models we train only a small connector (MLP) to map vision tokens to the prefix space of a LLM.
+We find that existing interpretability tools such as Logitlens are not adequate and too coarse-grained to show us precisely how individual visual tokens relate to language embeddings, and what they semantically ``contain''.
+Thus to answer our question, how LLMs integrate visual tokens, we propose a new \textit{lens} for interpreting how vision tokens align with the LLM embedding space.
+V-Lens shows that the nearest neighbors of vision tokens are highly interpretable.
+Surprisingly, even at the input layer visual soft prompts are already interpretable for some LLMs and vision encoders (e.g. OLMO-7B \& CLIP-ViT).
+When applying our V-Lens as \textit{contextual} nearest-neighbors in later layers, opposed to static nearest-neighbors at the input layer, we find that interpretability increases already in early layers.
+Especially for LLMs where we initially find low interpretability at the input level (e.g. Qwen2), we see a stark increase.
+We investigate further:
+We find that non-salient parts of the image (background, black padding on the side) are less interpretable and further away from any language embeddings.
+For interpretable tokens, we characterize their interpretability in detail:
+interpretability is precise/local (akin to segmentation maps) and across different levels of abstraction or types of concepts: colors, objects, and OCR to more abstract concepts in later layers.
+
+Overall our study provides strong evidence that vision tokens (and broadly soft prompts) are more interpretable and aligned with LLM's embedding space than previously thought.
+We release tools/framework/lens that provides researchers with highly detailed interpretations of what goes on inside vision tokens of an LLM.
+\end{abstact}
+
+\section{Introduction}
+Connecting pretrained vision encoders to LLMs is a successful and proven recipe:
+Vision tokens are mapped to the LLM embedding space and concatenated with the text prompt (e.g. ``Caption this image'') as soft prefix tokens.
+Often both pretrained models (LLM and vision encoder) are kept frozen, or only finetuned in later adaptation stages.
+Despite the LLM being frozen and never having been exposed to non-linguistic tokens, the LLM can still handle these inputs and solve various vision-and-language tasks.
+
+How does the LLM accomplish this: deploy its weights only tuned for language now on vision input?
+What happens at this boundary between vision and language, between two distinct semantic spaces?
+Past work hypothesizes or shows some evidence that the situation is hard to interpret:
+(Visual) soft prompts are not interpretable at the input layer.
+Different modality embeddings live in different narrow cones, i.e. exhibit a modality gap.
+Logitlens on top of visual tokens provides some coarse-grained insights, but only in later LLM layers.
+SAEs can be used to, but require extensive training and do not tell us X.
+
+But here is little work on how exactly this happens and few fine-grained tools to interpret vision tokens of an LLM.
+So we propose V-Lens...
+
+Equipped with V-Lens, we critically re-examine past insights and show that:
+Visual soft prompts are often highly interpretable and localized.
+We can find more detailed interp in subsequent layers.
+The so-called modality gap is not a clearly defined issue, we offer counter-evidence of clear token-level alignment (opposed to modality-level).
+
+Compared to past VL interp work, we go far beyond analysing a couple off-the-shelf models and train various model combinations from scratch.
+Instead of manual eye-balling, we release automatic metrics.
+We release interpretation maps across 12 model combinations across layers, and across different lenses (LogitLens, static V-Lens, contextual V-Lens).
+For our contextual V-Lens we release a large corpus of contextual text embeddings that can be used to interpret the internal workings of multimodal LLMs.
+
+We then ask:
+What exactly leads to the high interpretability we observe?
+And how do interpretable tokens affect the behaviour/output of the LLM?
+We conduct a series of experiments.
+We see different trends across different types of vision encoders, and also across LLms. We offer some explanations.
+We change caption length and find...
+We change the task and find...
+Finally, we ask if interpretable tokens are more important for the LLM than non-interpretable ones.
+From patching/removal experiments we find...
+
+In summary we contribute:
+\begin{enumerate}
+    \item Answers to how LLMs can so easily integrate visual inputs
+    \item First to show clear and across-models evidence of highly interpretable visual soft prompts
+    \item V-Lens, a new interpretability framework/tool/lens for vision tokens inside LLMs. Combined with automatic metrics (human validated), and large corpora of contextual embeddings.
+    \item Extensive ablations and analysis where interp originates from and what role it plays for final behavior of LLMs
+\end{enumerate}
+
+
+(Things that could be mentioned:)
+- we are interested in the boundary between perception/continuous inputs and symbols/discrete processing
+- evidence of shared repr between V and L (similar to multi-lingual grand goals)
+
+Structure:
+
+2: Background on model arch/training, and on existing tools/frameworks
+3: V-Lens
+5: detailed analysis of vision tokens: evolution across layers, what do they encode, diff between models
+6: more causal/patching stuff
+7: related work (would maybe mention linear probes)
+
+Section titles are takeaways (or subsection titles)
+
+[...]
