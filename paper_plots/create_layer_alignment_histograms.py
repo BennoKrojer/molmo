@@ -141,7 +141,7 @@ def create_histogram_figure(counts, llm, encoder, output_path):
         
         # Remove y-ticks but keep label
         ax.set_yticks([])
-        ax.set_ylim(0, max(normalized) * 1.1 if max(normalized) > 0 else 1)
+        ax.set_ylim(0, 1.0)  # Fixed y-axis for comparability across layers
         
         # Grid
         ax.grid(axis='y', alpha=0.3)
@@ -170,28 +170,156 @@ def create_histogram_figure(counts, llm, encoder, output_path):
     plt.close()
 
 
+def create_combined_3x3_figure(all_counts, output_path):
+    """
+    Create a combined 3x3 figure with all 9 model combinations.
+    Each cell looks like the individual figures (9 rows of bar charts).
+    Layout: 3 model rows (LLMs) x 3 cols (encoders), each with 9 vision layer subplots.
+    """
+    import matplotlib.gridspec as gridspec
+    
+    llm_order = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
+    enc_order = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
+    n_vision_layers = 9
+    
+    # Create figure with nested gridspec for proper spacing
+    fig = plt.figure(figsize=(16, 28))
+    
+    # Outer grid: 3 rows (LLMs) x 3 cols (encoders), with space between model blocks
+    outer_grid = gridspec.GridSpec(3, 3, figure=fig, 
+                                    hspace=0.15,  # space between LLM blocks
+                                    wspace=0.12,  # space between encoder cols
+                                    top=0.96, bottom=0.02, left=0.06, right=0.98)
+    
+    for model_row, llm in enumerate(llm_order):
+        vision_layers = get_vision_layers(llm)
+        llm_layers = get_llm_layers(llm)
+        cmap = plt.cm.viridis
+        colors = [cmap(i / len(llm_layers)) for i in range(len(llm_layers))]
+        
+        for col_idx, encoder in enumerate(enc_order):
+            key = f"{llm}+{encoder}"
+            counts = all_counts.get(key, {})
+            
+            # Inner grid for this model: 9 rows for vision layers
+            inner_grid = gridspec.GridSpecFromSubplotSpec(
+                n_vision_layers, 1, 
+                subplot_spec=outer_grid[model_row, col_idx],
+                hspace=0.0  # no space between vision layer rows
+            )
+            
+            for v_idx, vl in enumerate(vision_layers):
+                ax = fig.add_subplot(inner_grid[v_idx])
+                
+                layer_counts = counts.get(vl, {})
+                total = sum(layer_counts.values())
+                if total > 0:
+                    normalized = [layer_counts.get(ll, 0) / total for ll in llm_layers]
+                else:
+                    normalized = [0] * len(llm_layers)
+                
+                x = np.arange(len(llm_layers))
+                ax.bar(x, normalized, color=colors, edgecolor='black', linewidth=0.3)
+                ax.set_ylim(0, 1.0)
+                ax.set_xlim(-0.5, len(llm_layers) - 0.5)
+                ax.set_yticks([])
+                ax.grid(axis='y', alpha=0.3, linewidth=0.5)
+                ax.set_axisbelow(True)
+                
+                # Vision layer label on left (only for leftmost column)
+                if col_idx == 0:
+                    ax.set_ylabel(f"V{vl}", fontsize=7, rotation=0, labelpad=10, va='center')
+                else:
+                    ax.set_ylabel('')
+                
+                # X-ticks only on bottom row of each model block
+                if v_idx == n_vision_layers - 1:
+                    ax.set_xticks(x)
+                    ax.set_xticklabels([f"{ll}" for ll in llm_layers], fontsize=6)
+                else:
+                    ax.set_xticks([])
+                
+                # Title only on first row of each model block
+                if v_idx == 0:
+                    title = f"{LLM_DISPLAY.get(llm, llm)} + {ENC_DISPLAY.get(encoder, encoder)}"
+                    ax.set_title(title, fontsize=9, fontweight='bold', pad=4)
+                
+                # Thin spines
+                for spine in ax.spines.values():
+                    spine.set_linewidth(0.5)
+    
+    fig.suptitle('Vision Token → LLM Layer Alignment', 
+                 fontsize=14, fontweight='bold')
+    
+    # Save PNG and PDF
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    print(f"✓ Saved: {output_path.name}")
+    
+    pdf_path = output_path.with_suffix('.pdf')
+    plt.savefig(pdf_path, dpi=300, bbox_inches='tight')
+    print(f"✓ Saved: {pdf_path.name}")
+    
+    plt.close()
+
+
+def load_from_data_json():
+    """Load pre-computed counts from data.json (fast!)."""
+    data_json_path = Path(__file__).parent / "data.json"
+    if not data_json_path.exists():
+        return None
+    
+    with open(data_json_path) as f:
+        data = json.load(f)
+    
+    if 'layer_alignment' not in data:
+        return None
+    
+    # Convert string keys to int
+    all_counts = {}
+    for model_key, counts in data['layer_alignment'].items():
+        all_counts[model_key] = {
+            int(vl): {int(ll): c for ll, c in lc.items()}
+            for vl, lc in counts.items()
+        }
+    return all_counts
+
+
 def main():
     print("Creating layer alignment histograms...")
     print(f"Output: {OUTPUT_DIR}")
     print()
     
-    for llm, encoder in MODELS:
-        print(f"\n{llm} + {encoder}")
-        print("-" * 40)
-        
-        model_dir = find_model_dir(llm, encoder)
-        if not model_dir:
-            print(f"  ERROR: Model directory not found")
-            continue
-        
-        print(f"  Dir: {model_dir.name}")
-        
-        # Load counts
-        counts = load_layer_counts(model_dir, llm)
-        
-        # Create figure
+    # Try loading from data.json first (fast!)
+    all_counts = load_from_data_json()
+    if all_counts:
+        print("✓ Loaded from data.json (fast mode)\n")
+    else:
+        print("Loading from raw files (slow mode)...\n")
+        all_counts = {}
+        for llm, encoder in MODELS:
+            print(f"\n{llm} + {encoder}")
+            print("-" * 40)
+            
+            model_dir = find_model_dir(llm, encoder)
+            if not model_dir:
+                print(f"  ERROR: Model directory not found")
+                continue
+            
+            print(f"  Dir: {model_dir.name}")
+            counts = load_layer_counts(model_dir, llm)
+            all_counts[f"{llm}+{encoder}"] = counts
+    
+    # Create individual figures
+    for model_key, counts in all_counts.items():
+        llm, encoder = model_key.split('+')
         output_path = OUTPUT_DIR / f"layer_alignment_{llm}_{encoder}.png"
         create_histogram_figure(counts, llm, encoder, output_path)
+    
+    # Create combined 3x3 figure
+    print("\n" + "=" * 50)
+    print("Creating combined 3x3 figure...")
+    combined_path = OUTPUT_DIR / "layer_alignment_combined_3x3.png"
+    create_combined_3x3_figure(all_counts, combined_path)
     
     print(f"\n✓ All figures saved to {OUTPUT_DIR}")
 
