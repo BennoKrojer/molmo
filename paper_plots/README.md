@@ -20,6 +20,24 @@ python paper_figures_standalone.py
 - `paper_figures_standalone.py` - Minimal script (~100 lines)
 - `paper_figures_output/` - Generated PDFs/PNGs
 
+## Updating Data
+
+When results change, run:
+```bash
+cd paper_plots
+python update_data.py
+```
+
+This will:
+1. Extract fresh data from `analysis_results/llm_judge_*/`
+2. Print the new data (copy to notebook if needed)
+3. Regenerate the plots
+
+For just extracting data without regenerating:
+```bash
+python update_data.py --extract-only
+```
+
 ## Data
 
 All interpretability data (LLM Judge evaluated) is embedded directly in the notebook/script. No need for external files.
