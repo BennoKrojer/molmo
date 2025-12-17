@@ -223,6 +223,18 @@ def main():
     print(format_data_dict(contextual_data, "CONTEXTUAL_DATA"))
     print()
     
+    # Save to data.json
+    output_data = {
+        'nn': nn_data,
+        'logitlens': logitlens_data,
+        'contextual': contextual_data
+    }
+    data_json_path = Path(__file__).parent / "data.json"
+    with open(data_json_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    print(f"✓ Saved data to {data_json_path}")
+    print()
+    
     if args.extract_only:
         return
     
