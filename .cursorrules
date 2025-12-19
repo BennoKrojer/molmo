@@ -2,7 +2,7 @@
 
 ## Error Handling
 - NEVER use try-except blocks to silently catch and hide errors
-- Let errors fail loudly so they can be debugged properly
+-Instead, let errors fail loudly so they can be debugged properly
 - Only use try-except for specific, expected errors with explicit recovery logic
 - Exception: It's okay to catch ImportError for optional dependencies, but be explicit about fallback behavior
 - in most cases, simply DO NOT use try except and just let the error happen
@@ -11,7 +11,11 @@
 - always when running commands or scripts yourself, use the environment i already set up: 
 source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)
 - always run the command in the background so that I can keep chatting with you while it runs
+- if we are run a script that takes more than a few seconds, where it is important to track progress or issues, let me run it, provide me the command, so i can directly see the output
+- if the commands don't run (sometimes Cursors is buggy), let me know and I will run it myself. Don't try to keep running it yourself.
 
+## debugging session
+- if we are deeply debugging and creating lots of temporary scripts, print statements and logs, clean them up at the end once we are sure the error is fixed
 
 This is what the research is about:
 

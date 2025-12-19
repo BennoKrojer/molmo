@@ -18,7 +18,7 @@ fi
 API_KEY=$(cat llm_judge/api_key.txt)
 
 # Configuration
-NUM_IMAGES=300
+NUM_IMAGES=100
 NUM_SAMPLES=1
 SPLIT="validation"
 USE_CROPPED_REGION=true  # Set to true to use cropped region prompt
@@ -33,9 +33,9 @@ OUTPUT_BASE="analysis_results/llm_judge_nearest_neighbors"
 LLMS=("olmo-7b" "qwen2-7b" "llama3-8b")
 VISION_ENCODERS=("vit-l-14-336" "dinov2-large-336" "siglip")
 
-# Layers to evaluate: 1, 2, 3 for fine-grained early alignment, then every 4th layer
-# LAYERS=(1 2 3 4 8 12 16 20 24 28 32)
-LAYERS=(0)
+# Layers to evaluate - includes missing layers (30,31 for OLMo/Llama, 26,27 for Qwen)
+# Skip logic will automatically skip already-completed layers
+LAYERS=(0 1 2 3 4 8 12 16 20 24 26 27 28 30 31)
 
 echo "=========================================="
 echo "Parallel LLM Judge Evaluation"

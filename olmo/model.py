@@ -1430,7 +1430,13 @@ class MolmoVisionBackbone(nn.Module):
             input_dim = cfg.vision_backbone.image_emb_dim
         elif config.image_pooling_2d in [ImagePooling2DType.none, ImagePooling2DType.stack]:
             self.image_pooling_2d = None
-            nlayers = 1 if config.vit_layers is None else len(config.vit_layers)
+            # vit_intermediate_layer overrides vit_layers and uses a single layer
+            if config.vit_intermediate_layer is not None:
+                nlayers = 1
+            elif config.vit_layers is None:
+                nlayers = 1
+            else:
+                nlayers = len(config.vit_layers)
             input_dim = nlayers * config.vision_backbone.image_emb_dim
             if config.image_pooling_2d == ImagePooling2DType.stack:
                 input_dim *= 4
@@ -1480,7 +1486,12 @@ class MolmoVisionBackbone(nn.Module):
 
         self.pad_embed = None
         if config.image_padding_embed:
-            image_dim = v_cfg.image_emb_dim*len(self.config.vit_layers)
+            # vit_intermediate_layer overrides vit_layers and uses a single layer
+            if config.vit_intermediate_layer is not None:
+                num_vit_layers = 1
+            else:
+                num_vit_layers = len(self.config.vit_layers)
+            image_dim = v_cfg.image_emb_dim * num_vit_layers
             if config.image_padding_embed in ["pad_embed", "regress"]:
                 self.pad_embed = nn.Parameter(
                     torch.zeros((image_dim,), device=config.init_device))
@@ -1540,12 +1551,18 @@ class MolmoVisionBackbone(nn.Module):
 
         mask = ~torch.all(images.view(B * T, N, D) == -1, dim=(1, 2), keepdim=True)
 
-        # Output all hidden states
+        # Output all hidden states (or up to intermediate layer if configured)
         # n_layers x (batch_num_crops, (1+)n_tokens, image_emb_dim)
         images = images.view(B * T, N, D)
-        image_features = self.image_vit(images)
 
-        if cfg.vit_layers is not None:
+        # Check if using intermediate layer (early stopping)
+        stop_at_layer = cfg.vit_intermediate_layer
+        image_features = self.image_vit(images, stop_at_layer=stop_at_layer)
+
+        if cfg.vit_intermediate_layer is not None:
+            # Use the intermediate layer output directly (last in list due to early stopping)
+            image_features = image_features[-1]
+        elif cfg.vit_layers is not None:
             features = []
             for layer in cfg.vit_layers:
                 features.append(image_features[layer])
@@ -1573,7 +1590,7 @@ class MolmoVisionBackbone(nn.Module):
         # image_features: (batch_size, num_crops(=num_image), num_patch, nximage_emb_dim)
         batch_size, num_image = images.shape[:2]
         image_features = self.encode_image(images)
-        # import pdb; pdb.set_trace()
+        
         if cfg.image_padding_embed:
             assert image_masks is not None
             if cfg.image_padding_embed == "pad_embed":

@@ -27,6 +27,30 @@ LOGITLENS_DIR = RESULTS_DIR / "llm_judge_logitlens"
 CONTEXTUAL_DIR = RESULTS_DIR / "llm_judge_contextual_nn"
 
 
+# =============================================================================
+# EXPECTED LAYERS: [0, 1, 2, 4, 8, 16, 24, N-2, N-1] where N varies per LLM
+# =============================================================================
+
+def get_expected_layers(llm):
+    """Get expected layers for a given LLM."""
+    if llm in ['olmo-7b', 'llama3-8b']:
+        return [0, 1, 2, 4, 8, 16, 24, 30, 31]
+    elif llm == 'qwen2-7b':
+        return [0, 1, 2, 4, 8, 16, 24, 26, 27]
+    else:
+        return [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+
+def filter_to_expected_layers(data):
+    """Filter data to only include expected layers for each model."""
+    filtered = {}
+    for key, layer_data in data.items():
+        llm = key.split('+')[0]
+        expected = set(get_expected_layers(llm))
+        filtered[key] = {k: v for k, v in layer_data.items() if k in expected}
+    return filtered
+
+
 def load_nn_results():
     """Load nearest neighbors results."""
     data = defaultdict(dict)
@@ -331,6 +355,19 @@ def main():
     contextual_data = load_contextual_results()
     
     print(f"Found: {len(nn_data)} NN, {len(logitlens_data)} LogitLens, {len(contextual_data)} Contextual model combos")
+    
+    # Filter to expected layers only
+    print("Filtering to expected layers: [0, 1, 2, 4, 8, 16, 24, N-2, N-1]...")
+    nn_data = filter_to_expected_layers(nn_data)
+    logitlens_data = filter_to_expected_layers(logitlens_data)
+    contextual_data = filter_to_expected_layers(contextual_data)
+    
+    # Filter to main 9 model combinations only
+    main_models = {f"{l}+{e}" for l in ['olmo-7b', 'llama3-8b', 'qwen2-7b'] 
+                   for e in ['vit-l-14-336', 'siglip', 'dinov2-large-336']}
+    nn_data = {k: v for k, v in nn_data.items() if k in main_models}
+    logitlens_data = {k: v for k, v in logitlens_data.items() if k in main_models}
+    contextual_data = {k: v for k, v in contextual_data.items() if k in main_models}
     print()
     
     # Layer alignment data (optional, slow)
@@ -359,10 +396,19 @@ def main():
         'logitlens': logitlens_data,
         'contextual': contextual_data
     }
-    if layer_alignment_data:
-        output_data['layer_alignment'] = layer_alignment_data
     
     data_json_path = Path(__file__).parent / "data.json"
+    
+    # If skipping alignment, preserve existing layer_alignment from data.json
+    if args.skip_alignment and data_json_path.exists():
+        with open(data_json_path, 'r') as f:
+            existing_data = json.load(f)
+        if 'layer_alignment' in existing_data:
+            output_data['layer_alignment'] = existing_data['layer_alignment']
+            print("  (Preserved existing layer_alignment)")
+    elif layer_alignment_data:
+        output_data['layer_alignment'] = layer_alignment_data
+    
     with open(data_json_path, 'w') as f:
         json.dump(output_data, f, indent=2)
     print(f"✓ Saved data to {data_json_path}")

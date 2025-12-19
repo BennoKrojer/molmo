@@ -198,14 +198,17 @@ class BlockCollection(nn.Module):
         for r in self.resblocks:
             r.reset_parameters()
 
-    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         hidden_states = []
-        for r in self.resblocks:
+        for i, r in enumerate(self.resblocks):
             if self.grad_checkpointing and not torch.jit.is_scripting():
                 x = self._activation_checkpoint_fn(r, x)
             else:
                 x = r(x)
             hidden_states.append(x)
+            # Early stop if requested (stop_at_layer is 0-indexed)
+            if stop_at_layer is not None and i == stop_at_layer:
+                break
         return hidden_states
 
 
@@ -226,14 +229,17 @@ class DinoBlockCollection(nn.Module):
         for r in self.resblocks:
             r.reset_parameters()
 
-    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         hidden_states = []
-        for r in self.resblocks:
+        for i, r in enumerate(self.resblocks):
             if self.grad_checkpointing and not torch.jit.is_scripting():
                 x = self._activation_checkpoint_fn(r, x)
             else:
                 x = r(x)
             hidden_states.append(x)
+            # Early stop if requested (stop_at_layer is 0-indexed)
+            if stop_at_layer is not None and i == stop_at_layer:
+                break
         return hidden_states
 
 
@@ -376,9 +382,11 @@ class VisionTransformer(nn.Module):
         x = x + torch.cat([cls_emb[None, :, :], pos_emb[None, :, :]], dim=1).to(x.dtype)
         return x
 
-    def forward(self, x: torch.Tensor, patch_num: int = None) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, patch_num: int = None, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         """
         : param x: (batch_size, num_patch, n_pixels)
+        : param patch_num: tuple of (h, w) patch dimensions
+        : param stop_at_layer: if set, stop ViT at this layer (0-indexed) for intermediate token extraction
         """
         if patch_num is None:
             patch_num = self.config.vision_backbone.image_num_patch
@@ -392,7 +400,7 @@ class VisionTransformer(nn.Module):
 
         x = self.pre_ln(x)
 
-        hidden_states = self.transformer(x)
+        hidden_states = self.transformer(x, stop_at_layer=stop_at_layer)
         return hidden_states
 
 
@@ -452,9 +460,11 @@ class SiglipVisionTransformer(nn.Module):
         x = x + pos_emb[None, :, :].to(x.dtype)
         return x
 
-    def forward(self, x: torch.Tensor, patch_num: int = None) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, patch_num: int = None, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         """
         : param x: (batch_size, num_patch, n_pixels)
+        : param patch_num: tuple of (h, w) patch dimensions
+        : param stop_at_layer: if set, stop ViT at this layer (0-indexed) for intermediate token extraction
         """
         if patch_num is None:
             patch_num = self.config.vision_backbone.image_num_patch
@@ -465,7 +475,7 @@ class SiglipVisionTransformer(nn.Module):
         # class embeddings and positional embeddings
         x = self.add_pos_emb(x, patch_num)
 
-        hidden_states = self.transformer(x)
+        hidden_states = self.transformer(x, stop_at_layer=stop_at_layer)
         return hidden_states
 
 
@@ -529,9 +539,11 @@ class DinoVisionTransformer(nn.Module):
         x = x + torch.cat([cls_emb[None, :, :], pos_emb[None, :, :]], dim=1).to(x.dtype)
         return x
 
-    def forward(self, x: torch.Tensor, patch_num: int = None) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, patch_num: int = None, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         """
         : param x: (batch_size, num_patch, n_pixels)
+        : param patch_num: tuple of (h, w) patch dimensions
+        : param stop_at_layer: if set, stop ViT at this layer (0-indexed) for intermediate token extraction
         """
         if patch_num is None:
             patch_num = self.config.vision_backbone.image_num_patch
@@ -543,7 +555,7 @@ class DinoVisionTransformer(nn.Module):
         x = torch.cat([_expand_token(self.class_embedding, x.shape[0]).to(x.dtype), x], dim=1)
         x = self.add_pos_emb(x, patch_num)
 
-        hidden_states = self.transformer(x)
+        hidden_states = self.transformer(x, stop_at_layer=stop_at_layer)
         return hidden_states
 
 
@@ -624,17 +636,25 @@ class OpenVision2Transformer(nn.Module):
         """
         pass
 
-    def forward(self, x: torch.Tensor, patch_num: int = None) -> List[torch.Tensor]:
+    def forward(self, x: torch.Tensor, patch_num: int = None, stop_at_layer: Optional[int] = None) -> List[torch.Tensor]:
         """
         Process images through OpenVision2 encoder.
         
         Args:
             x: (batch_size, num_patch, n_pixels) - Flattened patches
             patch_num: Optional tuple specifying the patch grid dimensions
+            stop_at_layer: Not supported for OpenVision2 - will be ignored with a warning
         
         Returns:
             List[torch.Tensor]: List containing patch features (for multi-layer compatibility)
         """
+        if stop_at_layer is not None:
+            import logging
+            logging.getLogger(__name__).warning(
+                "vit_intermediate_layer is not supported for OpenVision2 encoder. "
+                "Using final layer output instead."
+            )
+        
         B, N, D = x.shape
         
         # Reconstruct images from flattened patches

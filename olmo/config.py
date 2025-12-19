@@ -666,6 +666,14 @@ class ModelConfig(BaseConfig):
     What layers to use from the VIT
     """
 
+    vit_intermediate_layer: Optional[int] = None
+    """
+    If set, use this single intermediate layer from the ViT instead of vit_layers.
+    The ViT forward pass will stop early at this layer for efficiency.
+    Layer indices are 0-based (e.g., 11 means use output after layer 12).
+    When set, this overrides vit_layers.
+    """
+
     image_pooling_h: int = 2
     """
     Pooling patch features height
