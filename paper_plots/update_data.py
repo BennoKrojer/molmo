@@ -217,6 +217,103 @@ def format_data_dict(data, var_name):
 
 
 # =============================================================================
+# TOKEN SIMILARITY DATA (for same-token similarity plots)
+# =============================================================================
+
+VISION_SIM_DIR = RESULTS_DIR / "sameToken_acrossLayers_similarity"
+TEXT_SIM_DIR = RESULTS_DIR / "sameToken_acrossLayers_text_similarity"
+
+
+def extract_model_from_checkpoint(checkpoint_path):
+    """Extract LLM and encoder from checkpoint path."""
+    llms = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
+    encoders = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
+    
+    for l in llms:
+        if l in checkpoint_path:
+            llm = l
+            break
+    else:
+        return None, None
+    
+    for e in encoders:
+        if e in checkpoint_path:
+            encoder = e
+            break
+    else:
+        return None, None
+    
+    return llm, encoder
+
+
+def load_token_similarity_data():
+    """
+    Load token similarity data (vision and text).
+    
+    Returns: {
+        'vision': {model_key: {layer: similarity}},
+        'text': {model_key: {layer: similarity}}
+    }
+    """
+    result = {'vision': {}, 'text': {}}
+    
+    # Load vision similarity
+    if VISION_SIM_DIR.exists():
+        for ckpt_dir in VISION_SIM_DIR.iterdir():
+            if not ckpt_dir.is_dir():
+                continue
+            summary_file = ckpt_dir / "similarity_across_layers_summary.json"
+            if not summary_file.exists():
+                continue
+            
+            llm, encoder = extract_model_from_checkpoint(ckpt_dir.name)
+            if not llm or not encoder:
+                continue
+            
+            key = f"{llm}+{encoder}"
+            with open(summary_file) as f:
+                data = json.load(f)
+            
+            ga = data.get('global_averages', {})
+            result['vision'][key] = {
+                int(layer): round(ga[layer]['same_token']['mean_similarity'], 4)
+                for layer in ga
+            }
+    
+    # Load text similarity
+    if TEXT_SIM_DIR.exists():
+        for ckpt_dir in TEXT_SIM_DIR.iterdir():
+            if not ckpt_dir.is_dir():
+                continue
+            summary_file = ckpt_dir / "text_similarity_across_layers_summary.json"
+            if not summary_file.exists():
+                continue
+            
+            llm, encoder = extract_model_from_checkpoint(ckpt_dir.name)
+            if not llm or not encoder:
+                continue
+            
+            key = f"{llm}+{encoder}"
+            with open(summary_file) as f:
+                data = json.load(f)
+            
+            ga = data.get('global_averages', {})
+            result['text'][key] = {
+                int(layer): round(ga[layer]['same_token']['mean_similarity'], 4)
+                for layer in ga
+            }
+    
+    # Sort by layer
+    for modality in ['vision', 'text']:
+        result[modality] = {
+            k: dict(sorted(v.items())) 
+            for k, v in sorted(result[modality].items())
+        }
+    
+    return result
+
+
+# =============================================================================
 # LAYER ALIGNMENT DATA (for histogram plots)
 # =============================================================================
 
@@ -368,6 +465,13 @@ def main():
     nn_data = {k: v for k, v in nn_data.items() if k in main_models}
     logitlens_data = {k: v for k, v in logitlens_data.items() if k in main_models}
     contextual_data = {k: v for k, v in contextual_data.items() if k in main_models}
+    
+    # Load token similarity data
+    print("Extracting token similarity data...")
+    token_similarity_data = load_token_similarity_data()
+    token_similarity_data['vision'] = {k: v for k, v in token_similarity_data['vision'].items() if k in main_models}
+    token_similarity_data['text'] = {k: v for k, v in token_similarity_data['text'].items() if k in main_models}
+    print(f"  Vision: {len(token_similarity_data['vision'])}, Text: {len(token_similarity_data['text'])} models")
     print()
     
     # Layer alignment data (optional, slow)
@@ -394,7 +498,8 @@ def main():
     output_data = {
         'nn': nn_data,
         'logitlens': logitlens_data,
-        'contextual': contextual_data
+        'contextual': contextual_data,
+        'token_similarity': token_similarity_data
     }
     
     data_json_path = Path(__file__).parent / "data.json"

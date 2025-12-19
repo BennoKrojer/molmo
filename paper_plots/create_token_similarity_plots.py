@@ -8,7 +8,7 @@ cosine similarity to layer 0 (input layer) across all layers.
 For each model combination (3x3 grid):
 - X-axis: LLM Layer
 - Y-axis: Cosine Similarity to Layer 0
-- Two lines: Vision tokens (from vision similarity analysis) and Text tokens (from text similarity analysis)
+- Two lines: Vision tokens and Text tokens
 """
 
 import json
@@ -17,13 +17,10 @@ import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
 from pathlib import Path
-import re
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
-ANALYSIS_RESULTS_DIR = SCRIPT_DIR.parent / "analysis_results"
-VISION_SIM_DIR = ANALYSIS_RESULTS_DIR / "sameToken_acrossLayers_similarity"
-TEXT_SIM_DIR = ANALYSIS_RESULTS_DIR / "sameToken_acrossLayers_text_similarity"
+DATA_JSON = SCRIPT_DIR / "data.json"
 OUTPUT_DIR = SCRIPT_DIR / "paper_figures_output" / "token_similarity_plots"
 
 # Display names
@@ -39,108 +36,31 @@ ENC_DISPLAY = {
 }
 
 
-def extract_model_from_checkpoint(checkpoint_path):
+def load_token_similarity_data():
     """
-    Extract LLM and encoder from checkpoint path.
-    
-    Example: 'train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded'
-    Returns: ('olmo-7b', 'vit-l-14-336')
-    """
-    # Pattern: ..._llm_encoder_...
-    llms = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
-    encoders = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
-    
-    llm = None
-    encoder = None
-    
-    for l in llms:
-        if l in checkpoint_path:
-            llm = l
-            break
-    
-    for e in encoders:
-        if e in checkpoint_path:
-            encoder = e
-            break
-    
-    return llm, encoder
-
-
-def load_similarity_data(sim_dir, checkpoint_name):
-    """
-    Load similarity summary JSON for a given checkpoint.
-    
-    Args:
-        sim_dir: Directory containing similarity results
-        checkpoint_name: Name of checkpoint directory
+    Load token similarity data from data.json.
     
     Returns:
-        Dictionary with layer -> similarity data, or None if not found
+        Dictionary: {(llm, encoder): {'vision': {layer: sim}, 'text': {layer: sim}}}
     """
-    # Determine filename based on directory name
-    if 'text_similarity' in sim_dir.name:
-        filename = "text_similarity_across_layers_summary.json"
-    else:
-        filename = "similarity_across_layers_summary.json"
-    
-    summary_file = sim_dir / checkpoint_name / filename
-    
-    if not summary_file.exists():
-        return None
-    
-    with open(summary_file) as f:
+    with open(DATA_JSON) as f:
         data = json.load(f)
     
-    return data.get('global_averages', {})
-
-
-def load_all_similarity_data():
-    """
-    Load all vision and text similarity data, organized by model combination.
+    token_sim = data.get('token_similarity', {})
+    vision_data = token_sim.get('vision', {})
+    text_data = token_sim.get('text', {})
     
-    Returns:
-        Dictionary: {(llm, encoder): {'vision': {...}, 'text': {...}}}
-    """
+    # Convert to (llm, encoder) tuple keys and int layer keys
     all_data = {}
     
-    # Find all checkpoint directories
-    vision_checkpoints = set()
-    text_checkpoints = set()
-    
-    if VISION_SIM_DIR.exists():
-        vision_checkpoints = {d.name for d in VISION_SIM_DIR.iterdir() if d.is_dir()}
-    
-    if TEXT_SIM_DIR.exists():
-        text_checkpoints = {d.name for d in TEXT_SIM_DIR.iterdir() if d.is_dir()}
-    
-    # Find common checkpoints
-    common_checkpoints = vision_checkpoints & text_checkpoints
-    
-    print(f"Found {len(common_checkpoints)} common checkpoints")
-    
-    for checkpoint_name in common_checkpoints:
-        llm, encoder = extract_model_from_checkpoint(checkpoint_name)
+    for key in set(vision_data.keys()) | set(text_data.keys()):
+        llm, encoder = key.split('+')
         
-        if llm is None or encoder is None:
-            print(f"Warning: Could not extract model from {checkpoint_name}")
-            continue
+        vision = {int(l): v for l, v in vision_data.get(key, {}).items()}
+        text = {int(l): v for l, v in text_data.get(key, {}).items()}
         
-        key = (llm, encoder)
-        
-        # Load vision similarity data
-        vision_data = load_similarity_data(VISION_SIM_DIR, checkpoint_name)
-        
-        # Load text similarity data
-        text_data = load_similarity_data(TEXT_SIM_DIR, checkpoint_name)
-        
-        if vision_data is None or text_data is None:
-            print(f"Warning: Missing data for {checkpoint_name}")
-            continue
-        
-        all_data[key] = {
-            'vision': vision_data,
-            'text': text_data
-        }
+        if vision or text:
+            all_data[(llm, encoder)] = {'vision': vision, 'text': text}
     
     return all_data
 
@@ -164,14 +84,12 @@ def create_combined_3x3_plot(all_data, output_path):
             vision_data = all_data[key]['vision']
             text_data = all_data[key]['text']
             
-            # Extract layers and similarities
-            # Vision tokens
-            vision_layers = sorted([int(l) for l in vision_data.keys()])
-            vision_similarities = [vision_data[str(l)]['same_token']['mean_similarity'] for l in vision_layers]
+            # Extract layers and similarities (already in correct format from data.json)
+            vision_layers = sorted(vision_data.keys())
+            vision_similarities = [vision_data[l] for l in vision_layers]
             
-            # Text tokens
-            text_layers = sorted([int(l) for l in text_data.keys()])
-            text_similarities = [text_data[str(l)]['same_token']['mean_similarity'] for l in text_layers]
+            text_layers = sorted(text_data.keys())
+            text_similarities = [text_data[l] for l in text_layers]
             
             # Plot lines
             ax.plot(vision_layers, vision_similarities, 
@@ -217,7 +135,6 @@ def create_combined_3x3_plot(all_data, output_path):
     fig.subplots_adjust(right=0.98, hspace=0.35, wspace=0.25, top=0.88, bottom=0.12)
     
     # Get the position of the middle column subplot to center legend on it
-    # Middle column is column index 1, use middle row (row 1) for reference
     middle_subplot = axes[1, 1]
     bbox = middle_subplot.get_position()
     middle_col_center_x = bbox.x0 + bbox.width / 2
@@ -240,13 +157,12 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"Output: {OUTPUT_DIR}\n")
     
-    # Load data
-    all_data = load_all_similarity_data()
+    # Load data from data.json
+    all_data = load_token_similarity_data()
     
     if not all_data:
-        print("ERROR: No similarity data found!")
-        print(f"  Vision dir: {VISION_SIM_DIR}")
-        print(f"  Text dir: {TEXT_SIM_DIR}")
+        print("ERROR: No token_similarity data found in data.json!")
+        print("  Run: python update_data.py")
         return
     
     print(f"✓ Loaded data for {len(all_data)} model combinations\n")
@@ -254,10 +170,10 @@ def main():
     # Print summary
     print("Available model combinations:")
     for (llm, encoder) in sorted(all_data.keys()):
-        vision_layers = sorted([int(l) for l in all_data[(llm, encoder)]['vision'].keys()])
-        text_layers = sorted([int(l) for l in all_data[(llm, encoder)]['text'].keys()])
+        vision_layers = len(all_data[(llm, encoder)]['vision'])
+        text_layers = len(all_data[(llm, encoder)]['text'])
         print(f"  {LLM_DISPLAY.get(llm, llm)} + {ENC_DISPLAY.get(encoder, encoder)}: "
-              f"Vision layers {len(vision_layers)}, Text layers {len(text_layers)}")
+              f"Vision layers {vision_layers}, Text layers {text_layers}")
     print()
     
     # Create combined 3x3 plot
