@@ -25,6 +25,7 @@ RESULTS_DIR = REPO_ROOT / "analysis_results"
 NN_DIR = RESULTS_DIR / "llm_judge_nearest_neighbors"
 LOGITLENS_DIR = RESULTS_DIR / "llm_judge_logitlens"
 CONTEXTUAL_DIR = RESULTS_DIR / "llm_judge_contextual_nn"
+CONTEXTUAL_NN_RAW_DIR = RESULTS_DIR / "contextual_nearest_neighbors"
 
 
 # =============================================================================
@@ -411,6 +412,86 @@ def load_layer_alignment_data(skip_if_slow=False):
     return all_data
 
 
+def load_similarity_histogram_data(visual_layers=[0, 8, 16], num_bins=30):
+    """
+    Load similarity histogram data from contextual NN JSON files.
+    Returns binned histogram data (counts and bin_edges) for each model and visual layer.
+    """
+    import numpy as np
+    
+    MODELS = [
+        ("olmo-7b", "vit-l-14-336"),
+        ("olmo-7b", "siglip"),
+        ("olmo-7b", "dinov2-large-336"),
+        ("llama3-8b", "vit-l-14-336"),
+        ("llama3-8b", "siglip"),
+        ("llama3-8b", "dinov2-large-336"),
+        ("qwen2-7b", "vit-l-14-336"),
+        ("qwen2-7b", "siglip"),
+        ("qwen2-7b", "dinov2-large-336"),
+    ]
+    
+    def find_model_dir(llm, encoder):
+        """Find the model directory for contextual nearest neighbor results."""
+        if llm == "qwen2-7b" and encoder == "vit-l-14-336":
+            pattern = f"train_mlp-only_pixmo_cap_resize_{llm}_{encoder}_seed10_step12000-unsharded"
+        else:
+            pattern = f"train_mlp-only_pixmo_cap_resize_{llm}_{encoder}_step12000-unsharded"
+        
+        matches = list(CONTEXTUAL_NN_RAW_DIR.glob(pattern))
+        matches = [m for m in matches if 'lite' not in str(m)]
+        return matches[0] if matches else None
+    
+    all_data = {}
+    
+    for llm, encoder in MODELS:
+        model_key = f"{llm}+{encoder}"
+        model_dir = find_model_dir(llm, encoder)
+        
+        if not model_dir:
+            print(f"  {model_key}: directory not found, skipping")
+            continue
+        
+        all_data[model_key] = {}
+        
+        for visual_layer in visual_layers:
+            json_file = model_dir / f"contextual_neighbors_visual{visual_layer}_allLayers.json"
+            
+            if not json_file.exists():
+                print(f"  {model_key} visual{visual_layer}: not found")
+                continue
+            
+            # Load similarities
+            similarities = []
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+            
+            for result in data.get('results', []):
+                for chunk in result.get('chunks', []):
+                    for patch in chunk.get('patches', []):
+                        nns = patch.get('nearest_contextual_neighbors', [])
+                        if nns:
+                            similarities.append(nns[0].get('similarity', 0))
+            
+            if not similarities:
+                continue
+            
+            # Compute histogram
+            counts, bin_edges = np.histogram(similarities, bins=num_bins, range=(0, 1))
+            
+            all_data[model_key][visual_layer] = {
+                'counts': counts.tolist(),
+                'bin_edges': bin_edges.tolist(),
+                'mean': float(np.mean(similarities)),
+                'median': float(np.median(similarities)),
+                'n_samples': len(similarities)
+            }
+            
+            print(f"  {model_key} visual{visual_layer}: {len(similarities):,} samples, mean={np.mean(similarities):.3f}")
+    
+    return all_data
+
+
 def main():
     parser = argparse.ArgumentParser(description='Update paper figures data')
     parser.add_argument('--extract-only', action='store_true', 
@@ -482,6 +563,12 @@ def main():
         print(f"Found: {len(layer_alignment_data)} models with layer alignment data")
         print()
     
+    # Similarity histogram data
+    print("Extracting similarity histogram data (layers 0, 8, 16)...")
+    similarity_histogram_data = load_similarity_histogram_data(visual_layers=[0, 8, 16])
+    print(f"Found: {len(similarity_histogram_data)} models with similarity histogram data")
+    print()
+    
     # Print data for copy-paste
     print("=" * 60)
     print("EXTRACTED DATA (copy to notebook if needed):")
@@ -499,7 +586,8 @@ def main():
         'nn': nn_data,
         'logitlens': logitlens_data,
         'contextual': contextual_data,
-        'token_similarity': token_similarity_data
+        'token_similarity': token_similarity_data,
+        'similarity_histograms': similarity_histogram_data
     }
     
     data_json_path = Path(__file__).parent / "data.json"

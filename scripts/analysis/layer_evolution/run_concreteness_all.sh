@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run visual attribute analysis for all model combinations
+# Run concreteness analysis for all model combinations
 
 set -e
 
@@ -11,7 +11,7 @@ source ../../env/bin/activate
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 echo "=================================="
-echo "Visual Attribute Analysis"
+echo "Concreteness Analysis"
 echo "Running for all model combinations"
 echo "=================================="
 
@@ -31,7 +31,7 @@ for llm in "${LLMS[@]}"; do
         echo "[$current/$total] Processing: $llm + $encoder"
         echo "----------------------------------------"
         
-        python scripts/analysis/layer_evolution/analyze_visual_attributes.py \
+        python scripts/analysis/layer_evolution/analyze_concreteness.py \
             --llm "$llm" \
             --vision-encoder "$encoder"
     done
@@ -45,5 +45,5 @@ echo ""
 echo "Results saved to: analysis_results/layer_evolution/"
 echo ""
 echo "Generated visualizations:"
-ls -lh analysis_results/layer_evolution/visual_attributes*.pdf | awk '{print "  " $9 " (" $5 ")"}'
+ls -lh analysis_results/layer_evolution/concreteness*.pdf | awk '{print "  " $9 " (" $5 ")"}'
 
