@@ -37,15 +37,18 @@ source ../../env/bin/activate
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 # Configuration
+# OLMo layers: 0,1,2,4,8,16,24,30,31 (9 layers for 32-layer model)
+OLMO_LAYERS="0,1,2,4,8,16,24,30,31"
+
 if [ "$TEST_MODE" = true ]; then
     echo "🧪 TEST MODE: Using minimal inputs"
     NUM_IMAGES=5
     NUM_SAMPLES=1
-    LAYERS="0"
+    LAYERS="0"  # Just layer 0 for quick testing
 else
     NUM_IMAGES=300
     NUM_SAMPLES=1
-    LAYERS="0"  # Layer 0 for ablations (input layer interpretability)
+    LAYERS="$OLMO_LAYERS"  # All 9 layers for full analysis
 fi
 
 SPLIT="validation"
@@ -216,22 +219,30 @@ log "✓ All validations passed"
 log ""
 
 # ============================================================
-# PHASE 1: Static NN for ablations that need it
+# PHASE 1: Static NN for ALL ablations (all 9 layers)
 # ============================================================
 log ""
-log "========== PHASE 1: Static NN for Missing Ablations =========="
+log "========== PHASE 1: Static NN for ALL Ablations (9 layers) =========="
 
-for checkpoint_name in "${ABLATIONS_NEED_NN[@]}"; do
+# Count expected layers (9 for OLMo)
+EXPECTED_LAYER_COUNT=9
+
+for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
     checkpoint_path="molmo_data/checkpoints/ablations/${checkpoint_name}/step12000-unsharded"
     output_dir="analysis_results/nearest_neighbors/ablations/${checkpoint_name}_step12000-unsharded"
     
-    # Check if already exists
-    if [ -d "$output_dir" ] && [ -f "$output_dir/nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer0.json" ]; then
-        log "SKIP: NN already exists for $checkpoint_name"
-        continue
+    # Check if ALL layers exist (count json files with layer pattern)
+    if [ -d "$output_dir" ]; then
+        layer_count=$(ls "$output_dir"/nearest_neighbors_analysis_*_layer*.json 2>/dev/null | wc -l)
+        if [ "$layer_count" -ge "$EXPECTED_LAYER_COUNT" ]; then
+            log "SKIP: NN complete for $checkpoint_name ($layer_count layers)"
+            continue
+        else
+            log "INCOMPLETE: NN for $checkpoint_name has $layer_count/$EXPECTED_LAYER_COUNT layers - will re-run"
+        fi
     fi
     
-    run_cmd "NN for $checkpoint_name" \
+    run_cmd "NN for $checkpoint_name (all 9 layers)" \
         "torchrun --nproc_per_node=$NPROC --master_port=$MASTER_PORT \
             scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py \
             --ckpt-path $checkpoint_path \
@@ -240,22 +251,27 @@ for checkpoint_name in "${ABLATIONS_NEED_NN[@]}"; do
 done
 
 # ============================================================
-# PHASE 2: LogitLens for ALL ablations
+# PHASE 2: LogitLens for ALL ablations (all 9 layers)
 # ============================================================
 log ""
-log "========== PHASE 2: LogitLens for ALL Ablations =========="
+log "========== PHASE 2: LogitLens for ALL Ablations (9 layers) =========="
 
 for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
     checkpoint_path="molmo_data/checkpoints/ablations/${checkpoint_name}/step12000-unsharded"
     output_dir="analysis_results/logit_lens/ablations/${checkpoint_name}_step12000-unsharded"
     
-    # Check if already exists
-    if [ -d "$output_dir" ] && [ -f "$output_dir/logit_lens_layer0_topk5_multi-gpu.json" ]; then
-        log "SKIP: LogitLens already exists for $checkpoint_name"
-        continue
+    # Check if ALL layers exist
+    if [ -d "$output_dir" ]; then
+        layer_count=$(ls "$output_dir"/logit_lens_layer*_topk*.json 2>/dev/null | wc -l)
+        if [ "$layer_count" -ge "$EXPECTED_LAYER_COUNT" ]; then
+            log "SKIP: LogitLens complete for $checkpoint_name ($layer_count layers)"
+            continue
+        else
+            log "INCOMPLETE: LogitLens for $checkpoint_name has $layer_count/$EXPECTED_LAYER_COUNT layers - will re-run"
+        fi
     fi
     
-    run_cmd "LogitLens for $checkpoint_name" \
+    run_cmd "LogitLens for $checkpoint_name (all 9 layers)" \
         "torchrun --nproc_per_node=$NPROC --master_port=$MASTER_PORT \
             scripts/analysis/logitlens.py \
             --ckpt-path $checkpoint_path \
@@ -604,40 +620,62 @@ else
 fi
 
 # ============================================================
-# PHASE 7: Static NN for Qwen2-VL (single GPU)
+# PHASE 7: Static NN for Qwen2-VL (single GPU, 9 layers)
 # ============================================================
 log ""
-log "========== PHASE 7: Static NN for Qwen2-VL =========="
+log "========== PHASE 7: Static NN for Qwen2-VL (9 layers) =========="
 
 QWEN2VL_NN_OUTPUT="analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+QWEN2_LAYERS="0,1,2,4,8,16,24,26,27"
+QWEN2_EXPECTED_LAYER_COUNT=9
 
-# Check if already exists (check for layer 0)
-if [ -d "$QWEN2VL_NN_OUTPUT" ] && [ -f "$QWEN2VL_NN_OUTPUT/nearest_neighbors_layer0_topk5.json" ]; then
-    log "SKIP: Static NN already exists for Qwen2-VL"
+# Check if ALL layers exist
+if [ -d "$QWEN2VL_NN_OUTPUT" ]; then
+    qwen_nn_count=$(ls "$QWEN2VL_NN_OUTPUT"/nearest_neighbors_layer*_topk*.json 2>/dev/null | wc -l)
+    if [ "$qwen_nn_count" -ge "$QWEN2_EXPECTED_LAYER_COUNT" ]; then
+        log "SKIP: Static NN complete for Qwen2-VL ($qwen_nn_count layers)"
+    else
+        log "INCOMPLETE: Static NN for Qwen2-VL has $qwen_nn_count/$QWEN2_EXPECTED_LAYER_COUNT layers - will re-run"
+        run_cmd "Static NN for Qwen2-VL (all 9 layers)" \
+            "python3 scripts/analysis/qwen2_vl/nearest_neighbors.py \
+                --num-images $NUM_IMAGES \
+                --layers $QWEN2_LAYERS \
+                --output-dir analysis_results/nearest_neighbors/qwen2_vl"
+    fi
 else
-    run_cmd "Static NN for Qwen2-VL" \
+    run_cmd "Static NN for Qwen2-VL (all 9 layers)" \
         "python3 scripts/analysis/qwen2_vl/nearest_neighbors.py \
             --num-images $NUM_IMAGES \
-            --layers 0,1,2,4,8,16,24,26,27 \
+            --layers $QWEN2_LAYERS \
             --output-dir analysis_results/nearest_neighbors/qwen2_vl"
 fi
 
 # ============================================================
-# PHASE 8: LogitLens for Qwen2-VL (single GPU)
+# PHASE 8: LogitLens for Qwen2-VL (single GPU, 9 layers)
 # ============================================================
 log ""
-log "========== PHASE 8: LogitLens for Qwen2-VL =========="
+log "========== PHASE 8: LogitLens for Qwen2-VL (9 layers) =========="
 
 QWEN2VL_LL_OUTPUT="analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
 
-# Check if already exists (check for layer 0)
-if [ -d "$QWEN2VL_LL_OUTPUT" ] && [ -f "$QWEN2VL_LL_OUTPUT/logit_lens_layer0_topk5.json" ]; then
-    log "SKIP: LogitLens already exists for Qwen2-VL"
+# Check if ALL layers exist
+if [ -d "$QWEN2VL_LL_OUTPUT" ]; then
+    qwen_ll_count=$(ls "$QWEN2VL_LL_OUTPUT"/logit_lens_layer*_topk*.json 2>/dev/null | wc -l)
+    if [ "$qwen_ll_count" -ge "$QWEN2_EXPECTED_LAYER_COUNT" ]; then
+        log "SKIP: LogitLens complete for Qwen2-VL ($qwen_ll_count layers)"
+    else
+        log "INCOMPLETE: LogitLens for Qwen2-VL has $qwen_ll_count/$QWEN2_EXPECTED_LAYER_COUNT layers - will re-run"
+        run_cmd "LogitLens for Qwen2-VL (all 9 layers)" \
+            "python3 scripts/analysis/qwen2_vl/logitlens.py \
+                --num-images $NUM_IMAGES \
+                --layers $QWEN2_LAYERS \
+                --output-dir analysis_results/logit_lens/qwen2_vl"
+    fi
 else
-    run_cmd "LogitLens for Qwen2-VL" \
+    run_cmd "LogitLens for Qwen2-VL (all 9 layers)" \
         "python3 scripts/analysis/qwen2_vl/logitlens.py \
             --num-images $NUM_IMAGES \
-            --layers 0,1,2,4,8,16,24,26,27 \
+            --layers $QWEN2_LAYERS \
             --output-dir analysis_results/logit_lens/qwen2_vl"
 fi
 
