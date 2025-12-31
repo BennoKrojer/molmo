@@ -1,0 +1,120 @@
+# V-Lens Project Configuration
+
+> **Note**: This repo is forked from Molmo. Most training infrastructure comes from there.
+> Focus on our interpretability study in `scripts/analysis/` and `analysis_results/`.
+
+## Environment Setup
+- Always use the environment: `source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)`
+
+## Git Workflow
+- **Push to GitHub after every major change** (new scripts, bug fixes, new results)
+- Before pushing, check file sizes - never push files >100MB
+- After pushing, update JOURNAL.md with what was done
+
+## JOURNAL.md
+- Log every major change: new scripts, new results, git pushes, deleted files
+- Format: `[YYYY-MM-DD] Brief description of change`
+- Keep it concise - one line per change
+- This helps track progress and is essential for reproducibility
+
+---
+
+## Project Overview
+
+**Research question**: How do frozen LLMs process visual soft prompt tokens?
+
+**Main study**: 3 LLMs × 3 Vision Encoders = 9 model combinations
+- LLMs: LLaMA3-8B, OLMo-7B, Qwen2-7B (32, 32, 28 layers respectively)
+- Vision Encoders: ViT-L/14-336 (CLIP), DINOv2-L-336, SigLIP
+- Training: Connector-only (MLP), 12k steps on PixMo-Cap
+
+**Interpretability methods**:
+1. Static NN - nearest neighbors in LLM vocabulary (called "NN" in code)
+2. LogitLens - apply LM head to intermediate representations
+3. LN-Lens (ours) - contextual nearest neighbors (called "contextual NN" in code)
+
+**Layers analyzed**: 0, 1, 2, 4, 8, 16, 24, N-2, N-1 (where N = num_layers)
+- OLMo/LLaMA (32 layers): 0, 1, 2, 4, 8, 16, 24, 30, 31
+- Qwen2 (28 layers): 0, 1, 2, 4, 8, 16, 24, 26, 27
+
+---
+
+## Directory Structure
+
+### Checkpoints
+- `molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_{llm}_{vision}/`
+- Exception: qwen2-7b + vit-l-14-336 has `_seed10` suffix
+- Ablations: `molmo_data/checkpoints/ablations/`
+
+### Contextual Embeddings
+- `molmo_data/contextual_llm_embeddings_vg/` (Visual Genome corpus)
+- Subdirs: `allenai_OLMo-7B-1024-preview/`, `meta-llama_Meta-Llama-3-8B/`, `Qwen_Qwen2-7B/`, `Qwen_Qwen2-VL-7B-Instruct/`
+- Each has `layer_N/` directories with embeddings and `embeddings_cache.pt`
+
+### Analysis Results
+- `analysis_results/nearest_neighbors/` - Static NN
+- `analysis_results/logit_lens/` - LogitLens
+- `analysis_results/contextual_nearest_neighbors/` - LN-Lens (CC corpus)
+- `analysis_results/contextual_nearest_neighbors_vg/` - LN-Lens (VG corpus)
+- `analysis_results/llm_judge_*/` - GPT-4o evaluation results
+- `analysis_results/unified_viewer_lite/` - HTML viewer (10 images)
+- `analysis_results/ablations_comparison/` - Ablation analysis
+
+### Key Scripts
+- `scripts/analysis/create_contextual_embeddings.py` - extract contextual embeddings
+- `scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` - static NN
+- `scripts/analysis/logitlens.py` - LogitLens
+- `scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py` - LN-Lens
+- `scripts/analysis/create_unified_viewer.py` - HTML visualization (main models)
+- `scripts/analysis/qwen2_vl/` - Qwen2-VL specific (off-the-shelf model)
+- `llm_judge/run_single_model_with_viz.py` - GPT-4o evaluation
+
+### Viewer Management Scripts
+- `scripts/analysis/viewer_models.json` - Config file for all models (main + ablations)
+- `scripts/analysis/add_models_to_viewer.py` - Validate data, update main index
+- `scripts/analysis/generate_ablation_viewers.py` - Generate ablation image viewers
+
+### Run Scripts (shell)
+- `run_all_combinations_nn.sh` - run static NN on all models
+- `run_all_combinations_logitlens.sh` - run LogitLens on all models
+- `run_all_combinations_contextual_nn.sh [cc|vg]` - run LN-Lens on all models
+- `llm_judge/run_all_parallel_*.sh` - run LLM judge evaluations
+
+---
+
+## Visualization
+- Use 10 images for lite viewer (not 100 or 300)
+- Don't regenerate `unified_viewer_lite/` unless necessary
+- Add new models incrementally
+
+---
+
+## Paper Abstract (for context)
+
+**Title**: The surprising interpretability of vision tokens in LLMs
+
+\begin{abstract}
+In this paper we shed light on a puzzling question:
+How can frozen LLMs integrate non-linguistic input, such as visual soft prompt tokens?
+More colloquially: How does an LLM convert visual tokens into ``words'' it can understand?
+Specifically, across various vision and language models we train only a small connector (MLP) to map vision tokens to the prefix space of a LLM.
+We find that existing interpretability tools such as Logitlens are not adequate and too coarse-grained to show us precisely how individual visual tokens relate to language embeddings, and what they semantically ``contain''.
+Thus to answer our question, how LLMs integrate visual tokens, we propose a new \textit{lens} for interpreting how vision tokens align with the LLM embedding space.
+V-Lens shows that the nearest neighbors of vision tokens are highly interpretable.
+Surprisingly, even at the input layer visual soft prompts are already interpretable for some LLMs and vision encoders (e.g. OLMO-7B \& CLIP-ViT).
+When applying our V-Lens as \textit{contextual} nearest-neighbors in later layers, opposed to static nearest-neighbors at the input layer, we find that interpretability increases already in early layers.
+Especially for LLMs where we initially find low interpretability at the input level (e.g. Qwen2), we see a stark increase.
+We investigate further:
+We find that non-salient parts of the image (background, black padding on the side) are less interpretable and further away from any language embeddings.
+For interpretable tokens, we characterize their interpretability in detail:
+interpretability is precise/local (akin to segmentation maps) and across different levels of abstraction or types of concepts: colors, objects, and OCR to more abstract concepts in later layers.
+
+Overall our study provides strong evidence that vision tokens (and broadly soft prompts) are more interpretable and aligned with LLM's embedding space than previously thought.
+We release tools/framework/lens that provides researchers with highly detailed interpretations of what goes on inside vision tokens of an LLM.
+\end{abstract}
+
+**Key contributions**:
+1. Evidence that visual soft prompts are interpretable and aligned with LLM embedding space
+2. LN-Lens: contextual nearest neighbors method for interpreting vision tokens
+3. Large corpus of contextual text embeddings for VL interpretability
+4. Extensive ablations across 9 model combinations

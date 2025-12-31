@@ -1,0 +1,74 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkwkjqbkbmvvm7v8di",
+  "timestamp": "2025-11-04T18:28:59.791Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00187_patch0",
+      "selectedWords": [
+        {
+          "word": "_day",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:27:53.512Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00187_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:27:57.711Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch2",
+      "selectedWords": [
+        {
+          "word": " numbers",
+          "relation": "global"
+        },
+        {
+          "word": " number",
+          "relation": "global"
+        },
+        {
+          "word": "digits",
+          "relation": "global"
+        },
+        {
+          "word": "BOTTOM",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:28:17.195Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch3",
+      "selectedWords": [
+        {
+          "word": "kont",
+          "relation": "concrete"
+        },
+        {
+          "word": " trees",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:28:29.781Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00187_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:28:47.396Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00187_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:28:59.747Z"
+    }
+  ]
+}

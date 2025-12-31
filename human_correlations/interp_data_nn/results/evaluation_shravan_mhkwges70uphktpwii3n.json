@@ -1,0 +1,78 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkwges70uphktpwii3n",
+  "timestamp": "2025-11-04T18:25:46.748Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00134_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:24:15.361Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00134_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:24:23.085Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00134_patch2",
+      "selectedWords": [
+        {
+          "word": "ing",
+          "relation": "concrete"
+        },
+        {
+          "word": "ining",
+          "relation": "concrete"
+        },
+        {
+          "word": "izing",
+          "relation": "concrete"
+        },
+        {
+          "word": "inging",
+          "relation": "concrete"
+        },
+        {
+          "word": "ating",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:25:13.733Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch3",
+      "selectedWords": [
+        {
+          "word": "toolbar",
+          "relation": "concrete"
+        },
+        {
+          "word": "itures",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:25:23.704Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:25:29.866Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00134_patch5",
+      "selectedWords": [
+        {
+          "word": "outlined",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:25:46.711Z"
+    }
+  ]
+}

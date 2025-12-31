@@ -1,0 +1,56 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhdmevr5dbrc08qjn5f",
+  "timestamp": "2025-10-30T16:10:16.097Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00023_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T16:09:20.869Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00023_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T16:09:36.234Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T16:09:52.484Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00023_patch3",
+      "selectedWords": [
+        {
+          "word": "Green",
+          "relation": "concrete"
+        },
+        {
+          "word": " green",
+          "relation": "concrete"
+        },
+        {
+          "word": " greens",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T16:10:02.102Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00023_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T16:10:09.601Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T16:10:16.001Z"
+    }
+  ]
+}

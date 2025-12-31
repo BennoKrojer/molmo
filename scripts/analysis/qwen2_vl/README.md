@@ -2,9 +2,103 @@
 
 This folder contains analysis scripts for off-the-shelf Qwen2-VL models from HuggingFace.
 
-## Overview
+## Key Findings
 
-These scripts analyze how Qwen2-VL (an off-the-shelf vision-language model) processes visual tokens and how they relate to contextual text embeddings, similar to the analysis done for trained Molmo models.
+### Vision Token Processing in Qwen2-VL
+
+Based on our investigation, Qwen2-VL processes vision tokens differently than Molmo:
+
+1. **Merger Module**: Qwen2-VL has a "merger" in the visual encoder that reduces patches
+   - Example: 256 patches (16×16) → 64 vision tokens in the LLM
+   - This is different from Molmo which preserves more spatial resolution
+
+2. **Vision Token Positions**: Vision tokens are marked by `<|image_pad|>` tokens (ID: 151655)
+   - Vision tokens appear at positions 0 to (num_image_pad - 1) in hidden states
+   - Number of vision tokens varies by image size (e.g., 64, 256, 777, 999 tokens)
+
+3. **Architecture**:
+   ```
+   model.visual         - Vision encoder (Qwen2VisionTransformerPretrainedModel)
+     ├── patch_embed    - Patch embedding
+     ├── rotary_pos_emb - Rotary position embeddings  
+     ├── blocks         - Transformer blocks
+     └── merger         - Reduces patches to fewer tokens
+   
+   model.model          - LLM (Qwen2VLModel)
+     ├── embed_tokens   - Token embeddings (152064, 3584)
+     ├── layers         - 28 transformer layers
+     ├── norm           - Final layer norm
+     └── rotary_emb     - Rotary embeddings
+   ```
+
+4. **Hidden States**: 29 layers total (embedding layer + 28 transformer layers)
+   - Hidden dimension: 3584
+   - Vision token norms increase from ~35-55 at early layers to ~200-240 at later layers
+
+## Scripts
+
+### `extract_vision_tokens_allLayers_singleGPU.py` ⭐ (Main Script)
+
+Extract vision token features from ALL LLM layers. This is the Qwen2-VL equivalent of 
+`contextual_nearest_neighbors_allLayers_singleGPU.py` for Molmo.
+
+**Usage:**
+```bash
+source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+# Extract features from selected layers
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/extract_vision_tokens_allLayers_singleGPU.py \
+    --num-images 100 \
+    --layers "0,8,16,24,28" \
+    --output-dir analysis_results/qwen2_vl/vision_features
+
+# Extract from all layers
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/extract_vision_tokens_allLayers_singleGPU.py \
+    --num-images 100 \
+    --layers "all" \
+    --output-dir analysis_results/qwen2_vl/vision_features
+
+# Also save full feature tensors (large files)
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/extract_vision_tokens_allLayers_singleGPU.py \
+    --num-images 100 \
+    --layers "0,8,16,24,28" \
+    --save-features \
+    --output-dir analysis_results/qwen2_vl/vision_features
+```
+
+**Output:**
+- `extraction_summary_*.json`: Per-image statistics for each layer
+- `features_layer*.pt`: Full feature tensors (if `--save-features`)
+
+### `extract_vision_tokens_all_layers.py`
+
+Simpler extraction script with test mode.
+
+**Usage:**
+```bash
+# Test extraction with synthetic image
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/extract_vision_tokens_all_layers.py --test-only
+
+# Extract from real images
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/extract_vision_tokens_all_layers.py \
+    --num-images 10 --use-real-images
+```
+
+### `investigate_vision_tokens.py`
+
+Deep investigation script to understand Qwen2-VL's vision token processing.
+
+### `inspect_model_structure.py` / `find_vision_encoder.py` / `test_vision_extraction.py`
+
+Debug/investigation scripts used to understand the model architecture.
+
+### `contextual_nearest_neighbors.py`
+
+Finds nearest contextual text embeddings for visual tokens (multi-GPU version).
+Requires pre-computed contextual embeddings from the underlying Qwen2 LLM.
+
+**Note**: Since Qwen2-VL uses a finetuned LLM, contextual embeddings from the base Qwen2 LLM
+may not be perfectly aligned. This is a known limitation.
 
 ## Prerequisites
 
@@ -13,91 +107,67 @@ These scripts analyze how Qwen2-VL (an off-the-shelf vision-language model) proc
    pip install transformers qwen-vl-utils
    ```
 
-2. **Create contextual embeddings** (if not already done):
+2. **Environment setup:**
    ```bash
-   python scripts/analysis/create_contextual_embeddings.py \
-       --model Qwen/Qwen2-7B \
-       --layers 8 16 24 \
-       --output-dir molmo_data/contextual_llm_embeddings/Qwen_Qwen2-7B
+   source ../../env/bin/activate
+   export PYTHONPATH=$PYTHONPATH:$(pwd)
    ```
-
-3. **Precompute caches** (required for fast loading):
-   ```bash
-   python scripts/analysis/precompute_contextual_caches.py \
-       --contextual-dir molmo_data/contextual_llm_embeddings/Qwen_Qwen2-7B \
-       --num-workers 1
-   ```
-
-## Scripts
-
-### `contextual_nearest_neighbors.py`
-
-Finds nearest contextual text embeddings for visual tokens extracted from Qwen2-VL.
-
-**Usage:**
-
-**IMPORTANT**: Must use `torchrun` (not `python3`) because the script uses distributed processing!
-
-```bash
-# Basic example (2 GPUs)
-CUDA_VISIBLE_DEVICES=4,5 torchrun --nproc_per_node=2 --master_port=29528 \
-    scripts/analysis/qwen2_vl/contextual_nearest_neighbors.py \
-    --model-name "Qwen/Qwen2-VL-7B-Instruct" \
-    --contextual-dir "molmo_data/contextual_llm_embeddings/Qwen_Qwen2-7B" \
-    --contextual-layer "16" \
-    --visual-layer 0 \
-    --num-images 100 \
-    --top-k 5
-
-# Multiple contextual layers
-CUDA_VISIBLE_DEVICES=4,5 torchrun --nproc_per_node=2 --master_port=29528 \
-    scripts/analysis/qwen2_vl/contextual_nearest_neighbors.py \
-    --model-name "Qwen/Qwen2-VL-7B-Instruct" \
-    --contextual-dir "molmo_data/contextual_llm_embeddings/Qwen_Qwen2-7B" \
-    --contextual-layer "8,16,24" \
-    --visual-layer 0 \
-    --num-images 300
-```
-
-**Arguments:**
-- `--model-name`: HuggingFace model name (default: `Qwen/Qwen2-VL-7B-Instruct`)
-- `--contextual-dir`: Directory with contextual embeddings (required)
-- `--contextual-layer`: Layer index(es) to use, comma-separated (e.g., `8,16,24`)
-- `--visual-layer`: Visual layer to extract (0 = vision encoder, >0 = LLM layer)
-- `--num-images`: Number of images to process (default: 100)
-- `--split`: Dataset split (`train` or `validation`, default: `validation`)
-- `--top-k`: Number of nearest neighbors (default: 5)
-- `--max-contextual-per-token`: Max embeddings per token for memory management
-- `--output-dir`: Output directory (default: `analysis_results/qwen2_vl/contextual_nearest_neighbors`)
-
-**Output:**
-Results are saved as JSON files in the output directory, containing:
-- For each image: visual token positions and their nearest contextual neighbors
-- Similarity scores and metadata for each neighbor
-- Inter-neighbor similarities
 
 ## Differences from Molmo Analysis
 
-1. **Model Loading**: Qwen2-VL is loaded directly from HuggingFace, not from checkpoints
-2. **Preprocessing**: Uses Qwen2-VL's processor instead of Molmo's preprocessor
-3. **Visual Token Extraction**: Accesses vision encoder or LLM layers through HuggingFace API
-4. **Architecture**: Qwen2-VL has a different architecture than Molmo, so extraction methods differ
+| Aspect | Molmo | Qwen2-VL |
+|--------|-------|----------|
+| Model Loading | Custom checkpoint | HuggingFace |
+| Vision Tokens | ~576 tokens (24×24) | Variable (64-1000+) |
+| Token Reduction | Uses `use_n_token_only` | Built-in merger |
+| Position Tracking | `image_input_idx` tensor | `<\|image_pad\|>` markers |
+| Hidden Dim | Varies by model | 3584 (7B) |
+| Num Layers | Varies by model | 29 (28 transformer + 1 embed) |
+
+## Contextual Embeddings for Qwen2-VL
+
+Since Qwen2-VL uses a **finetuned** version of Qwen2's LLM (not vanilla Qwen2), we need to
+extract contextual embeddings from Qwen2-VL's LLM backbone directly. This ensures the text
+embeddings are properly aligned with the vision tokens.
+
+### `create_contextual_embeddings_qwen2vl.py`
+
+Extract contextual text embeddings from Qwen2-VL's LLM backbone (pure text, no vision).
+
+**Quick test (100 captions):**
+```bash
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/create_contextual_embeddings_qwen2vl.py \
+    --num-captions 100 --layers 8 16 24 --batch-size 8
+```
+
+**Full extraction (same layers as vanilla Qwen2: 1,2,4,8,16,24,26,27):**
+```bash
+CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/create_contextual_embeddings_qwen2vl.py \
+    --num-captions 1000000 \
+    --layers 1 2 4 8 16 24 26 27 \
+    --batch-size 32 \
+    --output-dir molmo_data/contextual_llm_embeddings/Qwen_Qwen2-VL-7B-Instruct
+```
+
+**After extraction, build caches for fast loading:**
+```bash
+python scripts/analysis/precompute_contextual_caches.py \
+    --contextual-dir molmo_data/contextual_llm_embeddings/Qwen_Qwen2-VL-7B-Instruct \
+    --num-workers 1
+```
+
+## Next Steps
+
+1. **Nearest Neighbor Analysis**: Use extracted features to find nearest neighbors in:
+   - Static text embedding space (vocabulary)
+   - Contextual text embedding space (from Qwen2-VL's LLM backbone)
+
+2. **Layer Evolution Analysis**: Analyze how vision tokens evolve across layers
+
+3. **Interpretability**: Check if vision tokens are interpretable using V-Lens methods
 
 ## Notes
 
-- The script uses distributed processing (multi-GPU) similar to the Molmo analysis scripts
-- Visual token extraction may need adjustment based on the specific Qwen2-VL model version
-- Ensure you have sufficient GPU memory for the model size (7B models require ~14GB per GPU)
-- The script processes contextual layers sequentially to save memory
-
-## Troubleshooting
-
-**Issue**: Cannot extract vision features
-- **Solution**: Check the model architecture. The script tries multiple methods to access vision encoder. You may need to inspect the model structure and adjust the extraction function.
-
-**Issue**: Wrong number of visual tokens
-- **Solution**: The script estimates visual token count. You may need to adjust `num_image_tokens` based on your specific model configuration or image preprocessing.
-
-**Issue**: Out of memory
-- **Solution**: Reduce `--num-images`, use `--max-contextual-per-token`, or use fewer GPUs.
-
+- GPU Memory: ~15GB for Qwen2-VL-7B-Instruct
+- Processing Speed: ~1.5 images/second (single GPU)
+- The model uses dynamic resolution - larger images have more vision tokens

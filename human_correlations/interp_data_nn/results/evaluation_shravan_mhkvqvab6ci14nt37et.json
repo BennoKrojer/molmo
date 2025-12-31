@@ -1,0 +1,78 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkvqvab6ci14nt37et",
+  "timestamp": "2025-11-04T18:05:55.079Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00096_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:05:00.313Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00096_patch1",
+      "selectedWords": [
+        {
+          "word": "head",
+          "relation": "concrete"
+        },
+        {
+          "word": "heads",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:05:07.711Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:05:18.095Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:05:31.828Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00096_patch4",
+      "selectedWords": [
+        {
+          "word": " hairy",
+          "relation": "global"
+        },
+        {
+          "word": " Hair",
+          "relation": "global"
+        },
+        {
+          "word": " hair",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:05:45.312Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00096_patch5",
+      "selectedWords": [
+        {
+          "word": " skulls",
+          "relation": "concrete"
+        },
+        {
+          "word": " skull",
+          "relation": "concrete"
+        },
+        {
+          "word": " Skull",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:05:55.043Z"
+    }
+  ]
+}

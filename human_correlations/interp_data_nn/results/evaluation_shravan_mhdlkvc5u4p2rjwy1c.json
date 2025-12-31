@@ -1,0 +1,53 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhdlkvc5u4p2rjwy1c",
+  "timestamp": "2025-10-30T15:46:55.856Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch0",
+      "selectedWords": [
+        {
+          "word": " bread",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:44:51.058Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00084_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:45:19.726Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00084_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:45:40.490Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch3",
+      "selectedWords": [
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:45:59.509Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:46:27.174Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00084_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:46:55.781Z"
+    }
+  ]
+}

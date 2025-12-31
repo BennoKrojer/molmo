@@ -1,0 +1,112 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsoouz2qy25acpsea",
+  "timestamp": "2025-10-30T19:05:46.379Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00024_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:09.374Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00024_patch4",
+      "selectedWords": [
+        {
+          "word": " white",
+          "relation": "concrete"
+        },
+        {
+          "word": " gray",
+          "relation": "concrete"
+        },
+        {
+          "word": "Gray",
+          "relation": "concrete"
+        },
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": " beige",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:16.740Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00024_patch5",
+      "selectedWords": [
+        {
+          "word": " Green",
+          "relation": "global"
+        },
+        {
+          "word": "blue",
+          "relation": "concrete"
+        },
+        {
+          "word": " blue",
+          "relation": "concrete"
+        },
+        {
+          "word": " Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "Blue",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:24.706Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00024_patch6",
+      "selectedWords": [
+        {
+          "word": "Beautiful",
+          "relation": "abstract"
+        },
+        {
+          "word": "park (translated from 公園)",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:34.473Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00024_patch7",
+      "selectedWords": [
+        {
+          "word": "-gray",
+          "relation": "concrete"
+        },
+        {
+          "word": "Gray",
+          "relation": "concrete"
+        },
+        {
+          "word": " gray",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:43.174Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00024_patch8",
+      "selectedWords": [
+        {
+          "word": ".background",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:05:51.323Z"
+    }
+  ]
+}

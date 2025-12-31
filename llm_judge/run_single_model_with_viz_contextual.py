@@ -340,6 +340,8 @@ def main():
     parser.add_argument('--use-cropped-region', action='store_true', help='Optionally pass cropped region as second image')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
     parser.add_argument('--debug', action='store_true', help='Enable verbose debug logging (skip reasons always shown)')
+    parser.add_argument('--checkpoint-name', type=str, default=None, help='Override checkpoint name (for ablations, etc.)')
+    parser.add_argument('--model-name', type=str, default=None, help='Override model name for output directory (for ablations, etc.)')
 
     args = parser.parse_args()
 
@@ -348,7 +350,15 @@ def main():
     np.random.seed(args.seed)
 
     # Build checkpoint name from llm/encoder (matching other scripts)
-    if args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
+    if args.checkpoint_name is not None:
+        # Use provided checkpoint name (for ablations)
+        checkpoint_name = args.checkpoint_name
+        if args.model_name is not None:
+            model_name = args.model_name
+        else:
+            # Extract model name from checkpoint name
+            model_name = checkpoint_name.replace("train_mlp-only_pixmo_cap_resize_", "").replace("train_mlp-only_pixmo_cap_", "").replace("train_mlp-only_pixmo_points_resize_", "").replace("train_mlp-only_pixmo_topbottom_", "").replace("_step12000-unsharded", "")
+    elif args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
         checkpoint_name = f"train_mlp-only_pixmo_cap_resize_{args.llm}_{args.vision_encoder}_seed10"
         model_name = f"{args.llm}_{args.vision_encoder}_seed10"
     else:
@@ -359,21 +369,34 @@ def main():
     # analysis_results/contextual_nearest_neighbors/<ckpt_name_step>/contextual_neighbors_visual{v}_allLayers_multi-gpu.json
     # These files contain neighbors from ALL contextual layers, with each neighbor having a 'contextual_layer' field
     base_dir = Path(args.base_dir)
-    ckpt_dir = base_dir / f"{checkpoint_name}_step12000-unsharded"
+    # Try multiple path patterns (with/without _step12000-unsharded suffix)
+    ckpt_dir_candidates = [
+        base_dir / f"{checkpoint_name}_step12000-unsharded",
+        base_dir / checkpoint_name,  # For off-the-shelf models like Qwen2-VL
+    ]
+    ckpt_dir = None
+    for cand in ckpt_dir_candidates:
+        if cand.exists():
+            ckpt_dir = cand
+            break
+    if ckpt_dir is None:
+        print(f"ERROR: Checkpoint directory not found. Tried:")
+        for cand in ckpt_dir_candidates:
+            print(f"  - {cand}")
+        sys.exit(1)
     # Try to find an allLayers file (we'll filter by contextual layer later)
     input_json = None
     target_layer = int(args.layer.replace('contextual', ''))
-    if ckpt_dir.exists():
-        # Look for allLayers files first (new format - try both with and without _multi-gpu suffix)
-        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers.json"))
-        if not allLayers_files:
-            # Fallback to old naming with _multi-gpu suffix
-            allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
-        if allLayers_files:
-            # Use the first allLayers file (they all contain all layers, just different visual layers)
-            # We'll filter by contextual layer when processing
-            input_json = allLayers_files[0]
-        else:
+    # Look for allLayers files first (new format - try both with and without _multi-gpu suffix)
+    allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers.json"))
+    if not allLayers_files:
+        # Fallback to old naming with _multi-gpu suffix
+        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
+    if allLayers_files:
+        # Use the first allLayers file (they all contain all layers, just different visual layers)
+        # We'll filter by contextual layer when processing
+        input_json = allLayers_files[0]
+    else:
             # Fallback to old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
             for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
                 # Extract the contextual layer number from filename using regex

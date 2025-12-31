@@ -1,0 +1,64 @@
+{
+  "userId": "Marius",
+  "sessionId": "mhcgzreluungp4c03xi",
+  "timestamp": "2025-10-29T20:50:46.430Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T20:49:25.339Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T20:49:28.706Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T20:49:31.690Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00139_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T20:50:27.723Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00139_patch4",
+      "selectedWords": [
+        {
+          "word": " colors",
+          "relation": "abstract"
+        },
+        {
+          "word": "-green",
+          "relation": "global"
+        },
+        {
+          "word": " Green",
+          "relation": "global"
+        },
+        {
+          "word": " green",
+          "relation": "global"
+        },
+        {
+          "word": "Green",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-29T20:50:41.265Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T20:50:46.269Z"
+    }
+  ]
+}

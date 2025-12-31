@@ -1,0 +1,70 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhds6jer533r1xab50p",
+  "timestamp": "2025-10-30T18:51:39.532Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00257_patch0",
+      "selectedWords": [
+        {
+          "word": " Banana",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:10.835Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00257_patch1",
+      "selectedWords": [
+        {
+          "word": "pen (translated from 笔)",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:19.785Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00257_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:22.502Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00257_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:24.884Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00257_patch4",
+      "selectedWords": [
+        {
+          "word": " brown",
+          "relation": "global"
+        },
+        {
+          "word": "brown",
+          "relation": "global"
+        },
+        {
+          "word": "Brown",
+          "relation": "global"
+        },
+        {
+          "word": "Tree",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:35.884Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00257_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:51:44.451Z"
+    }
+  ]
+}

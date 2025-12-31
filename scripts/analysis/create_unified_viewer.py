@@ -30,11 +30,12 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 # Define model combinations
-LLMS = ["llama3-8b", "olmo-7b", "qwen2-7b"]
-VISION_ENCODERS = ["vit-l-14-336", "dinov2-large-336", "siglip"]
-
-# Ablation studies (list of dicts with "name" and "base_path" keys)
-ABLATIONS = []
+# TEMPORARY: Only process olmo-7b + vit-l-14-336 for quick testing
+LLMS = ["olmo-7b"]
+VISION_ENCODERS = ["vit-l-14-336"]
+# Full list:
+# LLMS = ["llama3-8b", "olmo-7b", "qwen2-7b"]
+# VISION_ENCODERS = ["vit-l-14-336", "dinov2-large-336", "siglip", "openvision2-l-14-336"]
 
 # LLM display names
 LLM_DISPLAY_NAMES = {
@@ -151,9 +152,8 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
     results = {
         "nn": {},  # layer -> json path
         "logitlens": {},  # layer -> json path  
-        "contextual": {},  # layer -> json path (from contextual_nearest_neighbors/, allLayers files)
-        "contextual_visualN": {},  # layer -> json path (from contextual_nearest_neighbors_visualN/, visualN_contextualN files)
-        "contextual_vg": {},  # layer -> json path (from contextual_nearest_neighbors_vg/, allLayers files)
+        "contextual_cc": {},  # layer -> json path (Conceptual Captions)
+        "contextual_vg": {},  # layer -> json path (Visual Genome)
         "interpretability": None  # path to interpretability heuristic JSON
     }
     
@@ -181,32 +181,33 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
             except:
                 pass
     
-    # Scan contextual nearest neighbors (allLayers files from contextual_nearest_neighbors/)
-    # These contain neighbors from ALL contextual layers for each visual layer
-    contextual_dir = base_dir / "contextual_nearest_neighbors" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
-    if contextual_dir.exists():
-        for json_file in contextual_dir.glob("contextual_neighbors_visual*_allLayers.json"):
-            # Extract visual layer number from filename
-            # filename: contextual_neighbors_visual8_allLayers.json
+    # Scan contextual nearest neighbors - CC (Conceptual Captions)
+    contextual_cc_dir = base_dir / "contextual_nearest_neighbors" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
+    if contextual_cc_dir.exists():
+        for json_file in contextual_cc_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
+            # Extract visual and contextual layer numbers
+            # filename: contextual_neighbors_visual0_contextual8_multi-gpu.json
             try:
                 parts = json_file.stem.split("_")
                 visual_layer = None
+                contextual_layer = None
                 for part in parts:
+                    # Only process parts that have digits after visual/contextual
                     if part.startswith("visual") and len(part) > len("visual"):
                         visual_layer = int(part.replace("visual", ""))
-                        break
-                if visual_layer is not None:
-                    results["contextual"][visual_layer] = json_file
+                    elif part.startswith("contextual") and len(part) > len("contextual"):
+                        contextual_layer = int(part.replace("contextual", ""))
+                if visual_layer is not None and contextual_layer is not None:
+                    # Use contextual layer as the key
+                    results["contextual_cc"][contextual_layer] = json_file
             except Exception as e:
-                log.warning(f"Could not parse contextual file {json_file.name}: {e}")
+                log.warning(f"Could not parse contextual CC file {json_file.name}: {e}")
     
-    # Scan contextual nearest neighbors visualN (from contextual_nearest_neighbors_visualN/)
-    # These contain neighbors where visual layer N matches contextual layer N
-    contextual_visualN_dir = base_dir / "contextual_nearest_neighbors_visualN" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
-    if contextual_visualN_dir.exists():
-        for json_file in contextual_visualN_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
+    # Scan contextual nearest neighbors - VG (Visual Genome)
+    contextual_vg_dir = base_dir / "contextual_nearest_neighbors_vg" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
+    if contextual_vg_dir.exists():
+        for json_file in contextual_vg_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
             # Extract visual and contextual layer numbers
-            # filename: contextual_neighbors_visual8_contextual8_multi-gpu.json
             try:
                 parts = json_file.stem.split("_")
                 visual_layer = None
@@ -217,27 +218,7 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
                     elif part.startswith("contextual") and len(part) > len("contextual"):
                         contextual_layer = int(part.replace("contextual", ""))
                 if visual_layer is not None and contextual_layer is not None:
-                    # Use visual layer as the key (visual == contextual in this folder)
-                    results["contextual_visualN"][visual_layer] = json_file
-            except Exception as e:
-                log.warning(f"Could not parse contextual visualN file {json_file.name}: {e}")
-    
-    # Scan contextual nearest neighbors VG (from contextual_nearest_neighbors_vg/)
-    # These contain neighbors from Visual Genome corpus, allLayers files
-    contextual_vg_dir = base_dir / "contextual_nearest_neighbors_vg" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
-    if contextual_vg_dir.exists():
-        for json_file in contextual_vg_dir.glob("contextual_neighbors_visual*_allLayers.json"):
-            # Extract visual layer number from filename
-            # filename: contextual_neighbors_visual8_allLayers.json
-            try:
-                parts = json_file.stem.split("_")
-                visual_layer = None
-                for part in parts:
-                    if part.startswith("visual") and len(part) > len("visual"):
-                        visual_layer = int(part.replace("visual", ""))
-                        break
-                if visual_layer is not None:
-                    results["contextual_vg"][visual_layer] = json_file
+                    results["contextual_vg"][contextual_layer] = json_file
             except Exception as e:
                 log.warning(f"Could not parse contextual VG file {json_file.name}: {e}")
     
@@ -435,8 +416,9 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
                 stats = model_availability[model_key]
                 nn_count = len(stats["nn_layers"])
                 logit_count = len(stats["logit_layers"])
-                ctx_count = len(stats["contextual_layers"])
-                ctx_visualN_count = len(stats["contextual_visualN_layers"])
+                ctx_cc_count = len(stats["contextual_cc_layers"])
+                ctx_vg_count = len(stats["contextual_vg_layers"])
+                ctx_count = max(ctx_cc_count, ctx_vg_count)  # Show the max of either
                 
                 html_content += f'''
                         <td class="model-cell available">
@@ -445,7 +427,7 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
                                 <div class="stats">
                                     NN: {nn_count} layers<br>
                                     Logit: {logit_count} layers<br>
-                                    Ctx: {ctx_count} | CtxN: {ctx_visualN_count}
+                                    Ctx: {ctx_count} layers
                                 </div>
                             </a>
                         </td>'''
@@ -472,7 +454,7 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
                 <div class="legend-color" style="background-color: #ffffff;"></div>
                 <span>No results available</span>
             </div>
-            </div>
+        </div>
     </div>
 </body>
 </html>'''
@@ -493,8 +475,8 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
     # Count available layers for each analysis type
     nn_layers = sorted(analysis_results["nn"].keys())
     logit_layers = sorted(analysis_results["logitlens"].keys())
-    ctx_layers = sorted(analysis_results["contextual"].keys())
-    ctx_visualN_layers = sorted(analysis_results["contextual_visualN"].keys())
+    ctx_cc_layers = sorted(analysis_results["contextual_cc"].keys())
+    ctx_vg_layers = sorted(analysis_results["contextual_vg"].keys())
     
     html_content = f'''<!DOCTYPE html>
 <html lang="en">
@@ -623,14 +605,14 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
                     <div class="stat-label">Layers: {", ".join(map(str, logit_layers)) if logit_layers else "None"}</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Contextual NN</div>
-                    <div class="stat-value">{len(ctx_layers)}</div>
-                    <div class="stat-label">Layers: {", ".join(map(str, ctx_layers)) if ctx_layers else "None"}</div>
+                    <div class="stat-label">Contextual NN (VG)</div>
+                    <div class="stat-value">{len(ctx_vg_layers)}</div>
+                    <div class="stat-label">Layers: {", ".join(map(str, ctx_vg_layers)) if ctx_vg_layers else "None"}</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Contextual NN (layer N)</div>
-                    <div class="stat-value">{len(ctx_visualN_layers)}</div>
-                    <div class="stat-label">Layers: {", ".join(map(str, ctx_visualN_layers)) if ctx_visualN_layers else "None"}</div>
+                    <div class="stat-label">Contextual NN (CC)</div>
+                    <div class="stat-value">{len(ctx_cc_layers)}</div>
+                    <div class="stat-label">Layers: {", ".join(map(str, ctx_cc_layers)) if ctx_cc_layers else "None"}</div>
                 </div>
             </div>
         </div>
@@ -668,8 +650,8 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
     all_data = {
         "nn": {},
         "logitlens": {},
-        "contextual": {},  # from contextual_nearest_neighbors/ (allLayers)
-        "contextual_visualN": {},  # from contextual_nearest_neighbors_visualN/
+        "contextual_cc": {},
+        "contextual_vg": {},
         "interpretability": []  # Single list of image data
     }
     
@@ -699,31 +681,31 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
             log.warning(f"Could not load logit lens data for layer {layer}: {e}")
     log.info(f"    ⏱️  Logit Lens: {time.time() - t0:.2f}s")
     
-    # Load contextual NN data (from contextual_nearest_neighbors/, allLayers files)
-    log.info(f"    Loading {len(analysis_results['contextual'])} Contextual NN files...")
+    # Load contextual NN data - CC (Conceptual Captions)
+    log.info(f"    Loading {len(analysis_results['contextual_cc'])} Contextual NN (CC) files...")
     t0 = time.time()
-    for layer, json_path in analysis_results["contextual"].items():
+    for layer, json_path in analysis_results["contextual_cc"].items():
         try:
             with open(json_path, 'r') as f:
                 full_data = json.load(f)
                 results = full_data.get("results", [])
-                all_data["contextual"][layer] = results[:num_images]
+                all_data["contextual_cc"][layer] = results[:num_images]
         except Exception as e:
-            log.warning(f"Could not load contextual NN data for layer {layer}: {e}")
-    log.info(f"    ⏱️  Contextual NN: {time.time() - t0:.2f}s")
+            log.warning(f"Could not load contextual NN (CC) data for layer {layer}: {e}")
+    log.info(f"    ⏱️  Contextual NN (CC): {time.time() - t0:.2f}s")
     
-    # Load contextual NN visualN data (from contextual_nearest_neighbors_visualN/)
-    log.info(f"    Loading {len(analysis_results['contextual_visualN'])} Contextual NN (layer N) files...")
+    # Load contextual NN data - VG (Visual Genome)
+    log.info(f"    Loading {len(analysis_results['contextual_vg'])} Contextual NN (VG) files...")
     t0 = time.time()
-    for layer, json_path in analysis_results["contextual_visualN"].items():
+    for layer, json_path in analysis_results["contextual_vg"].items():
         try:
             with open(json_path, 'r') as f:
                 full_data = json.load(f)
                 results = full_data.get("results", [])
-                all_data["contextual_visualN"][layer] = results[:num_images]
+                all_data["contextual_vg"][layer] = results[:num_images]
         except Exception as e:
-            log.warning(f"Could not load contextual NN (layer N) data for layer {layer}: {e}")
-    log.info(f"    ⏱️  Contextual NN (layer N): {time.time() - t0:.2f}s")
+            log.warning(f"Could not load contextual NN (VG) data for layer {layer}: {e}")
+    log.info(f"    ⏱️  Contextual NN (VG): {time.time() - t0:.2f}s")
     
     # Load interpretability data
     if analysis_results.get("interpretability"):
@@ -749,12 +731,12 @@ def get_image_data_from_cache(all_data_cache: Dict, image_idx: int) -> Dict:
     image_data = {
         "nn": {},
         "logitlens": {},
-        "contextual": {},
-        "contextual_visualN": {},
+        "contextual_cc": {},
+        "contextual_vg": {},
         "interpretability": None
     }
     
-    for analysis_type in ["nn", "logitlens", "contextual", "contextual_visualN"]:
+    for analysis_type in ["nn", "logitlens", "contextual_cc", "contextual_vg"]:
         for layer, images_list in all_data_cache[analysis_type].items():
             if image_idx < len(images_list):
                 image_data[analysis_type][layer] = images_list[image_idx]
@@ -778,10 +760,10 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
     # Get available layers for each analysis type
     nn_layers = sorted(all_data["nn"].keys())
     logit_layers = sorted(all_data["logitlens"].keys())
-    ctx_layers = sorted(all_data["contextual"].keys())
-    ctx_visualN_layers = sorted(all_data["contextual_visualN"].keys())
+    ctx_cc_layers = sorted(all_data["contextual_cc"].keys())
+    ctx_vg_layers = sorted(all_data["contextual_vg"].keys())
     
-    if not nn_layers and not logit_layers and not ctx_layers and not ctx_visualN_layers:
+    if not nn_layers and not logit_layers and not ctx_cc_layers and not ctx_vg_layers:
         if image_idx % 50 == 0:
             log.warning(f"  No data found for image {image_idx}, skipping")
         return False
@@ -813,7 +795,7 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
     grid_size = 16  # default
     patches_per_chunk = 256  # default
     
-    for analysis_type in ["nn", "logitlens", "contextual", "contextual_visualN"]:
+    for analysis_type in ["nn", "logitlens", "contextual_vg", "contextual_cc"]:
         if all_data[analysis_type]:
             first_layer_data = list(all_data[analysis_type].values())[0]
             chunks = first_layer_data.get("chunks", [])
@@ -827,8 +809,8 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
     unified_patch_data = {
         "nn": {},
         "logitlens": {},
-        "contextual": {},
-        "contextual_visualN": {}
+        "contextual_vg": {},
+        "contextual_cc": {}
     }
     
     # Extract interpretability data (mapping of patch_idx -> interpretability info)
@@ -899,52 +881,9 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                     "predictions": pred_list
                 }
     
-    # Process Contextual NN data (from allLayers files - includes contextual_layer info)
-    for layer, image_data in all_data["contextual"].items():
-        unified_patch_data["contextual"][layer] = {}
-        chunks = image_data.get("chunks", [])
-        for chunk in chunks:
-            for patch in chunk.get("patches", []):
-                patch_idx = patch.get("patch_idx", -1)
-                row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                
-                nearest_contextual = patch.get("nearest_contextual_neighbors", [])
-                ctx_list = []
-                for i, neighbor in enumerate(nearest_contextual[:5]):
-                    token_str = escape_for_html(neighbor.get("token_str", ""))
-                    caption = escape_for_html(neighbor.get("caption", ""))
-                    position = neighbor.get("position", 0)
-                    similarity = neighbor.get("similarity", 0.0)
-                    # Get the contextual layer this neighbor came from
-                    contextual_layer = neighbor.get("contextual_layer", None)
-                    
-                    # Highlight token in caption
-                    highlighted_caption = caption.replace(
-                        token_str,
-                        f'<span class="highlight">{token_str}</span>',
-                        1
-                    )
-                    
-                    ctx_entry = {
-                        "rank": i + 1,
-                        "token": token_str,
-                        "caption": highlighted_caption,
-                        "position": position,
-                        "similarity": similarity,
-                        "contextual_layer": contextual_layer  # Include which layer this came from
-                    }
-                    
-                    ctx_list.append(ctx_entry)
-                
-                unified_patch_data["contextual"][layer][patch_idx] = {
-                    "row": row,
-                    "col": col,
-                    "contextual_neighbors": ctx_list
-                }
-    
-    # Process Contextual NN visualN data (from visualN_contextualN files)
-    for layer, image_data in all_data["contextual_visualN"].items():
-        unified_patch_data["contextual_visualN"][layer] = {}
+    # Process Contextual NN data - VG (Visual Genome)
+    for layer, image_data in all_data["contextual_vg"].items():
+        unified_patch_data["contextual_vg"][layer] = {}
         chunks = image_data.get("chunks", [])
         for chunk in chunks:
             for patch in chunk.get("patches", []):
@@ -965,6 +904,10 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                         f'<span class="highlight">{token_str}</span>',
                         1
                     )
+                    
+                    # Get additional analysis data
+                    lowest_sim = neighbor.get("lowest_similarity_same_token", None)
+                    inter_nn_sims = neighbor.get("similarity_to_other_nns", None)
                     
                     ctx_entry = {
                         "rank": i + 1,
@@ -974,9 +917,83 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                         "similarity": similarity
                     }
                     
+                    # Add optional fields if they exist
+                    if lowest_sim is not None:
+                        # Escape HTML in lowest similarity caption
+                        lowest_caption = escape_for_html(lowest_sim.get("caption", ""))
+                        ctx_entry["lowest_similarity_same_token"] = {
+                            "token_str": escape_for_html(lowest_sim.get("token_str", "")),
+                            "caption": lowest_caption,
+                            "position": lowest_sim.get("position", 0),
+                            "similarity": lowest_sim.get("similarity", 0.0),
+                            "num_instances": lowest_sim.get("num_instances", 0)
+                        }
+                    
+                    if inter_nn_sims is not None:
+                        ctx_entry["similarity_to_other_nns"] = inter_nn_sims
+                    
                     ctx_list.append(ctx_entry)
                 
-                unified_patch_data["contextual_visualN"][layer][patch_idx] = {
+                unified_patch_data["contextual_vg"][layer][patch_idx] = {
+                    "row": row,
+                    "col": col,
+                    "contextual_neighbors": ctx_list
+                }
+    
+    # Process Contextual NN data - CC (Conceptual Captions)
+    for layer, image_data in all_data["contextual_cc"].items():
+        unified_patch_data["contextual_cc"][layer] = {}
+        chunks = image_data.get("chunks", [])
+        for chunk in chunks:
+            for patch in chunk.get("patches", []):
+                patch_idx = patch.get("patch_idx", -1)
+                row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
+                
+                nearest_contextual = patch.get("nearest_contextual_neighbors", [])
+                ctx_list = []
+                for i, neighbor in enumerate(nearest_contextual[:5]):
+                    token_str = escape_for_html(neighbor.get("token_str", ""))
+                    caption = escape_for_html(neighbor.get("caption", ""))
+                    position = neighbor.get("position", 0)
+                    similarity = neighbor.get("similarity", 0.0)
+                    
+                    # Highlight token in caption
+                    highlighted_caption = caption.replace(
+                        token_str,
+                        f'<span class="highlight">{token_str}</span>',
+                        1
+                    )
+                    
+                    # Get additional analysis data
+                    lowest_sim = neighbor.get("lowest_similarity_same_token", None)
+                    inter_nn_sims = neighbor.get("similarity_to_other_nns", None)
+                    
+                    ctx_entry = {
+                        "rank": i + 1,
+                        "token": token_str,
+                        "caption": highlighted_caption,
+                        "position": position,
+                        "similarity": similarity
+                    }
+                    
+                    # Add optional fields if they exist
+                    if lowest_sim is not None:
+                        # Escape HTML in lowest similarity caption
+                        lowest_caption = escape_for_html(lowest_sim.get("caption", ""))
+                        ctx_entry["lowest_similarity_same_token"] = {
+                            "token_str": escape_for_html(lowest_sim.get("token_str", "")),
+                            "caption": lowest_caption,
+                            "position": lowest_sim.get("position", 0),
+                            "similarity": lowest_sim.get("similarity", 0.0),
+                            "num_instances": lowest_sim.get("num_instances", 0)
+                        }
+                    
+                    if inter_nn_sims is not None:
+                        ctx_entry["similarity_to_other_nns"] = inter_nn_sims
+                    
+                    ctx_list.append(ctx_entry)
+                
+                unified_patch_data["contextual_cc"][layer][patch_idx] = {
                     "row": row,
                     "col": col,
                     "contextual_neighbors": ctx_list
@@ -985,7 +1002,7 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
     # Now create the HTML - this will be a continuation in next message due to length
     html_content = create_unified_html_content(
         image_idx, image_base64, ground_truth, checkpoint_name, llm, ve,
-        nn_layers, logit_layers, ctx_layers, ctx_visualN_layers, unified_patch_data, grid_size, patches_per_chunk,
+        nn_layers, logit_layers, ctx_cc_layers, ctx_vg_layers, unified_patch_data, grid_size, patches_per_chunk,
         interpretability_map
     )
     
@@ -998,13 +1015,13 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
 
 def create_unified_html_content(image_idx: int, image_base64: str, ground_truth: str,
                                 checkpoint_name: str, llm: str, ve: str,
-                                nn_layers: List, logit_layers: List, ctx_layers: List, ctx_visualN_layers: List,
+                                nn_layers: List, logit_layers: List, ctx_cc_layers: List, ctx_vg_layers: List,
                                 unified_patch_data: Dict, grid_size: int, patches_per_chunk: int,
                                 interpretability_map: Dict) -> str:
     """Generate the HTML content for the unified viewer."""
     
     # Find all unique layers across all analysis types
-    all_layers = sorted(set(nn_layers + logit_layers + ctx_layers + ctx_visualN_layers))
+    all_layers = sorted(set(nn_layers + logit_layers + ctx_cc_layers + ctx_vg_layers))
     default_layer = all_layers[len(all_layers) // 2] if all_layers else 0
     
     # Start HTML
@@ -1118,7 +1135,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         }}
         .analysis-columns {{
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             flex: 1;
         }}
@@ -1394,12 +1411,6 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                             <div class="empty-state">Select a patch</div>
                         </div>
                     </div>
-                    <div class="analysis-column ctx-column">
-                        <h3 id="ctxVisualNHeader">📝 Contextual NN (layer N)</h3>
-                        <div class="analysis-results" id="contextualVisualNResults">
-                            <div class="empty-state">Select a patch</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1413,8 +1424,8 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         const availableLayers = {{
             "nn": {json.dumps(nn_layers)},
             "logitlens": {json.dumps(logit_layers)},
-            "contextual": {json.dumps(ctx_layers)},
-            "contextual_visualN": {json.dumps(ctx_visualN_layers)}
+            "contextual_cc": {json.dumps(ctx_cc_layers)},
+            "contextual_vg": {json.dumps(ctx_vg_layers)}
         }};
         
         let currentLayer = {default_layer};
@@ -1433,7 +1444,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
             const imageWidth = rect.width;
             const imageHeight = rect.height;
             
-            // Find available data for current layer (try NN first, then logit, then contextual, then contextual_visualN)
+            // Find available data for current layer (try NN first, then logit, then contextual VG, then CC)
             // Note: JSON keys are strings, so convert currentLayer to string
             const layerKey = String(currentLayer);
             let referenceData = null;
@@ -1441,10 +1452,10 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 referenceData = allData.nn[layerKey];
             }} else if (allData.logitlens[layerKey]) {{
                 referenceData = allData.logitlens[layerKey];
-            }} else if (allData.contextual[layerKey]) {{
-                referenceData = allData.contextual[layerKey];
-            }} else if (allData.contextual_visualN[layerKey]) {{
-                referenceData = allData.contextual_visualN[layerKey];
+            }} else if (allData.contextual_vg[layerKey]) {{
+                referenceData = allData.contextual_vg[layerKey];
+            }} else if (allData.contextual_cc[layerKey]) {{
+                referenceData = allData.contextual_cc[layerKey];
             }}
             
             if (!referenceData) {{
@@ -1504,25 +1515,22 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
             }}
         }}
         
-        // Update all four results panels simultaneously
+        // Update all three results panels simultaneously
         function updateResults(patchIdx) {{
             // Get data for this patch across all analysis types
             // Note: JSON keys are strings, so convert currentLayer to string
             const layerKey = String(currentLayer);
             const nnData = allData.nn[layerKey] && allData.nn[layerKey][patchIdx];
             const logitData = allData.logitlens[layerKey] && allData.logitlens[layerKey][patchIdx];
-            const ctxData = allData.contextual[layerKey] && allData.contextual[layerKey][patchIdx];
-            const ctxVisualNData = allData.contextual_visualN[layerKey] && allData.contextual_visualN[layerKey][patchIdx];
+            const ctxVgData = allData.contextual_vg[layerKey] && allData.contextual_vg[layerKey][patchIdx];
+            const ctxCcData = allData.contextual_cc[layerKey] && allData.contextual_cc[layerKey][patchIdx];
             const interpData = interpretabilityData[patchIdx];
-            
-            // Update the 4th column header to show current layer
-            document.getElementById('ctxVisualNHeader').textContent = `📝 Contextual NN (layer ${{currentLayer}})`;
             
             // Update patch info at top
             const patchInfo = document.getElementById('patchInfo');
-            if (nnData || logitData || ctxData || ctxVisualNData) {{
-                const row = (nnData || logitData || ctxData || ctxVisualNData).row;
-                const col = (nnData || logitData || ctxData || ctxVisualNData).col;
+            if (nnData || logitData || ctxVgData || ctxCcData) {{
+                const row = (nnData || logitData || ctxVgData || ctxCcData).row;
+                const col = (nnData || logitData || ctxVgData || ctxCcData).col;
                 
                 // Build interpretability badge
                 let interpBadgeHTML = '';
@@ -1590,48 +1598,137 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 logitResults.innerHTML = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
             }}
             
-            // Update Contextual NN column (from allLayers - shows which layer each came from)
+            // Update Contextual NN column - show VG first, then CC
             const ctxResults = document.getElementById('contextualResults');
-            let ctxHtml = '';
+            let html = '';
             
-            if (ctxData && ctxData.contextual_neighbors && ctxData.contextual_neighbors.length > 0) {{
-                ctxData.contextual_neighbors.forEach((ctx, idx) => {{
-                    // Show which contextual layer this neighbor came from
-                    const layerInfo = ctx.contextual_layer !== null && ctx.contextual_layer !== undefined 
-                        ? `<span style="background: #6c757d; color: white; padding: 1px 4px; border-radius: 3px; font-size: 10px; margin-left: 4px;">L${{ctx.contextual_layer}}</span>` 
-                        : '';
+            // Add Visual Genome results first
+            if (ctxVgData && ctxVgData.contextual_neighbors && ctxVgData.contextual_neighbors.length > 0) {{
+                html += '<div style="background: #e8f5e9; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-weight: 600; text-align: center; color: #2e7d32;">📸 Visual Genome Phrases</div>';
+                ctxVgData.contextual_neighbors.forEach((ctx, idx) => {{
+                    const detailsId = `ctx-vg-details-${{patchIdx}}-${{idx}}`;
                     
-                    ctxHtml += `<div class="result-item">
-                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}}${{layerInfo}}</div>
+                    html += `<div class="result-item">
+                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}} (pos: ${{ctx.position}})</div>
                         <div class="result-content" style="margin-top: 3px; font-size: 12px;">
                             ${{ctx.caption}}
+                        </div>`;
+                    
+                    // Add expandable details section if additional data is available
+                    const hasLowest = ctx.lowest_similarity_same_token !== undefined && ctx.lowest_similarity_same_token !== null;
+                    const hasInterNN = ctx.similarity_to_other_nns !== undefined && ctx.similarity_to_other_nns !== null;
+                    
+                    if (hasLowest || hasInterNN) {{
+                        html += `
+                        <div style="margin-top: 5px;">
+                            <a href="#" class="details-toggle" id="toggle-${{detailsId}}" onclick="event.preventDefault(); const el = document.getElementById('${{detailsId}}'); const toggle = document.getElementById('toggle-${{detailsId}}'); if (el.style.display === 'none') {{ el.style.display = 'block'; toggle.innerHTML = '▾ Hide details'; }} else {{ el.style.display = 'none'; toggle.innerHTML = '▸ Show details'; }}" style="font-size: 11px; color: #dc3545; text-decoration: none;">
+                                ▸ Show details
+                            </a>
                         </div>
+                        <div id="${{detailsId}}" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px; border-left: 2px solid #ffc107;">`;
+                        
+                        // Show inter-NN similarities (only for 1st neighbor)
+                        if (hasInterNN && idx === 0) {{
+                            html += `<div style="margin-bottom: 6px;">
+                                <strong style="color: #856404;">🔗 Similarity to other top neighbors:</strong><br>
+                                <span style="color: #666; font-size: 10px;">(How similar is this 1st NN to the 2nd, 3rd, etc.)</span><br>`;
+                            
+                            const interSims = Object.entries(ctx.similarity_to_other_nns)
+                                .sort((a, b) => a[0].localeCompare(b[0]));
+                            
+                            interSims.forEach(([key, value]) => {{
+                                const nnNum = key.replace('vs_', '');
+                                html += `<span style="margin-right: 8px;">vs ${{nnNum}}: <strong>${{value.toFixed(3)}}</strong></span>`;
+                            }});
+                            html += `</div>`;
+                        }}
+                        
+                        // Show lowest similarity for same token
+                        if (hasLowest) {{
+                            const lowest = ctx.lowest_similarity_same_token;
+                            html += `<div>
+                                <strong style="color: #856404;">📉 Same token, different context:</strong><br>
+                                <span style="color: #666; font-size: 10px;">(Lowest similarity for same token in a different phrase - shows context matters!)</span><br>
+                                <span style="margin-top: 2px; display: block;">Sim: <strong>${{lowest.similarity.toFixed(3)}}</strong> | ${{lowest.num_instances}} total instances</span>
+                                <div style="margin-top: 3px; font-style: italic; color: #555;">"${{lowest.caption}}"</div>
+                                <span style="font-size: 10px; color: #777;">Position: ${{lowest.position}}</span>
                             </div>`;
+                        }}
+                        
+                        html += `</div>`;
+                    }}
+                    
+                    html += `</div>`;
                 }});
-            }} else {{
-                ctxHtml = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
             }}
             
-            ctxResults.innerHTML = ctxHtml;
-            
-            // Update Contextual NN (layer N) column
-            const ctxVisualNResults = document.getElementById('contextualVisualNResults');
-            let ctxVisualNHtml = '';
-            
-            if (ctxVisualNData && ctxVisualNData.contextual_neighbors && ctxVisualNData.contextual_neighbors.length > 0) {{
-                ctxVisualNData.contextual_neighbors.forEach((ctx, idx) => {{
-                    ctxVisualNHtml += `<div class="result-item">
-                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}}</div>
+            // Add Conceptual Captions results second
+            if (ctxCcData && ctxCcData.contextual_neighbors && ctxCcData.contextual_neighbors.length > 0) {{
+                if (html) html += '<div style="margin: 15px 0; border-top: 2px solid #dee2e6;"></div>';
+                html += '<div style="background: #e3f2fd; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-weight: 600; text-align: center; color: #1565c0;">💬 Conceptual Captions</div>';
+                ctxCcData.contextual_neighbors.forEach((ctx, idx) => {{
+                    const detailsId = `ctx-cc-details-${{patchIdx}}-${{idx}}`;
+                    
+                    html += `<div class="result-item">
+                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}} (pos: ${{ctx.position}})</div>
                         <div class="result-content" style="margin-top: 3px; font-size: 12px;">
                             ${{ctx.caption}}
+                        </div>`;
+                    
+                    // Add expandable details section if additional data is available
+                    const hasLowest = ctx.lowest_similarity_same_token !== undefined && ctx.lowest_similarity_same_token !== null;
+                    const hasInterNN = ctx.similarity_to_other_nns !== undefined && ctx.similarity_to_other_nns !== null;
+                    
+                    if (hasLowest || hasInterNN) {{
+                        html += `
+                        <div style="margin-top: 5px;">
+                            <a href="#" class="details-toggle" id="toggle-${{detailsId}}" onclick="event.preventDefault(); const el = document.getElementById('${{detailsId}}'); const toggle = document.getElementById('toggle-${{detailsId}}'); if (el.style.display === 'none') {{ el.style.display = 'block'; toggle.innerHTML = '▾ Hide details'; }} else {{ el.style.display = 'none'; toggle.innerHTML = '▸ Show details'; }}" style="font-size: 11px; color: #dc3545; text-decoration: none;">
+                                ▸ Show details
+                            </a>
                         </div>
+                        <div id="${{detailsId}}" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px; border-left: 2px solid #ffc107;">`;
+                        
+                        // Show inter-NN similarities (only for 1st neighbor)
+                        if (hasInterNN && idx === 0) {{
+                            html += `<div style="margin-bottom: 6px;">
+                                <strong style="color: #856404;">🔗 Similarity to other top neighbors:</strong><br>
+                                <span style="color: #666; font-size: 10px;">(How similar is this 1st NN to the 2nd, 3rd, etc.)</span><br>`;
+                            
+                            const interSims = Object.entries(ctx.similarity_to_other_nns)
+                                .sort((a, b) => a[0].localeCompare(b[0]));
+                            
+                            interSims.forEach(([key, value]) => {{
+                                const nnNum = key.replace('vs_', '');
+                                html += `<span style="margin-right: 8px;">vs ${{nnNum}}: <strong>${{value.toFixed(3)}}</strong></span>`;
+                            }});
+                            html += `</div>`;
+                        }}
+                        
+                        // Show lowest similarity for same token
+                        if (hasLowest) {{
+                            const lowest = ctx.lowest_similarity_same_token;
+                            html += `<div>
+                                <strong style="color: #856404;">📉 Same token, different context:</strong><br>
+                                <span style="color: #666; font-size: 10px;">(Lowest similarity for same token in a different caption - shows context matters!)</span><br>
+                                <span style="margin-top: 2px; display: block;">Sim: <strong>${{lowest.similarity.toFixed(3)}}</strong> | ${{lowest.num_instances}} total instances</span>
+                                <div style="margin-top: 3px; font-style: italic; color: #555;">"${{lowest.caption}}"</div>
+                                <span style="font-size: 10px; color: #777;">Position: ${{lowest.position}}</span>
                             </div>`;
+                        }}
+                        
+                        html += `</div>`;
+                    }}
+                    
+                    html += `</div>`;
                 }});
-            }} else {{
-                ctxVisualNHtml = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
             }}
             
-            ctxVisualNResults.innerHTML = ctxVisualNHtml;
+            // If no data at all
+            if (!html) {{
+                html = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
+            }}
+            
+            ctxResults.innerHTML = html;
         }}
         
         // Event listener for layer changes
@@ -1651,12 +1748,11 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                     activePatchDiv.classList.remove('active');
                     activePatchDiv = null;
                     activePatchIdx = null;
-                    // Reset all four results panels
+                    // Reset all three results panels
                     document.getElementById('patchInfo').innerHTML = '<strong>Click on a patch to see results</strong>';
                     document.getElementById('nnResults').innerHTML = '<div class="empty-state">Select a patch</div>';
                     document.getElementById('logitResults').innerHTML = '<div class="empty-state">Select a patch</div>';
                     document.getElementById('contextualResults').innerHTML = '<div class="empty-state">Select a patch</div>';
-                    document.getElementById('contextualVisualNResults').innerHTML = '<div class="empty-state">Select a patch</div>';
                 }}
             }}
         }});
@@ -1735,24 +1831,24 @@ def main():
             
             has_results = (len(analysis_results["nn"]) > 0 or 
                           len(analysis_results["logitlens"]) > 0 or 
-                          len(analysis_results["contextual"]) > 0 or
-                          len(analysis_results["contextual_visualN"]) > 0)
+                          len(analysis_results["contextual_cc"]) > 0 or
+                          len(analysis_results["contextual_vg"]) > 0)
             
             model_availability[(llm, ve)] = {
                 "available": has_results,
                 "checkpoint_name": checkpoint_name,
                 "nn_layers": sorted(analysis_results["nn"].keys()),
                 "logit_layers": sorted(analysis_results["logitlens"].keys()),
-                "contextual_layers": sorted(analysis_results["contextual"].keys()),
-                "contextual_visualN_layers": sorted(analysis_results["contextual_visualN"].keys()),
+                "contextual_cc_layers": sorted(analysis_results["contextual_cc"].keys()),
+                "contextual_vg_layers": sorted(analysis_results["contextual_vg"].keys()),
                 "analysis_results": analysis_results
             }
             
             if has_results:
                 log.info(f"  Found: NN={len(analysis_results['nn'])}, " 
                         f"Logit={len(analysis_results['logitlens'])}, "
-                        f"Contextual={len(analysis_results['contextual'])}, "
-                        f"Contextual_visualN={len(analysis_results['contextual_visualN'])}")
+                        f"Contextual_CC={len(analysis_results['contextual_cc'])}, "
+                        f"Contextual_VG={len(analysis_results['contextual_vg'])}")
                 
                 # Create model index page
                 create_model_index(output_dir, checkpoint_name, llm, ve, 

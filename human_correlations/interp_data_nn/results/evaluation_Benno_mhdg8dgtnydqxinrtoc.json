@@ -1,0 +1,74 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdg8dgtnydqxinrtoc",
+  "timestamp": "2025-10-30T13:17:15.121Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00267_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:18.844Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00267_patch1",
+      "selectedWords": [
+        {
+          "word": "Purple",
+          "relation": "concrete"
+        },
+        {
+          "word": " purple",
+          "relation": "concrete"
+        },
+        {
+          "word": " violet",
+          "relation": "concrete"
+        },
+        {
+          "word": "Pink",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:29.134Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:32.250Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch3",
+      "selectedWords": [
+        {
+          "word": " Gray",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:46.639Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:17:05.111Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch5",
+      "selectedWords": [
+        {
+          "word": "Button",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:17:14.669Z"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdr3ung6ur16b1flvg",
+  "timestamp": "2025-10-30T18:21:34.514Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:20:59.437Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00218_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:21:00.670Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00218_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:21:02.586Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00218_patch3",
+      "selectedWords": [
+        {
+          "word": " machine",
+          "relation": "abstract"
+        },
+        {
+          "word": " vault",
+          "relation": "abstract"
+        },
+        {
+          "word": " light",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:21:11.920Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00218_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:21:13.736Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch5",
+      "selectedWords": [
+        {
+          "word": " hairstyle",
+          "relation": "abstract"
+        },
+        {
+          "word": " Hair",
+          "relation": "concrete"
+        },
+        {
+          "word": " hairstyles",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:21:39.436Z"
+    }
+  ]
+}
