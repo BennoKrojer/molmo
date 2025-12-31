@@ -12,16 +12,19 @@
 - Don't just report numbers - verify they make sense and match expectations
 - If numbers differ from what was expected, stop and investigate WHY before continuing
 
-## Git Workflow
-- **Push to GitHub after every major change** (new scripts, bug fixes, new results)
-- Before pushing, check file sizes - never push files >100MB
-- After pushing, update JOURNAL.md with what was done
+## Git Workflow - CRITICAL
+- **ALWAYS commit and push after fixing bugs or making changes** - don't wait!
+- Push to GitHub after: bug fixes, new scripts, new results, any significant work
+- Before pushing: `git status`, check file sizes (`du -sh`) - never push files >100MB
+- After pushing: update JOURNAL.md immediately
+- **If you forget to git/journal, the user will ask - do it proactively!**
 
-## JOURNAL.md
-- Log every major change: new scripts, new results, git pushes, deleted files
+## JOURNAL.md - CRITICAL
+- **Update JOURNAL.md after every significant change** - not just at end of session
+- Log: bug fixes, new scripts, new results, git pushes, deleted files
 - Format: `[YYYY-MM-DD] Brief description of change`
-- Keep it concise - one line per change
-- This helps track progress and is essential for reproducibility
+- Keep it concise but informative
+- This is essential for reproducibility and tracking progress
 
 ---
 
