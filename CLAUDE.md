@@ -6,6 +6,12 @@
 ## Environment Setup
 - Always use the environment: `source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)`
 
+## Flagging Inconsistencies
+- **ALWAYS flag anything that seems fishy or inconsistent** - investigate immediately
+- Examples: different layer counts across analysis types, missing data, unexpected numbers
+- Don't just report numbers - verify they make sense and match expectations
+- If numbers differ from what was expected, stop and investigate WHY before continuing
+
 ## Git Workflow
 - **Push to GitHub after every major change** (new scripts, bug fixes, new results)
 - Before pushing, check file sizes - never push files >100MB
