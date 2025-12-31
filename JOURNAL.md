@@ -6,6 +6,18 @@ A concise log of major changes, results, and git operations.
 
 ## 2024-12
 
+### 2024-12-31 (continued)
+- **FIX**: Ablation viewer now works correctly:
+  - Images resized to 512x512 for consistent square grid display
+  - Changed `contextual` → `contextual_vg` key to match JS template expectations
+  - Fixed parameter order: `ctx_layers` now passed to correct position (`ctx_vg_layers`, not `ctx_cc_layers`)
+  - Added layer badge (`L{N}`) display for contextual neighbors (was missing from template)
+- **ROOT CAUSE IDENTIFIED**: No data contract between analysis scripts (output JSON) and viewer scripts (consume JSON)
+  - Different scripts use different key names: `nearest_neighbors` vs `neighbors`, `top_tokens` vs `predictions`
+  - Wrapper keys: `contextual` vs `contextual_vg` vs `contextual_cc`
+  - Will create `viewer_schema.py` as single source of truth
+- **Git push**: "Fix ablation viewer: square images, layer badges, correct data keys"
+
 ### 2024-12-31
 - **CRITICAL BUG FIX**: Qwen2-VL preprocessing inconsistency discovered and fixed:
   - Contextual NN used `--fixed-resolution 448` → 16x16 grid (256 tokens)

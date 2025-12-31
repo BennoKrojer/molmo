@@ -380,9 +380,9 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
             <h3>About This Viewer</h3>
             <p>This unified interface provides interactive access to three types of analyses across multiple model combinations:</p>
             <ul>
-                <li><strong>Nearest Neighbors (NN):</strong> Top-5 nearest vocabulary tokens for each visual patch</li>
+                <li><strong>Embedding Matrix:</strong> Top-5 nearest vocabulary tokens for each visual patch</li>
                 <li><strong>Logit Lens:</strong> Predicted tokens by applying LM head to intermediate layers</li>
-                <li><strong>Contextual NN:</strong> Nearest contextual embeddings (words in real captions)</li>
+                <li><strong>LN-Lens:</strong> Nearest contextual embeddings (words in real captions)</li>
             </ul>
             <p>Click on any available model cell below to explore its analysis results.</p>
         </div>
@@ -595,7 +595,7 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
             <h3>Available Analyses</h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-label">Nearest Neighbors</div>
+                    <div class="stat-label">Embedding Matrix</div>
                     <div class="stat-value">{len(nn_layers)}</div>
                     <div class="stat-label">Layers: {", ".join(map(str, nn_layers)) if nn_layers else "None"}</div>
                 </div>
@@ -605,12 +605,12 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
                     <div class="stat-label">Layers: {", ".join(map(str, logit_layers)) if logit_layers else "None"}</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Contextual NN (VG)</div>
+                    <div class="stat-label">LN-Lens</div>
                     <div class="stat-value">{len(ctx_vg_layers)}</div>
                     <div class="stat-label">Layers: {", ".join(map(str, ctx_vg_layers)) if ctx_vg_layers else "None"}</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Contextual NN (CC)</div>
+                    <div class="stat-label">LN-Lens (CC)</div>
                     <div class="stat-value">{len(ctx_cc_layers)}</div>
                     <div class="stat-label">Layers: {", ".join(map(str, ctx_cc_layers)) if ctx_cc_layers else "None"}</div>
                 </div>
@@ -682,7 +682,7 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
     log.info(f"    ⏱️  Logit Lens: {time.time() - t0:.2f}s")
     
     # Load contextual NN data - CC (Conceptual Captions)
-    log.info(f"    Loading {len(analysis_results['contextual_cc'])} Contextual NN (CC) files...")
+    log.info(f"    Loading {len(analysis_results['contextual_cc'])} LN-Lens (CC) files...")
     t0 = time.time()
     for layer, json_path in analysis_results["contextual_cc"].items():
         try:
@@ -692,10 +692,10 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
                 all_data["contextual_cc"][layer] = results[:num_images]
         except Exception as e:
             log.warning(f"Could not load contextual NN (CC) data for layer {layer}: {e}")
-    log.info(f"    ⏱️  Contextual NN (CC): {time.time() - t0:.2f}s")
+    log.info(f"    ⏱️  LN-Lens (CC): {time.time() - t0:.2f}s")
     
     # Load contextual NN data - VG (Visual Genome)
-    log.info(f"    Loading {len(analysis_results['contextual_vg'])} Contextual NN (VG) files...")
+    log.info(f"    Loading {len(analysis_results['contextual_vg'])} LN-Lens files...")
     t0 = time.time()
     for layer, json_path in analysis_results["contextual_vg"].items():
         try:
@@ -705,7 +705,7 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
                 all_data["contextual_vg"][layer] = results[:num_images]
         except Exception as e:
             log.warning(f"Could not load contextual NN (VG) data for layer {layer}: {e}")
-    log.info(f"    ⏱️  Contextual NN (VG): {time.time() - t0:.2f}s")
+    log.info(f"    ⏱️  LN-Lens: {time.time() - t0:.2f}s")
     
     # Load interpretability data
     if analysis_results.get("interpretability"):
@@ -881,7 +881,7 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                     "predictions": pred_list
                 }
     
-    # Process Contextual NN data - VG (Visual Genome)
+    # Process LN-Lens data - VG (Visual Genome corpus)
     for layer, image_data in all_data["contextual_vg"].items():
         unified_patch_data["contextual_vg"][layer] = {}
         chunks = image_data.get("chunks", [])
@@ -940,7 +940,7 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                     "contextual_neighbors": ctx_list
                 }
     
-    # Process Contextual NN data - CC (Conceptual Captions)
+    # Process LN-Lens data - CC (Conceptual Captions corpus, legacy)
     for layer, image_data in all_data["contextual_cc"].items():
         unified_patch_data["contextual_cc"][layer] = {}
         chunks = image_data.get("chunks", [])
@@ -1405,7 +1405,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 </div>
                 <div class="analysis-columns">
                     <div class="analysis-column nn-column">
-                        <h3>🔍 Nearest Neighbors</h3>
+                        <h3>🔍 Embedding Matrix</h3>
                         <div class="analysis-results" id="nnResults">
                             <div class="empty-state">Select a patch</div>
                         </div>
@@ -1417,7 +1417,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                         </div>
                     </div>
                     <div class="analysis-column ctx-column">
-                        <h3>📝 Contextual NN</h3>
+                        <h3>📝 LN-Lens</h3>
                         <div class="analysis-results" id="contextualResults">
                             <div class="empty-state">Select a patch</div>
                         </div>
@@ -1612,7 +1612,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 logitResults.innerHTML = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
             }}
             
-            // Update Contextual NN column - show VG first, then CC
+            // Update LN-Lens column - show VG first, then CC (legacy)
             const ctxResults = document.getElementById('contextualResults');
             let html = '';
             
