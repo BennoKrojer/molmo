@@ -7,6 +7,11 @@ A concise log of major changes, results, and git operations.
 ## 2024-12
 
 ### 2024-12-30
+- **BUG FOUND**: `run_all_missing.sh` only ran layer 0 for NN/LogitLens (`LAYERS="0"`). Ablation data is incomplete:
+  - LogitLens: only layer 0 exists for all ablations
+  - NN: inconsistent legacy data (some have random layers like 12, 20, 28 from old experiments)
+  - Expected: layers 0,1,2,4,8,16,24,30,31 (9 layers) for OLMo ablations
+- Added rule to .cursorrules/CLAUDE.md: "ALWAYS flag inconsistencies and investigate"
 - **Git push**: "Add ablation viewer system and Qwen2-VL analysis scripts" (191 files, 52k+ insertions)
 - Created bulletproof viewer management system:
   - `scripts/analysis/viewer_models.json` - config file for all models
