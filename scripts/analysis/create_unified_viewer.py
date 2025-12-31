@@ -443,7 +443,7 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
     html_content += '''
                 </tbody>
             </table>
-        </div>
+                    </div>
         
         <div class="legend">
             <div class="legend-item">
@@ -454,7 +454,7 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
                 <div class="legend-color" style="background-color: #ffffff;"></div>
                 <span>No results available</span>
             </div>
-        </div>
+            </div>
     </div>
 </body>
 </html>'''
@@ -1621,12 +1621,16 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 html += '<div style="background: #e8f5e9; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-weight: 600; text-align: center; color: #2e7d32;">📸 Visual Genome Phrases</div>';
                 ctxVgData.contextual_neighbors.forEach((ctx, idx) => {{
                     const detailsId = `ctx-vg-details-${{patchIdx}}-${{idx}}`;
+                    // Show which contextual layer this neighbor came from
+                    const layerInfo = ctx.contextual_layer !== null && ctx.contextual_layer !== undefined 
+                        ? `<span style="background: #6c757d; color: white; padding: 1px 4px; border-radius: 3px; font-size: 10px; margin-left: 4px;">L${{ctx.contextual_layer}}</span>` 
+                        : '';
                     
                     html += `<div class="result-item">
-                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}} (pos: ${{ctx.position}})</div>
+                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}}${{layerInfo}}</div>
                         <div class="result-content" style="margin-top: 3px; font-size: 12px;">
                             ${{ctx.caption}}
-                        </div>`;
+                            </div>`;
                     
                     // Add expandable details section if additional data is available
                     const hasLowest = ctx.lowest_similarity_same_token !== undefined && ctx.lowest_similarity_same_token !== null;
@@ -1682,9 +1686,13 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 html += '<div style="background: #e3f2fd; padding: 8px; margin-bottom: 10px; border-radius: 4px; font-weight: 600; text-align: center; color: #1565c0;">💬 Conceptual Captions</div>';
                 ctxCcData.contextual_neighbors.forEach((ctx, idx) => {{
                     const detailsId = `ctx-cc-details-${{patchIdx}}-${{idx}}`;
+                    // Show which contextual layer this neighbor came from
+                    const layerInfo = ctx.contextual_layer !== null && ctx.contextual_layer !== undefined 
+                        ? `<span style="background: #6c757d; color: white; padding: 1px 4px; border-radius: 3px; font-size: 10px; margin-left: 4px;">L${{ctx.contextual_layer}}</span>` 
+                        : '';
                     
                     html += `<div class="result-item">
-                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}} (pos: ${{ctx.position}})</div>
+                        <div class="result-header">${{ctx.rank}}. Sim: ${{ctx.similarity.toFixed(3)}}${{layerInfo}}</div>
                         <div class="result-content" style="margin-top: 3px; font-size: 12px;">
                             ${{ctx.caption}}
                         </div>`;
@@ -1895,10 +1903,10 @@ def main():
                     except Exception as e:
                         if img_idx % 50 == 0:
                             log.warning(f"    Error creating viewer for image {img_idx}: {e}")
-                
-                total_time = time.time() - t_start
-                log.info(f"  ✓ Created {success_count}/{args.num_images} image viewers in {total_time:.1f}s "
-                        f"({success_count/total_time:.1f} images/sec)")
+            
+            total_time = time.time() - t_start
+            log.info(f"  ✓ Created {success_count}/{args.num_images} image viewers in {total_time:.1f}s "
+                    f"({success_count/total_time:.1f} images/sec)")
     
     # Create main index
     log.info("\nCreating main index...")

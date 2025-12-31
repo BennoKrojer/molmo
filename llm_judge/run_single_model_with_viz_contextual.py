@@ -388,26 +388,26 @@ def main():
     input_json = None
     target_layer = int(args.layer.replace('contextual', ''))
     
-    # Look for allLayers files first (new format - try both with and without _multi-gpu suffix)
-    allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers.json"))
-    if not allLayers_files:
-        # Fallback to old naming with _multi-gpu suffix
-        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
-    if allLayers_files:
-        # Use the first allLayers file (they all contain all layers, just different visual layers)
-        # We'll filter by contextual layer when processing
-        input_json = allLayers_files[0]
-    else:
-        # Fallback to old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
-        for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
-            # Extract the contextual layer number from filename using regex
-            match = re.search(r'_contextual(\d+)_multi-gpu\.json$', str(cand))
-            if match:
-                file_layer = int(match.group(1))
-                # Match exact layer number (handles contextual0 specially)
-                if file_layer == target_layer or (args.layer == 'contextual0' and file_layer == 0):
-                    input_json = cand
-                    break
+        # Look for allLayers files first (new format - try both with and without _multi-gpu suffix)
+        allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers.json"))
+        if not allLayers_files:
+            # Fallback to old naming with _multi-gpu suffix
+            allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
+        if allLayers_files:
+            # Use the first allLayers file (they all contain all layers, just different visual layers)
+            # We'll filter by contextual layer when processing
+            input_json = allLayers_files[0]
+        else:
+            # Fallback to old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
+            for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
+                # Extract the contextual layer number from filename using regex
+                match = re.search(r'_contextual(\d+)_multi-gpu\.json$', str(cand))
+                if match:
+                    file_layer = int(match.group(1))
+                    # Match exact layer number (handles contextual0 specially)
+                    if file_layer == target_layer or (args.layer == 'contextual0' and file_layer == 0):
+                        input_json = cand
+                        break
     if input_json is None:
         print(f"ERROR: Contextual NN JSON not found in {ckpt_dir} for layer {args.layer}")
         sys.exit(1)

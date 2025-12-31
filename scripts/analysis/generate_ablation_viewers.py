@@ -490,6 +490,10 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             pil_image = image_data_raw
         
         if pil_image:
+            # Resize to square for consistent viewer display (matches analysis preprocessing)
+            # Use 512x512 for display (analysis uses 448, but 512 looks better in viewer)
+            display_size = 512
+            pil_image = pil_image.resize((display_size, display_size), Image.LANCZOS)
             image_base64 = pil_image_to_base64(pil_image)
         
         ground_truth = example.get("caption", "No caption available")
@@ -541,7 +545,8 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
     unified_patch_data = {
         "nn": {},
         "logitlens": {},
-        "contextual": {},
+        "contextual_vg": {},  # Must match JS template key (contextual_vg)
+        "contextual_cc": {},  # Must match JS template key (contextual_cc)
     }
     
     # Process NN data - handles both Format A (chunks/patches) and Format B (patches directly)
@@ -579,7 +584,7 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             
             unified_patch_data["nn"][layer][patch_idx] = {
                 "row": row, "col": col,
-                "nearest_neighbors": nn_list
+                "neighbors": nn_list  # Must be "neighbors" to match JS template!
             }
     
     # Process LogitLens data - handles both Format A (chunks/patches) and Format B (patches directly)
@@ -615,14 +620,14 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             
             unified_patch_data["logitlens"][layer][patch_idx] = {
                 "row": row, "col": col,
-                "top_tokens": logit_list  # Keep as top_tokens for HTML template compatibility
+                "predictions": logit_list  # Must be "predictions" to match JS template!
             }
     
     # Process Contextual data - handles both Format A (chunks/patches) and Format B (patches directly)
     for layer, layer_data in image_data.get("contextual", {}).items():
         if str(layer).startswith("_format"):
             continue  # Skip format metadata
-        unified_patch_data["contextual"][layer] = {}
+        unified_patch_data["contextual_vg"][layer] = {}  # VG corpus for ablations
         
         # Get patches based on format
         if "chunks" in layer_data:
@@ -659,7 +664,7 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
                     "contextual_layer": neighbor.get("contextual_layer", None)
                 })
             
-            unified_patch_data["contextual"][layer][patch_idx] = {
+            unified_patch_data["contextual_vg"][layer][patch_idx] = {
                 "row": row, "col": col,
                 "contextual_neighbors": ctx_list
             }
@@ -682,7 +687,7 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             image_idx, image_base64, ground_truth,
             checkpoint,  # checkpoint_name
             llm, ve,  # Use actual llm/ve for lookup
-            nn_layers, logit_layers, ctx_layers, [],  # ctx_vg_layers empty
+            nn_layers, logit_layers, [], ctx_layers,  # ctx_cc=empty, ctx_vg=ctx_layers (VG corpus)
             unified_patch_data, grid_size, patches_per_chunk,
             {},  # interpretability_map empty
             grid_rows=grid_rows, grid_cols=grid_cols  # For non-square grids (Qwen2-VL)
