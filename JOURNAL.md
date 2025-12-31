@@ -7,6 +7,7 @@ A concise log of major changes, results, and git operations.
 ## 2024-12
 
 ### 2024-12-30
+- **Git push**: "Add ablation viewer system and Qwen2-VL analysis scripts" (191 files, 52k+ insertions)
 - Created bulletproof viewer management system:
   - `scripts/analysis/viewer_models.json` - config file for all models
   - `scripts/analysis/add_models_to_viewer.py` - validates data, updates index
