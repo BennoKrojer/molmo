@@ -6,7 +6,33 @@ A concise log of major changes, results, and git operations.
 
 ## 2024-12
 
+### 2024-12-31
+- **CRITICAL BUG FIX**: Qwen2-VL preprocessing inconsistency discovered and fixed:
+  - Contextual NN used `--fixed-resolution 448` → 16x16 grid (256 tokens)
+  - NN/LogitLens had no fixed resolution → 28x28 variable grids (777+ tokens)
+  - **Same image, different grids = broken viewer!**
+  - Fixed `scripts/analysis/qwen2_vl/nearest_neighbors.py` - added `--fixed-resolution` param
+  - Fixed `scripts/analysis/qwen2_vl/logitlens.py` - added `--fixed-resolution` param
+  - Updated `run_all_missing.sh` to use `--fixed-resolution 448` for Qwen2-VL
+  - Deleted broken Qwen2-VL NN/LogitLens results (will regenerate)
+- **BUG FIX**: Syntax error in `llm_judge/run_single_model_with_viz_contextual.py` (unexpected indent at line 391)
+- **Updated** `generate_ablation_viewers.py` to find max grid across all analysis types
+- **Git push**: "Standardize Qwen2-VL preprocessing across all scripts"
+
 ### 2024-12-30
+- **BUG FIX**: `generate_ablation_viewers.py` was silently failing to load data due to format mismatches:
+  - **Format A (main models/ablations)**: 
+    - NN: `splits/validation/images` → `chunks/patches/nearest_neighbors`
+    - LogitLens: `results` → `chunks/patches/top_predictions`
+    - Contextual: `results` → `chunks/patches/nearest_contextual_neighbors`
+  - **Format B (Qwen2-VL)**:
+    - NN: `results` → `patches/top_neighbors` (different key name!)
+    - LogitLens: `results` → `patches/top_predictions`
+    - Contextual: `results` → `patches/nearest_contextual_neighbors`
+  - Script now auto-detects format and handles both correctly
+  - Added comprehensive validation: `--validate-only` flag, strict mode, data checks at load time
+  - Added output validation: file size check, content verification
+  - Now fails LOUDLY instead of generating empty viewers silently
 - **BUG FOUND**: `run_all_missing.sh` only ran layer 0 for NN/LogitLens (`LAYERS="0"`). Ablation data is incomplete:
   - LogitLens: only layer 0 exists for all ablations
   - NN: inconsistent legacy data (some have random layers like 12, 20, 28 from old experiments)

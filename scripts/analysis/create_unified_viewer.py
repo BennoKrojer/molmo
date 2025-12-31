@@ -1017,8 +1017,19 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                                 checkpoint_name: str, llm: str, ve: str,
                                 nn_layers: List, logit_layers: List, ctx_cc_layers: List, ctx_vg_layers: List,
                                 unified_patch_data: Dict, grid_size: int, patches_per_chunk: int,
-                                interpretability_map: Dict) -> str:
-    """Generate the HTML content for the unified viewer."""
+                                interpretability_map: Dict,
+                                grid_rows: int = None, grid_cols: int = None) -> str:
+    """Generate the HTML content for the unified viewer.
+    
+    Args:
+        grid_rows, grid_cols: Optional. For non-square grids (e.g., Qwen2-VL), specify 
+                              the actual row/col dimensions. If not provided, assumes square grid.
+    """
+    # For non-square grids, use actual dimensions; otherwise assume square
+    if grid_rows is None:
+        grid_rows = grid_size
+    if grid_cols is None:
+        grid_cols = grid_size
     
     # Find all unique layers across all analysis types
     all_layers = sorted(set(nn_layers + logit_layers + ctx_cc_layers + ctx_vg_layers))
@@ -1421,6 +1432,8 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         const allData = {json.dumps(unified_patch_data, indent=2)};
         const interpretabilityData = {json.dumps(interpretability_map, indent=2)};
         const gridSize = {grid_size};
+        const gridRows = {grid_rows};
+        const gridCols = {grid_cols};
         const availableLayers = {{
             "nn": {json.dumps(nn_layers)},
             "logitlens": {json.dumps(logit_layers)},
@@ -1480,8 +1493,9 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                     }}
                 }}
                 
-                const patchWidth = imageWidth / gridSize;
-                const patchHeight = imageHeight / gridSize;
+                // Use gridCols for width, gridRows for height (handles non-square grids like Qwen2-VL)
+                const patchWidth = imageWidth / gridCols;
+                const patchHeight = imageHeight / gridRows;
                 const left = patchData.col * patchWidth;
                 const top = patchData.row * patchHeight;
                 

@@ -110,8 +110,17 @@ def find_analysis_files(base_dir: Path, analysis_type: str, data_path: str) -> D
     return results
 
 
-def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int) -> Dict:
-    """Load all analysis data for an ablation."""
+def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int, split: str = "validation") -> Dict:
+    """
+    Load all analysis data for an ablation.
+    
+    CRITICAL: Different analysis types have different JSON structures!
+    - NN: data["splits"][split]["images"] - list of images with chunks/patches
+    - LogitLens: data["results"] - list of images with chunks/patches  
+    - Contextual: data["results"] - list of images with patches
+    
+    This function VALIDATES that data was actually loaded and warns loudly if not.
+    """
     
     all_data = {
         "nn": {},
@@ -119,7 +128,11 @@ def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int) -> Dic
         "contextual": {},
     }
     
-    # Load NN data
+    validation_errors = []
+    
+    # Load NN data - supports TWO formats:
+    # Format A (main models/ablations): splits/validation/images with chunks/patches/nearest_neighbors
+    # Format B (Qwen2-VL): results with patches/top_neighbors
     nn_files = find_analysis_files(base_dir, "nn", data_paths.get("nn", ""))
     log.info(f"    Loading {len(nn_files)} NN files...")
     t0 = time.time()
@@ -127,13 +140,42 @@ def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int) -> Dic
         try:
             with open(json_path) as f:
                 data = json.load(f)
-                results = data.get("results", [])
-                all_data["nn"][layer] = results[:num_images]
+                
+                # Try Format A first (splits/validation/images)
+                images = data.get("splits", {}).get(split, {}).get("images", [])
+                data_format = "A"
+                
+                # Fallback to Format B (results directly)
+                if not images:
+                    images = data.get("results", [])
+                    data_format = "B"
+                
+                if not images:
+                    validation_errors.append(f"NN layer {layer}: No data in splits/{split}/images or results")
+                    continue
+                
+                # Validate structure based on format
+                if data_format == "A":
+                    if "chunks" not in images[0]:
+                        validation_errors.append(f"NN layer {layer}: Format A but no 'chunks' key")
+                        continue
+                elif data_format == "B":
+                    if "patches" not in images[0]:
+                        validation_errors.append(f"NN layer {layer}: Format B but no 'patches' key")
+                        continue
+                
+                all_data["nn"][layer] = images[:num_images]
+                # Store format info for later processing
+                all_data["nn"][f"_format_{layer}"] = data_format
+                log.info(f"      Layer {layer}: loaded {len(images[:num_images])} images (format {data_format})")
+                
         except Exception as e:
-            log.warning(f"Failed to load {json_path}: {e}")
+            validation_errors.append(f"NN layer {layer}: Failed to load {json_path}: {e}")
     log.info(f"    ⏱️  NN: {time.time() - t0:.2f}s")
     
-    # Load LogitLens data
+    # Load LogitLens data - supports TWO formats:
+    # Format A: results with chunks/patches  
+    # Format B (Qwen2-VL): results with patches directly
     logit_files = find_analysis_files(base_dir, "logitlens", data_paths.get("logitlens", ""))
     log.info(f"    Loading {len(logit_files)} LogitLens files...")
     t0 = time.time()
@@ -142,12 +184,31 @@ def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int) -> Dic
             with open(json_path) as f:
                 data = json.load(f)
                 results = data.get("results", [])
+                
+                if not results:
+                    validation_errors.append(f"LogitLens layer {layer}: File exists but no 'results' found")
+                    continue
+                
+                # Determine format: chunks (A) or patches directly (B)
+                if "chunks" in results[0]:
+                    data_format = "A"
+                elif "patches" in results[0]:
+                    data_format = "B"
+                else:
+                    validation_errors.append(f"LogitLens layer {layer}: No 'chunks' or 'patches' key")
+                    continue
+                    
                 all_data["logitlens"][layer] = results[:num_images]
+                all_data["logitlens"][f"_format_{layer}"] = data_format
+                log.info(f"      Layer {layer}: loaded {len(results[:num_images])} images (format {data_format})")
+                
         except Exception as e:
-            log.warning(f"Failed to load {json_path}: {e}")
+            validation_errors.append(f"LogitLens layer {layer}: Failed to load {json_path}: {e}")
     log.info(f"    ⏱️  LogitLens: {time.time() - t0:.2f}s")
     
-    # Load Contextual data
+    # Load Contextual data - supports TWO formats:
+    # Format A: results with chunks/patches  
+    # Format B (Qwen2-VL): results with patches directly
     ctx_files = find_analysis_files(base_dir, "contextual", data_paths.get("contextual", ""))
     log.info(f"    Loading {len(ctx_files)} Contextual files...")
     t0 = time.time()
@@ -156,12 +217,82 @@ def load_ablation_data(data_paths: Dict, base_dir: Path, num_images: int) -> Dic
             with open(json_path) as f:
                 data = json.load(f)
                 results = data.get("results", [])
+                
+                if not results:
+                    validation_errors.append(f"Contextual layer {layer}: File exists but no 'results' found")
+                    continue
+                
+                # Determine format: chunks (A) or patches directly (B)
+                if "chunks" in results[0]:
+                    data_format = "A"
+                elif "patches" in results[0]:
+                    data_format = "B"
+                else:
+                    validation_errors.append(f"Contextual layer {layer}: No 'chunks' or 'patches' key")
+                    continue
+                    
                 all_data["contextual"][layer] = results[:num_images]
+                all_data["contextual"][f"_format_{layer}"] = data_format
+                log.info(f"      Layer {layer}: loaded {len(results[:num_images])} images (format {data_format})")
+                
         except Exception as e:
-            log.warning(f"Failed to load {json_path}: {e}")
+            validation_errors.append(f"Contextual layer {layer}: Failed to load {json_path}: {e}")
     log.info(f"    ⏱️  Contextual: {time.time() - t0:.2f}s")
     
+    # Report all validation errors
+    if validation_errors:
+        log.error("  ❌ DATA LOADING VALIDATION ERRORS:")
+        for err in validation_errors:
+            log.error(f"    - {err}")
+    
     return all_data
+
+
+def validate_viewer_output(html_path: Path, expected_nn_layers: int, expected_logit_layers: int, expected_ctx_layers: int) -> bool:
+    """
+    BULLETPROOF VALIDATION: Check that generated HTML actually contains data.
+    This catches the bug where data loading fails silently.
+    """
+    if not html_path.exists():
+        log.error(f"  ❌ VALIDATION FAILED: {html_path} does not exist")
+        return False
+    
+    with open(html_path, 'r') as f:
+        content = f.read()
+    
+    # Check file size - empty data viewers are ~4KB, full ones are ~50KB+
+    size_kb = len(content) / 1024
+    if size_kb < 20:
+        log.error(f"  ❌ VALIDATION FAILED: {html_path.name} is only {size_kb:.1f}KB - likely missing data!")
+        return False
+    
+    errors = []
+    
+    # Check for nearest_neighbors data (should have actual tokens with similarity scores)
+    if expected_nn_layers > 0:
+        if '"nearest_neighbors": []' in content:
+            errors.append("NN data has empty nearest_neighbors arrays!")
+        if '"similarity":' not in content:
+            errors.append("NN data missing similarity scores!")
+    
+    # Check for logitlens data (should have top_tokens with logit scores)
+    if expected_logit_layers > 0:
+        if '"top_tokens": []' in content:
+            errors.append("LogitLens data has empty top_tokens arrays!")
+    
+    # Check for contextual data (should have contextual_neighbors)
+    if expected_ctx_layers > 0:
+        if '"contextual_neighbors": []' in content:
+            errors.append("Contextual data has empty contextual_neighbors arrays!")
+    
+    if errors:
+        log.error(f"  ❌ VALIDATION FAILED for {html_path.name}:")
+        for err in errors:
+            log.error(f"    - {err}")
+        return False
+    
+    log.info(f"  ✅ Validation passed: {html_path.name} ({size_kb:.1f}KB)")
+    return True
 
 
 def create_ablation_model_index(output_dir: Path, ablation_config: Dict, 
@@ -322,7 +453,7 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
     display_name = ablation_config["name"]
     model_dir = output_dir / "ablations" / checkpoint
     
-    # Get data for this image
+    # Get data for this image (filter out _format_* metadata keys)
     image_data = {
         "nn": {},
         "logitlens": {},
@@ -331,7 +462,9 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
     
     for analysis_type in ["nn", "logitlens", "contextual"]:
         for layer, images_list in all_data.get(analysis_type, {}).items():
-            if image_idx < len(images_list):
+            if str(layer).startswith("_format"):
+                continue  # Skip format metadata
+            if isinstance(images_list, list) and image_idx < len(images_list):
                 image_data[analysis_type][layer] = images_list[image_idx]
     
     # Get available layers
@@ -363,27 +496,46 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
     except Exception as e:
         log.warning(f"Could not load image {image_idx}: {e}")
     
-    # Determine grid dimensions
+    # Determine grid dimensions - handles both Format A (chunks) and Format B (patches directly)
+    # For Qwen2-VL, grid is non-square and varies per image - use max row/col from data
+    # IMPORTANT: Different analysis types may have different grids (e.g., NN=28x28, Contextual=16x16)
+    # We need to find the MAXIMUM grid across all types to display all patches correctly
     patches_per_chunk = 576  # default
+    max_row = 0
+    max_col = 0
     
-    # Try to get from contextual data (most reliable)
-    for layer, layer_data in image_data.get("contextual", {}).items():
-        patches = layer_data.get("patches", [])
-        if patches:
-            patches_per_chunk = len(patches)
-            break
+    # Check ALL analysis types to find max grid (don't break early!)
+    for analysis_type in ["nn", "logitlens", "contextual"]:  # NN first - usually has most patches
+        for layer, layer_data in image_data.get(analysis_type, {}).items():
+            if str(layer).startswith("_format"):
+                continue  # Skip format metadata
+            
+            # Get all patches
+            all_patches = []
+            if "chunks" in layer_data:
+                for chunk in layer_data.get("chunks", []):
+                    all_patches.extend(chunk.get("patches", []))
+            elif "patches" in layer_data:
+                all_patches = layer_data.get("patches", [])
+            
+            if all_patches:
+                patches_per_chunk = max(patches_per_chunk, len(all_patches))
+                # Find actual grid dimensions from patch row/col values
+                for patch in all_patches:
+                    max_row = max(max_row, patch.get("patch_row", 0))
+                    max_col = max(max_col, patch.get("patch_col", 0))
+                break  # Only need first layer per analysis type
     
-    # If no contextual, try NN
-    if patches_per_chunk == 576:
-        for layer, layer_data in image_data.get("nn", {}).items():
-            chunks = layer_data.get("chunks", [])
-            if chunks:
-                total_patches = sum(len(c.get("patches", [])) for c in chunks)
-                if total_patches > 0:
-                    patches_per_chunk = total_patches
-                    break
-    
-    grid_size = int(math.sqrt(patches_per_chunk))
+    # Grid size is max(row, col) + 1 (since they're 0-indexed)
+    # For square grids (main models), fall back to sqrt
+    if max_row > 0 or max_col > 0:
+        grid_rows = max_row + 1
+        grid_cols = max_col + 1
+        grid_size = max(grid_rows, grid_cols)  # Use larger dimension for positioning
+    else:
+        grid_size = int(math.sqrt(patches_per_chunk))
+        grid_rows = grid_size
+        grid_cols = grid_size
     
     # Build unified patch data structure
     unified_patch_data = {
@@ -392,57 +544,101 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
         "contextual": {},
     }
     
-    # Process NN data
+    # Process NN data - handles both Format A (chunks/patches) and Format B (patches directly)
     for layer, layer_data in image_data.get("nn", {}).items():
+        if str(layer).startswith("_format"):
+            continue  # Skip format metadata
         unified_patch_data["nn"][layer] = {}
-        chunks = layer_data.get("chunks", [])
-        for chunk in chunks:
-            for patch in chunk.get("patches", []):
-                patch_idx = patch.get("patch_idx", -1)
-                row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                
-                nn_list = []
-                for i, nn in enumerate(patch.get("nearest_neighbors", [])[:5]):
-                    nn_list.append({
-                        "rank": i + 1,
-                        "token": escape_for_html(nn.get("token", "")),
-                        "similarity": nn.get("similarity", 0.0)
-                    })
-                
-                unified_patch_data["nn"][layer][patch_idx] = {
-                    "row": row, "col": col,
-                    "nearest_neighbors": nn_list
-                }
-    
-    # Process LogitLens data
-    for layer, layer_data in image_data.get("logitlens", {}).items():
-        unified_patch_data["logitlens"][layer] = {}
-        chunks = layer_data.get("chunks", [])
-        for chunk in chunks:
-            for patch in chunk.get("patches", []):
-                patch_idx = patch.get("patch_idx", -1)
-                row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                
-                logit_list = []
-                for i, tok in enumerate(patch.get("top_tokens", [])[:5]):
-                    logit_list.append({
-                        "rank": i + 1,
-                        "token": escape_for_html(tok.get("token", "")),
-                        "logit": tok.get("logit", 0.0)
-                    })
-                
-                unified_patch_data["logitlens"][layer][patch_idx] = {
-                    "row": row, "col": col,
-                    "top_tokens": logit_list
-                }
-    
-    # Process Contextual data
-    for layer, layer_data in image_data.get("contextual", {}).items():
-        unified_patch_data["contextual"][layer] = {}
-        patches = layer_data.get("patches", [])
-        for patch in patches:
+        
+        # Get patches based on format
+        if "chunks" in layer_data:
+            # Format A: chunks/patches structure
+            all_patches = []
+            for chunk in layer_data.get("chunks", []):
+                all_patches.extend(chunk.get("patches", []))
+            nn_key = "nearest_neighbors"
+        else:
+            # Format B: patches directly (Qwen2-VL style)
+            all_patches = layer_data.get("patches", [])
+            nn_key = "top_neighbors"  # Qwen2-VL uses different key
+        
+        for patch in all_patches:
             patch_idx = patch.get("patch_idx", -1)
-            row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
+            # Use row/col from patch data if available (Qwen2-VL has non-square grids)
+            row = patch.get("patch_row", patch_idx // grid_size)
+            col = patch.get("patch_col", patch_idx % grid_size)
+            
+            nn_list = []
+            neighbors = patch.get(nn_key, []) or patch.get("nearest_neighbors", [])
+            for i, nn in enumerate(neighbors[:5]):
+                nn_list.append({
+                    "rank": i + 1,
+                    "token": escape_for_html(nn.get("token", "")),
+                    "similarity": nn.get("similarity", 0.0)
+                })
+            
+            unified_patch_data["nn"][layer][patch_idx] = {
+                "row": row, "col": col,
+                "nearest_neighbors": nn_list
+            }
+    
+    # Process LogitLens data - handles both Format A (chunks/patches) and Format B (patches directly)
+    for layer, layer_data in image_data.get("logitlens", {}).items():
+        if str(layer).startswith("_format"):
+            continue  # Skip format metadata
+        unified_patch_data["logitlens"][layer] = {}
+        
+        # Get patches based on format
+        if "chunks" in layer_data:
+            # Format A: chunks/patches structure
+            all_patches = []
+            for chunk in layer_data.get("chunks", []):
+                all_patches.extend(chunk.get("patches", []))
+        else:
+            # Format B: patches directly (Qwen2-VL style)
+            all_patches = layer_data.get("patches", [])
+        
+        for patch in all_patches:
+            patch_idx = patch.get("patch_idx", -1)
+            # Use row/col from patch data if available (Qwen2-VL has non-square grids)
+            row = patch.get("patch_row", patch_idx // grid_size)
+            col = patch.get("patch_col", patch_idx % grid_size)
+            
+            logit_list = []
+            # LogitLens uses "top_predictions"
+            for i, pred in enumerate(patch.get("top_predictions", [])[:5]):
+                logit_list.append({
+                    "rank": i + 1,
+                    "token": escape_for_html(pred.get("token", "")),
+                    "logit": pred.get("logit", 0.0)
+                })
+            
+            unified_patch_data["logitlens"][layer][patch_idx] = {
+                "row": row, "col": col,
+                "top_tokens": logit_list  # Keep as top_tokens for HTML template compatibility
+            }
+    
+    # Process Contextual data - handles both Format A (chunks/patches) and Format B (patches directly)
+    for layer, layer_data in image_data.get("contextual", {}).items():
+        if str(layer).startswith("_format"):
+            continue  # Skip format metadata
+        unified_patch_data["contextual"][layer] = {}
+        
+        # Get patches based on format
+        if "chunks" in layer_data:
+            # Format A: chunks/patches structure
+            all_patches = []
+            for chunk in layer_data.get("chunks", []):
+                all_patches.extend(chunk.get("patches", []))
+        else:
+            # Format B: patches directly (Qwen2-VL style)
+            all_patches = layer_data.get("patches", [])
+        
+        for patch in all_patches:
+            patch_idx = patch.get("patch_idx", -1)
+            # Use row/col from patch data if available (Qwen2-VL has non-square grids)
+            row = patch.get("patch_row", patch_idx // grid_size)
+            col = patch.get("patch_col", patch_idx % grid_size)
             
             ctx_list = []
             for i, neighbor in enumerate(patch.get("nearest_contextual_neighbors", [])[:5]):
@@ -488,7 +684,8 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             llm, ve,  # Use actual llm/ve for lookup
             nn_layers, logit_layers, ctx_layers, [],  # ctx_vg_layers empty
             unified_patch_data, grid_size, patches_per_chunk,
-            {}  # interpretability_map empty
+            {},  # interpretability_map empty
+            grid_rows=grid_rows, grid_cols=grid_cols  # For non-square grids (Qwen2-VL)
         )
     except Exception as e:
         import traceback
@@ -524,8 +721,15 @@ def main():
                        help="Dataset split")
     parser.add_argument("--force", action="store_true",
                        help="Force regenerate even if exists")
+    parser.add_argument("--validate-only", action="store_true",
+                       help="Only validate data loading, don't generate viewers")
+    parser.add_argument("--strict", action="store_true",
+                       help="Fail immediately on any validation error")
     
     args = parser.parse_args()
+    
+    # Track overall success
+    all_validation_passed = True
     
     # Load config
     with open(args.config) as f:
@@ -571,13 +775,13 @@ def main():
         
         # Load data
         log.info("  Loading analysis data...")
-        all_data = load_ablation_data(data_paths, base_dir, args.num_images)
+        all_data = load_ablation_data(data_paths, base_dir, args.num_images, args.split)
         
-        # Get available layers
+        # Get available layers (excluding _format_* metadata keys)
         available_layers = {
-            "nn": sorted(all_data["nn"].keys()),
-            "logitlens": sorted(all_data["logitlens"].keys()),
-            "contextual": sorted(all_data["contextual"].keys()),
+            "nn": sorted([k for k in all_data["nn"].keys() if not str(k).startswith("_format")]),
+            "logitlens": sorted([k for k in all_data["logitlens"].keys() if not str(k).startswith("_format")]),
+            "contextual": sorted([k for k in all_data["contextual"].keys() if not str(k).startswith("_format")]),
         }
         
         total_layers = sum(len(v) for v in available_layers.values())
@@ -586,6 +790,55 @@ def main():
             continue
         
         log.info(f"  Found: NN={len(available_layers['nn'])}, LogitLens={len(available_layers['logitlens'])}, Contextual={len(available_layers['contextual'])}")
+        
+        # VALIDATION: Check that we have actual patch data, not just empty lists
+        data_validation_ok = True
+        for analysis_type, layers in all_data.items():
+            for layer, images in layers.items():
+                if str(layer).startswith("_format"):
+                    continue  # Skip format metadata
+                if not isinstance(images, list) or not images:
+                    continue
+                    
+                # Check first image has actual content
+                first_img = images[0]
+                
+                # Get patches based on format (A: chunks/patches, B: patches directly)
+                if "chunks" in first_img:
+                    chunks = first_img.get("chunks", [])
+                    patches = chunks[0].get("patches", []) if chunks else []
+                else:
+                    patches = first_img.get("patches", [])
+                
+                if patches:
+                    first_patch = patches[0]
+                    if analysis_type == "nn":
+                        # Try both key names (nearest_neighbors for Format A, top_neighbors for Format B)
+                        neighbors = first_patch.get("nearest_neighbors", []) or first_patch.get("top_neighbors", [])
+                        if not neighbors:
+                            log.error(f"  ❌ VALIDATION: {analysis_type} layer {layer} has patches but empty neighbors!")
+                            data_validation_ok = False
+                    elif analysis_type == "logitlens":
+                        tokens = first_patch.get("top_predictions", [])
+                        if not tokens:
+                            log.error(f"  ❌ VALIDATION: {analysis_type} layer {layer} has patches but empty top_predictions!")
+                            data_validation_ok = False
+                    elif analysis_type == "contextual":
+                        neighbors = first_patch.get("nearest_contextual_neighbors", [])
+                        if not neighbors:
+                            log.error(f"  ❌ VALIDATION: {analysis_type} layer {layer} has patches but empty nearest_contextual_neighbors!")
+                            data_validation_ok = False
+        
+        if not data_validation_ok:
+            all_validation_passed = False
+            if args.strict:
+                log.error("  ❌ STRICT MODE: Failing due to validation errors")
+                sys.exit(1)
+        
+        if args.validate_only:
+            if data_validation_ok:
+                log.info(f"  ✅ Data validation passed for {abl_name}")
+            continue
         
         # Create model index
         create_ablation_model_index(args.output_dir, ablation, args.num_images, available_layers)
@@ -605,9 +858,26 @@ def main():
                 log.info(f"    Progress: {img_idx + 1}/{args.num_images} ({rate:.1f} img/s)")
         
         log.info(f"  ✅ Created {success}/{args.num_images} image viewers")
+        
+        # VALIDATE OUTPUT: Check first generated file has actual data
+        first_html = args.output_dir / "ablations" / checkpoint / "image_0000.html"
+        if first_html.exists():
+            validate_viewer_output(
+                first_html,
+                len(available_layers['nn']),
+                len(available_layers['logitlens']),
+                len(available_layers['contextual'])
+            )
     
     log.info("\n" + "="*60)
-    log.info("DONE!")
+    if args.validate_only:
+        if all_validation_passed:
+            log.info("✅ ALL VALIDATIONS PASSED")
+        else:
+            log.error("❌ SOME VALIDATIONS FAILED - check errors above")
+            sys.exit(1)
+    else:
+        log.info("DONE!")
     log.info("="*60)
 
 

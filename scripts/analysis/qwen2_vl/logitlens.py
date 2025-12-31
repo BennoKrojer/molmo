@@ -183,6 +183,8 @@ def main():
     parser.add_argument("--layers", type=str, default="0,1,2,4,8,16,24,26,27",
                        help="Comma-separated layer indices")
     parser.add_argument("--top-k", type=int, default=5)
+    parser.add_argument("--fixed-resolution", type=int, default=448,
+                       help="Fixed image resolution (default: 448 for ~256 tokens like Molmo). Set to 0 for dynamic resolution.")
     args = parser.parse_args()
     
     device = torch.device("cuda")
@@ -209,6 +211,19 @@ def main():
     )
     model.eval()
     processor = AutoProcessor.from_pretrained(args.model_name, trust_remote_code=True)
+    
+    # Set fixed resolution if specified (for consistent token counts across images)
+    # This MUST match the preprocessing used in contextual_nearest_neighbors script!
+    if args.fixed_resolution > 0:
+        fixed_pixels = args.fixed_resolution * args.fixed_resolution
+        processor.image_processor.min_pixels = fixed_pixels
+        processor.image_processor.max_pixels = fixed_pixels
+        # Qwen2-VL: 14x14 patches with 2x2 spatial merger = 28 pixels per token
+        expected_tokens = (args.fixed_resolution // 28) ** 2
+        print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {int(math.sqrt(expected_tokens))}x{int(math.sqrt(expected_tokens))} grid)")
+    else:
+        print(f"✓ Using dynamic resolution (variable token counts)")
+    
     print("✓ Model loaded")
     
     # Load dataset
@@ -228,12 +243,8 @@ def main():
         example = dataset.get(img_idx, np.random)
         image = Image.open(example["image"]).convert('RGB')
         
-        # Resize if too large
-        max_size = 1024
-        if max(image.size) > max_size:
-            ratio = max_size / max(image.size)
-            new_size = (int(image.size[0] * ratio), int(image.size[1] * ratio))
-            image = image.resize(new_size, Image.Resampling.LANCZOS)
+        # NOTE: Image resizing is handled by processor.image_processor via min_pixels/max_pixels
+        # This ensures consistent grid dimensions with contextual_nearest_neighbors.py
         
         # Get caption
         caption = ""
