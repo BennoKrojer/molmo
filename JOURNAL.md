@@ -4,7 +4,37 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-01
+
+### 2026-01-01 (Schema Standardization)
+- **CREATED** `SCHEMA_STANDARDIZATION.md` - comprehensive analysis of all inconsistencies:
+  - Documented 5 categories of inconsistencies: folders, files, JSON structure, patch keys, neighbor fields
+  - Defined target unified schema for all 3 lenses
+  - Created migration plan with 4 phases
+  - Inventoried all scripts (active vs legacy)
+- **FIXED** `create_unified_viewer.py` for allLayers format:
+  - LN-Lens now uses `contextual_nearest_neighbors/` folder (removed `_vg` dependency)
+  - Added support for new allLayers file format (one file per visual layer, contains all contextual layers)
+  - Filters neighbors by `contextual_layer` during processing
+  - Adds `contextual_layer` field to output for layer badge display
+- **KEY INSIGHT**: Root cause of viewer issues is lack of data contract:
+  - Embedding Matrix (Molmo): `nearest_neighbors` key
+  - Embedding Matrix (Qwen2-VL): `top_neighbors` key (different!)
+  - LogitLens: `top_predictions` key
+  - LN-Lens: `nearest_contextual_neighbors` key
+- **Git push**: d026e35 "Add schema standardization docs + fix LN-Lens allLayers format loading"
+
+---
+
 ## 2024-12
+
+### 2024-12-31 (Phase 1 Standardization)
+- **RENAMED DISPLAY NAMES** in viewer for paper consistency:
+  - "Nearest Neighbors (NN)" → "Embedding Matrix"
+  - "Contextual NN" → "LN-Lens"
+  - LogitLens unchanged
+  - Updated `create_unified_viewer.py` (column headers, stats labels, comments)
+  - Fixed indentation error in main loop (line 1902)
 
 ### 2024-12-31 (continued)
 - **FIX**: Ablation viewer now works correctly:
