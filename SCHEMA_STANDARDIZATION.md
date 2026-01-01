@@ -1,161 +1,96 @@
-# Schema Standardization Plan
+# V-Lens Schema & Naming Standardization
 
-## Executive Summary
-
-This document defines a unified schema for all interpretability analysis outputs and identifies changes needed to achieve consistency across the codebase.
+Single source of truth for data formats, naming conventions, and migration plans.
 
 ---
 
-## Current State (Inconsistencies)
+## Quick Reference
 
-### 1. Folder Structure
+### Display Names (Paper/UI)
+| Internal Code | Display Name |
+|---------------|--------------|
+| `nn` / `embedding_matrix` | **Embedding Matrix** |
+| `logitlens` | **LogitLens** |
+| `contextual` / `ln_lens` | **LN-Lens** |
 
-| Lens | Current Folder | Issues |
-|------|---------------|--------|
-| Embedding Matrix | `nearest_neighbors/` | OK |
-| LogitLens | `logit_lens/` | OK |
-| LN-Lens | `contextual_nearest_neighbors/` | Was also `_vg/`, `_cc/`, `_visual0/`, `_visualN/` |
+### Primary Scripts
+| Purpose | Script |
+|---------|--------|
+| Embedding Matrix (Molmo) | `general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` |
+| Embedding Matrix (Qwen2-VL) | `qwen2_vl/nearest_neighbors.py` |
+| LogitLens (Molmo) | `logitlens.py` |
+| LogitLens (Qwen2-VL) | `qwen2_vl/logitlens.py` |
+| LN-Lens (Molmo) | `contextual_nearest_neighbors_allLayers_singleGPU.py` |
+| LN-Lens (Qwen2-VL) | `qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` |
+| Viewer Generation | `create_unified_viewer.py` |
+| Ablation Viewer | `generate_ablation_viewers.py` |
 
-### 2. File Naming
+### Legacy Scripts (Deprecate)
+- `general_and_nearest_neighbors.py`, `general_and_nearest_neighbors_pixmo_cap.py`
+- `contextual_nearest_neighbors.py`
+- All `interactive_*_viewer.py`
 
-| Lens | Current Pattern | Issues |
-|------|----------------|--------|
-| Embedding Matrix (Molmo) | `nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer{N}.json` | Long, includes dataset name |
-| Embedding Matrix (Qwen2-VL) | `nearest_neighbors_layer{N}_topk5.json` | Different pattern! |
-| LogitLens | `logit_lens_layer{N}_topk5_multi-gpu.json` | OK |
-| LN-Lens | `contextual_neighbors_visual{V}_allLayers.json` | Different structure (all ctx layers in one file) |
+---
+
+## Current Inconsistencies
+
+### 1. Folder Names
+| Lens | Current |
+|------|---------|
+| Embedding Matrix | `nearest_neighbors/` |
+| LogitLens | `logit_lens/` |
+| LN-Lens | `contextual_nearest_neighbors/` (was `_vg/`, `_cc/`) |
+
+### 2. File Names
+| Lens | Pattern |
+|------|---------|
+| Embedding Matrix (Molmo) | `nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer{N}.json` |
+| Embedding Matrix (Qwen2-VL) | `nearest_neighbors_layer{N}_topk5.json` |
+| LogitLens | `logit_lens_layer{N}_topk5_multi-gpu.json` |
+| LN-Lens | `contextual_neighbors_visual{V}_allLayers.json` |
 
 ### 3. JSON Structure
+| Model | Top-level | Image data |
+|-------|-----------|------------|
+| Molmo NN | `splits.validation.images` | `chunks.patches` |
+| Qwen2-VL NN | `results` | `patches` (no chunks!) |
+| LogitLens | `results` | `chunks.patches` |
+| LN-Lens | `results` | `chunks.patches` |
 
-#### Embedding Matrix (Molmo checkpoints)
-```json
-{
-  "checkpoint": "...",
-  "splits": {
-    "validation": {
-      "images": [
-        {
-          "image_idx": 0,
-          "chunks": [{"patches": [...]}]  // nested in chunks!
-        }
-      ]
-    }
-  }
-}
-```
+### 4. Patch Keys (THE MAIN ISSUE)
+| Lens | Key |
+|------|-----|
+| Embedding Matrix (Molmo) | `nearest_neighbors` |
+| Embedding Matrix (Qwen2-VL) | `top_neighbors` ← **Different!** |
+| LogitLens | `top_predictions` |
+| LN-Lens | `nearest_contextual_neighbors` |
 
-#### Embedding Matrix (Qwen2-VL)
-```json
-{
-  "model_name": "...",
-  "results": [
-    {
-      "image_idx": 0,
-      "patches": [...]  // flat, no chunks!
-    }
-  ]
-}
-```
-
-#### LogitLens
-```json
-{
-  "checkpoint": "...",
-  "results": [
-    {
-      "image_idx": 0,
-      "chunks": [{"patches": [...]}]
-    }
-  ]
-}
-```
-
-#### LN-Lens
-```json
-{
-  "checkpoint": "...",
-  "visual_layer": 0,
-  "contextual_layers_used": [1, 2, 4, 8, ...],
-  "results": [
-    {
-      "image_idx": 0,
-      "chunks": [{"patches": [...]}]
-    }
-  ]
-}
-```
-
-### 4. Patch Key Names
-
-| Lens | Current Key | Contains |
-|------|------------|----------|
-| Embedding Matrix (Molmo) | `nearest_neighbors` | `[{token, similarity, token_id}]` |
-| Embedding Matrix (Qwen2-VL) | `top_neighbors` | `[{token, similarity, token_id}]` |
-| LogitLens | `top_predictions` | `[{token, logit, token_id}]` |
-| LN-Lens | `nearest_contextual_neighbors` | `[{token_str, similarity, caption, contextual_layer}]` |
-
-### 5. Neighbor/Prediction Fields
-
-| Lens | Token Key | Score Key | Extra Fields |
-|------|-----------|-----------|--------------|
-| Embedding Matrix | `token` | `similarity` | `token_id` |
-| LogitLens | `token` | `logit` | `token_id` |
-| LN-Lens | `token_str` | `similarity` | `caption`, `position`, `contextual_layer` |
+### 5. Neighbor Fields
+| Lens | Token | Score |
+|------|-------|-------|
+| Embedding Matrix | `token` | `similarity` |
+| LogitLens | `token` | `logit` |
+| LN-Lens | `token_str` | `similarity` |
 
 ---
 
 ## Target Schema (Unified)
 
-### Folder Structure
-```
-analysis_results/
-├── embedding_matrix/           # Renamed from nearest_neighbors
-│   └── {model}/
-│       └── layer_{N}.json
-├── logitlens/                  # Keep as is
-│   └── {model}/
-│       └── layer_{N}.json
-└── ln_lens/                    # Renamed from contextual_nearest_neighbors
-    └── {model}/
-        └── layer_{N}.json      # One file per layer
-```
-
-### File Naming
-```
-layer_{N}.json                  # Simple, consistent
-```
-
-### JSON Structure (Unified)
 ```json
 {
   "metadata": {
-    "model": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336",
+    "model": "...",
     "layer": 8,
-    "analysis_type": "embedding_matrix",  // or "logitlens" or "ln_lens"
-    "created_at": "2024-01-02T12:00:00Z",
-    "num_images": 100
+    "analysis_type": "embedding_matrix|logitlens|ln_lens"
   },
   "results": [
     {
       "image_idx": 0,
-      "ground_truth_caption": "A photo of...",
       "grid_size": [24, 24],
       "patches": [
         {
-          "patch_idx": 0,
-          "row": 0,
-          "col": 0,
-          "neighbors": [
-            {
-              "rank": 1,
-              "token": "sky",
-              "score": 0.85,
-              "token_id": 1234,
-              // LN-Lens specific (optional):
-              "caption": "blue sky with clouds",
-              "position": 3
-            }
-          ]
+          "patch_idx": 0, "row": 0, "col": 0,
+          "neighbors": [{"rank": 1, "token": "sky", "score": 0.85}]
         }
       ]
     }
@@ -163,107 +98,43 @@ layer_{N}.json                  # Simple, consistent
 }
 ```
 
-### Key Changes
-1. **Unified key**: `neighbors` (not `nearest_neighbors`, `top_neighbors`, `top_predictions`, etc.)
-2. **Unified score key**: `score` (not `similarity`, `logit`)
-3. **Flat patches**: No `chunks` wrapper (simplifies processing)
-4. **Explicit metadata**: `analysis_type`, `layer`, `model` always present
-5. **Consistent grid info**: `grid_size` as `[rows, cols]`
+Key principles:
+- Unified `neighbors` key
+- Unified `score` key  
+- Flat `patches` (no `chunks`)
+- Explicit `metadata`
 
 ---
 
-## Migration Plan
+## Migration Status
 
-### Phase 1: Viewer Adapter (DONE partially)
-Already have translation in `create_unified_viewer.py`. Complete the adapter to handle all formats.
-
-### Phase 2: Update Generation Scripts
-
-| Script | Output | Changes Needed |
-|--------|--------|----------------|
-| `general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` | Embedding Matrix (Molmo) | Use unified schema |
-| `scripts/analysis/qwen2_vl/nearest_neighbors.py` | Embedding Matrix (Qwen2-VL) | Use unified schema |
-| `logitlens.py` | LogitLens (Molmo) | Use unified schema |
-| `scripts/analysis/qwen2_vl/logitlens.py` | LogitLens (Qwen2-VL) | Use unified schema |
-| `contextual_nearest_neighbors_allLayers_singleGPU.py` | LN-Lens (Molmo) | Use unified schema |
-| `scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` | LN-Lens (Qwen2-VL) | Use unified schema |
-
-### Phase 3: Regenerate Results
-After updating scripts, regenerate all results with the new schema.
-
-### Phase 4: Simplify Viewer
-With unified schema, remove all adapter/translation code.
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Viewer display names (Embedding Matrix, LN-Lens) | ✅ Done |
+| 2 | Drop `_vg` suffix from folders | ✅ Done |
+| 3 | Fix Qwen2-VL `top_neighbors` → `nearest_neighbors` | 🔲 TODO |
+| 4 | Legacy script cleanup | 🔲 Optional |
+| 5 | Unified schema across all scripts | 🔲 Future |
 
 ---
 
-## Scripts Inventory
+## Viewer Adapters
 
-### Active (Main Pipeline)
-
-| Script | Purpose | Status |
-|--------|---------|--------|
-| `general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` | Embedding Matrix for Molmo | ACTIVE - needs update |
-| `logitlens.py` | LogitLens for Molmo | ACTIVE - needs update |
-| `contextual_nearest_neighbors_allLayers_singleGPU.py` | LN-Lens for Molmo | ACTIVE - needs update |
-| `create_unified_viewer.py` | HTML viewer generation | ACTIVE - has adapters |
-| `generate_ablation_viewers.py` | Ablation HTML viewers | ACTIVE - imports from unified |
-
-### Active (Qwen2-VL)
-
-| Script | Purpose | Status |
-|--------|---------|--------|
-| `qwen2_vl/nearest_neighbors.py` | Embedding Matrix | ACTIVE - needs update |
-| `qwen2_vl/logitlens.py` | LogitLens | ACTIVE - needs update |
-| `qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` | LN-Lens | ACTIVE - needs update |
-
-### Legacy (Consider Deprecating)
-
-| Script | Purpose | Recommendation |
-|--------|---------|----------------|
-| `general_and_nearest_neighbors.py` | Old NN script | DEPRECATE |
-| `general_and_nearest_neighbors_pixmo_cap.py` | Single-GPU version | DEPRECATE (use multi-gpu) |
-| `contextual_nearest_neighbors.py` | Old contextual NN | DEPRECATE |
-| `interactive_*_viewer.py` (all) | Old interactive viewers | DEPRECATE (use unified) |
-
----
-
-## Implementation Priority
-
-1. **HIGH**: Fix Qwen2-VL `top_neighbors` → `nearest_neighbors` (or unified `neighbors`)
-2. **MEDIUM**: Flatten `chunks` → `patches` in all outputs
-3. **MEDIUM**: Rename folders to simpler names
-4. **LOW**: Rename files to `layer_{N}.json`
-
----
-
-## Backward Compatibility
-
-During transition, the viewer should support both old and new formats:
+The viewer handles format variations:
 
 ```python
 def get_neighbors(patch):
-    """Get neighbors from patch, handling all format variants."""
     for key in ['neighbors', 'nearest_neighbors', 'top_neighbors', 
                 'top_predictions', 'nearest_contextual_neighbors']:
         if key in patch:
             return patch[key]
     return []
-
-def get_score(neighbor):
-    """Get score from neighbor, handling all format variants."""
-    for key in ['score', 'similarity', 'logit']:
-        if key in neighbor:
-            return neighbor[key]
-    return 0.0
 ```
 
 ---
 
-## Appendix: Display Names
+## Notes
 
-| Internal Key | Display Name (UI) |
-|--------------|-------------------|
-| `embedding_matrix` / `nn` | Embedding Matrix |
-| `logitlens` | LogitLens |
-| `ln_lens` / `contextual` | LN-Lens |
-
+- **VG only**: Conceptual Captions (CC) corpus deprecated
+- **Viewer = adapter**: Translates between JSON formats and HTML template
+- **Don't break things**: Test each phase before moving to next
