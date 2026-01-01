@@ -1,140 +1,110 @@
-# V-Lens Schema & Naming Standardization
+# V-Lens Data Schema Reference
 
-Single source of truth for data formats, naming conventions, and migration plans.
+Documentation for JSON data formats across all interpretability analysis scripts.
 
 ---
 
-## Quick Reference
-
-### Display Names (Paper/UI)
-| Internal Code | Display Name |
-|---------------|--------------|
-| `nn` / `embedding_matrix` | **Embedding Matrix** |
+## Display Names
+| Internal Code | Display Name (Paper/UI) |
+|---------------|-------------------------|
+| `nn` | **Embedding Matrix** |
 | `logitlens` | **LogitLens** |
-| `contextual` / `ln_lens` | **LN-Lens** |
+| `contextual` | **LN-Lens** |
 
-### Primary Scripts
+---
+
+## Primary Scripts
+
 | Purpose | Script |
 |---------|--------|
 | Embedding Matrix (Molmo) | `general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` |
 | Embedding Matrix (Qwen2-VL) | `qwen2_vl/nearest_neighbors.py` |
-| LogitLens (Molmo) | `logitlens.py` |
-| LogitLens (Qwen2-VL) | `qwen2_vl/logitlens.py` |
-| LN-Lens (Molmo) | `contextual_nearest_neighbors_allLayers_singleGPU.py` |
-| LN-Lens (Qwen2-VL) | `qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` |
-| Viewer Generation | `create_unified_viewer.py` |
-| Ablation Viewer | `generate_ablation_viewers.py` |
-
-### Legacy Scripts (Deprecate)
-- `general_and_nearest_neighbors.py`, `general_and_nearest_neighbors_pixmo_cap.py`
-- `contextual_nearest_neighbors.py`
-- All `interactive_*_viewer.py`
+| LogitLens | `logitlens.py`, `qwen2_vl/logitlens.py` |
+| LN-Lens | `contextual_nearest_neighbors_allLayers_singleGPU.py` |
+| Viewer | `create_unified_viewer.py`, `generate_ablation_viewers.py` |
 
 ---
 
-## Current Inconsistencies
+## Folder Structure
 
-### 1. Folder Names
-| Lens | Current |
-|------|---------|
-| Embedding Matrix | `nearest_neighbors/` |
-| LogitLens | `logit_lens/` |
-| LN-Lens | `contextual_nearest_neighbors/` (was `_vg/`, `_cc/`) |
-
-### 2. File Names
-| Lens | Pattern |
-|------|---------|
-| Embedding Matrix (Molmo) | `nearest_neighbors_analysis_pixmo_cap_multi-gpu_layer{N}.json` |
-| Embedding Matrix (Qwen2-VL) | `nearest_neighbors_layer{N}_topk5.json` |
-| LogitLens | `logit_lens_layer{N}_topk5_multi-gpu.json` |
-| LN-Lens | `contextual_neighbors_visual{V}_allLayers.json` |
-
-### 3. JSON Structure
-| Model | Top-level | Image data |
-|-------|-----------|------------|
-| Molmo NN | `splits.validation.images` | `chunks.patches` |
-| Qwen2-VL NN | `results` | `patches` (no chunks!) |
-| LogitLens | `results` | `chunks.patches` |
-| LN-Lens | `results` | `chunks.patches` |
-
-### 4. Patch Keys (THE MAIN ISSUE)
-| Lens | Key |
-|------|-----|
-| Embedding Matrix (Molmo) | `nearest_neighbors` |
-| Embedding Matrix (Qwen2-VL) | `top_neighbors` ← **Different!** |
-| LogitLens | `top_predictions` |
-| LN-Lens | `nearest_contextual_neighbors` |
-
-### 5. Neighbor Fields
-| Lens | Token | Score |
-|------|-------|-------|
-| Embedding Matrix | `token` | `similarity` |
-| LogitLens | `token` | `logit` |
-| LN-Lens | `token_str` | `similarity` |
+```
+analysis_results/
+├── nearest_neighbors/           # Embedding Matrix results
+├── logit_lens/                  # LogitLens results
+├── contextual_nearest_neighbors/  # LN-Lens results (VG corpus)
+└── unified_viewer_lite_final/   # HTML viewer output
+```
 
 ---
 
-## Target Schema (Unified)
+## JSON Formats
 
+### Embedding Matrix (Molmo)
 ```json
 {
-  "metadata": {
-    "model": "...",
-    "layer": 8,
-    "analysis_type": "embedding_matrix|logitlens|ln_lens"
-  },
+  "splits": {"validation": {"images": [
+    {"image_idx": 0, "chunks": [{"patches": [
+      {"patch_idx": 0, "nearest_neighbors": [{"token": "sky", "similarity": 0.85}]}
+    ]}]}
+  ]}}
+}
+```
+
+### Embedding Matrix (Qwen2-VL)
+```json
+{
   "results": [
-    {
-      "image_idx": 0,
-      "grid_size": [24, 24],
-      "patches": [
-        {
-          "patch_idx": 0, "row": 0, "col": 0,
-          "neighbors": [{"rank": 1, "token": "sky", "score": 0.85}]
-        }
-      ]
-    }
+    {"image_idx": 0, "patches": [
+      {"patch_idx": 0, "nearest_neighbors": [{"token": "sky", "similarity": 0.85}]}
+    ]}
   ]
 }
 ```
 
-Key principles:
-- Unified `neighbors` key
-- Unified `score` key  
-- Flat `patches` (no `chunks`)
-- Explicit `metadata`
+### LogitLens
+```json
+{
+  "results": [
+    {"image_idx": 0, "chunks": [{"patches": [
+      {"patch_idx": 0, "top_predictions": [{"token": "sky", "logit": 5.2}]}
+    ]}]}
+  ]
+}
+```
 
----
-
-## Migration Status
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| 1 | Viewer display names (Embedding Matrix, LN-Lens) | ✅ Done |
-| 2 | Drop `_vg` suffix from folders | ✅ Done |
-| 3 | Fix Qwen2-VL `top_neighbors` → `nearest_neighbors` | 🔲 TODO |
-| 4 | Legacy script cleanup | 🔲 Optional |
-| 5 | Unified schema across all scripts | 🔲 Future |
-
----
-
-## Viewer Adapters
-
-The viewer handles format variations:
-
-```python
-def get_neighbors(patch):
-    for key in ['neighbors', 'nearest_neighbors', 'top_neighbors', 
-                'top_predictions', 'nearest_contextual_neighbors']:
-        if key in patch:
-            return patch[key]
-    return []
+### LN-Lens (allLayers format)
+```json
+{
+  "visual_layer": 0,
+  "contextual_layers_used": [1, 2, 4, 8, 16, 24, 30, 31],
+  "results": [
+    {"image_idx": 0, "chunks": [{"patches": [
+      {"patch_idx": 0, "nearest_contextual_neighbors": [
+        {"token_str": "sky", "similarity": 0.85, "caption": "...", "contextual_layer": 8}
+      ]}
+    ]}]}
+  ]
+}
 ```
 
 ---
 
-## Notes
+## Key Names Summary
 
-- **VG only**: Conceptual Captions (CC) corpus deprecated
-- **Viewer = adapter**: Translates between JSON formats and HTML template
-- **Don't break things**: Test each phase before moving to next
+| Analysis Type | Patch Key | Neighbor Fields |
+|--------------|-----------|-----------------|
+| Embedding Matrix | `nearest_neighbors` | `token`, `similarity` |
+| LogitLens | `top_predictions` | `token`, `logit`, `token_id` |
+| LN-Lens | `nearest_contextual_neighbors` | `token_str`, `similarity`, `caption`, `contextual_layer` |
+
+---
+
+## Consumer Scripts
+
+Scripts that read these JSON files:
+- `paper_plots/*.py` - Paper figures
+- `llm_judge/*.py` - GPT-4o evaluations
+- `create_unified_viewer.py` - HTML viewer
+- `generate_ablation_viewers.py` - Ablation viewer
+
+**Important:** Before changing any JSON key names, audit ALL consumer scripts.

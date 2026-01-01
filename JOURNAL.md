@@ -6,6 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-01 (Schema Standardization - continued)
+- **FIXED** Qwen2-VL NN output key: `top_neighbors` → `nearest_neighbors` (now consistent with Molmo)
+- **FIXED** `create_unified_viewer.py`: 
+  - Added `import time` at module level (was causing UnboundLocalError)
+  - Fixed indentation of timing log (must be inside `if has_results` block)
+- **RESTORED** `analysis_results` symlink (was accidentally removed by git reset)
+- **AUDITED** all consumer scripts (50+) for key dependencies:
+  - `paper_plots/*.py` - uses `nearest_neighbors` ✓
+  - `llm_judge/*.py` - uses `nearest_neighbors`, `nearest_contextual_neighbors` ✓
+  - `generate_ablation_viewers.py` - has fallback for both keys ✓
+- **SIMPLIFIED** `SCHEMA_STANDARDIZATION.md` to clean reference docs (no pending items)
+- **Demo generation** running in background for all 9 models
+- **Git pushes**: 72dd843, 9cc412f
+
 ### 2026-01-01 (Schema Standardization)
 - **CREATED** `SCHEMA_STANDARDIZATION.md` - comprehensive analysis of all inconsistencies:
   - Documented 5 categories of inconsistencies: folders, files, JSON structure, patch keys, neighbor fields
