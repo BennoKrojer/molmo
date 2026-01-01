@@ -155,10 +155,10 @@ def extract_nn(model, processor, image, prompt, device, vocab_embeddings, layers
         for patch_idx in range(num_vision_tokens):
             row, col = patch_idx_to_row_col(patch_idx, num_vision_tokens)
             
-            top_neighbors = []
+            neighbors = []
             for idx, sim in zip(topk_indices[patch_idx], topk_similarities[patch_idx]):
                 token_str = decode_token(processor.tokenizer, idx)
-                top_neighbors.append({
+                neighbors.append({
                     "token": token_str,
                     "token_id": int(idx),
                     "similarity": float(sim)
@@ -168,7 +168,7 @@ def extract_nn(model, processor, image, prompt, device, vocab_embeddings, layers
                 "patch_idx": patch_idx,
                 "patch_row": row,
                 "patch_col": col,
-                "top_neighbors": top_neighbors
+                "nearest_neighbors": neighbors  # Standardized key name
             })
         
         results_by_layer[layer_idx] = layer_results

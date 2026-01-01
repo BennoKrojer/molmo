@@ -15,6 +15,7 @@ import argparse
 import math
 import base64
 import html
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from collections import defaultdict
@@ -636,8 +637,6 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
 
 def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) -> Dict:
     """Load ALL analysis data from JSON files at once (much faster than loading per image)."""
-    import time
-    
     log.info(f"  📦 Loading all analysis data at once (this is much faster)...")
     start = time.time()
     
@@ -1904,7 +1903,6 @@ def main():
                 # Create unified image viewers
                 log.info(f"  Creating unified image viewers (now fast since data is cached!)...")
                 success_count = 0
-                import time
                 t_start = time.time()
                 for img_idx in range(args.num_images):
                     if img_idx % 50 == 0 and img_idx > 0:
