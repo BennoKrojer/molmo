@@ -1920,10 +1920,10 @@ def main():
                     except Exception as e:
                         if img_idx % 50 == 0:
                             log.warning(f"    Error creating viewer for image {img_idx}: {e}")
-            
-            total_time = time.time() - t_start
-            log.info(f"  ✓ Created {success_count}/{args.num_images} image viewers in {total_time:.1f}s "
-                    f"({success_count/total_time:.1f} images/sec)")
+                
+                total_time = time.time() - t_start
+                log.info(f"  ✓ Created {success_count}/{args.num_images} image viewers in {total_time:.1f}s "
+                        f"({success_count/total_time:.1f} images/sec)")
     
     # Create main index
     log.info("\nCreating main index...")
