@@ -30,12 +30,8 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 # Define model combinations
-# TEMPORARY: Only process olmo-7b + vit-l-14-336 for quick testing
-LLMS = ["olmo-7b"]
-VISION_ENCODERS = ["vit-l-14-336"]
-# Full list:
-# LLMS = ["llama3-8b", "olmo-7b", "qwen2-7b"]
-# VISION_ENCODERS = ["vit-l-14-336", "dinov2-large-336", "siglip", "openvision2-l-14-336"]
+LLMS = ["llama3-8b", "olmo-7b", "qwen2-7b"]
+VISION_ENCODERS = ["vit-l-14-336", "dinov2-large-336", "siglip"]
 
 # LLM display names
 LLM_DISPLAY_NAMES = {
@@ -181,46 +177,45 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
             except:
                 pass
     
-    # Scan contextual nearest neighbors - CC (Conceptual Captions)
-    contextual_cc_dir = base_dir / "contextual_nearest_neighbors" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
-    if contextual_cc_dir.exists():
-        for json_file in contextual_cc_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
-            # Extract visual and contextual layer numbers
-            # filename: contextual_neighbors_visual0_contextual8_multi-gpu.json
-            try:
-                parts = json_file.stem.split("_")
-                visual_layer = None
-                contextual_layer = None
-                for part in parts:
-                    # Only process parts that have digits after visual/contextual
-                    if part.startswith("visual") and len(part) > len("visual"):
-                        visual_layer = int(part.replace("visual", ""))
-                    elif part.startswith("contextual") and len(part) > len("contextual"):
-                        contextual_layer = int(part.replace("contextual", ""))
-                if visual_layer is not None and contextual_layer is not None:
-                    # Use contextual layer as the key
-                    results["contextual_cc"][contextual_layer] = json_file
-            except Exception as e:
-                log.warning(f"Could not parse contextual CC file {json_file.name}: {e}")
+    # NOTE: Conceptual Captions (CC) corpus was removed - now only using Visual Genome (VG)
+    # The contextual_cc dict is kept empty for backward compatibility with the template
     
-    # Scan contextual nearest neighbors - VG (Visual Genome)
-    contextual_vg_dir = base_dir / "contextual_nearest_neighbors_vg" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
+    # Scan contextual nearest neighbors (Visual Genome corpus)
+    # Note: folder is now just "contextual_nearest_neighbors" (CC data was removed)
+    # New format: contextual_neighbors_visual*_allLayers.json (one file per visual layer, contains all contextual layers)
+    contextual_vg_dir = base_dir / "contextual_nearest_neighbors" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
     if contextual_vg_dir.exists():
-        for json_file in contextual_vg_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
-            # Extract visual and contextual layer numbers
-            try:
-                parts = json_file.stem.split("_")
-                visual_layer = None
-                contextual_layer = None
-                for part in parts:
-                    if part.startswith("visual") and len(part) > len("visual"):
-                        visual_layer = int(part.replace("visual", ""))
-                    elif part.startswith("contextual") and len(part) > len("contextual"):
-                        contextual_layer = int(part.replace("contextual", ""))
-                if visual_layer is not None and contextual_layer is not None:
-                    results["contextual_vg"][contextual_layer] = json_file
-            except Exception as e:
-                log.warning(f"Could not parse contextual VG file {json_file.name}: {e}")
+        # Try new allLayers format first
+        allLayers_files = list(contextual_vg_dir.glob("contextual_neighbors_visual*_allLayers.json"))
+        if allLayers_files:
+            for json_file in allLayers_files:
+                try:
+                    # Extract visual layer from filename
+                    parts = json_file.stem.split("_")
+                    for part in parts:
+                        if part.startswith("visual") and len(part) > len("visual"):
+                            visual_layer = int(part.replace("visual", ""))
+                            # Use visual layer as key, file contains all contextual layers
+                            results["contextual_vg"][visual_layer] = json_file
+                            break
+                except Exception as e:
+                    log.warning(f"Could not parse contextual VG file {json_file.name}: {e}")
+        else:
+            # Fallback to old format: contextual_neighbors_visual*_contextual*_multi-gpu.json
+            for json_file in contextual_vg_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json"):
+                try:
+                    parts = json_file.stem.split("_")
+                    visual_layer = None
+                    contextual_layer = None
+                    for part in parts:
+                        if part.startswith("visual") and len(part) > len("visual"):
+                            visual_layer = int(part.replace("visual", ""))
+                        elif part.startswith("contextual") and len(part) > len("contextual"):
+                            contextual_layer = int(part.replace("contextual", ""))
+                    if visual_layer is not None and contextual_layer is not None:
+                        results["contextual_vg"][contextual_layer] = json_file
+                except Exception as e:
+                    log.warning(f"Could not parse contextual VG file {json_file.name}: {e}")
     
     # Scan interpretability heuristic (single file per model, no lite suffix for now)
     interpretability_dir = base_dir / "interpretability_heuristic" / f"{checkpoint_name}_step12000-unsharded"
@@ -695,16 +690,35 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
     log.info(f"    ⏱️  LN-Lens (CC): {time.time() - t0:.2f}s")
     
     # Load contextual NN data - VG (Visual Genome)
+    # Note: allLayers format has one file per visual layer, containing all contextual layers
+    # We use visual_layer=0 for the viewer (input layer representations)
     log.info(f"    Loading {len(analysis_results['contextual_vg'])} LN-Lens files...")
     t0 = time.time()
-    for layer, json_path in analysis_results["contextual_vg"].items():
+    
+    # Find visual_layer=0 file (preferred) or use first available
+    target_visual_layer = 0
+    if target_visual_layer not in analysis_results["contextual_vg"]:
+        if analysis_results["contextual_vg"]:
+            target_visual_layer = min(analysis_results["contextual_vg"].keys())
+            log.info(f"    Using visual_layer={target_visual_layer} (visual_layer=0 not found)")
+    
+    if target_visual_layer in analysis_results["contextual_vg"]:
+        json_path = analysis_results["contextual_vg"][target_visual_layer]
         try:
             with open(json_path, 'r') as f:
                 full_data = json.load(f)
-                results = full_data.get("results", [])
-                all_data["contextual_vg"][layer] = results[:num_images]
+                results = full_data.get("results", [])[:num_images]
+                contextual_layers = full_data.get("contextual_layers_used", [])
+                
+                # Store results under each contextual layer key
+                # The neighbors in each patch are tagged with their contextual_layer
+                for ctx_layer in contextual_layers:
+                    all_data["contextual_vg"][ctx_layer] = results
+                
+                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={contextual_layers}")
         except Exception as e:
-            log.warning(f"Could not load contextual NN (VG) data for layer {layer}: {e}")
+            log.warning(f"Could not load contextual NN (VG) data: {e}")
+    
     log.info(f"    ⏱️  LN-Lens: {time.time() - t0:.2f}s")
     
     # Load interpretability data
@@ -882,6 +896,8 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                 }
     
     # Process LN-Lens data - VG (Visual Genome corpus)
+    # Note: allLayers format has neighbors from all contextual layers mixed together,
+    # each neighbor is tagged with its contextual_layer
     for layer, image_data in all_data["contextual_vg"].items():
         unified_patch_data["contextual_vg"][layer] = {}
         chunks = image_data.get("chunks", [])
@@ -890,7 +906,9 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                 patch_idx = patch.get("patch_idx", -1)
                 row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
                 
-                nearest_contextual = patch.get("nearest_contextual_neighbors", [])
+                # Get all neighbors and filter by the current contextual layer
+                all_neighbors = patch.get("nearest_contextual_neighbors", [])
+                nearest_contextual = [n for n in all_neighbors if n.get("contextual_layer") == layer]
                 ctx_list = []
                 for i, neighbor in enumerate(nearest_contextual[:5]):
                     token_str = escape_for_html(neighbor.get("token_str", ""))
@@ -914,7 +932,8 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
                         "token": token_str,
                         "caption": highlighted_caption,
                         "position": position,
-                        "similarity": similarity
+                        "similarity": similarity,
+                        "contextual_layer": layer  # Include for badge display
                     }
                     
                     # Add optional fields if they exist
