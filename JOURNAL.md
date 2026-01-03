@@ -6,21 +6,27 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-03 (Qwen2-VL Grid Bug - ROOT CAUSE FOUND)
+### 2026-01-03 (Qwen2-VL Grid Bug - ROOT CAUSE FOUND + FIXED)
 - **ROOT CAUSE IDENTIFIED**: Qwen2-VL missing grid cells (e.g., 252 instead of 256 patches)
   - **Symptom**: Last row of Qwen2-VL viewer had missing cells (row 15, cols 12-15 empty)
-  - **Root cause**: `nearest_neighbors.py` and `logitlens.py` didn't force square images!
-  - Qwen2-VL's `min_pixels/max_pixels` constrains total pixels but **preserves aspect ratio**
-  - A 640×480 image → 26×36 patches → 13×18 = 234 tokens (NOT 16×16=256!)
-  - Only square input images (e.g., 448×448) produce 16×16 grid
-- **FIXED**: Added `--force-square` flag to both scripts (default=True):
-  - `scripts/analysis/qwen2_vl/nearest_neighbors.py` - center-crops to square before processing
-  - `scripts/analysis/qwen2_vl/logitlens.py` - center-crops to square before processing
-  - `scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` - already had this!
-- **ACTION REQUIRED**: Must regenerate Qwen2-VL NN/LogitLens data with `--force-square`
-- **Updated `.cursorrules`**: Added "ROOT CAUSE ANALYSIS" section - NEVER patch symptoms without understanding root cause!
-- **Created `generate_demo.sh`**: Single command to generate complete demo (main + ablations)
-- **Updated `README.md`**: Documented `./generate_demo.sh` as the primary demo generation command
+  - **Root cause 1**: Analysis scripts didn't force square images!
+    - Qwen2-VL's `min_pixels/max_pixels` constrains total pixels but **preserves aspect ratio**
+    - A 640×480 image → 26×36 patches → 13×18 = 234 tokens (NOT 16×16=256!)
+  - **Root cause 2**: LLM Judge hardcoded 24×24 grid (512/24 pixel crop)
+    - Wrong for Qwen2-VL's 16×16 grid (should be 512/16)
+    - Cropped regions were ~50% smaller than intended!
+  - **Root cause 3**: LLM Judge expected `chunks` format but Qwen2-VL uses `patches` directly
+- **FIXED - Analysis scripts**: Added `--force-square` flag (default=True):
+  - `scripts/analysis/qwen2_vl/nearest_neighbors.py`
+  - `scripts/analysis/qwen2_vl/logitlens.py`
+  - `scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py`
+- **FIXED - LLM Judge scripts**: Dynamic grid size + handle both formats:
+  - `llm_judge/run_single_model_with_viz.py`
+  - `llm_judge/run_single_model_with_viz_contextual.py`
+  - `llm_judge/run_single_model_with_viz_logitlens.py`
+- **Created `regenerate_qwen2vl.sh`**: Comprehensive script to regenerate all Qwen2-VL data
+- **Created `generate_demo.sh`**: Single command for complete demo (main + ablations)
+- **Git pushes**: 7e82eb0, 5529b18, b4d942b
 
 ### 2026-01-01 (Schema Standardization - continued)
 - **FIXED** Qwen2-VL NN output key: `top_neighbors` → `nearest_neighbors` (now consistent with Molmo)
