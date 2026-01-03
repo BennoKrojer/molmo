@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-03 (Qwen2-VL Grid Bug - ROOT CAUSE FOUND)
+- **ROOT CAUSE IDENTIFIED**: Qwen2-VL missing grid cells (e.g., 252 instead of 256 patches)
+  - **Symptom**: Last row of Qwen2-VL viewer had missing cells (row 15, cols 12-15 empty)
+  - **Root cause**: `nearest_neighbors.py` and `logitlens.py` didn't force square images!
+  - Qwen2-VL's `min_pixels/max_pixels` constrains total pixels but **preserves aspect ratio**
+  - A 640×480 image → 26×36 patches → 13×18 = 234 tokens (NOT 16×16=256!)
+  - Only square input images (e.g., 448×448) produce 16×16 grid
+- **FIXED**: Added `--force-square` flag to both scripts (default=True):
+  - `scripts/analysis/qwen2_vl/nearest_neighbors.py` - center-crops to square before processing
+  - `scripts/analysis/qwen2_vl/logitlens.py` - center-crops to square before processing
+  - `scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py` - already had this!
+- **ACTION REQUIRED**: Must regenerate Qwen2-VL NN/LogitLens data with `--force-square`
+- **Updated `.cursorrules`**: Added "ROOT CAUSE ANALYSIS" section - NEVER patch symptoms without understanding root cause!
+- **Created `generate_demo.sh`**: Single command to generate complete demo (main + ablations)
+- **Updated `README.md`**: Documented `./generate_demo.sh` as the primary demo generation command
+
 ### 2026-01-01 (Schema Standardization - continued)
 - **FIXED** Qwen2-VL NN output key: `top_neighbors` → `nearest_neighbors` (now consistent with Molmo)
 - **FIXED** `create_unified_viewer.py`: 

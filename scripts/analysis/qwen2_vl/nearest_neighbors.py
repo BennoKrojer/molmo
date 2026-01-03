@@ -195,6 +195,8 @@ def main():
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--fixed-resolution", type=int, default=448,
                        help="Fixed image resolution (default: 448 for ~256 tokens like Molmo). Set to 0 for dynamic resolution.")
+    parser.add_argument("--force-square", action="store_true", default=True,
+                       help="Center-crop images to square before processing (ensures consistent 16x16 grid). Default: True")
     args = parser.parse_args()
     
     device = torch.device("cuda")
@@ -234,6 +236,11 @@ def main():
     else:
         print(f"✓ Using dynamic resolution (variable token counts)")
     
+    if args.force_square:
+        print(f"✓ Force-square: ON (images center-cropped to square for consistent 16x16 grid)")
+    else:
+        print(f"⚠ Force-square: OFF (variable grids possible for non-square images)")
+    
     print("✓ Model loaded")
     
     # Get vocabulary embeddings (input embeddings)
@@ -259,8 +266,14 @@ def main():
         example = dataset.get(img_idx, np.random)
         image = Image.open(example["image"]).convert('RGB')
         
-        # NOTE: Image resizing is handled by processor.image_processor via min_pixels/max_pixels
-        # This ensures consistent grid dimensions with contextual_nearest_neighbors.py
+        # Center-crop to square if requested (CRITICAL for consistent grid dimensions!)
+        # Without this, non-square images produce variable grids (e.g., 13x18 instead of 16x16)
+        if args.force_square and image.size[0] != image.size[1]:
+            w, h = image.size
+            min_dim = min(w, h)
+            left = (w - min_dim) // 2
+            top = (h - min_dim) // 2
+            image = image.crop((left, top, left + min_dim, top + min_dim))
         
         # Get caption
         caption = ""

@@ -180,27 +180,24 @@ Each evaluation samples patches, sends cropped regions + candidate tokens to GPT
 Explore all interpretability results in a unified HTML viewer:
 
 ```bash
-# Generate main viewer (9 model combinations)
-python scripts/analysis/create_unified_viewer.py \
-    --output-dir analysis_results/unified_viewer_lite \
-    --num-images 10
+# Generate complete demo (main + ablations) with ONE command
+./generate_demo.sh --num-images 10
 
-# Add ablation models to viewer
-python scripts/analysis/add_models_to_viewer.py \
-    --output-dir analysis_results/unified_viewer_lite
-
-# Generate ablation image viewers
-python scripts/analysis/generate_ablation_viewers.py \
-    --output-dir analysis_results/unified_viewer_lite \
-    --num-images 10
+# Or with custom output directory
+./generate_demo.sh --output-dir analysis_results/my_demo --num-images 10
 ```
 
 Open `analysis_results/unified_viewer_lite/index.html` in a browser.
 
-**Viewer management scripts:**
-- `viewer_models.json` - Config file listing all models (main + ablations)
-- `add_models_to_viewer.py` - Validates data paths and updates main index
-- `generate_ablation_viewers.py` - Generates ablation image viewers
+**What the demo includes:**
+- 9 main model viewers (3 LLMs × 3 Vision Encoders)
+- 10 ablation model viewers
+- Unified index.html with navigation to all models
+
+**Individual scripts (for advanced use):**
+- `create_unified_viewer.py` - Generate main model viewers
+- `generate_ablation_viewers.py` - Generate ablation viewers
+- `add_models_to_viewer.py` - Update index.html with ablation links
 
 ### Layer Evolution Analysis
 
@@ -275,8 +272,8 @@ python scripts/analysis/precompute_contextual_caches.py \
 ./llm_judge/run_all_parallel_logitlens.sh
 ./llm_judge/run_all_parallel_contextual.sh
 
-# 6. Generate visualization
-python scripts/analysis/create_unified_viewer.py --num-images 10
+# 6. Generate visualization (single command)
+./generate_demo.sh --num-images 10
 ```
 
 ---

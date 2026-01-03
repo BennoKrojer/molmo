@@ -26,6 +26,18 @@
 - Don't just report numbers - verify they make sense and match expectations
 - If numbers differ from what was expected, stop and investigate WHY before continuing
 
+## ROOT CAUSE ANALYSIS - CRITICAL ⚠️
+- **NEVER patch symptoms without understanding the root cause!**
+- When encountering weird/unexpected behavior (e.g., missing grid cells, wrong counts):
+  1. STOP - Do not immediately fix the visible symptom
+  2. ASK WHY - Why is this happening in the first place?
+  3. TRACE BACK - Go to the data generation scripts, check preprocessing, verify assumptions
+  4. VERIFY - Test hypotheses with minimal examples before making changes
+  5. FIX ROOT - Fix the actual source of the problem, not downstream symptoms
+- Example: Missing grid cells in viewer → Don't patch the HTML → Investigate WHY patches are missing → 
+  Found: Qwen2-VL NN script didn't force square images → Variable grids produced → ROOT FIX: add --force-square
+- This avoids hours of debugging loops from repeatedly patching symptoms
+
 ## Git Workflow - CRITICAL
 - **ALWAYS commit and push after fixing bugs or making changes** - don't wait!
 - Push to GitHub after: bug fixes, new scripts, new results, any significant work
