@@ -19,6 +19,10 @@
 #   ./run_all_missing.sh --dry-run        # Show what would be run without executing
 #   ./run_all_missing.sh --test           # Run with minimal inputs for testing
 #   ./run_all_missing.sh --force-qwen2vl  # Delete and regenerate ALL Qwen2-VL data
+#   ./run_all_missing.sh --qwen2vl-only   # Skip ablations, run only Qwen2-VL phases (7-10)
+#
+# For Qwen2-VL regeneration:
+#   ./run_all_missing.sh --qwen2vl-only --force-qwen2vl
 #
 
 set -e  # Exit on error
@@ -27,6 +31,7 @@ set -e  # Exit on error
 DRY_RUN=false
 TEST_MODE=false
 FORCE_QWEN2VL=false
+QWEN2VL_ONLY=false
 for arg in "$@"; do
     case $arg in
         --dry-run)
@@ -39,6 +44,10 @@ for arg in "$@"; do
             ;;
         --force-qwen2vl)
             FORCE_QWEN2VL=true
+            shift
+            ;;
+        --qwen2vl-only)
+            QWEN2VL_ONLY=true
             shift
             ;;
     esac
@@ -132,7 +141,10 @@ echo "Log directory: $LOG_DIR"
 echo "Dry run: $DRY_RUN"
 echo "Test mode: $TEST_MODE"
 echo "Force Qwen2-VL: $FORCE_QWEN2VL"
-echo "Ablations: ${#ABLATION_CHECKPOINTS[@]}"
+echo "Qwen2-VL only: $QWEN2VL_ONLY"
+if [ "$QWEN2VL_ONLY" = false ]; then
+    echo "Ablations: ${#ABLATION_CHECKPOINTS[@]}"
+fi
 echo "=========================================="
 echo ""
 
@@ -199,27 +211,31 @@ else
     VALIDATION_FAILED=true
 fi
 
-log "Checking checkpoint directories..."
-MISSING_CKPTS=0
-for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
-    ckpt_path="molmo_data/checkpoints/ablations/${checkpoint_name}/step12000-unsharded"
-    if [ -d "$ckpt_path" ]; then
-        log "  ✓ $checkpoint_name"
-    else
-        log "  ✗ Missing: $ckpt_path"
-        MISSING_CKPTS=$((MISSING_CKPTS + 1))
+if [ "$QWEN2VL_ONLY" = false ]; then
+    log "Checking checkpoint directories..."
+    MISSING_CKPTS=0
+    for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
+        ckpt_path="molmo_data/checkpoints/ablations/${checkpoint_name}/step12000-unsharded"
+        if [ -d "$ckpt_path" ]; then
+            log "  ✓ $checkpoint_name"
+        else
+            log "  ✗ Missing: $ckpt_path"
+            MISSING_CKPTS=$((MISSING_CKPTS + 1))
+        fi
+    done
+    if [ $MISSING_CKPTS -gt 0 ]; then
+        log "  WARNING: $MISSING_CKPTS checkpoint(s) missing"
     fi
-done
-if [ $MISSING_CKPTS -gt 0 ]; then
-    log "  WARNING: $MISSING_CKPTS checkpoint(s) missing"
-fi
 
-log "Checking contextual embeddings..."
-if [ -d "molmo_data/contextual_llm_embeddings_vg/allenai_OLMo-7B-1024-preview" ]; then
-    log "  ✓ OLMo contextual embeddings"
+    log "Checking contextual embeddings..."
+    if [ -d "molmo_data/contextual_llm_embeddings_vg/allenai_OLMo-7B-1024-preview" ]; then
+        log "  ✓ OLMo contextual embeddings"
+    else
+        log "  ✗ Missing OLMo contextual embeddings"
+        VALIDATION_FAILED=true
+    fi
 else
-    log "  ✗ Missing OLMo contextual embeddings"
-    VALIDATION_FAILED=true
+    log "SKIP: Ablation validation (--qwen2vl-only mode)"
 fi
 
 if [ "$VALIDATION_FAILED" = true ]; then
@@ -230,6 +246,14 @@ fi
 
 log "✓ All validations passed"
 log ""
+
+# ============================================================
+# PHASES 1-6: Ablations (skip if --qwen2vl-only)
+# ============================================================
+if [ "$QWEN2VL_ONLY" = true ]; then
+    log ""
+    log "SKIP: Phases 1-6 (ablations) - running Qwen2-VL only mode"
+else
 
 # ============================================================
 # PHASE 1: Static NN for ALL ablations (all 9 layers)
@@ -630,7 +654,9 @@ else
         done
         log "Phase 5+6 complete: $((${#PHASE5_PIDS[@]} - PHASE5_FAILED))/${#PHASE5_PIDS[@]} layers succeeded"
     fi
-fi
+fi  # end of API key check
+
+fi  # end of QWEN2VL_ONLY check (phases 1-6)
 
 # ============================================================
 # PHASE 7: Static NN for Qwen2-VL (single GPU, 9 layers)
@@ -645,10 +671,10 @@ if [ "$FORCE_QWEN2VL" = true ]; then
     log "FORCE: Deleting old Qwen2-VL data (--force-qwen2vl flag set)"
     rm -rf "$QWEN2VL_NN_OUTPUT"
     rm -rf "analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
-    rm -rf "analysis_results/contextual_nearest_neighbors/ablations/Qwen_Qwen2-VL-7B-Instruct"
+    rm -rf "analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
     rm -rf "analysis_results/llm_judge_nearest_neighbors/qwen2-vl"
     rm -rf "analysis_results/llm_judge_logitlens/qwen2-vl"
-    rm -rf "analysis_results/llm_judge_contextual_nn/qwen2-vl"
+    rm -rf "analysis_results/llm_judge_contextual_nearest_neighbors/qwen2-vl"
     log "✓ Old Qwen2-VL data deleted"
 fi
 QWEN2_LAYERS="0,1,2,4,8,16,24,26,27"
@@ -818,6 +844,93 @@ else
             wait $pid || log "WARNING: LLM Judge LogitLens job $pid failed"
         done
         log "✓ Phase 10 complete"
+    fi
+fi
+
+# ============================================================
+# PHASE 10.5: Contextual NN for Qwen2-VL (single GPU, 9 layers)
+# ============================================================
+log ""
+log "========== PHASE 10.5: Contextual NN for Qwen2-VL (9 layers) =========="
+
+QWEN2VL_CTX_OUTPUT="analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+
+# Check if ALL layers exist
+if [ -d "$QWEN2VL_CTX_OUTPUT" ]; then
+    qwen_ctx_count=$(ls "$QWEN2VL_CTX_OUTPUT"/*_allLayers.json 2>/dev/null | wc -l)
+    if [ "$qwen_ctx_count" -ge 1 ]; then
+        log "SKIP: Contextual NN complete for Qwen2-VL ($qwen_ctx_count allLayers files)"
+    else
+        log "INCOMPLETE: Contextual NN for Qwen2-VL - will re-run"
+        run_cmd "Contextual NN for Qwen2-VL (all 9 layers)" \
+            "python3 scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py \
+                --num-images $NUM_IMAGES \
+                --layers $QWEN2_LAYERS \
+                --fixed-resolution 448 \
+                --force-square \
+                --output-dir analysis_results/contextual_nearest_neighbors/qwen2_vl"
+    fi
+else
+    run_cmd "Contextual NN for Qwen2-VL (all 9 layers)" \
+        "python3 scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py \
+            --num-images $NUM_IMAGES \
+            --layers $QWEN2_LAYERS \
+            --fixed-resolution 448 \
+            --force-square \
+            --output-dir analysis_results/contextual_nearest_neighbors/qwen2_vl"
+fi
+
+# ============================================================
+# PHASE 11: LLM Judge Contextual NN for Qwen2-VL (all 9 layers, parallel)
+# ============================================================
+log ""
+log "========== PHASE 11: LLM Judge Contextual NN for Qwen2-VL (9 layers, parallel) =========="
+
+QWEN2VL_CTX_JUDGE_OUTPUT="analysis_results/llm_judge_contextual_nearest_neighbors/qwen2-vl"
+mkdir -p "$QWEN2VL_CTX_JUDGE_OUTPUT"
+
+# Check if Contextual NN data exists first
+if [ ! -d "$QWEN2VL_CTX_OUTPUT" ] || [ $(ls "$QWEN2VL_CTX_OUTPUT"/*_allLayers.json 2>/dev/null | wc -l) -eq 0 ]; then
+    log "SKIP: No Qwen2-VL Contextual NN data found - run Phase 10.5 first"
+else
+    # Launch all layers in parallel
+    QWEN2VL_CTX_PIDS=()
+    
+    for layer in "${QWEN2_LAYER_ARRAY[@]}"; do
+        result_dir="$QWEN2VL_CTX_JUDGE_OUTPUT/llm_judge_qwen2vl_contextual${layer}_gpt5_cropped"
+        
+        if [ -d "$result_dir" ] && [ -f "$result_dir/results_validation.json" ]; then
+            log "SKIP: LLM Judge Contextual layer $layer already exists"
+            continue
+        fi
+        
+        if [ "$DRY_RUN" = true ]; then
+            log "DRY-RUN: LLM Judge Contextual for Qwen2-VL layer $layer"
+        else
+            log "LAUNCHING: LLM Judge Contextual for Qwen2-VL layer $layer"
+            python3 llm_judge/run_single_model_with_viz_contextual.py \
+                --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
+                --model-name qwen2vl \
+                --layer contextual$layer \
+                --num-images $NUM_IMAGES \
+                --num-samples $NUM_SAMPLES \
+                --base-dir analysis_results/contextual_nearest_neighbors \
+                --output-base "$QWEN2VL_CTX_JUDGE_OUTPUT" \
+                --split $SPLIT \
+                --seed $SEED \
+                --use-cropped-region \
+                >> "$LOG_DIR/llm_judge_qwen2vl_contextual_layer${layer}.log" 2>&1 &
+            QWEN2VL_CTX_PIDS+=($!)
+        fi
+    done
+    
+    # Wait for all Contextual LLM Judge jobs
+    if [ "$DRY_RUN" = false ] && [ ${#QWEN2VL_CTX_PIDS[@]} -gt 0 ]; then
+        log "Waiting for ${#QWEN2VL_CTX_PIDS[@]} parallel LLM Judge Contextual jobs..."
+        for pid in "${QWEN2VL_CTX_PIDS[@]}"; do
+            wait $pid || log "WARNING: LLM Judge Contextual job $pid failed"
+        done
+        log "✓ Phase 11 complete"
     fi
 fi
 
