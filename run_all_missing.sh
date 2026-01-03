@@ -641,6 +641,7 @@ if [ -d "$QWEN2VL_NN_OUTPUT" ]; then
                 --num-images $NUM_IMAGES \
                 --layers $QWEN2_LAYERS \
                 --fixed-resolution 448 \
+                --force-square \
                 --output-dir analysis_results/nearest_neighbors/qwen2_vl"
     fi
 else
@@ -649,6 +650,7 @@ else
             --num-images $NUM_IMAGES \
             --layers $QWEN2_LAYERS \
             --fixed-resolution 448 \
+            --force-square \
             --output-dir analysis_results/nearest_neighbors/qwen2_vl"
 fi
 
@@ -672,6 +674,7 @@ if [ -d "$QWEN2VL_LL_OUTPUT" ]; then
                 --num-images $NUM_IMAGES \
                 --layers $QWEN2_LAYERS \
                 --fixed-resolution 448 \
+                --force-square \
                 --output-dir analysis_results/logit_lens/qwen2_vl"
     fi
 else
@@ -680,6 +683,7 @@ else
             --num-images $NUM_IMAGES \
             --layers $QWEN2_LAYERS \
             --fixed-resolution 448 \
+            --force-square \
             --output-dir analysis_results/logit_lens/qwen2_vl"
 fi
 

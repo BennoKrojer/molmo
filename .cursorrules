@@ -26,6 +26,12 @@
 - Don't just report numbers - verify they make sense and match expectations
 - If numbers differ from what was expected, stop and investigate WHY before continuing
 
+## CHECK EXISTING SCRIPTS FIRST - CRITICAL ⚠️
+- **Before creating new scripts, ALWAYS search for existing ones that do similar things!**
+- Key scripts to check: `run_all_missing.sh`, `run_all_parallel_*.sh`, `run_all_combinations_*.sh`
+- These contain established parallelization patterns, GPU management, and error handling
+- Build on existing infrastructure rather than reinventing
+
 ## ROOT CAUSE ANALYSIS - CRITICAL ⚠️
 - **NEVER patch symptoms without understanding the root cause!**
 - When encountering weird/unexpected behavior (e.g., missing grid cells, wrong counts):
