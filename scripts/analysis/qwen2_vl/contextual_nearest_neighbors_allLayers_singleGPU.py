@@ -221,8 +221,8 @@ def main():
                        help="Directory with contextual embeddings (e.g., molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-VL-7B-Instruct)")
     parser.add_argument("--fixed-resolution", type=int, default=448,
                        help="Fixed image resolution (default: 448 for ~256 tokens like Molmo). Set to 0 for dynamic resolution.")
-    parser.add_argument("--force-square", action="store_true",
-                       help="Center-crop images to square before processing (ensures consistent 16x16 grid for viewer)")
+    parser.add_argument("--force-square", action="store_true", default=True,
+                       help="Center-crop images to square before processing (ensures consistent 16x16 grid). Default: True")
     parser.add_argument("--visual-layer", type=str, default="0,1,8,16,24,27",
                        help="Visual layers to extract (comma-separated)")
     parser.add_argument("--num-images", type=int, default=100,

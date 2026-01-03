@@ -497,25 +497,44 @@ def main():
 
             image_result_entries = []
 
-            # contextual JSON holds chunks[...][patches][...]['nearest_contextual_neighbors']
-            chunks = image_obj.get('chunks', [])
-            # Flatten patches with coordinates
+            # Handle both formats:
+            # - Molmo format: chunks[...][patches][...]['nearest_contextual_neighbors']
+            # - Qwen2-VL format: patches[...]['nearest_contextual_neighbors'] (no chunks)
             patch_map = defaultdict(list)  # key = (row,col) -> nearest_contextual list
-            for ch in chunks:
-                for p in ch.get('patches', []):
+            max_row, max_col = 0, 0
+            
+            if 'chunks' in image_obj and image_obj['chunks']:
+                # Molmo format
+                for ch in image_obj['chunks']:
+                    for p in ch.get('patches', []):
+                        row = p.get('patch_row', 0)
+                        col = p.get('patch_col', 0)
+                        max_row = max(max_row, row)
+                        max_col = max(max_col, col)
+                        all_neighbors = p.get('nearest_contextual_neighbors', [])
+                        patch_map[(row, col)] = all_neighbors
+            elif 'patches' in image_obj:
+                # Qwen2-VL format (patches directly, no chunks)
+                for p in image_obj['patches']:
                     row = p.get('patch_row', 0)
                     col = p.get('patch_col', 0)
+                    max_row = max(max_row, row)
+                    max_col = max(max_col, col)
                     all_neighbors = p.get('nearest_contextual_neighbors', [])
-                    # Use ALL neighbors - don't filter by contextual layer
-                    # The --layer argument is just for identifying which file/visual layer to use
                     patch_map[(row, col)] = all_neighbors
             
+            # Calculate actual grid dimensions from patches (handles variable grids)
+            grid_rows = max_row + 1
+            grid_cols = max_col + 1
+            grid_size = max(grid_rows, grid_cols)  # Use larger dimension for square bbox calculation
+            
             if args.debug:
-                print(f"[DEBUG] Image {image_idx}: Found {len(patch_map)} patches in JSON, sampled {len(sampled_positions)} positions")
+                print(f"[DEBUG] Image {image_idx}: Found {len(patch_map)} patches, grid {grid_rows}x{grid_cols}, sampled {len(sampled_positions)} positions")
 
             for patch_row, patch_col in sampled_positions:
                 bbox_size = 3
-                actual_patch_size = 512 / 24
+                # Use dynamic grid size from actual data (not hardcoded 24)
+                actual_patch_size = 512 / grid_size
                 bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
                 image_with_bbox = draw_bbox_on_image(processed_image, bbox)
 
@@ -541,11 +560,11 @@ def main():
                 # Select prompt variant based on whether we send a cropped region
                 cropped_image = None
                 if args.use_cropped_region:
-                    # Crop using same coordinate logic
-                    left = int(patch_col * (512 / 24))
-                    top = int(patch_row * (512 / 24))
-                    right = int((patch_col + bbox_size) * (512 / 24))
-                    bottom = int((patch_row + bbox_size) * (512 / 24))
+                    # Crop using dynamic grid size (not hardcoded 24)
+                    left = int(patch_col * actual_patch_size)
+                    top = int(patch_row * actual_patch_size)
+                    right = int((patch_col + bbox_size) * actual_patch_size)
+                    bottom = int((patch_row + bbox_size) * actual_patch_size)
                     left = max(0, left); top = max(0, top)
                     right = min(right, processed_image.size[0]); bottom = min(bottom, processed_image.size[1])
                     cropped_image = processed_image.crop((left, top, right, bottom))

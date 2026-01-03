@@ -170,12 +170,12 @@ def crop_image_region(processed_image, patch_row, patch_col, bbox_size):
     return cropped
 
 
-def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None):
+def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None, grid_size=24):
     """Create comprehensive visualization for patch evaluation."""
     
     # Process image and create bbox
     processed_image, _ = process_image_with_mask(image_path)
-    actual_patch_size = 512 / 24
+    actual_patch_size = 512 / grid_size  # Dynamic grid size (Molmo=24, Qwen2-VL=16)
     bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
     
     image_with_bbox = draw_bbox_on_image(processed_image, bbox)
@@ -543,13 +543,35 @@ def main():
         
         # Get patches
         patches = []
-        for chunk in image_data.get("chunks", []):
-            for patch in chunk.get("patches", []):
+        max_row, max_col = 0, 0
+        
+        # Handle both formats: chunks (Molmo) and patches directly (Qwen2-VL)
+        if 'chunks' in image_data and image_data['chunks']:
+            for chunk in image_data['chunks']:
+                for patch in chunk.get("patches", []):
+                    row = patch.get("patch_row", 0)
+                    col = patch.get("patch_col", 0)
+                    max_row = max(max_row, row)
+                    max_col = max(max_col, col)
+                    patches.append({
+                        "patch_row": row,
+                        "patch_col": col,
+                        "nearest_neighbors": patch.get("nearest_neighbors", [])
+                    })
+        elif 'patches' in image_data:
+            for patch in image_data['patches']:
+                row = patch.get("patch_row", 0)
+                col = patch.get("patch_col", 0)
+                max_row = max(max_row, row)
+                max_col = max(max_col, col)
                 patches.append({
-                    "patch_row": patch.get("patch_row", 0),
-                    "patch_col": patch.get("patch_col", 0),
-                    "nearest_neighbors": patch.get("nearest_neighbors", [])
+                    "patch_row": row,
+                    "patch_col": col,
+                    "nearest_neighbors": patch.get("nearest_neighbors", patch.get("top_neighbors", []))
                 })
+        
+        # Calculate grid size dynamically (handles Qwen2-VL's 16x16 vs Molmo's 24x24)
+        grid_size = max(max_row + 1, max_col + 1) if max_row > 0 or max_col > 0 else 24
         
         # Process image
         processed_image, image_mask = process_image_with_mask(image_path)
@@ -561,7 +583,7 @@ def main():
         
         for patch_row, patch_col in sampled_positions:
             bbox_size = 3
-            actual_patch_size = 512 / 24
+            actual_patch_size = 512 / grid_size  # Dynamic grid size (Molmo=24, Qwen2-VL=16)
             bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
             image_with_bbox = draw_bbox_on_image(processed_image, bbox)
             

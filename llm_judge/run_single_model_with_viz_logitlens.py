@@ -136,12 +136,12 @@ def crop_image_region(processed_image, patch_row, patch_col, bbox_size):
     return cropped
 
 
-def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None):
+def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None, grid_size=24):
     """Create comprehensive visualization for patch evaluation."""
     
     # Process image and create bbox
     processed_image, _ = process_image_with_mask(image_path)
-    actual_patch_size = 512 / 24
+    actual_patch_size = 512 / grid_size  # Dynamic grid size (Molmo=24, Qwen2-VL=16)
     bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
     
     image_with_bbox = draw_bbox_on_image(processed_image, bbox)
@@ -525,8 +525,19 @@ def main():
         # Get logit lens data for this image
         image_logitlens = logitlens_data['results'][idx]
         
-        # Sample patches for this image
-        patches = image_logitlens['chunks'][0]['patches']  # Use "Full Image" chunk
+        # Sample patches for this image - handle both chunks (Molmo) and patches (Qwen2-VL) formats
+        if 'chunks' in image_logitlens and image_logitlens['chunks']:
+            patches = image_logitlens['chunks'][0]['patches']  # Use "Full Image" chunk
+        elif 'patches' in image_logitlens:
+            patches = image_logitlens['patches']  # Qwen2-VL format
+        else:
+            print(f"SKIP Image {idx}: No patches found")
+            continue
+        
+        # Calculate grid size from actual patch data
+        max_row = max(p.get('patch_row', 0) for p in patches) if patches else 23
+        max_col = max(p.get('patch_col', 0) for p in patches) if patches else 23
+        grid_size = max(max_row + 1, max_col + 1)
         
         # Sample valid patch positions
         processed_image, image_mask = process_image_with_mask(image_path)
@@ -534,7 +545,7 @@ def main():
         
         for patch_row, patch_col in valid_positions:
             bbox_size = 3
-            actual_patch_size = 512 / 24
+            actual_patch_size = 512 / grid_size  # Dynamic grid size (Molmo=24, Qwen2-VL=16)
             bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
             image_with_bbox = draw_bbox_on_image(processed_image, bbox)
             
