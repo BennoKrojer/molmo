@@ -6,7 +6,13 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-03 (Qwen2-VL Grid Bug + Missing Symlink)
+### 2026-01-03 (Qwen2-VL Grid Bug + Missing Symlink + Repo Audit)
+- **REPOSITORY CLEANUP AUDIT**: Created `CLEANUP_CANDIDATES.md`
+  - Identified ~40+ test/debug files safe to remove
+  - Found ~5 redundant script versions (older versions of NN/contextual scripts)
+  - Catalogued 25 run_*.sh scripts (many superseded by run_all_missing.sh)
+  - Listed one-time HF upload scripts, fix scripts, exploratory files
+  - Recommended phased cleanup approach
 - **FOUND MISSING SYMLINK**: `molmo_data` symlink was missing from repo!
   - `analysis_results` symlink existed → `/mnt/research/scratch/bkroje/analysis_results`
   - `molmo_data` symlink was missing → should point to `/mnt/research/scratch/bkroje/molmo_data`
