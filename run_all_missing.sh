@@ -4,14 +4,21 @@
 #
 # This script runs everything needed for:
 # 1. Ablations (NN, LogitLens, Contextual NN, LLM Judge)
-# 2. Qwen2-VL (LLM Judge on existing Contextual NN results)
+# 2. Qwen2-VL (NN, LogitLens, Contextual NN, LLM Judge for ALL 3 types)
+#
+# Phases:
+#   1-3: Ablations (NN, LogitLens, Contextual NN)
+#   4-6: LLM Judge for ablations
+#   7-8: Qwen2-VL analysis (NN, LogitLens with --force-square)
+#   9-10: LLM Judge for Qwen2-VL (NN, LogitLens)
 #
 # Expected runtime: 1-2 days
 #
 # Usage:
-#   ./run_all_missing.sh              # Run everything
-#   ./run_all_missing.sh --dry-run    # Show what would be run without executing
-#   ./run_all_missing.sh --test       # Run with minimal inputs for testing
+#   ./run_all_missing.sh                  # Run everything (skips existing)
+#   ./run_all_missing.sh --dry-run        # Show what would be run without executing
+#   ./run_all_missing.sh --test           # Run with minimal inputs for testing
+#   ./run_all_missing.sh --force-qwen2vl  # Delete and regenerate ALL Qwen2-VL data
 #
 
 set -e  # Exit on error
@@ -19,6 +26,7 @@ set -e  # Exit on error
 # Parse command line arguments
 DRY_RUN=false
 TEST_MODE=false
+FORCE_QWEN2VL=false
 for arg in "$@"; do
     case $arg in
         --dry-run)
@@ -27,6 +35,10 @@ for arg in "$@"; do
             ;;
         --test)
             TEST_MODE=true
+            shift
+            ;;
+        --force-qwen2vl)
+            FORCE_QWEN2VL=true
             shift
             ;;
     esac
@@ -119,6 +131,7 @@ echo "=========================================="
 echo "Log directory: $LOG_DIR"
 echo "Dry run: $DRY_RUN"
 echo "Test mode: $TEST_MODE"
+echo "Force Qwen2-VL: $FORCE_QWEN2VL"
 echo "Ablations: ${#ABLATION_CHECKPOINTS[@]}"
 echo "=========================================="
 echo ""
@@ -626,6 +639,18 @@ log ""
 log "========== PHASE 7: Static NN for Qwen2-VL (9 layers) =========="
 
 QWEN2VL_NN_OUTPUT="analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+
+# Force delete old Qwen2-VL data if --force-qwen2vl flag is set
+if [ "$FORCE_QWEN2VL" = true ]; then
+    log "FORCE: Deleting old Qwen2-VL data (--force-qwen2vl flag set)"
+    rm -rf "$QWEN2VL_NN_OUTPUT"
+    rm -rf "analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+    rm -rf "analysis_results/contextual_nearest_neighbors/ablations/Qwen_Qwen2-VL-7B-Instruct"
+    rm -rf "analysis_results/llm_judge_nearest_neighbors/qwen2-vl"
+    rm -rf "analysis_results/llm_judge_logitlens/qwen2-vl"
+    rm -rf "analysis_results/llm_judge_contextual_nn/qwen2-vl"
+    log "✓ Old Qwen2-VL data deleted"
+fi
 QWEN2_LAYERS="0,1,2,4,8,16,24,26,27"
 QWEN2_EXPECTED_LAYER_COUNT=9
 
@@ -685,6 +710,115 @@ else
             --fixed-resolution 448 \
             --force-square \
             --output-dir analysis_results/logit_lens/qwen2_vl"
+fi
+
+# ============================================================
+# PHASE 9: LLM Judge NN for Qwen2-VL (all 9 layers, parallel)
+# ============================================================
+log ""
+log "========== PHASE 9: LLM Judge NN for Qwen2-VL (9 layers, parallel) =========="
+
+QWEN2VL_NN_JUDGE_OUTPUT="analysis_results/llm_judge_nearest_neighbors/qwen2-vl"
+mkdir -p "$QWEN2VL_NN_JUDGE_OUTPUT"
+
+# Check if NN data exists first
+if [ ! -d "$QWEN2VL_NN_OUTPUT" ] || [ $(ls "$QWEN2VL_NN_OUTPUT"/nearest_neighbors_layer*_topk*.json 2>/dev/null | wc -l) -eq 0 ]; then
+    log "SKIP: No Qwen2-VL NN data found - run Phase 7 first"
+else
+    # Launch all layers in parallel
+    QWEN2_LAYER_ARRAY=(0 1 2 4 8 16 24 26 27)
+    QWEN2VL_NN_PIDS=()
+    
+    for layer in "${QWEN2_LAYER_ARRAY[@]}"; do
+        result_dir="$QWEN2VL_NN_JUDGE_OUTPUT/llm_judge_qwen2vl_layer${layer}_gpt5_cropped"
+        
+        if [ -d "$result_dir" ] && [ -f "$result_dir/results_validation.json" ]; then
+            log "SKIP: LLM Judge NN layer $layer already exists"
+            continue
+        fi
+        
+        if [ "$DRY_RUN" = true ]; then
+            log "DRY-RUN: LLM Judge NN for Qwen2-VL layer $layer"
+        else
+            log "LAUNCHING: LLM Judge NN for Qwen2-VL layer $layer"
+            python3 llm_judge/run_single_model_with_viz.py \
+                --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
+                --model-name qwen2vl \
+                --layer $layer \
+                --num-images $NUM_IMAGES \
+                --num-samples $NUM_SAMPLES \
+                --base-dir analysis_results/nearest_neighbors \
+                --output-base "$QWEN2VL_NN_JUDGE_OUTPUT" \
+                --split $SPLIT \
+                --seed $SEED \
+                --use-cropped-region \
+                >> "$LOG_DIR/llm_judge_qwen2vl_nn_layer${layer}.log" 2>&1 &
+            QWEN2VL_NN_PIDS+=($!)
+        fi
+    done
+    
+    # Wait for all NN LLM Judge jobs
+    if [ "$DRY_RUN" = false ] && [ ${#QWEN2VL_NN_PIDS[@]} -gt 0 ]; then
+        log "Waiting for ${#QWEN2VL_NN_PIDS[@]} parallel LLM Judge NN jobs..."
+        for pid in "${QWEN2VL_NN_PIDS[@]}"; do
+            wait $pid || log "WARNING: LLM Judge NN job $pid failed"
+        done
+        log "✓ Phase 9 complete"
+    fi
+fi
+
+# ============================================================
+# PHASE 10: LLM Judge LogitLens for Qwen2-VL (all 9 layers, parallel)
+# ============================================================
+log ""
+log "========== PHASE 10: LLM Judge LogitLens for Qwen2-VL (9 layers, parallel) =========="
+
+QWEN2VL_LL_JUDGE_OUTPUT="analysis_results/llm_judge_logitlens/qwen2-vl"
+mkdir -p "$QWEN2VL_LL_JUDGE_OUTPUT"
+
+# Check if LogitLens data exists first
+if [ ! -d "$QWEN2VL_LL_OUTPUT" ] || [ $(ls "$QWEN2VL_LL_OUTPUT"/logit_lens_layer*_topk*.json 2>/dev/null | wc -l) -eq 0 ]; then
+    log "SKIP: No Qwen2-VL LogitLens data found - run Phase 8 first"
+else
+    # Launch all layers in parallel
+    QWEN2VL_LL_PIDS=()
+    
+    for layer in "${QWEN2_LAYER_ARRAY[@]}"; do
+        result_dir="$QWEN2VL_LL_JUDGE_OUTPUT/llm_judge_qwen2vl_layer${layer}_gpt5_cropped"
+        
+        if [ -d "$result_dir" ] && [ -f "$result_dir/results_validation.json" ]; then
+            log "SKIP: LLM Judge LogitLens layer $layer already exists"
+            continue
+        fi
+        
+        if [ "$DRY_RUN" = true ]; then
+            log "DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer $layer"
+        else
+            log "LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer $layer"
+            python3 llm_judge/run_single_model_with_viz_logitlens.py \
+                --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
+                --model-name qwen2vl \
+                --layer $layer \
+                --num-images $NUM_IMAGES \
+                --num-samples $NUM_SAMPLES \
+                --base-dir analysis_results/logit_lens \
+                --output-base "$QWEN2VL_LL_JUDGE_OUTPUT" \
+                --split $SPLIT \
+                --seed $SEED \
+                --use-cropped-region \
+                >> "$LOG_DIR/llm_judge_qwen2vl_logitlens_layer${layer}.log" 2>&1 &
+            QWEN2VL_LL_PIDS+=($!)
+        fi
+    done
+    
+    # Wait for all LogitLens LLM Judge jobs
+    if [ "$DRY_RUN" = false ] && [ ${#QWEN2VL_LL_PIDS[@]} -gt 0 ]; then
+        log "Waiting for ${#QWEN2VL_LL_PIDS[@]} parallel LLM Judge LogitLens jobs..."
+        for pid in "${QWEN2VL_LL_PIDS[@]}"; do
+            wait $pid || log "WARNING: LLM Judge LogitLens job $pid failed"
+        done
+        log "✓ Phase 10 complete"
+    fi
 fi
 
 # ============================================================
