@@ -250,14 +250,20 @@ def main():
         example = dataset.get(img_idx, np.random)
         image = Image.open(example["image"]).convert('RGB')
         
-        # Center-crop to square if requested (CRITICAL for consistent grid dimensions!)
-        # Without this, non-square images produce variable grids (e.g., 13x18 instead of 16x16)
-        if args.force_square and image.size[0] != image.size[1]:
+        # Force square + resize to exact fixed_resolution (CRITICAL for consistent grid!)
+        # The Qwen2-VL processor's min_pixels/max_pixels are NOT strictly enforced,
+        # so we must explicitly resize to the exact target size.
+        if args.force_square:
             w, h = image.size
-            min_dim = min(w, h)
-            left = (w - min_dim) // 2
-            top = (h - min_dim) // 2
-            image = image.crop((left, top, left + min_dim, top + min_dim))
+            if w != h:
+                # Center-crop to square
+                min_dim = min(w, h)
+                left = (w - min_dim) // 2
+                top = (h - min_dim) // 2
+                image = image.crop((left, top, left + min_dim, top + min_dim))
+            # Resize to exact fixed resolution to guarantee consistent grid
+            if args.fixed_resolution > 0:
+                image = image.resize((args.fixed_resolution, args.fixed_resolution), Image.LANCZOS)
         
         # Get caption
         caption = ""

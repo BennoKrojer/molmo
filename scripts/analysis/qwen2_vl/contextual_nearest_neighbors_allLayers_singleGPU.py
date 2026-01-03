@@ -95,12 +95,13 @@ def patch_idx_to_row_col(patch_idx, num_patches):
     return row, col
 
 
-def preload_images(dataset, num_images, max_size=1024, force_square=False):
+def preload_images(dataset, num_images, max_size=1024, force_square=False, fixed_resolution=448):
     """Preload images from dataset.
     
     Args:
-        force_square: If True, center-crop images to square before processing.
+        force_square: If True, center-crop images to square and resize to fixed_resolution.
                      This ensures consistent grid dimensions across all images.
+        fixed_resolution: Target resolution for square images (default 448 for 16x16 grid).
     """
     cached_data = []
     
@@ -122,16 +123,22 @@ def preload_images(dataset, num_images, max_size=1024, force_square=False):
             image = Image.new('RGB', (224, 224), color=color)
             caption = f"A solid {color} image"
         
-        # Center-crop to square if requested (for consistent grid dimensions)
-        if force_square and image.size[0] != image.size[1]:
+        # Force square + resize to exact fixed_resolution (CRITICAL for consistent grid!)
+        # The Qwen2-VL processor's min_pixels/max_pixels are NOT strictly enforced,
+        # so we must explicitly resize to the exact target size.
+        if force_square:
             w, h = image.size
-            min_dim = min(w, h)
-            left = (w - min_dim) // 2
-            top = (h - min_dim) // 2
-            image = image.crop((left, top, left + min_dim, top + min_dim))
-        
-        # Resize if too large
-        if max(image.size) > max_size:
+            if w != h:
+                # Center-crop to square
+                min_dim = min(w, h)
+                left = (w - min_dim) // 2
+                top = (h - min_dim) // 2
+                image = image.crop((left, top, left + min_dim, top + min_dim))
+            # Resize to exact fixed resolution to guarantee consistent grid
+            if fixed_resolution > 0:
+                image = image.resize((fixed_resolution, fixed_resolution), Image.Resampling.LANCZOS)
+        elif max(image.size) > max_size:
+            # Only apply max_size resize if not forcing square
             ratio = max_size / max(image.size)
             new_size = (int(image.size[0] * ratio), int(image.size[1] * ratio))
             image = image.resize(new_size, Image.Resampling.LANCZOS)
@@ -304,9 +311,10 @@ def main():
     preload_start = time.time()
     
     print(f"  Loading {args.num_images} images...", flush=True)
-    cached_images = preload_images(dataset, args.num_images, force_square=args.force_square)
+    cached_images = preload_images(dataset, args.num_images, force_square=args.force_square, 
+                                   fixed_resolution=args.fixed_resolution)
     if args.force_square:
-        print(f"  (images center-cropped to square for consistent grid)")
+        print(f"  (images center-cropped and resized to {args.fixed_resolution}x{args.fixed_resolution} for consistent 16x16 grid)")
     
     preload_time = time.time() - preload_start
     print(f"✓ Images preloaded in {preload_time:.1f}s ({args.num_images/preload_time:.1f} img/s)")
