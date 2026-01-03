@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-03 (Qwen2-VL Grid Bug + Missing Symlink)
+- **FOUND MISSING SYMLINK**: `molmo_data` symlink was missing from repo!
+  - `analysis_results` symlink existed → `/mnt/research/scratch/bkroje/analysis_results`
+  - `molmo_data` symlink was missing → should point to `/mnt/research/scratch/bkroje/molmo_data`
+  - This caused `run_all_missing.sh` to fail validation for ablation checkpoints
+  - **FIX**: Created symlink: `ln -s /mnt/research/scratch/bkroje/molmo_data molmo_data`
+  - **FIX**: Updated README.md with explicit symlink creation instructions
+- **Qwen2-VL regeneration running** via `./run_all_missing.sh --qwen2vl-only --force-qwen2vl`
+
 ### 2026-01-03 (Qwen2-VL Grid Bug - ROOT CAUSE FOUND + FIXED)
 - **ROOT CAUSE IDENTIFIED**: Qwen2-VL missing grid cells (e.g., 252 instead of 256 patches)
   - **Symptom**: Last row of Qwen2-VL viewer had missing cells (row 15, cols 12-15 empty)
@@ -24,9 +33,15 @@ A concise log of major changes, results, and git operations.
   - `llm_judge/run_single_model_with_viz.py`
   - `llm_judge/run_single_model_with_viz_contextual.py`
   - `llm_judge/run_single_model_with_viz_logitlens.py`
-- **Created `regenerate_qwen2vl.sh`**: Comprehensive script to regenerate all Qwen2-VL data
+- **Updated `run_all_missing.sh`**: Consolidated Qwen2-VL regeneration
+  - Added `--qwen2vl-only` flag to skip ablations
+  - Added `--force-qwen2vl` flag to delete and regenerate all Qwen2-VL data
+  - Added Phase 10.5: Contextual NN for Qwen2-VL
+  - Added Phase 11: LLM Judge Contextual NN for Qwen2-VL (parallel)
+  - All phases use `--force-square` for consistent 16×16 grids
+- **RUNNING**: Full Qwen2-VL regeneration via `./run_all_missing.sh --qwen2vl-only --force-qwen2vl`
 - **Created `generate_demo.sh`**: Single command for complete demo (main + ablations)
-- **Git pushes**: 7e82eb0, 5529b18, b4d942b
+- **Git pushes**: 7e82eb0, 5529b18, b4d942b, f43f172
 
 ### 2026-01-01 (Schema Standardization - continued)
 - **FIXED** Qwen2-VL NN output key: `top_neighbors` → `nearest_neighbors` (now consistent with Molmo)

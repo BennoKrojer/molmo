@@ -22,7 +22,14 @@ pip install -r requirements.txt
 
 # Set paths
 export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+# Create symlinks to data storage (CRITICAL - required for all scripts)
+ln -s /mnt/research/scratch/bkroje/molmo_data molmo_data
+ln -s /mnt/research/scratch/bkroje/analysis_results analysis_results
 ```
+
+> **Note**: Both symlinks are required. Without `molmo_data`, training/analysis scripts will fail.
+> Without `analysis_results`, viewer generation will fail.
 
 ---
 
