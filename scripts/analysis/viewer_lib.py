@@ -79,33 +79,48 @@ calculate_patch_position = patch_idx_to_row_col
 
 
 def create_preprocessor(checkpoint_name: str):
-    """Create preprocessor for a given checkpoint."""
-    try:
+    """Create preprocessor for a given checkpoint.
+
+    Args:
+        checkpoint_name: Either just the model name (e.g., "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336")
+                         or the full checkpoint path including step (e.g., "...seed10_step12000-unsharded")
+
+    Raises:
+        RuntimeError: If preprocessor cannot be created (config.yaml not found or other error)
+    """
+    # Handle checkpoint path - don't double up step12000-unsharded
+    if checkpoint_name.endswith("step12000-unsharded"):
+        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}"
+    else:
         checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}/step12000-unsharded"
 
-        log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
-        from olmo.config import ModelConfig
-        from olmo.data import build_mm_preprocessor
-        from olmo.model import Molmo
-        from olmo.util import resource_path
+    log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
 
-        if "hf:" in checkpoint_path:
-            model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
-            model_config = model.config
-        else:
-            model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
+    from olmo.config import ModelConfig
+    from olmo.data import build_mm_preprocessor
+    from olmo.model import Molmo
+    from olmo.util import resource_path
 
-        model_config.system_prompt_kind = "none"
+    if "hf:" in checkpoint_path:
+        model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
+        model_config = model.config
+    else:
+        config_file = resource_path(checkpoint_path, "config.yaml")
+        if not Path(config_file).exists():
+            error_msg = f"config.yaml not found at {config_file} - cannot create preprocessor for {checkpoint_name}"
+            log.error(f"    ❌ {error_msg}")
+            raise RuntimeError(error_msg)
 
-        preprocessor = build_mm_preprocessor(
-            model_config,
-            for_inference=True,
-            shuffle_messages=False,
-            is_training=False,
-            require_image_features=True
-        )
-        log.info("    ✓ Preprocessor created successfully")
-        return preprocessor
-    except Exception as e:
-        log.warning(f"    Could not create preprocessor: {e}, will use original images")
-        return None
+        model_config = ModelConfig.load(config_file, key="model", validate_paths=False)
+
+    model_config.system_prompt_kind = "none"
+
+    preprocessor = build_mm_preprocessor(
+        model_config,
+        for_inference=True,
+        shuffle_messages=False,
+        is_training=False,
+        require_image_features=True
+    )
+    log.info("    ✓ Preprocessor created successfully")
+    return preprocessor

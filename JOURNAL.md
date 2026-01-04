@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (FIX: Preprocessor path bug - fail loudly on errors)
+- **FOUND BUG**: Preprocessor path was doubling `/step12000-unsharded` for ablations
+  - Ablation checkpoints already end with `_step12000-unsharded`
+  - But `create_preprocessor()` always appended `/step12000-unsharded`
+  - Result: `molmo_data/checkpoints/.../step12000-unsharded/step12000-unsharded/config.yaml` ❌
+- **FOUND BUG**: Silent failures - preprocessor errors only logged as WARNING
+  - Should FAIL LOUDLY since preprocessing is critical for correct display
+  - ViT models MUST use black padding, not resize
+- **THE FIX - `scripts/analysis/viewer_lib.py`**:
+  - Check if checkpoint_name already ends with `step12000-unsharded`
+  - Only append if missing
+  - Check if config.yaml exists BEFORE trying to load
+  - Raise RuntimeError with clear error message instead of silent warning
+- **Status**: Fix implemented and tested
+- **Git**: Committing fix now
+
 ### 2026-01-04 (REFACTOR: Extract viewer_lib for modularity)
 - **REFACTORED VIEWER GENERATION** to fix lack of modularity
   - **Problem**: Two separate scripts (`create_unified_viewer.py`, `generate_ablation_viewers.py`) had duplicated logic
