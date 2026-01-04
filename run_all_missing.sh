@@ -907,7 +907,7 @@ fi
 log ""
 log "========== PHASE 11: LLM Judge Contextual NN for Qwen2-VL (9 layers, parallel) =========="
 
-QWEN2VL_CTX_JUDGE_OUTPUT="analysis_results/llm_judge_contextual_nearest_neighbors/qwen2-vl"
+QWEN2VL_CTX_JUDGE_OUTPUT="analysis_results/llm_judge_contextual_nn/qwen2-vl"
 mkdir -p "$QWEN2VL_CTX_JUDGE_OUTPUT"
 
 # Check if Contextual NN data exists first
