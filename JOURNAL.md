@@ -6,22 +6,32 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-03 (Viewer Investigation: LN-Lens Data Sparse But Working)
-- **INVESTIGATED**: LN-Lens appears empty in viewer - turns out this is EXPECTED BEHAVIOR, not a bug
-- **Root cause**: LN-Lens data is naturally sparse per layer - each patch's top-5 neighbors concentrate in 1-2 layers
-- **Data distribution analysis** (OLMo-7B + ViT-L, image 0, 576 patches):
-  - Layer 1: Only 1.7% of patches have neighbors (10/576)
-  - Layer 2: 40.8% coverage (dense early layer)
-  - Layer 8: 60.1% coverage (dense middle layer, **default view**)
-  - Layers 24, 30, 31: 0-0.5% coverage (almost completely sparse)
-- **Why this happens**: For each patch, top-5 nearest contextual neighbors often all come from the same 1-2 layers
-  - Example: Patch 0 → all 5 neighbors from layer 2; Patch 6 → all 5 neighbors from layer 8
-- **Viewer behavior**: Shows empty cells when no neighbors exist for that layer - this is CORRECT
-- **Default layer 8** has 60% coverage, so most patches show data
-- **Verified**: LN-Lens data is correctly embedded in HTML and loads properly
+### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug)
+- **FIXED CRITICAL BUG**: LN-Lens showing sparse/missing data and no layer badges
+  - **Root cause**: Line 910 in `create_unified_viewer.py` was filtering contextual neighbors by layer
+  - **The bug**: `nearest_contextual = [n for n in all_neighbors if n.get("contextual_layer") == layer]`
+  - **Why it broke**: Layer dropdown selects VISUAL layer (0, 1, 2...), not contextual layer
+  - **Expected behavior**: Show ALL top-5 contextual neighbors with badges (L1, L2, L8) showing which contextual layer each came from
+  - **Example**: Visual layer 0, patch 5 → shows "sky (L8)", "blue (L2)", "cloud (L8)", etc.
+- **THE FIX - `scripts/analysis/create_unified_viewer.py` lines 897-939**:
+  - Removed the filter on line 910 that destroyed the badge functionality
+  - Now shows all top-5 neighbors with `contextual_layer` field preserved for badge display
+  - Each neighbor's badge shows which contextual layer it came from
+- **KEY ARCHITECTURE INSIGHT**: LN-Lens has TWO separate layer concepts:
+  1. **Visual layer** (dropdown): Which visual representation to analyze (layer 0, 1, 2...)
+  2. **Contextual layer** (badges): Which LLM layer the contextual neighbor came from (L1, L2, L8...)
+- **Regenerated**: `analysis_results/unified_viewer_lite/` with corrected code
+- **Added**: All 10 ablations to main index.html (Qwen2-VL, Seeds 10/11, Linear, Unfreeze, etc.)
+- **Updated CLAUDE.md**: Added documentation about viewer architecture to prevent future confusion
+- **Git**: Will commit this critical fix to `origin/final`
+
+### 2026-01-03 (Viewer Investigation: LN-Lens Data Sparse But Working) ⚠️ INCORRECT ANALYSIS
+- **NOTE**: This entry documents a MISUNDERSTANDING - the sparse data was actually a BUG, not expected behavior
+- **What happened**: LN-Lens appeared to show sparse data per layer in viewer
+- **Incorrect conclusion**: Thought this was expected because top-5 neighbors concentrate in 1-2 layers
+- **Actual problem**: Line 910 was filtering contextual neighbors, breaking the badge display (fixed 2026-01-04)
 - **Deleted all old viewer directories** (5 variants: _lite, _lite_final, _lite_new, _lite_old, _lite_qwen2vl_test)
-- **Regenerated**: clean unified_viewer_lite with layer filtering (9 standard layers per model)
-- **Reviewed SCHEMA_STANDARDIZATION.md**: Confirmed viewer uses correct keys (`nearest_contextual_neighbors`)
+- **Regenerated**: unified_viewer_lite (but with the bug still present)
 
 ### 2026-01-03 (Unified Viewer Layer Filtering Fix)
 - **FIXED VIEWER BUG**: "No data for layer X" errors in unified_viewer_lite

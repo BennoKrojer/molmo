@@ -49,25 +49,8 @@ VISION_ENCODER_DISPLAY_NAMES = {
     "openvision2-l-14-336": "OpenVision2-L/14-336"
 }
 
-# Standard layer subsets for consistency across all analysis methods
-# Only these layers will be shown in the viewer, even if more layers exist
-STANDARD_LAYERS_OLMO_LLAMA = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # 32-layer models
-STANDARD_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]  # 28-layer models
-
-def get_standard_layers(llm: str) -> List[int]:
-    """Get standard layer subset for a given LLM."""
-    if llm == "qwen2-7b":
-        return STANDARD_LAYERS_QWEN
-    else:  # llama3-8b, olmo-7b
-        return STANDARD_LAYERS_OLMO_LLAMA
-
 def escape_for_html(text: str) -> str:
-    """Properly escape text for HTML.
-
-    Note: JSON escaping is handled automatically by json.dumps() when
-    embedding data in the HTML template. This function only handles
-    HTML special characters for display.
-    """
+    """Properly escape text for HTML."""
     if not text:
         return ""
     return html.escape(text, quote=True)
@@ -156,20 +139,16 @@ def create_preprocessor(checkpoint_name: str):
         log.warning(f"    Could not create preprocessor: {e}, will use original images")
         return None
 
-def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "", llm: str = None) -> Dict[str, Dict]:
+def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[str, Dict]:
     """Scan and collect all analysis results for a given checkpoint.
-
+    
     Args:
         checkpoint_name: Name of the checkpoint
         lite_suffix: Optional suffix for lite directories (e.g., "_lite10")
-        llm: LLM name for layer filtering (e.g., "olmo-7b", "qwen2-7b")
     """
-    # Get standard layers to filter by
-    standard_layers = set(get_standard_layers(llm)) if llm else None
-
     results = {
         "nn": {},  # layer -> json path
-        "logitlens": {},  # layer -> json path
+        "logitlens": {},  # layer -> json path  
         "contextual_cc": {},  # layer -> json path (Conceptual Captions)
         "contextual_vg": {},  # layer -> json path (Visual Genome)
         "interpretability": None  # path to interpretability heuristic JSON
@@ -185,9 +164,7 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "", llm: str 
             layer_str = json_file.stem.split("_layer")[-1]
             if layer_str.isdigit():
                 layer = int(layer_str)
-                # Only include layers in standard subset (if filtering is enabled)
-                if standard_layers is None or layer in standard_layers:
-                    results["nn"][layer] = json_file
+                results["nn"][layer] = json_file
     
     # Scan logit lens (note: directory is "logit_lens" not "logitlens")
     logit_dir = base_dir / "logit_lens" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
@@ -197,9 +174,7 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "", llm: str 
             try:
                 layer_str = json_file.stem.split("layer")[1].split("_")[0]
                 layer = int(layer_str)
-                # Only include layers in standard subset (if filtering is enabled)
-                if standard_layers is None or layer in standard_layers:
-                    results["logitlens"][layer] = json_file
+                results["logitlens"][layer] = json_file
             except:
                 pass
     
@@ -660,20 +635,10 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
         f.write(html_content)
     log.info(f"Created model index: {index_file}")
 
-def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int, llm: str = None) -> Dict:
-    """Load ALL analysis data from JSON files at once (much faster than loading per image).
-
-    Args:
-        analysis_results: Dictionary of analysis results from scan_analysis_results()
-        split: Dataset split (e.g., "validation")
-        num_images: Number of images to load
-        llm: LLM name for layer filtering (e.g., "olmo-7b", "qwen2-7b")
-    """
+def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) -> Dict:
+    """Load ALL analysis data from JSON files at once (much faster than loading per image)."""
     log.info(f"  📦 Loading all analysis data at once (this is much faster)...")
     start = time.time()
-
-    # Get standard layers for filtering contextual data
-    standard_layers = set(get_standard_layers(llm)) if llm else None
     
     # Structure: {analysis_type: {layer: [image0_data, image1_data, ...]}}
     all_data = {
@@ -746,13 +711,10 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int, 
                 
                 # Store results under each contextual layer key
                 # The neighbors in each patch are tagged with their contextual_layer
-                # Only include layers in standard subset (if filtering is enabled)
                 for ctx_layer in contextual_layers:
-                    if standard_layers is None or ctx_layer in standard_layers:
-                        all_data["contextual_vg"][ctx_layer] = results
-
-                filtered_layers = [l for l in contextual_layers if standard_layers is None or l in standard_layers]
-                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={filtered_layers}")
+                    all_data["contextual_vg"][ctx_layer] = results
+                
+                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={contextual_layers}")
         except Exception as e:
             log.warning(f"Could not load contextual NN (VG) data: {e}")
     
@@ -935,6 +897,8 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
     # Process LN-Lens data - VG (Visual Genome corpus)
     # Note: allLayers format has neighbors from all contextual layers mixed together,
     # each neighbor is tagged with its contextual_layer
+    # The layer dropdown is for VISUAL layers (we use visual_layer=0), not contextual layers
+    # We show ALL top-5 contextual neighbors with badges indicating which contextual layer they came from
     for layer, image_data in all_data["contextual_vg"].items():
         unified_patch_data["contextual_vg"][layer] = {}
         chunks = image_data.get("chunks", [])
@@ -942,35 +906,36 @@ def create_unified_image_viewer(output_dir: Path, checkpoint_name: str, llm: str
             for patch in chunk.get("patches", []):
                 patch_idx = patch.get("patch_idx", -1)
                 row, col = patch_idx_to_row_col(patch_idx, patches_per_chunk)
-                
-                # Get all neighbors and filter by the current contextual layer
+
+                # Get ALL top-5 contextual neighbors (don't filter by contextual_layer!)
+                # Each neighbor already has contextual_layer in its data for badge display
                 all_neighbors = patch.get("nearest_contextual_neighbors", [])
-                nearest_contextual = [n for n in all_neighbors if n.get("contextual_layer") == layer]
                 ctx_list = []
-                for i, neighbor in enumerate(nearest_contextual[:5]):
+                for i, neighbor in enumerate(all_neighbors[:5]):
                     token_str = escape_for_html(neighbor.get("token_str", ""))
                     caption = escape_for_html(neighbor.get("caption", ""))
                     position = neighbor.get("position", 0)
                     similarity = neighbor.get("similarity", 0.0)
-                    
+                    contextual_layer = neighbor.get("contextual_layer", -1)  # Get from neighbor data!
+
                     # Highlight token in caption
                     highlighted_caption = caption.replace(
                         token_str,
                         f'<span class="highlight">{token_str}</span>',
                         1
                     )
-                    
+
                     # Get additional analysis data
                     lowest_sim = neighbor.get("lowest_similarity_same_token", None)
                     inter_nn_sims = neighbor.get("similarity_to_other_nns", None)
-                    
+
                     ctx_entry = {
                         "rank": i + 1,
                         "token": token_str,
                         "caption": highlighted_caption,
                         "position": position,
                         "similarity": similarity,
-                        "contextual_layer": layer  # Include for badge display
+                        "contextual_layer": contextual_layer  # Use layer from neighbor data for badge
                     }
                     
                     # Add optional fields if they exist
@@ -1904,9 +1869,8 @@ def main():
         for ve in VISION_ENCODERS:
             checkpoint_name = get_checkpoint_name(llm, ve)
             log.info(f"\nScanning {checkpoint_name}...")
-
-            # Pass llm to enable layer filtering to standard subset
-            analysis_results = scan_analysis_results(checkpoint_name, args.lite_suffix, llm=llm)
+            
+            analysis_results = scan_analysis_results(checkpoint_name, args.lite_suffix)
             
             has_results = (len(analysis_results["nn"]) > 0 or 
                           len(analysis_results["logitlens"]) > 0 or 
@@ -1935,10 +1899,9 @@ def main():
                 
                 # Create model-specific preprocessor
                 preprocessor = create_preprocessor(checkpoint_name)
-
+                
                 # Load all analysis data at once (MUCH faster than loading per image!)
-                # Pass llm to enable layer filtering to standard subset
-                all_data_cache = load_all_analysis_data(analysis_results, args.split, args.num_images, llm=llm)
+                all_data_cache = load_all_analysis_data(analysis_results, args.split, args.num_images)
                 
                 # Create unified image viewers
                 log.info(f"  Creating unified image viewers (now fast since data is cached!)...")
