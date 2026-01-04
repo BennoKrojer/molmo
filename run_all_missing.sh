@@ -64,10 +64,12 @@ OLMO_LAYERS="0,1,2,4,8,16,24,30,31"
 if [ "$TEST_MODE" = true ]; then
     echo "🧪 TEST MODE: Using minimal inputs"
     NUM_IMAGES=5
+    JUDGE_NUM_IMAGES=5  # LLM judge uses same count in test mode
     NUM_SAMPLES=1
     LAYERS="0"  # Just layer 0 for quick testing
 else
-    NUM_IMAGES=300
+    NUM_IMAGES=300  # For analysis scripts (NN, LogitLens, Contextual generation)
+    JUDGE_NUM_IMAGES=100  # For LLM judge (to save API credits)
     NUM_SAMPLES=1
     LAYERS="$OLMO_LAYERS"  # All 9 layers for full analysis
 fi
@@ -149,7 +151,7 @@ echo "=========================================="
 echo ""
 
 log "Starting master script"
-log "Configuration: NUM_IMAGES=$NUM_IMAGES, LAYERS=$LAYERS, SPLIT=$SPLIT"
+log "Configuration: NUM_IMAGES=$NUM_IMAGES (analysis), JUDGE_NUM_IMAGES=$JUDGE_NUM_IMAGES (LLM judge), LAYERS=$LAYERS, SPLIT=$SPLIT"
 
 # ============================================================
 # PHASE 0: Validation - Check all scripts before running
@@ -512,7 +514,7 @@ else
                 --layer 0 \
                 --base-dir analysis_results/nearest_neighbors/ablations \
                 --output-base $output_dir \
-                --num-images $NUM_IMAGES \
+                --num-images $JUDGE_NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
                 --split $SPLIT \
                 --seed $SEED \
@@ -565,7 +567,7 @@ else
                     --model-name "$model_name" \
                     --base-dir analysis_results/contextual_nearest_neighbors/ablations \
                     --output-base "$ABLATION_OUTPUT" \
-                    --num-images $NUM_IMAGES \
+                    --num-images $JUDGE_NUM_IMAGES \
                     --num-samples $NUM_SAMPLES \
                     --split $SPLIT \
                     --seed $SEED \
@@ -601,7 +603,7 @@ else
                     --model-name qwen2vl \
                     --base-dir analysis_results/contextual_nearest_neighbors/ablations \
                     --output-base "$QWEN2VL_OUTPUT" \
-                    --num-images $NUM_IMAGES \
+                    --num-images $JUDGE_NUM_IMAGES \
                     --num-samples $NUM_SAMPLES \
                     --split $SPLIT \
                     --seed $SEED \
@@ -785,7 +787,7 @@ else
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
-                --num-images $NUM_IMAGES \
+                --num-images $JUDGE_NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
                 --base-dir analysis_results/nearest_neighbors \
                 --output-base "$QWEN2VL_NN_JUDGE_OUTPUT" \
@@ -842,7 +844,7 @@ else
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
-                --num-images $NUM_IMAGES \
+                --num-images $JUDGE_NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
                 --base-dir analysis_results/logit_lens \
                 --output-base "$QWEN2VL_LL_JUDGE_OUTPUT" \
@@ -934,7 +936,7 @@ else
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
-                --num-images $NUM_IMAGES \
+                --num-images $JUDGE_NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
                 --base-dir analysis_results/contextual_nearest_neighbors \
                 --output-base "$QWEN2VL_CTX_JUDGE_OUTPUT" \
