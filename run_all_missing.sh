@@ -931,7 +931,6 @@ else
             python3 llm_judge/run_single_model_with_viz_contextual.py \
                 --llm qwen2-7b \
                 --vision-encoder qwen2-vl \
-                --api-key $API_KEY \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer contextual$layer \
