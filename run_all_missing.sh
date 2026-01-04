@@ -164,8 +164,7 @@ PYTHON_SCRIPTS=(
     "scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py"
     "scripts/analysis/logitlens.py"
     "scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py"
-    "llm_judge/run_single_model_with_viz.py"
-    "llm_judge/run_single_model_with_viz_contextual.py"
+    "llm_judge/run_llm_judge.py"
     "scripts/analysis/qwen2_vl/nearest_neighbors.py"
     "scripts/analysis/qwen2_vl/logitlens.py"
 )
@@ -504,13 +503,13 @@ else
         fi
         
         run_cmd "LLM Judge NN for $checkpoint_name" \
-            "python3 llm_judge/run_single_model_with_viz.py \
+            "python3 llm_judge/run_llm_judge.py \
+                --analysis-type nn \
                 --llm olmo-7b \
                 --vision-encoder vit-l-14-336 \
                 --checkpoint-name $checkpoint_name \
                 --model-name $model_name \
                 --layer 0 \
-                --api-key $API_KEY \
                 --base-dir analysis_results/nearest_neighbors/ablations \
                 --output-base $output_dir \
                 --num-images $NUM_IMAGES \
@@ -558,19 +557,19 @@ else
                 
                 echo "[$(date '+%H:%M:%S')] Layer $layer: Running $model_name..." >> "$MASTER_LOG"
                 
-                python3 llm_judge/run_single_model_with_viz_contextual.py \
+                python3 llm_judge/run_llm_judge.py \
+                    --analysis-type contextual \
                     --llm olmo-7b \
                     --vision-encoder vit-l-14-336 \
                     --checkpoint-name "$checkpoint_name" \
                     --model-name "$model_name" \
-                    --api-key_file llm_judge/api_key.txt \
                     --base-dir analysis_results/contextual_nearest_neighbors/ablations \
                     --output-base "$ABLATION_OUTPUT" \
                     --num-images $NUM_IMAGES \
                     --num-samples $NUM_SAMPLES \
                     --split $SPLIT \
                     --seed $SEED \
-                    --layer "contextual${layer}" \
+                    --layer "$layer" \
                     --use-cropped-region \
                     >> "$log_file" 2>&1
                 
@@ -594,19 +593,19 @@ else
             else
                 echo "[$(date '+%H:%M:%S')] Layer $layer: Running Qwen2-VL..." >> "$MASTER_LOG"
                 
-                python3 llm_judge/run_single_model_with_viz_contextual.py \
+                python3 llm_judge/run_llm_judge.py \
+                    --analysis-type contextual \
                     --llm qwen2-7b \
                     --vision-encoder qwen2-vl \
                     --checkpoint-name Qwen_Qwen2-VL-7B-Instruct \
                     --model-name qwen2vl \
-                    --api-key_file llm_judge/api_key.txt \
                     --base-dir analysis_results/contextual_nearest_neighbors/ablations \
                     --output-base "$QWEN2VL_OUTPUT" \
                     --num-images $NUM_IMAGES \
                     --num-samples $NUM_SAMPLES \
                     --split $SPLIT \
                     --seed $SEED \
-                    --layer "contextual${layer}" \
+                    --layer "$layer" \
                     --use-cropped-region \
                     >> "$log_file" 2>&1
                 
@@ -779,10 +778,10 @@ else
             log "DRY-RUN: LLM Judge NN for Qwen2-VL layer $layer"
         else
             log "LAUNCHING: LLM Judge NN for Qwen2-VL layer $layer"
-            python3 llm_judge/run_single_model_with_viz.py \
+            python3 llm_judge/run_llm_judge.py \
+                --analysis-type nn \
                 --llm qwen2-7b \
                 --vision-encoder qwen2-vl \
-                --api-key $API_KEY \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
@@ -836,10 +835,12 @@ else
             log "DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer $layer"
         else
             log "LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer $layer"
-            python3 llm_judge/run_single_model_with_viz_logitlens.py \
+            python3 llm_judge/run_llm_judge.py \
+                --analysis-type logitlens \
                 --llm qwen2-7b \
                 --vision-encoder qwen2-vl \
-                --api-key $API_KEY \
+                --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
+                --model-name qwen2vl \
                 --layer $layer \
                 --num-images $NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
@@ -926,12 +927,13 @@ else
             log "DRY-RUN: LLM Judge Contextual for Qwen2-VL layer $layer"
         else
             log "LAUNCHING: LLM Judge Contextual for Qwen2-VL layer $layer"
-            python3 llm_judge/run_single_model_with_viz_contextual.py \
+            python3 llm_judge/run_llm_judge.py \
+                --analysis-type contextual \
                 --llm qwen2-7b \
                 --vision-encoder qwen2-vl \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
-                --layer contextual$layer \
+                --layer $layer \
                 --num-images $NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \
                 --base-dir analysis_results/contextual_nearest_neighbors \
