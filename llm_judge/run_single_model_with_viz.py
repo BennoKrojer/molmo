@@ -484,9 +484,17 @@ def main():
     # Load dataset
     dataset = PixMoCap(split=args.split, mode="captions")
     
-    # Get split data
-    split_data = pixmo_data.get("splits", {}).get(args.split, {})
-    all_images_data = split_data.get("images", [])
+    # Get split data - handle both Molmo format (splits.validation.images) and Qwen2-VL format (results)
+    if "splits" in pixmo_data:
+        # Molmo format
+        split_data = pixmo_data.get("splits", {}).get(args.split, {})
+        all_images_data = split_data.get("images", [])
+    elif "results" in pixmo_data:
+        # Qwen2-VL format - results is the images list
+        all_images_data = pixmo_data.get("results", [])
+    else:
+        print(f"ERROR: Unknown JSON format. Keys: {list(pixmo_data.keys())}")
+        sys.exit(1)
     num_images_to_process = min(args.num_images, len(all_images_data))
     
     # Check if we should resume from existing progress
