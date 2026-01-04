@@ -3,6 +3,27 @@
 > **Note**: This repo is forked from Molmo. Most training infrastructure comes from there. 
 > Focus on our interpretability study in `scripts/analysis/` and `analysis_results/`.
 
+TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task
+
+## ⚠️ DO NOT CREATE RANDOM FILES - CRITICAL ⚠️
+- **NEVER create random documentation files, summaries, or artifacts!**
+- **We have DEDICATED files for documentation:**
+  - `JOURNAL.md` - ALL changes, bug fixes, new results (updated after EVERY change)
+  - `README.md` - Project overview and setup instructions
+  - Existing `.md` files - Check these first before creating anything new
+- **The ONLY workflow for documenting work:**
+  1. Make changes to code/scripts
+  2. Git commit and push
+  3. Update JOURNAL.md immediately
+- **DO NOT create files like:**
+  - `WORK_SUMMARY_*.md`
+  - `FIX_SUMMARY.md`
+  - `NOTES.md`
+  - Any other random documentation files
+- **Exception:** Only create new files when explicitly needed for functionality (scripts, configs, data)
+- **If you're about to create a .md file, STOP and ask yourself: Should this go in JOURNAL.md instead?**
+- **The answer is almost always YES**
+
 ## Error Handling
 - NEVER use try-except blocks to silently catch and hide errors
 - Let errors fail loudly so they can be debugged properly
