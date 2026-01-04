@@ -36,6 +36,9 @@ from tqdm import tqdm
 
 from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
 
+# Import shared preprocessing (SINGLE SOURCE OF TRUTH for Qwen2-VL)
+from preprocessing import preprocess_image_qwen2vl, get_expected_tokens
+
 # Import dataset
 try:
     from olmo.data.pixmo_datasets import PixMoCap
@@ -123,20 +126,13 @@ def preload_images(dataset, num_images, max_size=1024, force_square=False, fixed
             image = Image.new('RGB', (224, 224), color=color)
             caption = f"A solid {color} image"
         
-        # Force square + resize to exact fixed_resolution (CRITICAL for consistent grid!)
-        # The Qwen2-VL processor's min_pixels/max_pixels are NOT strictly enforced,
-        # so we must explicitly resize to the exact target size.
-        if force_square:
-            w, h = image.size
-            if w != h:
-                # Center-crop to square
-                min_dim = min(w, h)
-                left = (w - min_dim) // 2
-                top = (h - min_dim) // 2
-                image = image.crop((left, top, left + min_dim, top + min_dim))
-            # Resize to exact fixed resolution to guarantee consistent grid
-            if fixed_resolution > 0:
-                image = image.resize((fixed_resolution, fixed_resolution), Image.Resampling.LANCZOS)
+        # Apply shared preprocessing (SINGLE SOURCE OF TRUTH)
+        if force_square and fixed_resolution > 0:
+            image = preprocess_image_qwen2vl(
+                image,
+                target_size=fixed_resolution,
+                force_square=True
+            )
         elif max(image.size) > max_size:
             # Only apply max_size resize if not forcing square
             ratio = max_size / max(image.size)
@@ -285,9 +281,10 @@ def main():
         # CRITICAL: Disable processor's internal resizing since we manually resize to exact fixed_resolution
         # Otherwise processor will adaptively resize our 448x448 images → variable grids (15x15, 16x16, etc.)
         processor.image_processor.do_resize = False
-        # Qwen2-VL: 14x14 patches with 2x2 spatial merger = 28 pixels per token
-        expected_tokens = (args.fixed_resolution // 28) ** 2
-        print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {int(math.sqrt(expected_tokens))}x{int(math.sqrt(expected_tokens))} grid)")
+        # Use shared function for expected tokens calculation
+        expected_tokens = get_expected_tokens(args.fixed_resolution)
+        grid_size = int(math.sqrt(expected_tokens))
+        print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {grid_size}x{grid_size} grid)")
         print(f"✓ Processor do_resize: DISABLED (we handle resizing manually for consistent grids)")
     else:
         print(f"✓ Using dynamic resolution (variable token counts)")

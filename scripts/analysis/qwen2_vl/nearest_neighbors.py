@@ -25,6 +25,9 @@ from tqdm import tqdm
 
 from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
 
+# Import shared preprocessing (SINGLE SOURCE OF TRUTH for Qwen2-VL)
+from preprocessing import preprocess_image_qwen2vl, get_expected_tokens
+
 try:
     from olmo.data.pixmo_datasets import PixMoCap
     HAVE_PIXMOCAP = True
@@ -233,9 +236,10 @@ def main():
         # CRITICAL: Disable processor's internal resizing since we manually resize to exact fixed_resolution
         # Otherwise processor will adaptively resize our 448x448 images → variable grids (15x15, 16x16, etc.)
         processor.image_processor.do_resize = False
-        # Qwen2-VL: 14x14 patches with 2x2 spatial merger = 28 pixels per token
-        expected_tokens = (args.fixed_resolution // 28) ** 2
-        print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {int(math.sqrt(expected_tokens))}x{int(math.sqrt(expected_tokens))} grid)")
+        # Use shared function for expected tokens calculation
+        expected_tokens = get_expected_tokens(args.fixed_resolution)
+        grid_size = int(math.sqrt(expected_tokens))
+        print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {grid_size}x{grid_size} grid)")
         print(f"✓ Processor do_resize: DISABLED (we handle resizing manually for consistent grids)")
     else:
         print(f"✓ Using dynamic resolution (variable token counts)")
@@ -270,20 +274,13 @@ def main():
         example = dataset.get(img_idx, np.random)
         image = Image.open(example["image"]).convert('RGB')
         
-        # Force square + resize to exact fixed_resolution (CRITICAL for consistent grid!)
-        # The Qwen2-VL processor's min_pixels/max_pixels are NOT strictly enforced,
-        # so we must explicitly resize to the exact target size.
-        if args.force_square:
-            w, h = image.size
-            if w != h:
-                # Center-crop to square
-                min_dim = min(w, h)
-                left = (w - min_dim) // 2
-                top = (h - min_dim) // 2
-                image = image.crop((left, top, left + min_dim, top + min_dim))
-            # Resize to exact fixed resolution to guarantee consistent grid
-            if args.fixed_resolution > 0:
-                image = image.resize((args.fixed_resolution, args.fixed_resolution), Image.LANCZOS)
+        # Apply shared preprocessing (SINGLE SOURCE OF TRUTH)
+        if args.force_square and args.fixed_resolution > 0:
+            image = preprocess_image_qwen2vl(
+                image,
+                target_size=args.fixed_resolution,
+                force_square=True
+            )
         
         # Get caption
         caption = ""
