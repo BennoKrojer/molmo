@@ -658,7 +658,7 @@ Examples:
             continue
         
         # Process image
-        processed_image, image_mask = process_image_with_mask(image_path)
+        processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
         
         # Get patches
         patches, grid_size = get_patches_from_image(image_data, args.analysis_type)
