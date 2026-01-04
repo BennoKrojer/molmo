@@ -27,6 +27,16 @@ import io
 
 from olmo.data.pixmo_datasets import PixMoCap
 
+# Import shared viewer functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from viewer_lib import (
+    pil_image_to_base64,
+    create_preprocessor,
+    escape_for_html,
+    patch_idx_to_row_col,
+)
+
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
@@ -49,95 +59,13 @@ VISION_ENCODER_DISPLAY_NAMES = {
     "openvision2-l-14-336": "OpenVision2-L/14-336"
 }
 
-def escape_for_html(text: str) -> str:
-    """Properly escape text for HTML."""
-    if not text:
-        return ""
-    return html.escape(text, quote=True)
+# All shared utility functions now imported from viewer_lib
 
 def get_checkpoint_name(llm: str, vision_encoder: str) -> str:
     """Get checkpoint name for a given LLM and vision encoder combination."""
     if llm == "qwen2-7b" and vision_encoder == "vit-l-14-336":
         return f"train_mlp-only_pixmo_cap_resize_{llm}_{vision_encoder}_seed10"
     return f"train_mlp-only_pixmo_cap_resize_{llm}_{vision_encoder}"
-
-def pil_image_to_base64(img: Image.Image, preprocessor=None) -> str:
-    """Convert PIL Image to base64 string for embedding in HTML, with optional preprocessing."""
-    try:
-        if img is None:
-            return ""
-        
-        # Convert to RGB if needed
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        # Apply the same preprocessing as the model if preprocessor is provided
-        if preprocessor is not None:
-            try:
-                # Convert PIL image to numpy array for preprocessing
-                from olmo.data.model_preprocessor import load_image
-                image_array = load_image(img)
-                
-                # Apply the same preprocessing as the model
-                processed_image, img_mask = preprocessor.mm_preprocessor.resize_image(
-                    image_array, 
-                    (512, 512), 
-                    is_training=False,
-                    rng=np.random
-                )
-                
-                # Convert back to PIL image (processed_image is in [0,1] range)
-                processed_image = (processed_image * 255).astype(np.uint8)
-                img = Image.fromarray(processed_image)
-            except Exception as e:
-                log.warning(f"Could not preprocess image: {e}, using original")
-        
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG", quality=95)
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-        return f"data:image/jpeg;base64,{img_str}"
-    except Exception as e:
-        log.warning(f"Could not convert image to base64: {e}")
-        return ""
-
-def patch_idx_to_row_col(patch_idx: int, patches_per_chunk: int) -> Tuple[int, int]:
-    """Convert patch index to row and column coordinates."""
-    grid_size = int(math.sqrt(patches_per_chunk))
-    row = patch_idx // grid_size
-    col = patch_idx % grid_size
-    return row, col
-
-def create_preprocessor(checkpoint_name: str):
-    """Create preprocessor for a given checkpoint."""
-    try:
-        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}/step12000-unsharded"
-        
-        log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
-        from olmo.config import ModelConfig
-        from olmo.data import build_mm_preprocessor
-        from olmo.model import Molmo
-        from olmo.util import resource_path
-        
-        if "hf:" in checkpoint_path:
-            model = Molmo.from_checkpoint(checkpoint_path, device="cpu")
-            model_config = model.config
-        else:
-            model_config = ModelConfig.load(resource_path(checkpoint_path, "config.yaml"), key="model", validate_paths=False)
-        
-        model_config.system_prompt_kind = "none"
-        
-        preprocessor = build_mm_preprocessor(
-            model_config,
-            for_inference=True,
-            shuffle_messages=False,
-            is_training=False,
-            require_image_features=True
-        )
-        log.info("    ✓ Preprocessor created successfully")
-        return preprocessor
-    except Exception as e:
-        log.warning(f"    Could not create preprocessor: {e}, will use original images")
-        return None
 
 def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[str, Dict]:
     """Scan and collect all analysis results for a given checkpoint.

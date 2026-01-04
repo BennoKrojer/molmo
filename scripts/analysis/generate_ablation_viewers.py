@@ -30,14 +30,16 @@ from typing import Dict, List, Tuple, Optional
 import numpy as np
 from PIL import Image
 
-# Import from main viewer to reuse working code
+# Import shared utility functions from viewer_lib
 sys.path.insert(0, str(Path(__file__).parent))
-from create_unified_viewer import (
+from viewer_lib import (
     pil_image_to_base64,
     escape_for_html,
-    create_unified_html_content,
-    create_preprocessor,  # For model-specific image preprocessing
+    create_preprocessor,
 )
+
+# Import HTML template from create_unified_viewer
+from create_unified_viewer import create_unified_html_content
 
 import logging
 logging.basicConfig(level=logging.INFO)

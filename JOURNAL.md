@@ -6,6 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (REFACTOR: Extract viewer_lib for modularity)
+- **REFACTORED VIEWER GENERATION** to fix lack of modularity
+  - **Problem**: Two separate scripts (`create_unified_viewer.py`, `generate_ablation_viewers.py`) had duplicated logic
+  - **Impact**: Any fix to one had to be manually replicated to the other → error-prone, caused bugs
+  - **Example**: LN-Lens badge fix applied to main viewer but not ablations → bug slipped through
+- **THE REFACTOR - Created `scripts/analysis/viewer_lib.py`**:
+  - Extracted shared functions: `pil_image_to_base64`, `create_preprocessor`, `escape_for_html`, `patch_idx_to_row_col`
+  - Both scripts now import from single source of truth
+  - Removed ~90 lines of duplicate code from `create_unified_viewer.py`
+- **Updated `create_unified_viewer.py`**: Import from viewer_lib, removed duplicate definitions
+- **Updated `generate_ablation_viewers.py`**: Import from viewer_lib instead of create_unified_viewer
+- **Tested**: Both scripts import successfully
+- **Git**: Will commit refactoring, then regenerate ablations
+
 ### 2026-01-04 (CRITICAL FIX: Image Preprocessing Bug in Ablation Viewers)
 - **FOUND CRITICAL BUG**: All ablation viewers showing resized images instead of model-specific preprocessing
   - **Root cause**: `generate_ablation_viewers.py` hardcoded `pil_image.resize()` instead of using preprocessor
@@ -16,13 +30,7 @@ A concise log of major changes, results, and git operations.
   - Added `preprocessor` parameter to `create_image_viewer()`
   - Replaced hardcoded resize with: `pil_image_to_base64(pil_image, preprocessor)`
   - Now creates preprocessor per model and applies correct preprocessing (ViT=padding, SigLIP/DINOv2=resize)
-- **STRUCTURAL ISSUE IDENTIFIED** (NOT YET FIXED):
-  - We have TWO scripts doing the same thing: `create_unified_viewer.py` (main) vs `generate_ablation_viewers.py` (ablations)
-  - Any fix to one must be manually replicated to the other → error-prone
-  - Proper fix: extract common logic, single code path for both
-  - **This is a sign of poor modularity and will cause future bugs**
-- **Will regenerate**: All 10 ablation viewers with correct preprocessing
-- **Git**: Will commit preprocessing fix separately
+- **Git**: Committed preprocessing fix (commit 17d9a6f)
 
 ### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug + Strict Validation)
 - **FIXED CRITICAL BUG**: LN-Lens showing sparse/missing data and no layer badges
