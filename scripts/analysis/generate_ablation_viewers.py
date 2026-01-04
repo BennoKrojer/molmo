@@ -851,7 +851,13 @@ def main():
 
         # Create preprocessor for model-specific image preprocessing
         # ViT models use black padding, SigLIP/DINOv2 use resize
-        preprocessor = create_preprocessor(checkpoint)
+        # Note: Qwen2-VL is off-the-shelf HF model, no local checkpoint
+        try:
+            preprocessor = create_preprocessor(checkpoint)
+        except (RuntimeError, FileNotFoundError) as e:
+            log.warning(f"  ⚠️  Could not create preprocessor: {e}")
+            log.warning(f"  ⚠️  Will use basic resize for image display")
+            preprocessor = None
 
         # Create image viewers
         log.info(f"  Creating image viewers...")

@@ -88,18 +88,31 @@ def create_preprocessor(checkpoint_name: str):
     Raises:
         RuntimeError: If preprocessor cannot be created (config.yaml not found or other error)
     """
-    # Handle checkpoint path - don't double up step12000-unsharded
-    if checkpoint_name.endswith("step12000-unsharded"):
-        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}"
-    else:
-        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}/step12000-unsharded"
-
-    log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
-
     from olmo.config import ModelConfig
     from olmo.data import build_mm_preprocessor
     from olmo.model import Molmo
     from olmo.util import resource_path
+
+    # Ablations have _step12000-unsharded suffix in viewer_models.json but not in directory names
+    # Ablations are in molmo_data/checkpoints/ablations/{name}/ (without suffix)
+    if "_step12000-unsharded" in checkpoint_name:
+        # Strip the suffix to get base name
+        base_name = checkpoint_name.replace("_step12000-unsharded", "")
+        # Try ablations path first
+        ablation_path = f"molmo_data/checkpoints/ablations/{base_name}"
+        if Path(ablation_path).exists():
+            checkpoint_path = ablation_path
+            log.info(f"    Creating preprocessor from ablation checkpoint: {checkpoint_path}")
+        else:
+            # Not in ablations, use full name
+            checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}"
+            log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
+    elif checkpoint_name.endswith("step12000-unsharded"):
+        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}"
+        log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
+    else:
+        checkpoint_path = f"molmo_data/checkpoints/{checkpoint_name}/step12000-unsharded"
+        log.info(f"    Creating preprocessor from checkpoint: {checkpoint_path}")
 
     if "hf:" in checkpoint_path:
         model = Molmo.from_checkpoint(checkpoint_path, device="cpu")

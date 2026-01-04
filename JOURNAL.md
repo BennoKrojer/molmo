@@ -6,6 +6,29 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (FIX: Ablation checkpoint path resolution + Qwen2-VL handling)
+- **FOUND ROOT CAUSE**: Ablation checkpoints have different directory structure than main models
+  - viewer_models.json: `checkpoint: "train_..._seed10_step12000-unsharded"` (includes suffix)
+  - Actual directory: `molmo_data/checkpoints/ablations/train_..._seed10/` (no suffix!)
+  - Result: preprocessor looked in wrong path, failed for ALL ablations
+- **FOUND ISSUE**: Qwen2-VL is off-the-shelf HuggingFace model with no local checkpoint
+  - Previous code crashed when trying to create preprocessor
+  - Should gracefully fall back to basic resize
+- **THE FIX - `scripts/analysis/viewer_lib.py`**:
+  - Detect `_step12000-unsharded` suffix in checkpoint name
+  - Strip suffix and check if `molmo_data/checkpoints/ablations/{base_name}/` exists
+  - Use ablation path if found, otherwise use full checkpoint name
+  - This resolves path correctly for all ablations while maintaining backward compatibility
+- **THE FIX - `scripts/analysis/generate_ablation_viewers.py`**:
+  - Catch both RuntimeError and FileNotFoundError when creating preprocessor
+  - Log warning and fall back to basic resize (for Qwen2-VL)
+  - All other ablations now successfully create preprocessors
+- **VERIFIED**: All 10 ablations regenerated successfully
+  - 9/10 created preprocessors with `resize='default'` (correct black padding for ViT)
+  - 1/10 (Qwen2-VL) uses basic resize (expected, no local checkpoint)
+  - Logs confirm: "MultiModalPreprocessor initialized: normalize='openai', resize='default'"
+- **Git**: Committing now
+
 ### 2026-01-04 (FIX: Preprocessor path bug - fail loudly on errors)
 - **FOUND BUG**: Preprocessor path was doubling `/step12000-unsharded` for ablations
   - Ablation checkpoints already end with `_step12000-unsharded`
@@ -20,7 +43,7 @@ A concise log of major changes, results, and git operations.
   - Check if config.yaml exists BEFORE trying to load
   - Raise RuntimeError with clear error message instead of silent warning
 - **Status**: Fix implemented and tested
-- **Git**: Committing fix now
+- **Git**: Committed and pushed (commit 8f8b4da)
 
 ### 2026-01-04 (REFACTOR: Extract viewer_lib for modularity)
 - **REFACTORED VIEWER GENERATION** to fix lack of modularity
