@@ -485,7 +485,7 @@ def main():
                 print(f"SKIP Image {image_idx}: File not found at {image_path}")
                 continue
 
-            processed_image, image_mask = process_image_with_mask(image_path)
+            processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
 
             # We will sample patches uniformly from valid positions (since contextual JSON includes all patches)
             sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)

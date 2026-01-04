@@ -136,11 +136,11 @@ def crop_image_region(processed_image, patch_row, patch_col, bbox_size):
     return cropped
 
 
-def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None, grid_size=24):
+def create_visualization(image_path, patch_row, patch_col, bbox_size, tokens, gpt_response, output_path, ground_truth_caption="", cropped_image=None, grid_size=24, model_name=None):
     """Create comprehensive visualization for patch evaluation."""
-    
+
     # Process image and create bbox
-    processed_image, _ = process_image_with_mask(image_path)
+    processed_image, _ = process_image_with_mask(image_path, model_name=model_name)
     actual_patch_size = 512 / grid_size  # Dynamic grid size (Molmo=24, Qwen2-VL=16)
     bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
     
@@ -550,7 +550,7 @@ def main():
         grid_size = max(max_row + 1, max_col + 1)
         
         # Sample valid patch positions
-        processed_image, image_mask = process_image_with_mask(image_path)
+        processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
         valid_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
         
         for patch_row, patch_col in valid_positions:
@@ -614,7 +614,8 @@ def main():
                 gpt_response=response,
                 output_path=str(viz_path),
                 ground_truth_caption="",
-                cropped_image=cropped_img
+                cropped_image=cropped_img,
+                model_name=model_name
             )
             
             # Check if interpretable (any type of related words)

@@ -271,20 +271,42 @@ def load_image(image_path):
     return np.array(image)
 
 
-def process_image_with_mask(image_path):
+def process_image_with_mask(image_path, model_name=None):
     """
     Process image and return both the processed image and the mask indicating real vs padded areas.
-    
+
     Args:
         image_path (str): Path to the image file
-        
+        model_name (str, optional): Model name to determine preprocessing method.
+                                   If contains "qwen2" (case-insensitive), uses center-crop.
+                                   Otherwise uses aspect-preserving resize + black padding.
+
     Returns:
         tuple: (processed_image, image_mask) where image_mask is True for real image areas
     """
     image = load_image(image_path)
-    processed_image, image_mask = resize_and_pad(image, (512, 512), normalize=False)
-    processed_image = (processed_image * 255).astype(np.uint8)
-    processed_image = Image.fromarray(processed_image)
+
+    # Check if this is Qwen2-VL → use center-crop preprocessing (SINGLE SOURCE OF TRUTH)
+    if model_name and "qwen2" in model_name.lower():
+        # Import shared preprocessing for Qwen2-VL
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "analysis" / "qwen2_vl"))
+        from preprocessing import preprocess_image_qwen2vl
+
+        # Convert to PIL, apply center-crop preprocessing (512x512 for LLM judge)
+        pil_image = Image.fromarray(image)
+        processed_pil = preprocess_image_qwen2vl(pil_image, target_size=512, force_square=True)
+        processed_image = processed_pil  # Keep as PIL Image
+
+        # For center-crop, entire image is real (no padding) → mask is all True
+        image_mask = np.ones((512, 512), dtype=bool)
+    else:
+        # Use existing preprocessing (aspect-preserving resize + black padding)
+        processed_image, image_mask = resize_and_pad(image, (512, 512), normalize=False)
+        processed_image = (processed_image * 255).astype(np.uint8)
+        processed_image = Image.fromarray(processed_image)
+
     return processed_image, image_mask
 
 
