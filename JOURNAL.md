@@ -6,6 +6,28 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (CRITICAL FIX: Qwen2-VL variable grid bug - disable processor do_resize)
+- **USER REPORT**: "Qwen2-VL shows non-square images... visually shown as normal without resizing"
+  - Images are 15x15 grid instead of consistent 16x16 = variable width cells
+  - This was supposedly fixed days ago but data STILL has variable grids!
+- **INVESTIGATION**: Checked data generated Jan 3 with `--force-square`:
+  - Some images: 256 tokens (16x16) ✓
+  - Some images: 225 tokens (15x15) ✗
+  - **Conclusion**: The previous `--force-square` fix didn't actually work!
+- **ROOT CAUSE FOUND**: Qwen2-VL processor's `do_resize=True` overrides our manual preprocessing
+  - We resize to 448x448 square → pass to processor → processor STILL resizes it!
+  - Processor adaptively resizes based on internal logic → some images get 420x420 (15x15 grid)
+  - Setting `min_pixels=max_pixels` is NOT enough - processor still has `do_resize=True`
+- **THE FIX**: Disable processor's internal resizing with `processor.image_processor.do_resize = False`
+  - Applied to ALL 3 Qwen2-VL scripts:
+    - `scripts/analysis/qwen2_vl/nearest_neighbors.py`
+    - `scripts/analysis/qwen2_vl/logitlens.py`
+    - `scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py`
+  - Now processor uses our manually preprocessed 448x448 images as-is
+  - Should guarantee consistent 16x16 grid for ALL images
+- **NEXT**: Need to regenerate ALL Qwen2-VL data (NN, LogitLens, Contextual) + regenerate viewer
+- **Git**: Committing fix now
+
 ### 2026-01-04 (FIX: Ablation checkpoint path resolution + Qwen2-VL handling)
 - **FOUND ROOT CAUSE**: Ablation checkpoints have different directory structure than main models
   - viewer_models.json: `checkpoint: "train_..._seed10_step12000-unsharded"` (includes suffix)
@@ -27,7 +49,7 @@ A concise log of major changes, results, and git operations.
   - 9/10 created preprocessors with `resize='default'` (correct black padding for ViT)
   - 1/10 (Qwen2-VL) uses basic resize (expected, no local checkpoint)
   - Logs confirm: "MultiModalPreprocessor initialized: normalize='openai', resize='default'"
-- **Git**: Committing now
+- **Git**: Committed and pushed (commit a3570ff)
 
 ### 2026-01-04 (FIX: Preprocessor path bug - fail loudly on errors)
 - **FOUND BUG**: Preprocessor path was doubling `/step12000-unsharded` for ablations

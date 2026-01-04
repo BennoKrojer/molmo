@@ -220,12 +220,16 @@ def main():
         fixed_pixels = args.fixed_resolution * args.fixed_resolution
         processor.image_processor.min_pixels = fixed_pixels
         processor.image_processor.max_pixels = fixed_pixels
+        # CRITICAL: Disable processor's internal resizing since we manually resize to exact fixed_resolution
+        # Otherwise processor will adaptively resize our 448x448 images → variable grids (15x15, 16x16, etc.)
+        processor.image_processor.do_resize = False
         # Qwen2-VL: 14x14 patches with 2x2 spatial merger = 28 pixels per token
         expected_tokens = (args.fixed_resolution // 28) ** 2
         print(f"✓ Fixed resolution: {args.fixed_resolution}x{args.fixed_resolution} (~{expected_tokens} vision tokens, {int(math.sqrt(expected_tokens))}x{int(math.sqrt(expected_tokens))} grid)")
+        print(f"✓ Processor do_resize: DISABLED (we handle resizing manually for consistent grids)")
     else:
         print(f"✓ Using dynamic resolution (variable token counts)")
-    
+
     if args.force_square:
         print(f"✓ Force-square: ON (images center-cropped to square for consistent 16x16 grid)")
     else:
