@@ -840,8 +840,6 @@ else
                 --llm qwen2-7b \
                 --vision-encoder qwen2-vl \
                 --api-key $API_KEY \
-                --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
-                --model-name qwen2vl \
                 --layer $layer \
                 --num-images $NUM_IMAGES \
                 --num-samples $NUM_SAMPLES \

@@ -391,7 +391,11 @@ def main():
     np.random.seed(args.seed)
     
     # Construct paths
-    if args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
+    if args.vision_encoder == "qwen2-vl":
+        # Qwen2-VL off-the-shelf model uses different path structure
+        checkpoint_name = "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+        model_name = "qwen2vl"
+    elif args.llm == "qwen2-7b" and args.vision_encoder == "vit-l-14-336":
         checkpoint_name = f"train_mlp-only_pixmo_cap_resize_{args.llm}_{args.vision_encoder}_seed10"
         model_name = f"{args.llm}_{args.vision_encoder}_seed10"
     else:
@@ -399,11 +403,13 @@ def main():
         model_name = f"{args.llm}_{args.vision_encoder}"
     
     base_dir = Path(args.base_dir)
-    input_json = base_dir / f"{checkpoint_name}_step12000-unsharded" / f"logit_lens_{args.layer}_topk5_multi-gpu.json"
     
-    # Try Qwen2-VL format: {base_dir}/{checkpoint_name}/logit_lens_layer{X}_topk5.json
+    # Try Qwen2-VL format first: {base_dir}/{checkpoint_name}/logit_lens_layer{X}_topk5.json
+    input_json = base_dir / checkpoint_name / f"logit_lens_layer{args.layer}_topk5.json"
+    
+    # Fallback to Molmo format
     if not input_json.exists():
-        input_json = base_dir / checkpoint_name / f"logit_lens_layer{args.layer}_topk5.json"
+        input_json = base_dir / f"{checkpoint_name}_step12000-unsharded" / f"logit_lens_{args.layer}_topk5_multi-gpu.json"
     
     if not input_json.exists():
         print(f"ERROR: Input JSON not found: {input_json}")
