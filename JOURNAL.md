@@ -6,6 +6,24 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (CRITICAL FIX: Image Preprocessing Bug in Ablation Viewers)
+- **FOUND CRITICAL BUG**: All ablation viewers showing resized images instead of model-specific preprocessing
+  - **Root cause**: `generate_ablation_viewers.py` hardcoded `pil_image.resize()` instead of using preprocessor
+  - **Impact**: All ViT-based ablations showed WRONG preprocessing (resize instead of black padding)
+  - **Why it happened**: Lack of modularity - two separate scripts with duplicated logic
+- **THE FIX - `scripts/analysis/generate_ablation_viewers.py`**:
+  - Added import: `create_preprocessor` from `create_unified_viewer`
+  - Added `preprocessor` parameter to `create_image_viewer()`
+  - Replaced hardcoded resize with: `pil_image_to_base64(pil_image, preprocessor)`
+  - Now creates preprocessor per model and applies correct preprocessing (ViT=padding, SigLIP/DINOv2=resize)
+- **STRUCTURAL ISSUE IDENTIFIED** (NOT YET FIXED):
+  - We have TWO scripts doing the same thing: `create_unified_viewer.py` (main) vs `generate_ablation_viewers.py` (ablations)
+  - Any fix to one must be manually replicated to the other → error-prone
+  - Proper fix: extract common logic, single code path for both
+  - **This is a sign of poor modularity and will cause future bugs**
+- **Will regenerate**: All 10 ablation viewers with correct preprocessing
+- **Git**: Will commit preprocessing fix separately
+
 ### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug + Strict Validation)
 - **FIXED CRITICAL BUG**: LN-Lens showing sparse/missing data and no layer badges
   - **Root cause**: Line 910 in `create_unified_viewer.py` was filtering contextual neighbors by layer

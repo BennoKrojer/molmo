@@ -36,6 +36,7 @@ from create_unified_viewer import (
     pil_image_to_base64,
     escape_for_html,
     create_unified_html_content,
+    create_preprocessor,  # For model-specific image preprocessing
 )
 
 import logging
@@ -445,10 +446,10 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
 
 
 def create_image_viewer(output_dir: Path, ablation_config: Dict,
-                        image_idx: int, all_data: Dict, 
-                        dataset, split: str) -> bool:
+                        image_idx: int, all_data: Dict,
+                        dataset, split: str, preprocessor=None) -> bool:
     """Create image viewer for one image - uses SAME logic as main viewer."""
-    
+
     checkpoint = ablation_config["checkpoint"]
     display_name = ablation_config["name"]
     model_dir = output_dir / "ablations" / checkpoint
@@ -490,11 +491,9 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             pil_image = image_data_raw
         
         if pil_image:
-            # Resize to square for consistent viewer display (matches analysis preprocessing)
-            # Use 512x512 for display (analysis uses 448, but 512 looks better in viewer)
-            display_size = 512
-            pil_image = pil_image.resize((display_size, display_size), Image.LANCZOS)
-            image_base64 = pil_image_to_base64(pil_image)
+            # Apply model-specific preprocessing (ViT=black padding, SigLIP/DINOv2=resize)
+            # Uses same preprocessor as main viewer for consistency
+            image_base64 = pil_image_to_base64(pil_image, preprocessor)
         
         ground_truth = example.get("caption", "No caption available")
     except Exception as e:
@@ -847,14 +846,18 @@ def main():
         
         # Create model index
         create_ablation_model_index(args.output_dir, ablation, args.num_images, available_layers)
-        
+
+        # Create preprocessor for model-specific image preprocessing
+        # ViT models use black padding, SigLIP/DINOv2 use resize
+        preprocessor = create_preprocessor(checkpoint)
+
         # Create image viewers
         log.info(f"  Creating image viewers...")
         success = 0
         t0 = time.time()
-        
+
         for img_idx in range(args.num_images):
-            if create_image_viewer(args.output_dir, ablation, img_idx, all_data, dataset, args.split):
+            if create_image_viewer(args.output_dir, ablation, img_idx, all_data, dataset, args.split, preprocessor):
                 success += 1
             
             if (img_idx + 1) % 5 == 0:
