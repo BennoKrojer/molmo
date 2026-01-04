@@ -1131,6 +1131,9 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         .base-image {{
             width: 100%;
             max-width: 512px;
+            height: 512px;
+            object-fit: cover;
+            object-position: center;
             border: 3px solid #34495e;
             border-radius: 8px;
         }}

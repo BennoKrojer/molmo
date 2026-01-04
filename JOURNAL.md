@@ -6,6 +6,23 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (FIX: Force square image display in viewer - cells were rectangular)
+- **USER REPORT**: "this should all be square! both the full image and the cells"
+  - I fixed the grid calculation but **MISSED** the visual display requirement
+  - Images displayed with original aspect ratio (e.g., 640×480 → shown as 512×384)
+  - This made grid cells rectangular instead of square
+- **WHY I MISSED IT**: Focused on grid data (15×15 vs 16×16 tokens), not visual presentation
+  - User's instruction WAS clear: "both the full image and the cells"
+  - I interpreted "square" as grid data, not display
+- **THE FIX - `create_unified_viewer.py` CSS**:
+  - Added `height: 512px` to `.base-image` (was only width-constrained)
+  - Added `object-fit: cover` to crop/fill the square container
+  - Added `object-position: center` to center the image in the crop
+  - Now ALL images display as 512×512 squares regardless of original aspect ratio
+  - Grid cells are now square overlays on square images
+- **APPLIES TO**: Both main viewer and ablation viewer (share same template)
+- **Git**: Committing now
+
 ### 2026-01-04 (FIX: Ablation viewer grid bug - wrong patches_per_chunk calculation)
 - **USER REPORT**: "Image 006 and 0003 have last column AND row missing in viewer"
   - Viewer shows 14x14 cells but data has 15x15 = 225 patches
@@ -24,8 +41,11 @@ A concise log of major changes, results, and git operations.
   ```
   - Also improved logic to break after finding patches (don't accumulate across analysis types)
   - Changed default from 576 to 256 (16×16 for main models)
-- **VERIFIED**: Will regenerate Qwen2-VL viewer to confirm 15×15 grid displays correctly
-- **Git**: Committing now
+- **VERIFIED**: Regenerated Qwen2-VL viewer - now displays correctly!
+  - Image 0000: 16×16 patches (256 total) ✓
+  - Image 0003: 15×15 patches (225 total) ✓
+  - Both variable grids now display all cells correctly with proper image overlay
+- **Git**: Committed and pushed (commit 9ac69c7)
 
 ### 2026-01-04 (CRITICAL FIX: Qwen2-VL variable grid bug - disable processor do_resize)
 - **USER REPORT**: "Qwen2-VL shows non-square images... visually shown as normal without resizing"
