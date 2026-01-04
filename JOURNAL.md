@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-03 (Unified LLM Judge + Branch Rename)
+- **UNIFIED LLM JUDGE**: Created `llm_judge/run_llm_judge.py`
+  - Consolidates 3 scripts into 1: `run_single_model_with_viz.py`, `run_single_model_with_viz_logitlens.py`, `run_single_model_with_viz_contextual.py`
+  - Uses `--analysis-type {nn, logitlens, contextual}` argument
+  - Standardized `--api-key-file` for all analysis types
+  - Handles full word extraction for contextual (vs raw tokens for NN/LogitLens)
+  - Uses `ijson` streaming for contextual large JSON files
+- **Updated `run_all_missing.sh`** to use the unified script
+- **BRANCH RENAME**: `cleanup-legacy` → `final`
+- **Git**: Pushed to `origin/final`, deleted `origin/cleanup-legacy`
+
 ### 2026-01-03 (Qwen2-VL Grid Bug + Missing Symlink + Repo Audit)
 - **REPOSITORY CLEANUP AUDIT**: Created `CLEANUP_CANDIDATES.md`
   - Identified ~40+ test/debug files safe to remove
