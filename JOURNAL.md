@@ -6,7 +6,7 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug)
+### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug + Strict Validation)
 - **FIXED CRITICAL BUG**: LN-Lens showing sparse/missing data and no layer badges
   - **Root cause**: Line 910 in `create_unified_viewer.py` was filtering contextual neighbors by layer
   - **The bug**: `nearest_contextual = [n for n in all_neighbors if n.get("contextual_layer") == layer]`
@@ -20,10 +20,22 @@ A concise log of major changes, results, and git operations.
 - **KEY ARCHITECTURE INSIGHT**: LN-Lens has TWO separate layer concepts:
   1. **Visual layer** (dropdown): Which visual representation to analyze (layer 0, 1, 2...)
   2. **Contextual layer** (badges): Which LLM layer the contextual neighbor came from (L1, L2, L8...)
+- **FIXED QWEN2-VL MISSING CONTEXTUAL DATA**:
+  - **Root cause**: Wrong path in `viewer_models.json` - said `ablations/...` but should be `qwen2_vl/...`
+  - Fixed contextual path: `qwen2_vl/Qwen_Qwen2-VL-7B-Instruct`
+  - Regenerated Qwen2-VL viewer - now has all 3 analysis types (NN, LogitLens, LN-Lens)
+  - File size went from 3.3MB → 7.0MB (contextual data added)
+- **ADDED STRICT VALIDATION** to prevent partial data issues:
+  - **Changed `add_models_to_viewer.py`**: Now requires ALL analysis types have data (no partial allowed!)
+  - Old validation: passed if ANY type had data → allowed broken configs through
+  - New validation: FAILS LOUDLY if any type is missing → forces fix before generation
+  - Exit code 1 if validation fails, prints exactly what's missing
+  - Added `has_all_data` field and `missing_types` list
 - **Regenerated**: `analysis_results/unified_viewer_lite/` with corrected code
-- **Added**: All 10 ablations to main index.html (Qwen2-VL, Seeds 10/11, Linear, Unfreeze, etc.)
-- **Updated CLAUDE.md**: Added documentation about viewer architecture to prevent future confusion
-- **Git**: Will commit this critical fix to `origin/final`
+- **Generated**: All 10 ablation viewers with complete data
+- **Updated SCHEMA_STANDARDIZATION.md**: Added viewer architecture section explaining visual vs contextual layers
+- **Updated CLAUDE.md**: Added "VALIDATION BEFORE EXECUTION" section + Qwen2-VL special case warning
+- **Git**: Will commit all fixes to `origin/final`
 
 ### 2026-01-03 (Viewer Investigation: LN-Lens Data Sparse But Working) ⚠️ INCORRECT ANALYSIS
 - **NOTE**: This entry documents a MISUNDERSTANDING - the sparse data was actually a BUG, not expected behavior

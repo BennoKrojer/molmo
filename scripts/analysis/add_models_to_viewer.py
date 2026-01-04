@@ -127,52 +127,69 @@ def validate_model(model_config: Dict, base_dir: Path) -> Dict:
             "path": data_path,
         }
     
+    # STRICT: ALL analysis types must have data (no partial allowed!)
+    missing_types = [k for k, v in available.items() if v["count"] == 0]
+    has_all_data = len(missing_types) == 0
+
     return {
         "id": model_id,
         "name": model_name,
         "config": model_config,
         "data_paths": data_paths,
         "available": available,
-        "has_any_data": any(v["count"] > 0 for v in available.values()),
+        "has_all_data": has_all_data,
+        "missing_types": missing_types,
+        "has_any_data": any(v["count"] > 0 for v in available.values()),  # kept for backward compat
     }
 
 
 def print_validation_report(models: List[Dict]) -> Tuple[int, int]:
-    """Print a validation report and return (ok_count, missing_count)."""
-    
+    """Print a validation report and return (ok_count, missing_count).
+
+    STRICT MODE: All analysis types must have data. Partial data = FAIL.
+    """
+
     print("\n" + "="*80)
-    print("VALIDATION REPORT")
+    print("VALIDATION REPORT (STRICT MODE - NO PARTIAL DATA ALLOWED)")
     print("="*80)
-    
+
     ok_count = 0
     missing_count = 0
-    
+
     for model in models:
-        has_data = model["has_any_data"]
-        status = "✅" if has_data else "❌"
-        
-        if has_data:
+        has_all = model["has_all_data"]
+        missing_types = model.get("missing_types", [])
+        status = "✅" if has_all else "❌"
+
+        if has_all:
             ok_count += 1
         else:
             missing_count += 1
-        
+
         print(f"\n{status} {model['name']}")
         print(f"   ID: {model['id']}")
-        
+
+        if not has_all:
+            print(f"   ⚠️  MISSING: {', '.join(missing_types)}")
+
         for analysis_type, info in model["available"].items():
             count = info["count"]
             layers = info["layers"]
             path = info["path"]
-            
+
             if count > 0:
                 print(f"   {analysis_type:12s}: {count:2d} layers - {layers}")
             else:
                 print(f"   {analysis_type:12s}: ❌ NO DATA at {path}")
-    
+
     print("\n" + "-"*80)
-    print(f"SUMMARY: {ok_count} models with data, {missing_count} models missing data")
+    if missing_count > 0:
+        print(f"❌ VALIDATION FAILED: {missing_count} models have missing data")
+        print(f"   {ok_count} models complete, {missing_count} models incomplete")
+    else:
+        print(f"✅ VALIDATION PASSED: All {ok_count} models have complete data")
     print("-"*80)
-    
+
     return ok_count, missing_count
 
 
@@ -393,13 +410,21 @@ def main():
         print(f"\nERROR: Output directory does not exist: {args.output_dir}")
         print("Run the main create_unified_viewer.py first to create the base viewer")
         sys.exit(1)
-    
+
+    # STRICT: Fail if ANY model has missing data
+    if missing_count > 0:
+        print("\n" + "!"*80)
+        print("ERROR: Cannot proceed - some models have incomplete data!")
+        print("Fix the data paths in viewer_models.json or generate the missing data.")
+        print("!"*80)
+        sys.exit(1)
+
     # Process ablations
     print("\n" + "="*80)
     print("ADDING ABLATIONS TO VIEWER")
     print("="*80)
-    
-    ablation_models = [m for m in all_models if m["type"] == "ablation" and m["has_any_data"]]
+
+    ablation_models = [m for m in all_models if m["type"] == "ablation" and m["has_all_data"]]
     
     if not ablation_models:
         print("No ablation models with data to add")

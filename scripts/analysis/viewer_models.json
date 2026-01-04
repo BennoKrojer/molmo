@@ -20,7 +20,7 @@
       "data_paths": {
         "nn": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct",
         "logitlens": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct",
-        "contextual": "ablations/Qwen_Qwen2-VL-7B-Instruct"
+        "contextual": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
       }
     },
     {
