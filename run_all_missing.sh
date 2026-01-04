@@ -659,6 +659,18 @@ fi  # end of API key check
 fi  # end of QWEN2VL_ONLY check (phases 1-6)
 
 # ============================================================
+# Load API key for Qwen2-VL LLM Judge phases (if not already loaded)
+# ============================================================
+if [ -z "$API_KEY" ]; then
+    if [ -f "llm_judge/api_key.txt" ] && [ -s "llm_judge/api_key.txt" ]; then
+        API_KEY=$(cat llm_judge/api_key.txt)
+        log "✓ Loaded API key for Qwen2-VL LLM Judge phases"
+    else
+        log "WARNING: No API key found - LLM Judge phases will be skipped"
+    fi
+fi
+
+# ============================================================
 # PHASE 7: Static NN for Qwen2-VL (single GPU, 9 layers)
 # ============================================================
 log ""
@@ -768,6 +780,9 @@ else
         else
             log "LAUNCHING: LLM Judge NN for Qwen2-VL layer $layer"
             python3 llm_judge/run_single_model_with_viz.py \
+                --llm qwen2-7b \
+                --vision-encoder qwen2-vl \
+                --api-key $API_KEY \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
@@ -822,6 +837,9 @@ else
         else
             log "LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer $layer"
             python3 llm_judge/run_single_model_with_viz_logitlens.py \
+                --llm qwen2-7b \
+                --vision-encoder qwen2-vl \
+                --api-key $API_KEY \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer $layer \
@@ -864,8 +882,9 @@ if [ -d "$QWEN2VL_CTX_OUTPUT" ]; then
         log "INCOMPLETE: Contextual NN for Qwen2-VL - will re-run"
         run_cmd "Contextual NN for Qwen2-VL (all 9 layers)" \
             "python3 scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py \
+                --contextual-dir molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-VL-7B-Instruct \
                 --num-images $NUM_IMAGES \
-                --layers $QWEN2_LAYERS \
+                --visual-layer $QWEN2_LAYERS \
                 --fixed-resolution 448 \
                 --force-square \
                 --output-dir analysis_results/contextual_nearest_neighbors/qwen2_vl"
@@ -873,8 +892,9 @@ if [ -d "$QWEN2VL_CTX_OUTPUT" ]; then
 else
     run_cmd "Contextual NN for Qwen2-VL (all 9 layers)" \
         "python3 scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py \
+            --contextual-dir molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-VL-7B-Instruct \
             --num-images $NUM_IMAGES \
-            --layers $QWEN2_LAYERS \
+            --visual-layer $QWEN2_LAYERS \
             --fixed-resolution 448 \
             --force-square \
             --output-dir analysis_results/contextual_nearest_neighbors/qwen2_vl"
@@ -909,6 +929,9 @@ else
         else
             log "LAUNCHING: LLM Judge Contextual for Qwen2-VL layer $layer"
             python3 llm_judge/run_single_model_with_viz_contextual.py \
+                --llm qwen2-7b \
+                --vision-encoder qwen2-vl \
+                --api-key $API_KEY \
                 --checkpoint-name qwen2_vl/Qwen_Qwen2-VL-7B-Instruct \
                 --model-name qwen2vl \
                 --layer contextual$layer \
