@@ -6,6 +6,40 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-03 (Viewer Investigation: LN-Lens Data Sparse But Working)
+- **INVESTIGATED**: LN-Lens appears empty in viewer - turns out this is EXPECTED BEHAVIOR, not a bug
+- **Root cause**: LN-Lens data is naturally sparse per layer - each patch's top-5 neighbors concentrate in 1-2 layers
+- **Data distribution analysis** (OLMo-7B + ViT-L, image 0, 576 patches):
+  - Layer 1: Only 1.7% of patches have neighbors (10/576)
+  - Layer 2: 40.8% coverage (dense early layer)
+  - Layer 8: 60.1% coverage (dense middle layer, **default view**)
+  - Layers 24, 30, 31: 0-0.5% coverage (almost completely sparse)
+- **Why this happens**: For each patch, top-5 nearest contextual neighbors often all come from the same 1-2 layers
+  - Example: Patch 0 → all 5 neighbors from layer 2; Patch 6 → all 5 neighbors from layer 8
+- **Viewer behavior**: Shows empty cells when no neighbors exist for that layer - this is CORRECT
+- **Default layer 8** has 60% coverage, so most patches show data
+- **Verified**: LN-Lens data is correctly embedded in HTML and loads properly
+- **Deleted all old viewer directories** (5 variants: _lite, _lite_final, _lite_new, _lite_old, _lite_qwen2vl_test)
+- **Regenerated**: clean unified_viewer_lite with layer filtering (9 standard layers per model)
+- **Reviewed SCHEMA_STANDARDIZATION.md**: Confirmed viewer uses correct keys (`nearest_contextual_neighbors`)
+
+### 2026-01-03 (Unified Viewer Layer Filtering Fix)
+- **FIXED VIEWER BUG**: "No data for layer X" errors in unified_viewer_lite
+  - **Root cause**: No layer filtering - viewer loaded ALL 15 layer files instead of standard 9-layer subset
+  - **Before**: NN showed 15 layers (0,1,2,3,4,8,12,16,20,24,28,29,30,31,32)
+  - **After**: NN shows 9 standard layers (0,1,2,4,8,16,24,30,31) ✓
+- **FIXED - `scripts/analysis/create_unified_viewer.py`**:
+  - Added `STANDARD_LAYERS_OLMO_LLAMA = [0,1,2,4,8,16,24,30,31]` and `STANDARD_LAYERS_QWEN = [0,1,2,4,8,16,24,26,27]`
+  - Modified `scan_analysis_results()` to filter NN/LogitLens layers to standard subset
+  - Modified `load_all_analysis_data()` to filter contextual layers to standard subset
+  - Both functions now accept `llm` parameter for model-specific filtering
+- **Regenerated**: `analysis_results/unified_viewer_lite/` with 10 images - all 9 models now work correctly
+- **Updated CLAUDE.md**: Added prominent "DO NOT CREATE RANDOM FILES" section (lines 8-25)
+  - Emphasizes JOURNAL.md is the ONLY place for documentation
+  - Lists examples of bad patterns (WORK_SUMMARY_*.md, FIX_SUMMARY.md, NOTES.md)
+  - Workflow: Code changes → Git commit → Update JOURNAL.md
+- **Git**: Committed viewer fix + CLAUDE.md update, pushed to `origin/final`
+
 ### 2026-01-03 (Unified LLM Judge + Branch Rename)
 - **UNIFIED LLM JUDGE**: Created `llm_judge/run_llm_judge.py`
   - Consolidates 3 scripts into 1: `run_single_model_with_viz.py`, `run_single_model_with_viz_logitlens.py`, `run_single_model_with_viz_contextual.py`

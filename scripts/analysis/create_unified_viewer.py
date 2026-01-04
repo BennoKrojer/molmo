@@ -62,7 +62,12 @@ def get_standard_layers(llm: str) -> List[int]:
         return STANDARD_LAYERS_OLMO_LLAMA
 
 def escape_for_html(text: str) -> str:
-    """Properly escape text for HTML."""
+    """Properly escape text for HTML.
+
+    Note: JSON escaping is handled automatically by json.dumps() when
+    embedding data in the HTML template. This function only handles
+    HTML special characters for display.
+    """
     if not text:
         return ""
     return html.escape(text, quote=True)
