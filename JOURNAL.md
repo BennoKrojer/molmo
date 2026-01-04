@@ -6,6 +6,27 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (FIX: Ablation viewer grid bug - wrong patches_per_chunk calculation)
+- **USER REPORT**: "Image 006 and 0003 have last column AND row missing in viewer"
+  - Viewer shows 14x14 cells but data has 15x15 = 225 patches
+  - Viewer HTML says "16×16 patches (576 total)" which is mathematically wrong (16×16 = 256!)
+- **ROOT CAUSE**: Line 527 in `generate_ablation_viewers.py`:
+  ```python
+  patches_per_chunk = max(patches_per_chunk, len(all_patches))
+  ```
+  - Default patches_per_chunk = 576 (24×24, wrong!)
+  - Actual patches for Image 0003 = 225 (15×15)
+  - Code took max(576, 225) = 576 instead of using actual 225
+  - Then grid_size calculated as sqrt(576) = 24, but then overridden to 16 somehow
+- **THE FIX**: Use actual patch count for THIS image, not max with default:
+  ```python
+  patches_per_chunk = len(all_patches)  # Use actual, not max!
+  ```
+  - Also improved logic to break after finding patches (don't accumulate across analysis types)
+  - Changed default from 576 to 256 (16×16 for main models)
+- **VERIFIED**: Will regenerate Qwen2-VL viewer to confirm 15×15 grid displays correctly
+- **Git**: Committing now
+
 ### 2026-01-04 (CRITICAL FIX: Qwen2-VL variable grid bug - disable processor do_resize)
 - **USER REPORT**: "Qwen2-VL shows non-square images... visually shown as normal without resizing"
   - Images are 15x15 grid instead of consistent 16x16 = variable width cells
@@ -26,7 +47,7 @@ A concise log of major changes, results, and git operations.
   - Now processor uses our manually preprocessed 448x448 images as-is
   - Should guarantee consistent 16x16 grid for ALL images
 - **NEXT**: Need to regenerate ALL Qwen2-VL data (NN, LogitLens, Contextual) + regenerate viewer
-- **Git**: Committing fix now
+- **Git**: Committed and pushed (commit 1c060fc)
 
 ### 2026-01-04 (FIX: Ablation checkpoint path resolution + Qwen2-VL handling)
 - **FOUND ROOT CAUSE**: Ablation checkpoints have different directory structure than main models

@@ -502,19 +502,18 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
         log.warning(f"Could not load image {image_idx}: {e}")
     
     # Determine grid dimensions - handles both Format A (chunks) and Format B (patches directly)
-    # For Qwen2-VL, grid is non-square and varies per image - use max row/col from data
-    # IMPORTANT: Different analysis types may have different grids (e.g., NN=28x28, Contextual=16x16)
-    # We need to find the MAXIMUM grid across all types to display all patches correctly
-    patches_per_chunk = 576  # default
+    # Find actual grid dimensions from this specific image's data
+    # For variable grids (Qwen2-VL), use patch row/col from data
+    patches_per_chunk = 256  # default for main models (16x16)
     max_row = 0
     max_col = 0
-    
-    # Check ALL analysis types to find max grid (don't break early!)
-    for analysis_type in ["nn", "logitlens", "contextual"]:  # NN first - usually has most patches
+
+    # Check first available analysis type to get actual grid for THIS image
+    for analysis_type in ["nn", "logitlens", "contextual"]:
         for layer, layer_data in image_data.get(analysis_type, {}).items():
             if str(layer).startswith("_format"):
                 continue  # Skip format metadata
-            
+
             # Get all patches
             all_patches = []
             if "chunks" in layer_data:
@@ -522,22 +521,25 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
                     all_patches.extend(chunk.get("patches", []))
             elif "patches" in layer_data:
                 all_patches = layer_data.get("patches", [])
-            
+
             if all_patches:
-                patches_per_chunk = max(patches_per_chunk, len(all_patches))
+                # Use ACTUAL number of patches for this image (not max with default!)
+                patches_per_chunk = len(all_patches)
                 # Find actual grid dimensions from patch row/col values
                 for patch in all_patches:
                     max_row = max(max_row, patch.get("patch_row", 0))
                     max_col = max(max_col, patch.get("patch_col", 0))
-                break  # Only need first layer per analysis type
-    
-    # Grid size is max(row, col) + 1 (since they're 0-indexed)
-    # For square grids (main models), fall back to sqrt
+                break  # Found patches, use this grid
+        if all_patches:
+            break  # Found patches, don't check other analysis types
+
+    # Grid size from actual patch positions (0-indexed, so add 1)
     if max_row > 0 or max_col > 0:
         grid_rows = max_row + 1
         grid_cols = max_col + 1
         grid_size = max(grid_rows, grid_cols)  # Use larger dimension for positioning
     else:
+        # Fall back to sqrt for square grids
         grid_size = int(math.sqrt(patches_per_chunk))
         grid_rows = grid_size
         grid_cols = grid_size
