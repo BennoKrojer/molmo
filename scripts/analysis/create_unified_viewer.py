@@ -49,6 +49,18 @@ VISION_ENCODER_DISPLAY_NAMES = {
     "openvision2-l-14-336": "OpenVision2-L/14-336"
 }
 
+# Standard layer subsets for consistency across all analysis methods
+# Only these layers will be shown in the viewer, even if more layers exist
+STANDARD_LAYERS_OLMO_LLAMA = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # 32-layer models
+STANDARD_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]  # 28-layer models
+
+def get_standard_layers(llm: str) -> List[int]:
+    """Get standard layer subset for a given LLM."""
+    if llm == "qwen2-7b":
+        return STANDARD_LAYERS_QWEN
+    else:  # llama3-8b, olmo-7b
+        return STANDARD_LAYERS_OLMO_LLAMA
+
 def escape_for_html(text: str) -> str:
     """Properly escape text for HTML."""
     if not text:
@@ -139,16 +151,20 @@ def create_preprocessor(checkpoint_name: str):
         log.warning(f"    Could not create preprocessor: {e}, will use original images")
         return None
 
-def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[str, Dict]:
+def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "", llm: str = None) -> Dict[str, Dict]:
     """Scan and collect all analysis results for a given checkpoint.
-    
+
     Args:
         checkpoint_name: Name of the checkpoint
         lite_suffix: Optional suffix for lite directories (e.g., "_lite10")
+        llm: LLM name for layer filtering (e.g., "olmo-7b", "qwen2-7b")
     """
+    # Get standard layers to filter by
+    standard_layers = set(get_standard_layers(llm)) if llm else None
+
     results = {
         "nn": {},  # layer -> json path
-        "logitlens": {},  # layer -> json path  
+        "logitlens": {},  # layer -> json path
         "contextual_cc": {},  # layer -> json path (Conceptual Captions)
         "contextual_vg": {},  # layer -> json path (Visual Genome)
         "interpretability": None  # path to interpretability heuristic JSON
@@ -164,7 +180,9 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
             layer_str = json_file.stem.split("_layer")[-1]
             if layer_str.isdigit():
                 layer = int(layer_str)
-                results["nn"][layer] = json_file
+                # Only include layers in standard subset (if filtering is enabled)
+                if standard_layers is None or layer in standard_layers:
+                    results["nn"][layer] = json_file
     
     # Scan logit lens (note: directory is "logit_lens" not "logitlens")
     logit_dir = base_dir / "logit_lens" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
@@ -174,7 +192,9 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
             try:
                 layer_str = json_file.stem.split("layer")[1].split("_")[0]
                 layer = int(layer_str)
-                results["logitlens"][layer] = json_file
+                # Only include layers in standard subset (if filtering is enabled)
+                if standard_layers is None or layer in standard_layers:
+                    results["logitlens"][layer] = json_file
             except:
                 pass
     
@@ -635,10 +655,20 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
         f.write(html_content)
     log.info(f"Created model index: {index_file}")
 
-def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) -> Dict:
-    """Load ALL analysis data from JSON files at once (much faster than loading per image)."""
+def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int, llm: str = None) -> Dict:
+    """Load ALL analysis data from JSON files at once (much faster than loading per image).
+
+    Args:
+        analysis_results: Dictionary of analysis results from scan_analysis_results()
+        split: Dataset split (e.g., "validation")
+        num_images: Number of images to load
+        llm: LLM name for layer filtering (e.g., "olmo-7b", "qwen2-7b")
+    """
     log.info(f"  📦 Loading all analysis data at once (this is much faster)...")
     start = time.time()
+
+    # Get standard layers for filtering contextual data
+    standard_layers = set(get_standard_layers(llm)) if llm else None
     
     # Structure: {analysis_type: {layer: [image0_data, image1_data, ...]}}
     all_data = {
@@ -711,10 +741,13 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
                 
                 # Store results under each contextual layer key
                 # The neighbors in each patch are tagged with their contextual_layer
+                # Only include layers in standard subset (if filtering is enabled)
                 for ctx_layer in contextual_layers:
-                    all_data["contextual_vg"][ctx_layer] = results
-                
-                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={contextual_layers}")
+                    if standard_layers is None or ctx_layer in standard_layers:
+                        all_data["contextual_vg"][ctx_layer] = results
+
+                filtered_layers = [l for l in contextual_layers if standard_layers is None or l in standard_layers]
+                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={filtered_layers}")
         except Exception as e:
             log.warning(f"Could not load contextual NN (VG) data: {e}")
     
@@ -1866,8 +1899,9 @@ def main():
         for ve in VISION_ENCODERS:
             checkpoint_name = get_checkpoint_name(llm, ve)
             log.info(f"\nScanning {checkpoint_name}...")
-            
-            analysis_results = scan_analysis_results(checkpoint_name, args.lite_suffix)
+
+            # Pass llm to enable layer filtering to standard subset
+            analysis_results = scan_analysis_results(checkpoint_name, args.lite_suffix, llm=llm)
             
             has_results = (len(analysis_results["nn"]) > 0 or 
                           len(analysis_results["logitlens"]) > 0 or 
@@ -1896,9 +1930,10 @@ def main():
                 
                 # Create model-specific preprocessor
                 preprocessor = create_preprocessor(checkpoint_name)
-                
+
                 # Load all analysis data at once (MUCH faster than loading per image!)
-                all_data_cache = load_all_analysis_data(analysis_results, args.split, args.num_images)
+                # Pass llm to enable layer filtering to standard subset
+                all_data_cache = load_all_analysis_data(analysis_results, args.split, args.num_images, llm=llm)
                 
                 # Create unified image viewers
                 log.info(f"  Creating unified image viewers (now fast since data is cached!)...")
