@@ -672,8 +672,7 @@ Examples:
         # Sample positions
         sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
         if not sampled_positions:
-            if args.debug:
-                print(f"SKIP Image {image_idx}: No valid patch positions")
+            print(f"SKIP Image {image_idx}: No valid patch positions (black padding or invalid mask)")
             continue
         
         ground_truth_caption = image_data.get("ground_truth_caption", "")
@@ -691,14 +690,14 @@ Examples:
             patch_data = patch_map.get((center_row, center_col))
             if not patch_data:
                 if args.debug:
-                    print(f"SKIP patch ({center_row},{center_col}): Not in patch_map")
+                    print(f"  SKIP Image {image_idx} patch ({patch_row},{patch_col}) center ({center_row},{center_col}): No neighbor data in patch_map")
                 continue
-            
+
             # Extract tokens/words
             tokens = extract_tokens(patch_data, args.analysis_type)
             if not tokens:
                 if args.debug:
-                    print(f"SKIP patch ({center_row},{center_col}): No tokens extracted")
+                    print(f"  SKIP Image {image_idx} patch ({patch_row},{patch_col}) center ({center_row},{center_col}): No tokens extracted")
                 continue
             
             # Prepare cropped image if needed
