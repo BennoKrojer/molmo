@@ -401,6 +401,10 @@ def main():
     base_dir = Path(args.base_dir)
     input_json = base_dir / f"{checkpoint_name}_step12000-unsharded" / f"logit_lens_{args.layer}_topk5_multi-gpu.json"
     
+    # Try Qwen2-VL format: {base_dir}/{checkpoint_name}/logit_lens_layer{X}_topk5.json
+    if not input_json.exists():
+        input_json = base_dir / checkpoint_name / f"logit_lens_layer{args.layer}_topk5.json"
+    
     if not input_json.exists():
         print(f"ERROR: Input JSON not found: {input_json}")
         sys.exit(1)

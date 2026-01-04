@@ -392,6 +392,10 @@ def main():
     if not input_json.exists():
         input_json = base_dir / f"{checkpoint_name}_step12000-unsharded" / "nearest_neighbors_analysis_pixmo_cap_multi-gpu.json"
     
+    # Try Qwen2-VL format: {base_dir}/{checkpoint_name}/nearest_neighbors_layer{X}_topk5.json
+    if not input_json.exists():
+        input_json = base_dir / checkpoint_name / f"nearest_neighbors_layer{args.layer}_topk5.json"
+    
     if not input_json.exists():
         print(f"ERROR: Input JSON not found: {input_json}")
         sys.exit(1)
