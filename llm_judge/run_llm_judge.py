@@ -670,7 +670,7 @@ Examples:
             patch_map[key] = patch
         
         # Sample positions
-        sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
+        sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)
         if not sampled_positions:
             print(f"SKIP Image {image_idx}: No valid patch positions (black padding or invalid mask)")
             continue

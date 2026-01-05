@@ -589,7 +589,7 @@ def main():
         processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
         
         # Sample patches
-        sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
+        sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)
         
         ground_truth_caption = image_data.get("ground_truth_caption", "")
         

@@ -551,7 +551,7 @@ def main():
         
         # Sample valid patch positions
         processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
-        valid_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
+        valid_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)
         
         for patch_row, patch_col in valid_positions:
             bbox_size = 3

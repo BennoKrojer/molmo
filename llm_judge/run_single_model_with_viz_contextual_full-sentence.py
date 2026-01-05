@@ -491,26 +491,32 @@ def main():
                 print(f"Warning: Image not found at {image_path}")
                 continue
 
-            processed_image, image_mask = process_image_with_mask(image_path)
-
-            # We will sample patches uniformly from valid positions (since contextual JSON includes all patches)
-            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
-
-            image_result_entries = []
-
             # contextual JSON holds chunks[...][patches][...]['nearest_contextual_neighbors']
             chunks = image_obj.get('chunks', [])
-            # Flatten patches with coordinates
+            # Flatten patches with coordinates and calculate grid_size FIRST
             patch_map = defaultdict(list)  # key = (row,col) -> nearest_contextual list
+            max_row, max_col = 0, 0
             for ch in chunks:
                 for p in ch.get('patches', []):
                     row = p.get('patch_row', 0)
                     col = p.get('patch_col', 0)
+                    max_row = max(max_row, row)
+                    max_col = max(max_col, col)
                     patch_map[(row, col)] = p.get('nearest_contextual_neighbors', [])
+
+            # Calculate grid size from actual patch data
+            grid_size = max(max_row + 1, max_col + 1) if (max_row > 0 or max_col > 0) else 24
+
+            processed_image, image_mask = process_image_with_mask(image_path)
+
+            # Sample patches uniformly from valid positions (using correct grid_size)
+            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)
+
+            image_result_entries = []
 
             for patch_row, patch_col in sampled_positions:
                 bbox_size = 3
-                actual_patch_size = 512 / 24
+                actual_patch_size = 512 / grid_size
                 bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=actual_patch_size, size=bbox_size)
                 image_with_bbox = draw_bbox_on_image(processed_image, bbox)
 
@@ -544,11 +550,11 @@ def main():
 
                 cropped_image = None
                 if args.use_cropped_region:
-                    # Crop using same coordinate logic
-                    left = int(patch_col * (512 / 24))
-                    top = int(patch_row * (512 / 24))
-                    right = int((patch_col + bbox_size) * (512 / 24))
-                    bottom = int((patch_row + bbox_size) * (512 / 24))
+                    # Crop using same coordinate logic with dynamic patch size
+                    left = int(patch_col * actual_patch_size)
+                    top = int(patch_row * actual_patch_size)
+                    right = int((patch_col + bbox_size) * actual_patch_size)
+                    bottom = int((patch_row + bbox_size) * actual_patch_size)
                     left = max(0, left); top = max(0, top)
                     right = min(right, processed_image.size[0]); bottom = min(bottom, processed_image.size[1])
                     cropped_image = processed_image.crop((left, top, right, bottom))

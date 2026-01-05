@@ -323,7 +323,6 @@ def run_llm_judge_pixmo(client, input_json_path, split_name="train", image_indic
         # Process the original image to get both the processed image and mask
         try:
             processed_image, image_mask = process_image_with_mask(image_path)
-            actual_patch_size = 512 / 24  # ~21.33
         except Exception as e:
             print(f"Warning: Could not process image {image_path}: {e}")
             continue
@@ -331,10 +330,16 @@ def run_llm_judge_pixmo(client, input_json_path, split_name="train", image_indic
         if not annotations:
             print(f"Warning: No annotations found for image {image_path}")
             continue
-        
+
+        # Calculate grid size from actual patch data
+        max_row = max(p.get('patch_row', 0) for p in annotations) if annotations else 23
+        max_col = max(p.get('patch_col', 0) for p in annotations) if annotations else 23
+        grid_size = max(max_row + 1, max_col + 1)
+        actual_patch_size = 512 / grid_size  # Dynamic grid size
+
         # Sample valid patch positions that don't include padded areas
         try:
-            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=bbox_size, num_samples=num_samples)
+            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=bbox_size, num_samples=num_samples, grid_size=grid_size)
         except Exception as e:
             print(f"Warning: Could not sample patch positions for image {image_path}: {e}")
             continue

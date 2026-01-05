@@ -310,49 +310,50 @@ def process_image_with_mask(image_path, model_name=None):
     return processed_image, image_mask
 
 
-def sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=36):
+def sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=36, grid_size=24):
     """
     Sample random patch positions that fall entirely within the real image area (not padded).
-    
+
     Args:
         image_mask (np.ndarray): Boolean mask where True indicates real image areas
         bbox_size (int): Size of the bounding box in patches (e.g., 3 for 3x3)
         num_samples (int): Number of unique positions to sample
-        
+        grid_size (int): Grid size for the model (Molmo=24, Qwen2-VL=16)
+
     Returns:
         list: List of (row, col) tuples representing valid patch positions
     """
-    # Convert 512x512 image mask to 24x24 patch grid
-    patch_size = 512 // 24  # Should be ~21.33, but we'll use integer division
-    patch_mask = np.zeros((24, 24), dtype=bool)
-    
+    # Convert 512x512 image mask to grid_size x grid_size patch grid
+    patch_size = 512 // grid_size
+    patch_mask = np.zeros((grid_size, grid_size), dtype=bool)
+
     # Check each patch position to see if it's entirely within the real image
-    for row in range(24):
-        for col in range(24):
+    for row in range(grid_size):
+        for col in range(grid_size):
             # Calculate pixel boundaries for this patch
             start_row = row * patch_size
             end_row = min((row + 1) * patch_size, 512)
-            start_col = col * patch_size  
+            start_col = col * patch_size
             end_col = min((col + 1) * patch_size, 512)
-            
+
             # Check if this patch is entirely within the real image
             patch_area = image_mask[start_row:end_row, start_col:end_col]
             if patch_area.all():  # All pixels in this patch are real (not padded)
                 patch_mask[row, col] = True
-    
+
     # Find valid positions where a bbox_size x bbox_size area can fit entirely in real image
     valid_positions = []
-    for row in range(24 - bbox_size + 1):
-        for col in range(24 - bbox_size + 1):
+    for row in range(grid_size - bbox_size + 1):
+        for col in range(grid_size - bbox_size + 1):
             # Check if bbox_size x bbox_size area starting at (row, col) is entirely valid
             bbox_area = patch_mask[row:row+bbox_size, col:col+bbox_size]
             if bbox_area.all():  # All patches in this bbox are in real image
                 valid_positions.append((row, col))
-    
+
     # Randomly sample from valid positions
     if len(valid_positions) < num_samples:
         print(f"Warning: Only {len(valid_positions)} valid positions found, but {num_samples} requested")
         return valid_positions
-    
+
     return random.sample(valid_positions, num_samples)
 

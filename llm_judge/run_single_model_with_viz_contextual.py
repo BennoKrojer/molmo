@@ -485,24 +485,12 @@ def main():
                 print(f"SKIP Image {image_idx}: File not found at {image_path}")
                 continue
 
-            processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
-
-            # We will sample patches uniformly from valid positions (since contextual JSON includes all patches)
-            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples)
-            
-            if not sampled_positions:
-                debug_stats['images_skipped_no_valid_patches'] += 1
-                print(f"SKIP Image {image_idx}: No valid patch positions found")
-                continue
-
-            image_result_entries = []
-
-            # Handle both formats:
+            # Handle both formats to calculate grid_size FIRST:
             # - Molmo format: chunks[...][patches][...]['nearest_contextual_neighbors']
             # - Qwen2-VL format: patches[...]['nearest_contextual_neighbors'] (no chunks)
             patch_map = defaultdict(list)  # key = (row,col) -> nearest_contextual list
             max_row, max_col = 0, 0
-            
+
             if 'chunks' in image_obj and image_obj['chunks']:
                 # Molmo format
                 for ch in image_obj['chunks']:
@@ -522,11 +510,23 @@ def main():
                     max_col = max(max_col, col)
                     all_neighbors = p.get('nearest_contextual_neighbors', [])
                     patch_map[(row, col)] = all_neighbors
-            
+
             # Calculate actual grid dimensions from patches (handles variable grids)
             grid_rows = max_row + 1
             grid_cols = max_col + 1
             grid_size = max(grid_rows, grid_cols)  # Use larger dimension for square bbox calculation
+
+            processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
+
+            # Sample patches uniformly from valid positions (using correct grid_size)
+            sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)
+
+            if not sampled_positions:
+                debug_stats['images_skipped_no_valid_patches'] += 1
+                print(f"SKIP Image {image_idx}: No valid patch positions found")
+                continue
+
+            image_result_entries = []
             
             if args.debug:
                 print(f"[DEBUG] Image {image_idx}: Found {len(patch_map)} patches, grid {grid_rows}x{grid_cols}, sampled {len(sampled_positions)} positions")
