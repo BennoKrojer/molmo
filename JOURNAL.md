@@ -34,6 +34,13 @@ A concise log of major changes, results, and git operations.
   - `run_all_combinations_patchscopes.sh` - Run script for all models
 - **Git**: `118783b` - Add Patchscopes baseline implementation with comprehensive tests
 
+### 2026-01-05 (Website submodule for demo hosting)
+- **Added `bennokrojer.github.io`** as git submodule at `./website`
+- **Synced** updated `unified_viewer_lite/` (with Layer 0 fix) to `website/vlm_interp_demo/`
+- **Demo live at**: https://bennokrojer.github.io/vlm_interp_demo/
+- **Git (website)**: `20f42af` - Update VLM interp demo with Layer 0 LN-Lens fix
+- **Git (molmo)**: `6e7f370` - Add website as submodule for hosting VLM interp demo
+
 ### 2026-01-05 (FIX: Missing Layer 0 LN-Lens data in main model viewers)
 - **USER REPORT**: "main 3x3 models are missing the layer 0 LN-Lens results"
   - Qwen2-VL and ablations showed Layer 0, but main 9 models did not
