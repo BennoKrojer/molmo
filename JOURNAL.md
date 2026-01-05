@@ -6,6 +6,26 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-05 (FIX: Missing Layer 0 LN-Lens data in main model viewers)
+- **USER REPORT**: "main 3x3 models are missing the layer 0 LN-Lens results"
+  - Qwen2-VL and ablations showed Layer 0, but main 9 models did not
+- **ROOT CAUSE** in `create_unified_viewer.py` (`load_all_analysis_data()`):
+  - Code only loaded ONE visual_layer file (visual_layer=0)
+  - But stored results under **contextual layer** keys (1, 2, 4, 8...) instead of **visual layer** key (0)
+  - When layer dropdown showed "Layer 0", no LN-Lens data existed at that key!
+  - In contrast, `generate_ablation_viewers.py` correctly stored under visual layer keys
+- **FIX**: Load ALL visual layer files, each stored under its visual layer key
+  - Now loads: `{0: data, 1: data, 2: data, 4: data, 8: data, 16: data, 24: data, 30: data, 31: data}`
+  - Matches how ablation viewer handles contextual data
+- **MODULARITY**: Added shared functions to `viewer_lib.py`:
+  - `find_analysis_files()`: Discover JSON files for NN/LogitLens/Contextual
+  - `load_analysis_data_for_type()`: Load data handling Format A/B differences
+  - `extract_patches_from_data()`, `get_grid_dimensions()`: Shared patch handling
+  - `process_*_patch()`: Process patches into unified format
+- **REGENERATED**: `unified_viewer_lite/` for all 9 main models with fix
+- **Git**: `0379443` - Fix missing layer 0 LN-Lens data in main model viewers
+- **Git**: `589cf2a` - Add shared data loading functions to viewer_lib.py
+
 ### 2026-01-05 (Comprehensive ablation table for paper)
 - **Verified all paper numbers** against analysis_results/:
   - Captioning score: `eval_captioning_gpt-judge.py` → LLM judge mean (GPT-4o, 1-10 scale)
