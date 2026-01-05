@@ -549,7 +549,9 @@ else
         # Process all OLMo ablations for this layer (only if layer is valid for OLMo: 0,1,2,4,8,16,24,30,31)
         if [[ "$layer" =~ ^(0|1|2|4|8|16|24|30|31)$ ]]; then
             for checkpoint_name in "${ABLATION_CHECKPOINTS[@]}"; do
-                local model_name=$(echo "$checkpoint_name" | sed 's/train_mlp-only_pixmo_cap_resize_//' | sed 's/train_mlp-only_pixmo_cap_//' | sed 's/train_mlp-only_pixmo_topbottom_//' | sed 's/train_mlp-only_//')
+                # IMPORTANT: Keep "topbottom_" prefix to avoid naming collision with baseline!
+                # topbottom_olmo-7b_vit-l-14-336 != olmo-7b_vit-l-14-336
+                local model_name=$(echo "$checkpoint_name" | sed 's/train_mlp-only_pixmo_cap_resize_//' | sed 's/train_mlp-only_pixmo_cap_//' | sed 's/train_mlp-only_pixmo_topbottom_/topbottom_/' | sed 's/train_mlp-only_//')
                 local result_dir="$ABLATION_OUTPUT/llm_judge_${model_name}_contextual${layer}_gpt5_cropped"
                 
                 if [ -d "$result_dir" ] && [ -f "$result_dir/results_validation.json" ]; then
