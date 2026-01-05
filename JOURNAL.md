@@ -6,6 +6,34 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-05 (Patchscopes baseline implementation)
+- **Implemented Patchscopes** (Ghandeharioun et al., ICML 2024) as a baseline for comparison
+- **Method**: Identity prompt `"cat->cat; 1135->1135; hello->hello; ?"` with l→l patching
+  - Patches visual token hidden states into identity prompt at "?" position
+  - Lets model's own layers (l through L) process the patched representation
+  - Paper claims up to 98% improvement over LogitLens for next-token prediction
+- **Implementation** via PyTorch forward pre-hooks on transformer blocks:
+  - Hook modifies `args[0]` (hidden states tensor) at specified position
+  - Verified: OLMo blocks receive `args = (hidden_states,)` with shape [B, seq, hidden_dim]
+- **Comprehensive sanity checks** (all passed):
+  - Identity prompt works: predicts "world", "ha", "cherry" correctly
+  - Hooks actually called and modify output (logit diff = 2.57)
+  - Layer indexing correct: `hidden_states[l]` == input to `blocks[l]`
+  - Batch patching works, no memory leaks
+- **Key finding**: Patchscopes may NOT be ideal for interpretability!
+  - When patching "dog" representation, model predicts format tokens (`->`, `;`) not "dog"
+  - Identity prompt context **overwhelms** semantic content of patched representation
+  - LogitLens showed MORE interpretable results (`home`, `building`, `brick` vs whitespace)
+  - Patchscopes paper evaluated next-token prediction accuracy, not interpretability
+- **Files created**:
+  - `scripts/analysis/patchscopes/patchscopes_identity.py` - Main analysis script
+  - `scripts/analysis/patchscopes/sanity_checks.py` - Core sanity tests
+  - `scripts/analysis/patchscopes/additional_checks.py` - Edge case tests
+  - `scripts/analysis/patchscopes/test_patchscopes.py` - Validation tests
+  - `scripts/analysis/patchscopes/visualize_comparison.py` - HTML comparison generator
+  - `run_all_combinations_patchscopes.sh` - Run script for all models
+- **Git**: [pending commit]
+
 ### 2026-01-05 (FIX: Missing Layer 0 LN-Lens data in main model viewers)
 - **USER REPORT**: "main 3x3 models are missing the layer 0 LN-Lens results"
   - Qwen2-VL and ablations showed Layer 0, but main 9 models did not
