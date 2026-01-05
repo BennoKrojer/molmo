@@ -618,33 +618,27 @@ def load_all_analysis_data(analysis_results: Dict, split: str, num_images: int) 
     
     # Load contextual NN data - VG (Visual Genome)
     # Note: allLayers format has one file per visual layer, containing all contextual layers
-    # We use visual_layer=0 for the viewer (input layer representations)
+    # Each visual layer file contains top-5 neighbors from ALL contextual layers
+    # We load ALL visual layer files to support the layer dropdown
     log.info(f"    Loading {len(analysis_results['contextual_vg'])} LN-Lens files...")
     t0 = time.time()
-    
-    # Find visual_layer=0 file (preferred) or use first available
-    target_visual_layer = 0
-    if target_visual_layer not in analysis_results["contextual_vg"]:
-        if analysis_results["contextual_vg"]:
-            target_visual_layer = min(analysis_results["contextual_vg"].keys())
-            log.info(f"    Using visual_layer={target_visual_layer} (visual_layer=0 not found)")
-    
-    if target_visual_layer in analysis_results["contextual_vg"]:
-        json_path = analysis_results["contextual_vg"][target_visual_layer]
+
+    # Load ALL visual layer files - each stored under its visual layer key
+    # This matches how generate_ablation_viewers.py handles contextual data
+    for visual_layer, json_path in analysis_results["contextual_vg"].items():
         try:
             with open(json_path, 'r') as f:
                 full_data = json.load(f)
                 results = full_data.get("results", [])[:num_images]
                 contextual_layers = full_data.get("contextual_layers_used", [])
-                
-                # Store results under each contextual layer key
-                # The neighbors in each patch are tagged with their contextual_layer
-                for ctx_layer in contextual_layers:
-                    all_data["contextual_vg"][ctx_layer] = results
-                
-                log.info(f"    Loaded visual_layer={target_visual_layer} with contextual_layers={contextual_layers}")
+
+                # Store results under VISUAL layer key (not contextual layer key!)
+                # This matches the layer dropdown which shows visual layers
+                all_data["contextual_vg"][visual_layer] = results
+
+                log.info(f"      Visual layer {visual_layer}: loaded {len(results)} images (contextual layers: {contextual_layers})")
         except Exception as e:
-            log.warning(f"Could not load contextual NN (VG) data: {e}")
+            log.warning(f"Could not load contextual NN (VG) data for visual layer {visual_layer}: {e}")
     
     log.info(f"    ⏱️  LN-Lens: {time.time() - t0:.2f}s")
     
@@ -1129,11 +1123,10 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
             width: 100%;
         }}
         .base-image {{
-            width: 100%;
-            max-width: 512px;
+            width: 512px;
             height: 512px;
-            object-fit: cover;
-            object-position: center;
+            object-fit: contain;
+            background-color: black;
             border: 3px solid #34495e;
             border-radius: 8px;
         }}
