@@ -6,6 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (Qwen2-VL and Ablation Plotting)
+- **Generated plots** for Qwen2-VL (off-the-shelf model):
+  - Unified plot: `paper_figures_output/qwen2vl/qwen2vl_unified.pdf`
+  - Individual plots for NN, LogitLens, Contextual V-Lens
+  - All 9 layers (0, 1, 2, 4, 8, 16, 24, 26, 27) extracted successfully
+- **Generated ablation plots**:
+  - Mega plots comparing all ablations vs baseline (NN, Contextual)
+  - Grouped plots by ablation type (caption_style, vit_layers, connector, seeds, llm_frozen, task)
+  - LogitLens skipped (no ablation data available)
+- **Bug fixes**:
+  - `update_data.py`: Fixed Qwen2-VL LogitLens extraction - handled `"layer": "0"` format (not just `"layer0"`)
+  - `create_qwen2vl_plots.py`: Convert JSON string keys to int for proper sorting
+  - `create_ablations_plots.py`: Same string-to-int key conversion fix
+- **Git**: Committed `4ac5022` - Add Qwen2-VL and ablation plotting scripts, fix data extraction bugs
+
 ### 2026-01-04 (FIX: Force square image display in viewer - cells were rectangular)
 - **USER REPORT**: "this should all be square! both the full image and the cells"
   - I fixed the grid calculation but **MISSED** the visual display requirement
@@ -21,7 +36,8 @@ A concise log of major changes, results, and git operations.
   - Now ALL images display as 512×512 squares regardless of original aspect ratio
   - Grid cells are now square overlays on square images
 - **APPLIES TO**: Both main viewer and ablation viewer (share same template)
-- **Git**: Committing now
+- **VERIFIED**: Regenerated Qwen2-VL viewer - images now display as 512×512 squares
+- **Git**: Committed and pushed (commit 6e3ada8)
 
 ### 2026-01-04 (FIX: Ablation viewer grid bug - wrong patches_per_chunk calculation)
 - **USER REPORT**: "Image 006 and 0003 have last column AND row missing in viewer"
