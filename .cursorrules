@@ -53,6 +53,44 @@ TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATIO
 - These contain established parallelization patterns, GPU management, and error handling
 - Build on existing infrastructure rather than reinventing
 
+## MANDATORY PRE-FLIGHT CHECKLIST - CRITICAL ⚠️
+**Before running ANY command that costs money, time, or modifies data:**
+
+### General Checklist:
+1. ✅ Check existing `.sh` files for established patterns
+2. ✅ Grep for relevant patterns in the codebase (e.g., `grep -r "pattern" dir/`)
+3. ✅ Read argparse defaults in Python scripts (`parser.add_argument`)
+4. ✅ Verify against existing results/naming conventions
+5. ✅ If ANY doubt remains, ASK the user before executing
+
+### API Calls Checklist (LLM Judge):
+**NEVER change API settings without explicit user approval!**
+
+Before any LLM judge run:
+1. ✅ Check `llm_judge/*.sh` for `--api-provider` and `--api-model` flags
+2. ✅ Check Python script argparse defaults (around line 330-335)
+3. ✅ Verify existing results use same naming (e.g., `gpt5` in directory names)
+4. ✅ Confirm API provider matches existing setup (openai vs openrouter)
+5. ✅ If changing ANY API setting, ASK USER FIRST
+
+**Why this matters:**
+- Different APIs = different costs and results
+- Results must be comparable to existing data
+- User is paying real money for these evaluations
+- Changing APIs silently wastes budget and breaks consistency
+
+### Example - What to Check:
+```bash
+# Check shell scripts for API settings
+grep -r "api-provider\|api-model" llm_judge/*.sh
+
+# Check Python defaults
+grep "default=" llm_judge/run_*.py | grep -i "api"
+
+# Check existing result naming
+ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
+```
+
 ## VALIDATION BEFORE EXECUTION - CRITICAL ⚠️
 - **NEVER start long-running generation without validating data paths first!**
 - Before any viewer/analysis generation:
