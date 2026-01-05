@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick visualization to compare Patchscopes vs LogitLens predictions.
+Quick visualization to compare Patchscopes vs LogitLens vs LN-Lens predictions.
 
 Creates an HTML page with side-by-side comparisons for visual inspection.
 """
@@ -15,12 +15,14 @@ from PIL import Image, ImageDraw, ImageFont
 from olmo.data.pixmo_datasets import PixMoCap
 
 
-def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_images=2, layers=None):
+def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_images=2, layers=None,
+                           contextual_dir=None, num_patches=25):
     """
-    Create an HTML comparison of Patchscopes vs LogitLens.
+    Create an HTML comparison of Patchscopes vs LogitLens vs LN-Lens (contextual NN).
     """
     patchscopes_dir = Path(patchscopes_dir)
     logitlens_dir = Path(logitlens_dir) if logitlens_dir else None
+    contextual_dir = Path(contextual_dir) if contextual_dir else None
     output_path = Path(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -43,17 +45,23 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
     # Load dataset for images
     dataset = PixMoCap(split="validation", mode="captions")
 
-    # Create HTML
+    # Create HTML with 3-column comparison
     html_parts = ["""
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Patchscopes vs LogitLens Comparison</title>
+    <title>Patchscopes vs LogitLens vs LN-Lens Comparison</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         h1 { color: #333; }
         h2 { color: #555; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
         h3 { color: #666; }
+        .method-legend {
+            display: flex; gap: 30px; margin: 20px 0; padding: 15px;
+            background: white; border-radius: 10px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 20px; height: 20px; border-radius: 4px; }
         .image-container {
             display: flex;
             gap: 20px;
@@ -63,54 +71,48 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .image-section { flex: 1; }
+        .image-section { flex: 0 0 400px; }
         .image-section img { max-width: 100%; border: 1px solid #ddd; }
-        .patch-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .patch-cell {
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 11px;
-        }
-        .patch-cell.corner { background: #f0f0f0; }
-        .patch-header { font-weight: bold; color: #333; margin-bottom: 5px; }
-        .patchscopes { color: #2196F3; }
-        .logitlens { color: #4CAF50; }
-        .token {
-            display: inline-block;
-            padding: 2px 5px;
-            margin: 1px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            font-family: monospace;
-        }
+        .table-section { flex: 1; overflow-x: auto; }
         .comparison-table {
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
+            font-size: 12px;
         }
         .comparison-table th, .comparison-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px 8px;
             text-align: left;
         }
-        .comparison-table th { background: #f5f5f5; }
+        .comparison-table th { background: #f5f5f5; font-size: 11px; }
         .method-patchscopes { background: #e3f2fd; }
         .method-logitlens { background: #e8f5e9; }
+        .method-lnlens { background: #fff3e0; }
         .layer-section { margin: 20px 0; padding: 15px; background: white; border-radius: 10px; }
-        .caption { font-style: italic; color: #666; margin: 10px 0; padding: 10px; background: #fafafa; }
+        .caption { font-style: italic; color: #666; margin: 10px 0; padding: 10px; background: #fafafa; font-size: 12px; }
+        .patch-coord { font-family: monospace; font-weight: bold; color: #333; }
+        .token { font-family: monospace; }
+        .highlight { background: #ffffcc; }
     </style>
 </head>
 <body>
-<h1>Patchscopes vs LogitLens Comparison</h1>
-<p><strong>Patchscopes</strong> (blue): Uses identity prompt "cat->cat; 1135->1135; hello->hello; ?" with l→l patching</p>
-<p><strong>LogitLens</strong> (green): Direct projection via ln_f + ff_out</p>
+<h1>Patchscopes vs LogitLens vs LN-Lens Comparison</h1>
+
+<div class="method-legend">
+    <div class="legend-item">
+        <div class="legend-color" style="background: #e3f2fd;"></div>
+        <strong>Patchscopes</strong>: Identity prompt patching (l→l)
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background: #e8f5e9;"></div>
+        <strong>LogitLens</strong>: Direct ln_f + ff_out projection
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background: #fff3e0;"></div>
+        <strong>LN-Lens</strong>: Contextual nearest neighbors
+    </div>
+</div>
 """]
 
     # Process each layer
@@ -131,12 +133,27 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
                 with open(ll_file) as f:
                     ll_data = json.load(f)
 
+        # Try to load LN-Lens (contextual NN) data
+        ctx_data = None
+        if contextual_dir:
+            # Try different naming conventions
+            ctx_patterns = [
+                f"contextual_neighbors_visual{layer_idx}_allLayers.json",
+                f"contextual_neighbors_layer{layer_idx}_topk5.json",
+            ]
+            for pattern in ctx_patterns:
+                ctx_file = contextual_dir / pattern
+                if ctx_file.exists():
+                    with open(ctx_file) as f:
+                        ctx_data = json.load(f)
+                    break
+
         html_parts.append(f'<h2>Layer {layer_idx}</h2>')
 
         # Process each image
         for img_result in ps_data['results'][:num_images]:
             img_idx = img_result['image_idx']
-            caption = img_result.get('ground_truth_caption', '')[:200]
+            caption = img_result.get('ground_truth_caption', '')[:300]
 
             # Get corresponding LogitLens result
             ll_result = None
@@ -146,11 +163,18 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
                         ll_result = r
                         break
 
-            # Get image path
+            # Get corresponding LN-Lens result
+            ctx_result = None
+            if ctx_data:
+                for r in ctx_data.get('results', []):
+                    if r.get('image_idx') == img_idx:
+                        ctx_result = r
+                        break
+
+            # Get image path and save thumbnail
             example_data = dataset.get(img_idx, np.random)
             image_path = example_data["image"]
 
-            # Copy image to output
             img_output = output_path / f"img_{img_idx}.jpg"
             if not img_output.exists():
                 img = Image.open(image_path)
@@ -160,47 +184,58 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
             html_parts.append(f'''
 <div class="layer-section">
 <h3>Image {img_idx}</h3>
-<div class="caption">Caption: {caption}...</div>
+<div class="caption">{caption}...</div>
 <div class="image-container">
     <div class="image-section">
         <img src="img_{img_idx}.jpg" alt="Image {img_idx}">
     </div>
-    <div class="image-section">
-        <h4>Patch Predictions (sample)</h4>
+    <div class="table-section">
         <table class="comparison-table">
             <tr>
                 <th>Patch</th>
-                <th class="method-patchscopes">Patchscopes</th>
-                <th class="method-logitlens">LogitLens</th>
+                <th class="method-patchscopes">Patchscopes (top-3)</th>
+                <th class="method-logitlens">LogitLens (top-3)</th>
+                <th class="method-lnlens">LN-Lens (top-3)</th>
             </tr>
 ''')
 
-            # Show a sample of patches (corners + center)
+            # Get patches and sample more of them
             chunks = img_result.get('chunks', [])
             if chunks:
                 patches = chunks[0].get('patches', [])
                 grid_size = int(math.sqrt(len(patches)))
 
-                # Sample patches: corners and center
+                # Sample patches: grid pattern + random
                 sample_indices = []
                 if grid_size > 0:
                     # Corners
                     sample_indices.extend([0, grid_size-1, (grid_size-1)*grid_size, grid_size*grid_size-1])
-                    # Center
+                    # Edges (midpoints)
+                    mid = grid_size // 2
+                    sample_indices.extend([mid, mid*grid_size, mid*grid_size + grid_size-1, (grid_size-1)*grid_size + mid])
+                    # Grid pattern (every ~4 cells)
+                    step = max(1, grid_size // 5)
+                    for r in range(0, grid_size, step):
+                        for c in range(0, grid_size, step):
+                            sample_indices.append(r * grid_size + c)
+                    # Center region
                     center = grid_size // 2
-                    sample_indices.append(center * grid_size + center)
-                    # Some middle ones
-                    sample_indices.extend([grid_size*2 + 2, grid_size*2 + grid_size-3])
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0, 1]:
+                            idx = (center + dr) * grid_size + (center + dc)
+                            if 0 <= idx < len(patches):
+                                sample_indices.append(idx)
 
-                sample_indices = sorted(set(i for i in sample_indices if 0 <= i < len(patches)))[:8]
+                sample_indices = sorted(set(i for i in sample_indices if 0 <= i < len(patches)))[:num_patches]
 
                 for patch_idx in sample_indices:
                     patch = patches[patch_idx]
                     row, col = patch['patch_row'], patch['patch_col']
 
                     # Patchscopes predictions
-                    ps_tokens = [p['token'].strip() or '⎵' for p in patch.get('top_predictions', [])[:3]]
-                    ps_str = ', '.join(f'"{t}"' for t in ps_tokens)
+                    ps_tokens = [p['token'].replace('\n', '\\n').replace('\t', '\\t').strip() or '⎵'
+                                 for p in patch.get('top_predictions', [])[:3]]
+                    ps_str = ', '.join(f'<span class="token">{t[:12]}</span>' for t in ps_tokens)
 
                     # LogitLens predictions
                     ll_str = "N/A"
@@ -210,14 +245,32 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
                             ll_patches = ll_chunks[0].get('patches', [])
                             if patch_idx < len(ll_patches):
                                 ll_patch = ll_patches[patch_idx]
-                                ll_tokens = [p['token'].strip() or '⎵' for p in ll_patch.get('top_predictions', [])[:3]]
-                                ll_str = ', '.join(f'"{t}"' for t in ll_tokens)
+                                ll_tokens = [p['token'].replace('\n', '\\n').replace('\t', '\\t').strip() or '⎵'
+                                            for p in ll_patch.get('top_predictions', [])[:3]]
+                                ll_str = ', '.join(f'<span class="token">{t[:12]}</span>' for t in ll_tokens)
+
+                    # LN-Lens predictions
+                    ctx_str = "N/A"
+                    if ctx_result:
+                        ctx_chunks = ctx_result.get('chunks', [])
+                        if ctx_chunks:
+                            ctx_patches = ctx_chunks[0].get('patches', [])
+                            if patch_idx < len(ctx_patches):
+                                ctx_patch = ctx_patches[patch_idx]
+                                # Contextual NN has 'nearest_contextual_neighbors' key
+                                neighbors = ctx_patch.get('nearest_contextual_neighbors',
+                                           ctx_patch.get('top_predictions', []))[:3]
+                                if neighbors:
+                                    ctx_tokens = [n.get('token_str', n.get('token', '')).replace('\n', '\\n').replace('\t', '\\t').strip() or '⎵'
+                                                 for n in neighbors]
+                                    ctx_str = ', '.join(f'<span class="token">{t[:12]}</span>' for t in ctx_tokens)
 
                     html_parts.append(f'''
             <tr>
-                <td>({row},{col})</td>
+                <td class="patch-coord">({row},{col})</td>
                 <td class="method-patchscopes">{ps_str}</td>
                 <td class="method-logitlens">{ll_str}</td>
+                <td class="method-lnlens">{ctx_str}</td>
             </tr>
 ''')
 
@@ -240,15 +293,19 @@ def create_comparison_html(patchscopes_dir, logitlens_dir, output_path, num_imag
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Visualize Patchscopes vs LogitLens comparison")
+    parser = argparse.ArgumentParser(description="Visualize Patchscopes vs LogitLens vs LN-Lens comparison")
     parser.add_argument("--patchscopes-dir", type=str, required=True,
                        help="Directory with Patchscopes results")
     parser.add_argument("--logitlens-dir", type=str, default=None,
                        help="Directory with LogitLens results (optional)")
+    parser.add_argument("--contextual-dir", type=str, default=None,
+                       help="Directory with LN-Lens/contextual NN results (optional)")
     parser.add_argument("--output-dir", type=str, default="analysis_results/patchscopes_comparison",
                        help="Output directory for visualization")
     parser.add_argument("--num-images", type=int, default=2,
                        help="Number of images to visualize")
+    parser.add_argument("--num-patches", type=int, default=25,
+                       help="Number of patches to sample per image")
     parser.add_argument("--layers", type=str, default=None,
                        help="Comma-separated layers to show (default: all)")
     args = parser.parse_args()
@@ -262,7 +319,9 @@ def main():
         args.logitlens_dir,
         args.output_dir,
         args.num_images,
-        layers
+        layers,
+        args.contextual_dir,
+        args.num_patches
     )
 
 
