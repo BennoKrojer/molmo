@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-05 (Comprehensive ablation table for paper)
+- **Verified all paper numbers** against analysis_results/:
+  - Captioning score: `eval_captioning_gpt-judge.py` → LLM judge mean (GPT-4o, 1-10 scale)
+  - NN Overlap: `scripts/analysis/ablations_comparison.py` → Top-5 NN overlap with baseline
+  - Static NN L0: `llm_judge_nearest_neighbors/ablations/` → accuracy field
+  - LN-Lens L0: `llm_judge_contextual_nn/ablations/` → computed from results list
+  - Task Accuracy: `captions/*/generated_captions.json` → position matching
+- **Seed mapping confirmed**: seed10 matches paper (52.7% L0 interp), not seed11 (59.7%)
+- **TopBottom accuracy** slight discrepancy: computed 75.67%/86.67% vs paper 76.33%/87.33% (2/300 images)
+- **New comprehensive table** in paper with 6 columns:
+  - NN Overlap, Static NN L0, LN-Lens L0 (new!), Caption Score, Task Acc (new!)
+  - Added ViT layer 6/10 ablations
+  - Width calculation: ~383pt < 468pt (ICML full page width)
+- **Git paper**: `23f9cbe` - Update ablation table: add LN-Lens L0, ViT layers
+- **Git molmo**: `b59d46d` - Update paper submodule
+
 ### 2026-01-05 (TopBottom ablation LLM judge evaluations)
 - **ROOT CAUSE**: TopBottom models never ran due to naming collision in `run_all_missing.sh`
   - `sed 's/train_mlp-only_pixmo_topbottom_//'` stripped prefix completely
