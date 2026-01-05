@@ -32,7 +32,7 @@ A concise log of major changes, results, and git operations.
   - `scripts/analysis/patchscopes/test_patchscopes.py` - Validation tests
   - `scripts/analysis/patchscopes/visualize_comparison.py` - HTML comparison generator
   - `run_all_combinations_patchscopes.sh` - Run script for all models
-- **Git**: [pending commit]
+- **Git**: `118783b` - Add Patchscopes baseline implementation with comprehensive tests
 
 ### 2026-01-05 (FIX: Missing Layer 0 LN-Lens data in main model viewers)
 - **USER REPORT**: "main 3x3 models are missing the layer 0 LN-Lens results"
