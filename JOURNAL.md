@@ -6,6 +6,18 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-05 (TopBottom ablation LLM judge evaluations)
+- **ROOT CAUSE**: TopBottom models never ran due to naming collision in `run_all_missing.sh`
+  - `sed 's/train_mlp-only_pixmo_topbottom_//'` stripped prefix completely
+  - Both TopBottom and baseline became `olmo-7b_vit-l-14-336` → TopBottom found existing baseline results and skipped
+- **FIX**: Changed to `sed 's/train_mlp-only_pixmo_topbottom_/topbottom_/'` to preserve prefix
+- **Ran LLM judge** for both TopBottom models (GPT-5, 100 images/layer, 9 layers each):
+  - TopBottom (frozen LLM): 37-44% interpretability (layer 16 highest at 44%)
+  - TopBottom (unfrozen LLM): 37-45% interpretability (layers 1,4 highest at 45%)
+- **Updated data.json** with TopBottom results (now 10 contextual ablation models)
+- **Regenerated ablation plots** including task ablation group
+- **Git**: `bf27da3` - Fix naming collision: TopBottom and baseline shared same output name
+
 ### 2026-01-04 (FIX: Corrupted ablation baseline data)
 - **CRITICAL BUG FOUND**: `olmo-7b_vit-l-14-336` in ablations folder was reading from topbottom data!
   - Ablation "baseline" showed ~38% interpretability instead of correct ~70%
