@@ -218,6 +218,258 @@ def format_data_dict(data, var_name):
 
 
 # =============================================================================
+# ABLATIONS DATA
+# =============================================================================
+
+def load_ablations_nn_results():
+    """Load NN results for ablation models."""
+    data = defaultdict(dict)
+    ablations_dir = NN_DIR / "ablations"
+    if not ablations_dir.exists():
+        return {}
+
+    for results_file in ablations_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            results = json.load(f)
+        path_str = str(results_file)
+
+        # Extract layer number
+        match = re.search(r'_layer(\d+)_', path_str)
+        if not match:
+            continue
+        layer_num = int(match.group(1))
+
+        # Extract model name from path
+        # Format: llm_judge_{model_name}_layer{N}_gpt5_cropped
+        match = re.search(r'llm_judge_([^/]+?)_layer\d+', path_str)
+        if not match:
+            continue
+        model_name = match.group(1)
+
+        acc = results.get('accuracy', 0.0)
+        if acc <= 1.0:
+            acc *= 100.0
+        data[model_name][layer_num] = round(acc, 2)
+
+    return {k: dict(sorted(v.items())) for k, v in sorted(data.items())}
+
+
+def load_ablations_logitlens_results():
+    """Load LogitLens results for ablation models."""
+    data = defaultdict(dict)
+    ablations_dir = LOGITLENS_DIR / "ablations"
+    if not ablations_dir.exists():
+        return {}
+
+    for results_file in ablations_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            res = json.load(f)
+        path_str = str(results_file)
+
+        # Extract layer from JSON or path
+        layer_str = res.get('layer', '')
+        if not layer_str:
+            match = re.search(r'_layer(\d+)_', path_str)
+            if match:
+                layer_str = f"layer{match.group(1)}"
+
+        if not layer_str.startswith('layer'):
+            continue
+        layer_num = int(layer_str.replace('layer', ''))
+
+        # Extract model name
+        match = re.search(r'llm_judge_([^/]+?)_layer\d+', path_str)
+        if not match:
+            continue
+        model_name = match.group(1)
+
+        acc = res.get('accuracy', 0.0)
+        if acc <= 1.0:
+            acc *= 100.0
+        data[model_name][layer_num] = round(acc, 2)
+
+    return {k: dict(sorted(v.items())) for k, v in sorted(data.items())}
+
+
+def load_ablations_contextual_results():
+    """Load Contextual NN results for ablation models (all layers)."""
+    data = defaultdict(dict)
+    ablations_dir = CONTEXTUAL_DIR / "ablations"
+    if not ablations_dir.exists():
+        return {}
+
+    # Load contextual layers (1+)
+    for results_file in ablations_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            res = json.load(f)
+        path_str = str(results_file)
+
+        # Extract layer
+        match = re.search(r'_contextual(\d+)_', path_str)
+        if not match:
+            continue
+        layer_num = int(match.group(1))
+
+        # Extract model name
+        match = re.search(r'llm_judge_([^/]+?)_contextual\d+', path_str)
+        if not match:
+            continue
+        model_name = match.group(1)
+
+        # Calculate accuracy
+        results_list = res.get('results', [])
+        if results_list:
+            total = len(results_list)
+            interp_count = sum(1 for r in results_list if r.get('interpretable', False))
+            acc = (interp_count / total * 100.0) if total > 0 else 0.0
+        else:
+            acc = res.get('accuracy', 0.0)
+            if acc <= 1.0:
+                acc *= 100.0
+
+        data[model_name][layer_num] = round(acc, 2)
+
+    # Also load layer 0 from NN results
+    ablations_nn_dir = NN_DIR / "ablations"
+    if ablations_nn_dir.exists():
+        for results_file in ablations_nn_dir.glob("**/results_*.json"):
+            path_str = str(results_file)
+            match = re.search(r'_layer(\d+)_', path_str)
+            if not match or int(match.group(1)) != 0:
+                continue
+
+            match = re.search(r'llm_judge_([^/]+?)_layer0', path_str)
+            if not match:
+                continue
+            model_name = match.group(1)
+
+            with open(results_file, 'r') as f:
+                results = json.load(f)
+            acc = results.get('accuracy', 0.0)
+            if acc <= 1.0:
+                acc *= 100.0
+
+            if 0 not in data.get(model_name, {}):
+                data[model_name][0] = round(acc, 2)
+
+    return {k: dict(sorted(v.items())) for k, v in sorted(data.items())}
+
+
+# =============================================================================
+# QWEN2-VL DATA (off-the-shelf model)
+# =============================================================================
+
+def load_qwen2vl_nn_results():
+    """Load NN results for Qwen2-VL."""
+    data = {}
+    qwen2vl_dir = NN_DIR / "qwen2-vl"
+    if not qwen2vl_dir.exists():
+        return data
+
+    for results_file in qwen2vl_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            results = json.load(f)
+        path_str = str(results_file)
+
+        match = re.search(r'_layer(\d+)_', path_str)
+        if not match:
+            continue
+        layer_num = int(match.group(1))
+
+        acc = results.get('accuracy', 0.0)
+        if acc <= 1.0:
+            acc *= 100.0
+        data[layer_num] = round(acc, 2)
+
+    return dict(sorted(data.items()))
+
+
+def load_qwen2vl_logitlens_results():
+    """Load LogitLens results for Qwen2-VL."""
+    data = {}
+    qwen2vl_dir = LOGITLENS_DIR / "qwen2-vl"
+    if not qwen2vl_dir.exists():
+        return data
+
+    for results_file in qwen2vl_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            res = json.load(f)
+        path_str = str(results_file)
+
+        layer_str = res.get('layer', '')
+        if not layer_str:
+            match = re.search(r'_layer(\d+)_', path_str)
+            if match:
+                layer_str = f"layer{match.group(1)}"
+
+        # Handle both "layer0" format and plain "0" format
+        if layer_str.isdigit():
+            layer_num = int(layer_str)
+        elif layer_str.startswith('layer'):
+            layer_num = int(layer_str.replace('layer', ''))
+        else:
+            continue
+
+        acc = res.get('accuracy', 0.0)
+        if acc <= 1.0:
+            acc *= 100.0
+        data[layer_num] = round(acc, 2)
+
+    return dict(sorted(data.items()))
+
+
+def load_qwen2vl_contextual_results():
+    """Load Contextual NN results for Qwen2-VL."""
+    data = {}
+    qwen2vl_dir = CONTEXTUAL_DIR / "qwen2-vl"
+    if not qwen2vl_dir.exists():
+        return data
+
+    # Load contextual layers
+    for results_file in qwen2vl_dir.glob("**/results_*.json"):
+        with open(results_file, 'r') as f:
+            res = json.load(f)
+        path_str = str(results_file)
+
+        match = re.search(r'_contextual(\d+)_', path_str)
+        if not match:
+            continue
+        layer_num = int(match.group(1))
+
+        results_list = res.get('results', [])
+        if results_list:
+            total = len(results_list)
+            interp_count = sum(1 for r in results_list if r.get('interpretable', False))
+            acc = (interp_count / total * 100.0) if total > 0 else 0.0
+        else:
+            acc = res.get('accuracy', 0.0)
+            if acc <= 1.0:
+                acc *= 100.0
+
+        data[layer_num] = round(acc, 2)
+
+    # Also load layer 0 from NN
+    qwen2vl_nn_dir = NN_DIR / "qwen2-vl"
+    if qwen2vl_nn_dir.exists():
+        for results_file in qwen2vl_nn_dir.glob("**/results_*.json"):
+            path_str = str(results_file)
+            match = re.search(r'_layer(\d+)_', path_str)
+            if not match or int(match.group(1)) != 0:
+                continue
+
+            with open(results_file, 'r') as f:
+                results = json.load(f)
+            acc = results.get('accuracy', 0.0)
+            if acc <= 1.0:
+                acc *= 100.0
+
+            if 0 not in data:
+                data[0] = round(acc, 2)
+
+    return dict(sorted(data.items()))
+
+
+# =============================================================================
 # TOKEN SIMILARITY DATA (for same-token similarity plots)
 # =============================================================================
 
@@ -531,8 +783,22 @@ def main():
     nn_data = load_nn_results()
     logitlens_data = load_logitlens_results()
     contextual_data = load_contextual_results()
-    
+
     print(f"Found: {len(nn_data)} NN, {len(logitlens_data)} LogitLens, {len(contextual_data)} Contextual model combos")
+
+    # Load ablations data
+    print("\nExtracting ablations data...")
+    ablations_nn = load_ablations_nn_results()
+    ablations_logitlens = load_ablations_logitlens_results()
+    ablations_contextual = load_ablations_contextual_results()
+    print(f"  Found: {len(ablations_nn)} NN, {len(ablations_logitlens)} LogitLens, {len(ablations_contextual)} Contextual ablation models")
+
+    # Load Qwen2-VL data
+    print("\nExtracting Qwen2-VL data...")
+    qwen2vl_nn = load_qwen2vl_nn_results()
+    qwen2vl_logitlens = load_qwen2vl_logitlens_results()
+    qwen2vl_contextual = load_qwen2vl_contextual_results()
+    print(f"  NN: {len(qwen2vl_nn)} layers, LogitLens: {len(qwen2vl_logitlens)} layers, Contextual: {len(qwen2vl_contextual)} layers")
     
     # Filter to expected layers only
     print("Filtering to expected layers: [0, 1, 2, 4, 8, 16, 24, N-2, N-1]...")
@@ -587,7 +853,17 @@ def main():
         'logitlens': logitlens_data,
         'contextual': contextual_data,
         'token_similarity': token_similarity_data,
-        'similarity_histograms': similarity_histogram_data
+        'similarity_histograms': similarity_histogram_data,
+        'ablations': {
+            'nn': ablations_nn,
+            'logitlens': ablations_logitlens,
+            'contextual': ablations_contextual
+        },
+        'qwen2vl': {
+            'nn': qwen2vl_nn,
+            'logitlens': qwen2vl_logitlens,
+            'contextual': qwen2vl_contextual
+        }
     }
     
     data_json_path = Path(__file__).parent / "data.json"
