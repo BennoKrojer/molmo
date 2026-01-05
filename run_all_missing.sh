@@ -687,7 +687,7 @@ if [ "$FORCE_QWEN2VL" = true ]; then
     rm -rf "analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
     rm -rf "analysis_results/llm_judge_nearest_neighbors/qwen2-vl"
     rm -rf "analysis_results/llm_judge_logitlens/qwen2-vl"
-    rm -rf "analysis_results/llm_judge_contextual_nearest_neighbors/qwen2-vl"
+    rm -rf "analysis_results/llm_judge_contextual_nn/qwen2-vl"
     log "✓ Old Qwen2-VL data deleted"
 fi
 QWEN2_LAYERS="0,1,2,4,8,16,24,26,27"
