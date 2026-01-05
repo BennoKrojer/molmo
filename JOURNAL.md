@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-04 (FIX: Corrupted ablation baseline data)
+- **CRITICAL BUG FOUND**: `olmo-7b_vit-l-14-336` in ablations folder was reading from topbottom data!
+  - Ablation "baseline" showed ~38% interpretability instead of correct ~70%
+  - Evidence: NNs were generic words ("cap.", "distance") instead of descriptive ("building", "roads")
+  - Root cause: Data generation bug - wrong input_json path in results
+- **Fix applied**:
+  - `update_data.py`: Skip corrupted `olmo-7b_vit-l-14-336` from ablations extraction
+  - `create_ablations_plots.py`: Use main model data (`olmo-7b+vit-l-14-336`) as baseline
+- **Git**: `57bd1e0` - Fix ablation baseline data corruption bug
+
 ### 2026-01-04 (Qwen2-VL and Ablation Plotting)
 - **Generated plots** for Qwen2-VL (off-the-shelf model):
   - Unified plot: `paper_figures_output/qwen2vl/qwen2vl_unified.pdf`
