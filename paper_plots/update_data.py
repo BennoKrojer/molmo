@@ -298,6 +298,10 @@ def load_ablations_contextual_results():
     if not ablations_dir.exists():
         return {}
 
+    # Skip these model names - they have corrupted data (pointing to wrong input)
+    # The olmo-7b_vit-l-14-336 in ablations folder actually reads from topbottom data!
+    SKIP_CORRUPTED = {'olmo-7b_vit-l-14-336'}
+
     # Load contextual layers (1+)
     for results_file in ablations_dir.glob("**/results_*.json"):
         with open(results_file, 'r') as f:
@@ -315,6 +319,10 @@ def load_ablations_contextual_results():
         if not match:
             continue
         model_name = match.group(1)
+
+        # Skip corrupted data
+        if model_name in SKIP_CORRUPTED:
+            continue
 
         # Calculate accuracy
         results_list = res.get('results', [])

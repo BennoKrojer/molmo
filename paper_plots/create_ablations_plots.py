@@ -187,12 +187,27 @@ def main():
         return {model: {int(k): v for k, v in layers.items()}
                 for model, layers in method_data.items()}
 
+    # Get baseline from MAIN model data (not ablations - ablations folder has corrupted baseline)
+    # The olmo-7b+vit-l-14-336 from main models is the correct baseline
+    baseline_key = 'olmo-7b+vit-l-14-336'
+    baseline_data = {}
+    for method in ['nn', 'contextual']:
+        main_method_data = data.get(method, {})
+        if baseline_key in main_method_data:
+            baseline_data[method] = {int(k): v for k, v in main_method_data[baseline_key].items()}
+            print(f"  Using main model baseline for {method}: {len(baseline_data[method])} layers")
+
     # Generate plots for each method
     methods = {
         'nn': ('Static NN', convert_keys_to_int(ablations.get('nn', {}))),
         'logitlens': ('LogitLens', convert_keys_to_int(ablations.get('logitlens', {}))),
         'contextual': ('Contextual V-Lens', convert_keys_to_int(ablations.get('contextual', {})))
     }
+
+    # Inject baseline into ablations data for plotting
+    for method_key in methods:
+        if method_key in baseline_data:
+            methods[method_key][1][BASELINE] = baseline_data[method_key]
 
     for method_key, (method_name, method_data) in methods.items():
         if not method_data:
