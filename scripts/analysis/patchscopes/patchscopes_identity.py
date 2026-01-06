@@ -39,8 +39,9 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 # Identity prompt template (from Patchscopes paper)
-# Using semicolons and arrows as in the paper's examples
-IDENTITY_PROMPT = "cat->cat; 1135->1135; hello->hello; ?"
+# Paper format: "tok1->tok1; tok2->tok2; ... tokk->" with "->" after token to decode
+# The model learns to repeat tokens, so after "?->" it should output the patched token
+IDENTITY_PROMPT = "cat->cat; 1135->1135; hello->hello; ?->"
 
 
 def patch_idx_to_row_col(patch_idx, patches_per_chunk):
@@ -141,7 +142,9 @@ def run_patchscopes_batch(model, tokenizer, visual_hidden_states, layer_idx, dev
     # Tokenize identity prompt
     identity_tokens = tokenizer.encode(IDENTITY_PROMPT)
     seq_len = len(identity_tokens)
-    patch_position = seq_len - 1  # Position of "?" (last token)
+    # Find position of "?" (second-to-last, before "->")
+    # With format "...?->", we patch at "?" and predict after "->"
+    patch_position = seq_len - 2  # Position of "?" before final "->"
 
     # Get transformer blocks
     blocks = get_transformer_blocks(model)
@@ -178,8 +181,8 @@ def run_patchscopes_batch(model, tokenizer, visual_hidden_states, layer_idx, dev
         # Remove hook immediately
         hook.remove()
 
-        # Get logits at patch position
-        patch_logits = logits[:, patch_position, :]  # [batch, vocab_size]
+        # Get logits at LAST position (predicts what comes after "->")
+        patch_logits = logits[:, -1, :]  # [batch, vocab_size]
 
         # Get top-k predictions
         top_vals, top_idxs = torch.topk(patch_logits, k=top_k, dim=-1)
