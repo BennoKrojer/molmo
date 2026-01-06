@@ -121,8 +121,8 @@ def test_text_token_recovery(model, tokenizer, device, test_words, layers_to_tes
 
             handle.remove()
 
-            # Get prediction at patch position
-            logits = patched_output.logits[0, patch_position, :]
+            # Get prediction at LAST position (predicts what comes after "->")
+            logits = patched_output.logits[0, -1, :]
             top5_vals, top5_idxs = torch.topk(logits, k=5)
             top5_tokens = [tokenizer.decode([idx.item()]).strip() for idx in top5_idxs]
             top1_token = top5_tokens[0]
