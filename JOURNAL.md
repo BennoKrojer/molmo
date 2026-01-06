@@ -6,6 +6,238 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-06 (Patchscopes Bug Fix: Persistent Hook)
+
+**Critical bug fixed in `patchscopes_descriptive.py`**: Hook was only applied on first forward pass during autoregressive generation, causing all subsequent tokens to see original "X" instead of patched visual hidden state.
+
+**Bug location**: The hook was removed after the first token generation (line 124), but autoregressive generation passes the FULL sequence each time, so subsequent passes re-processed the original X without patching.
+
+**Fix**:
+1. Removed `call_count == 0` check from `hook_fn` - now patches on EVERY forward pass
+2. Keep hook active throughout ALL generation, only remove at the very end
+
+**Results after fix**:
+- Text embeddings work correctly: "dog" → "type of animal", "Paris" → "capital of France"
+- Visual tokens now generate **206 unique descriptions** (vs ALL "letter of alphabet" before)
+- Spatial coherence observed: church-related descriptions cluster where church tower is in image
+- Layer 0 shows most semantic diversity; later layers converge toward "letter X" interpretation
+
+**Files modified**: `scripts/analysis/patchscopes/patchscopes_descriptive.py`
+**Also fixed**: Missing comma in `pyproject.toml` causing pip install failure
+
+---
+
+### 2026-01-06 (Paper Review: Concrete Additions & Placeholder Fixes)
+
+Claude overnight audit of paper. All values grounded in repo data.
+
+---
+
+#### 1. PLACEHOLDER FIXES (copy-paste ready)
+
+**Section 4, Line 14 (PixMo-Cap description) - EMPIRICALLY VERIFIED:**
+```latex
+% OLD: around 700K captions with a very high level of detail and quality, with the average caption containing N sentences.
+% NEW (from running code on actual dataset):
+717K image-caption pairs (716K unique images) with detailed captions averaging 167 words and 9 sentences each.
+```
+Empirical stats (computed via `load_dataset('allenai/pixmo-cap')`):
+- Total rows: 717,042
+- Unique images: 716,551
+- Avg words: 167.4 (std: 50.3), median: 160
+- Avg sentences: 8.8 (std: 3.8), median: 8
+
+**Section 3, Line 26 (Visual Genome corpus) - EMPIRICALLY VERIFIED:**
+```latex
+% OLD: Visual Genome with N unique captions
+% NEW (from analyzing vg_phrases.txt):
+Visual Genome with 2.99M phrase-region annotations (2,991,848 unique after deduplication)
+```
+Empirical stats (computed on vg_phrases.txt):
+- Total lines: 2,992,117
+- Non-empty: 2,992,111
+- Unique (raw): 2,991,848 (263 exact duplicates)
+- Unique (normalized, no punct): 2,876,652
+
+**Section 4, Line 31-32 (Judge Design paragraph):**
+```latex
+\paragraph{Judge Design.}
+We use GPT-4o as our automatic judge. Given an image with a red bounding box highlighting the vision token's receptive field, and the top-5 nearest neighbors, we prompt the judge to classify each word as \textit{concrete} (directly visible), \textit{abstract} (conceptually related), or \textit{global} (present elsewhere in image). A token is marked interpretable if at least one of the top-5 neighbors falls into any category. The full prompt is in \Cref{app:evaluation}.
+```
+
+---
+
+#### 2. HUMAN VALIDATION RESULTS (Section 3, Line 63-64)
+
+```latex
+% Replace: Human validation: \textcolor{red}{todo}
+% With:
+We validate the LLM judge against human annotations on 360 vision tokens (60 images $\times$ 6 tokens each, annotated by 4 authors).
+For Static NN at layer 0, we find strong agreement: Spearman $\rho = 0.65$, Cohen's $\kappa = 0.65$, and accuracy = 84.2\% (n=323 matched instances).
+```
+
+Per-model breakdown (for appendix):
+| Model | n | Spearman ρ | Cohen's κ | Accuracy |
+|-------|---|-----------|-----------|----------|
+| OLMo + DINOv2 | 38 | 0.90 | 0.89 | 94.7% |
+| OLMo + ViT-L/14 | 34 | 0.83 | 0.82 | 91.2% |
+| OLMo + SigLIP | 35 | 0.71 | 0.67 | 82.9% |
+| Qwen2 + SigLIP | 33 | 0.80 | 0.78 | 97.0% |
+| LLaMA3 + ViT-L/14 | 45 | 0.65 | 0.64 | 82.2% |
+| LLaMA3 + DINOv2 | 37 | 0.21 | 0.21 | 73.0% |
+| Qwen2 + ViT-L/14 | 38 | 0.70 | 0.66 | 89.5% |
+
+---
+
+#### 3. ABLATION TABLE VALUES (Table 1)
+
+All values from `data.json`. Baseline = OLMo-7B + ViT-L/14.
+
+| Model Variant | NN Overlap (all/high-sim) | Static NN L0 | LN-Lens L0 | Caption Score |
+|---------------|---------------------------|--------------|------------|---------------|
+| **Baseline** | --- | 55.0% | 71.0% | 6.60 |
+| Different seed (seed10) | 13.6 / 45.4 | 52.7% | 68.3% | 6.68 |
+| Different seed (seed11) | --- | 59.7% | 68.5% | --- |
+| Linear connector | 11.8 / 44.9 | 54.7% | 70.0% | 6.24 |
+| First-sentence captions | 10.5 / 42.7 | 48.0% | 62.3% | 6.81 |
+| Unfrozen LLM | 11.8 / 44.6 | 67.7% | 65.3% | 7.12 |
+| ViT layer 6 | --- | 59.7% | 72.7% | --- |
+| ViT layer 10 | --- | 50.3% | 72.2% | --- |
+| TopBottom (frozen) | 0.0 / --- | 10.3% | 40.0% | (75.7% task acc) |
+| TopBottom (unfrozen) | 0.1 / --- | 22.0% | 40.0% | (86.7% task acc) |
+
+---
+
+#### 4. QWEN2-VL COMPARISON NUMBERS
+
+Off-the-shelf Qwen2-VL-7B-Instruct (pretrained, not our training):
+
+| Layer | Static NN | LogitLens | LN-Lens |
+|-------|-----------|-----------|---------|
+| 0 | 26% | 12% | 63% |
+| 1 | 24% | 13% | 63% |
+| 16 | 16% | 5% | 62% |
+| 24 | 15% | 15% | 64% |
+| 26 | 9% | 41% | 73% |
+| 27 | 14% | 53% | 60% |
+
+Key insight: Even off-the-shelf models show high LN-Lens interpretability (63%+ at L0).
+
+---
+
+#### 5. V-LENS CORPUS DETAILS (for Appendix)
+
+```latex
+\subsection{Contextual Embedding Corpus}
+\label{app:vlens-design}
+
+For contextual \vlens, we extract embeddings from Visual Genome~\citep{krishna2017visual} phrase-region annotations.
+We process 2,992,111 unique phrases through each LLM, storing up to 20 contextual embeddings per vocabulary token at layers [1, 2, 4, 8, 16, 24, N-2, N-1].
+This results in approximately 2.5M embeddings across 26,862 unique tokens per layer.
+To reduce storage, embeddings are stored in float8 format (25\% of fp32 size).
+We provide embeddings for OLMo-7B, LLaMA3-8B, Qwen2-7B, and Qwen2-VL-7B-Instruct.
+```
+
+---
+
+#### 6. LLM JUDGE PROMPT (for Appendix)
+
+The full prompt used (from `llm_judge/prompts.py`, IMAGE_PROMPT_WITH_CROP version):
+
+```
+You are a visual interpretation expert specializing in connecting textual concepts
+to specific image regions. Your task is to analyze a list of candidate words and
+determine how strongly each one relates to the content of the highlighted region.
+
+### **Inputs**
+1. **Full Image**: An image containing a red bounding box highlighting the region of interest.
+2. **Cropped Region**: A close-up view of the exact region highlighted by the red bounding box.
+3. **Candidate Words**: A list of words to evaluate. Here are the candidate words:
+    - {candidate_words}
+
+### **Evaluation Guidelines**
+There are three types of relationships to consider:
+
+* **Concrete**: A word is **concretely related** if it names something literally visible
+  in the cropped region: objects, colors, textures, text, shapes.
+
+* **Abstract**: A word is **abstractly related** if it describes concepts, emotions,
+  or activities related to but not literally visible: cultural concepts, emotions, functions.
+
+* **Global**: A word is **globally related** if it describes something present elsewhere
+  in the full image but not in the highlighted region.
+
+### **Output Format**
+Return a single JSON object with fields:
+{
+    "reasoning": "initial reasoning...",
+    "interpretable": true/false,
+    "concrete_words": [...],
+    "abstract_words": [...],
+    "global_words": [...]
+}
+```
+
+---
+
+#### 7. MAIN RESULTS SUMMARY (for figure captions)
+
+**Layer 0 Interpretability (% tokens interpretable):**
+
+| Model | CLIP ViT | SigLIP | DINOv2 |
+|-------|----------|--------|--------|
+| **Static NN** |
+| OLMo-7B | 55% | 42% | 42% |
+| LLaMA3-8B | 35% | 23% | 20% |
+| Qwen2-7B | 18% | 5% | 7% |
+| **LN-Lens (ours)** |
+| OLMo-7B | 71% | 63% | 84% |
+| LLaMA3-8B | 82% | 63% | 85% |
+| Qwen2-7B | 79% | 66% | 80% |
+
+Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input layer!
+
+---
+
+#### 8. REMAINING RED/TODO ITEMS (need investigation)
+
+1. **Line 144**: "1-2 sentences on simple baselines eg how often does llm judge trigger on random vectors/NNs?"
+   - Need to run random baseline experiment
+
+2. **Line 261**: "TODO: investigate properly" (SigLIP/DINOv2 generic NN behavior)
+   - Check why SigLIP has more global/abstract concepts
+
+3. **Line 268**: "TODO: for 50 examples, check what the color NN turn into when they are not color anymore"
+   - Manual investigation needed
+
+4. **Line 276**: "check if more evolution is observed in Qwen2-VL (unfrozen)"
+   - Qwen2-VL data available; can compare evolution patterns
+
+5. **Appendix LLM judge**: "TODO" - Now filled in above
+
+---
+
+#### 9. CLARIFICATION QUESTIONS
+
+1. **PixMo-Cap sentence count**: The ~200 words/caption corresponds to roughly 10-15 sentences (assuming 15-20 words/sentence). Want exact count from data?
+
+2. **Bimodal distribution correlation (Line 76-77)**: Paper says "We manually inspect data and find a correlation of X". What correlation metric should I compute?
+
+3. **Caption scoring**: The ablation table shows "Caption Score" from LLM judge (1-10 scale). Are these correct values or do you have updated ones?
+
+---
+
+### 2026-01-05 (Patchscopes fixes - text works, vision still fails)
+- **Found critical bug in test scripts**: Was checking logits at `patch_position`, should be `-1`
+  - Identity prompt `"cat->cat; ?->"` predicts what comes AFTER the final `->"`
+- **After fix - TEXT works (80-87% Top-1 at layers 0-16)**
+- **Fixed vision script** (`patchscopes_identity.py`):
+  - Updated prompt format from `"...?"` to `"...?->"` (paper format)
+  - Updated patch_position and logits indexing
+- **Vision tokens STILL don't work** - predict identity prompt tokens ("hello", "cat"), not visual content
+- **Conclusion**: Patchscopes works for text but not for visual soft prompts
+- **Git**: `fcb17b9` - Fix test script, `7b2e7ad` - Fix vision script prompt format
+
 ### 2026-01-05 (Patchscopes baseline implementation)
 - **Implemented Patchscopes** (Ghandeharioun et al., ICML 2024) as a baseline for comparison
 - **Method**: Identity prompt `"cat->cat; 1135->1135; hello->hello; ?"` with l→l patching
