@@ -786,11 +786,12 @@ def create_single_panel(fig, panel_bounds, image_idx, patch_row, patch_col,
              ha='left', va='top',
              color='black', fontfamily='serif')
 
-    # 2. MODEL + LAYER - to the right of subfig label
-    fig.text(panel_left + 0.05, panel_bottom + panel_height - 0.015,
+    # 2. MODEL + LAYER - same size/weight as subfig label
+    fig.text(panel_left + 0.06, panel_bottom + panel_height - 0.01,
              f'{model_display}  •  Layer {layer}',
-             fontsize=9, ha='left', va='top',
-             color='#333333', fontfamily='serif')
+             fontsize=16, fontweight='bold',
+             ha='left', va='top',
+             color='black', fontfamily='serif')
 
     # 3. "TOP NNs" - in the GAP between image and boxes
     # Calculate gap center in figure coordinates
@@ -857,38 +858,43 @@ def create_2x2_grid_figure():
     return fig
 
 
-def create_1x2_grid_figure():
+def create_2x1_grid_figure():
     """
-    Create 1x2 grid (two panels side by side) comparing LN-Lens across different models.
+    Create 2x1 grid (two rows, one column) comparing LN-Lens across different models.
     """
     import random
     random.seed(42)
 
-    # Just 2 images for 2 panels
-    image_indices = [0, 3]  # Use image 0 and 3
+    # Two images for 2 panels
+    image_indices = [0, 3]
     patch_positions = [(10, 9), (12, 12)]
-    layers = [8, 16]  # Different layers
+    layers = [8, 16]
 
-    fig = plt.figure(figsize=(14, 5))  # Wider, shorter for 1x2
+    # Models: OLMo + SigLIP and LLaMA3 + DINOv2
+    models_to_use = [
+        {'key': 'train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_lite10', 'display': 'OLMo-7B + SigLIP'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_lite10', 'display': 'LLaMA3-8B + DINOv2'},
+    ]
+
+    fig = plt.figure(figsize=(8, 10))  # Taller for 2x1
 
     # Layout with proper margins
     margin_left = 0.03
     margin_right = 0.02
-    margin_top = 0.08
+    margin_top = 0.04
     margin_bottom = 0.04
-    h_gap = 0.03
+    v_gap = 0.05
 
-    # Calculate panel dimensions - two panels side by side
-    panel_width = (1 - margin_left - margin_right - h_gap) / 2
-    panel_height = 1 - margin_top - margin_bottom
+    # Calculate panel dimensions - two panels stacked vertically
+    panel_width = 1 - margin_left - margin_right
+    panel_height = (1 - margin_top - margin_bottom - v_gap) / 2
 
     panels = [
-        (margin_left, margin_bottom, panel_width, panel_height),
-        (margin_left + panel_width + h_gap, margin_bottom, panel_width, panel_height),
+        (margin_left, margin_bottom + panel_height + v_gap, panel_width, panel_height),  # top
+        (margin_left, margin_bottom, panel_width, panel_height),  # bottom
     ]
 
     subfig_labels = ['a)', 'b)']
-    models_to_use = GRID_MODELS[:2]  # Use first 2 models
 
     for model_info, layer, (img_idx, (patch_row, patch_col)), panel_bounds, label in zip(
         models_to_use, layers, zip(image_indices, patch_positions), panels, subfig_labels
@@ -923,15 +929,15 @@ def main():
 
     plt.close(fig)
 
-    print("\nCreating 1x2 grid comparison figure...")
-    fig_1x2 = create_1x2_grid_figure()
+    print("\nCreating 2x1 grid comparison figure...")
+    fig_2x1 = create_2x1_grid_figure()
 
     for ext in ['pdf', 'png']:
-        output_file = OUTPUT_DIR / f'ln_lens_comparison_1x2.{ext}'
-        fig_1x2.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
+        output_file = OUTPUT_DIR / f'ln_lens_comparison_2x1.{ext}'
+        fig_2x1.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"  Saved {output_file}")
 
-    plt.close(fig_1x2)
+    plt.close(fig_2x1)
     print("Done!")
 
 
