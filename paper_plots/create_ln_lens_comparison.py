@@ -423,18 +423,38 @@ def create_compact_ln_lens_box(ax, neighbors, top_k=3, font_scale=1.0):
                 matched = caption[idx:idx+len(token)]
                 after = caption[idx+len(token):]
 
-                # Truncate to fit - keep it tight
-                max_total = 20
-                if len(before) > 8:
-                    before = '…' + before[-7:]
-                if len(after) > 5:
-                    after = after[:4] + '…'
-                if len(matched) > 10:
-                    matched = matched[:9] + '…'
+                # Keep full beginning, only truncate end if needed
+                if len(after) > 8:
+                    after = after[:7] + '…'
 
-                # Single line with all parts concatenated (no gaps)
-                full_text = f'{i+1}. "{before}[{matched}]{after}" ({sim:.2f})'
-                ax.text(0.03, y_pos, full_text, fontsize=font_size,
+                # Use renderer to measure text and position yellow highlight properly
+                renderer = ax.figure.canvas.get_renderer()
+
+                # Part 1: number and opening quote + before text
+                part1 = f'{i+1}. "{before}'
+                t1 = ax.text(0.03, y_pos, part1, fontsize=font_size,
+                       ha='left', va='center', color='#444444',
+                       fontfamily='serif', clip_on=True)
+
+                # Measure part1 to position highlighted token
+                bbox1 = t1.get_window_extent(renderer=renderer)
+                bbox1_data = ax.transData.inverted().transform(bbox1)
+                x_token = bbox1_data[1][0] + 0.005
+
+                # Part 2: highlighted token with YELLOW background
+                t2 = ax.text(x_token, y_pos, matched, fontsize=font_size, fontweight='bold',
+                       ha='left', va='center', color='#1B5E20',
+                       fontfamily='serif', clip_on=True,
+                       bbox=dict(boxstyle='round,pad=0.03', facecolor='#FFEB3B',
+                                edgecolor='none', alpha=0.9))
+
+                # Measure part2 to position after text
+                bbox2 = t2.get_window_extent(renderer=renderer)
+                bbox2_data = ax.transData.inverted().transform(bbox2)
+                x_after = bbox2_data[1][0] + 0.005
+
+                # Part 3: after text and closing quote
+                ax.text(x_after, y_pos, f'{after}"', fontsize=font_size,
                        ha='left', va='center', color='#444444',
                        fontfamily='serif', clip_on=True)
 
@@ -445,12 +465,10 @@ def create_compact_ln_lens_box(ax, neighbors, top_k=3, font_scale=1.0):
                        bbox=dict(boxstyle='round,pad=0.05', facecolor='#666666',
                                 edgecolor='none'))
             else:
-                # Token not found in caption
                 ax.text(0.03, y_pos, f'{i+1}. "{token[:15]}"', fontsize=font_size,
                        ha='left', va='center', color='#333333',
                        fontfamily='serif', clip_on=True)
         else:
-            # No caption available
             display_token = token[:15] if len(token) > 15 else token
             ax.text(0.03, y_pos, f'{i+1}. {display_token}', fontsize=font_size,
                    ha='left', va='center', color='#333333',
@@ -839,6 +857,57 @@ def create_2x2_grid_figure():
     return fig
 
 
+def create_1x2_grid_figure():
+    """
+    Create 1x2 grid (two panels side by side) comparing LN-Lens across different models.
+    """
+    import random
+    random.seed(42)
+
+    # Just 2 images for 2 panels
+    image_indices = [0, 3]  # Use image 0 and 3
+    patch_positions = [(10, 9), (12, 12)]
+    layers = [8, 16]  # Different layers
+
+    fig = plt.figure(figsize=(14, 5))  # Wider, shorter for 1x2
+
+    # Layout with proper margins
+    margin_left = 0.03
+    margin_right = 0.02
+    margin_top = 0.08
+    margin_bottom = 0.04
+    h_gap = 0.03
+
+    # Calculate panel dimensions - two panels side by side
+    panel_width = (1 - margin_left - margin_right - h_gap) / 2
+    panel_height = 1 - margin_top - margin_bottom
+
+    panels = [
+        (margin_left, margin_bottom, panel_width, panel_height),
+        (margin_left + panel_width + h_gap, margin_bottom, panel_width, panel_height),
+    ]
+
+    subfig_labels = ['a)', 'b)']
+    models_to_use = GRID_MODELS[:2]  # Use first 2 models
+
+    for model_info, layer, (img_idx, (patch_row, patch_col)), panel_bounds, label in zip(
+        models_to_use, layers, zip(image_indices, patch_positions), panels, subfig_labels
+    ):
+        print(f"  Creating panel {label} - {model_info['display']}, image {img_idx}, layer {layer}")
+        create_single_panel(
+            fig, panel_bounds,
+            image_idx=img_idx,
+            patch_row=patch_row,
+            patch_col=patch_col,
+            model_key=model_info['key'],
+            model_display=model_info['display'],
+            layer=layer,
+            subfig_label=label
+        )
+
+    return fig
+
+
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -854,15 +923,15 @@ def main():
 
     plt.close(fig)
 
-    print("\nCreating 2x2 grid comparison figure...")
-    fig_grid = create_2x2_grid_figure()
+    print("\nCreating 1x2 grid comparison figure...")
+    fig_1x2 = create_1x2_grid_figure()
 
     for ext in ['pdf', 'png']:
-        output_file = OUTPUT_DIR / f'ln_lens_comparison_2x2.{ext}'
-        fig_grid.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
+        output_file = OUTPUT_DIR / f'ln_lens_comparison_1x2.{ext}'
+        fig_1x2.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"  Saved {output_file}")
 
-    plt.close(fig_grid)
+    plt.close(fig_1x2)
     print("Done!")
 
 
