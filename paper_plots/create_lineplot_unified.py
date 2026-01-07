@@ -495,57 +495,58 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
 
 
 def create_baselines_lineplot(nn_data, logitlens_data, output_path):
-    """Create a figure with 2 subplots side by side for baselines (NN and LogitLens)."""
-    
+    """Create a figure with 2 subplots stacked vertically for baselines (NN and LogitLens)."""
+
     # Mapping from internal names to display names
     llm_display_names = {
         'llama3-8b': 'Llama3-8B',
         'olmo-7b': 'Olmo-7B',
         'qwen2-7b': 'Qwen2-7B'
     }
-    
+
     encoder_display_names = {
         'vit-l-14-336': 'CLIP ViT-L/14',
         'siglip': 'SigLIP',
         'dinov2-large-336': 'DinoV2'
     }
-    
+
     llm_order = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
     encoder_order = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
-    
+
     llm_base_colors = {
         'olmo-7b': plt.cm.Blues,
         'llama3-8b': plt.cm.Greens,
         'qwen2-7b': plt.cm.Reds
     }
     encoder_shade_indices = [0.5, 0.7, 0.9]
-    
+
     encoder_markers = {
         'vit-l-14-336': '*',
         'siglip': 'o',
         'dinov2-large-336': '^'
     }
-    
+
     encoder_marker_facecolors = {
         'vit-l-14-336': None,
         'siglip': 'none',
         'dinov2-large-336': None
     }
-    
+
     color_map = {}
     for llm in llm_order:
         base_cmap = llm_base_colors[llm]
         for enc_idx, encoder in enumerate(encoder_order):
             color_map[(llm, encoder)] = base_cmap(encoder_shade_indices[enc_idx])
-    
+
     # X-axis ticks: union of all expected layers
     all_expected_layers = sorted(set(
         get_expected_layers('olmo-7b') + get_expected_layers('qwen2-7b')
     ))
-    
-    fig, axes = plt.subplots(1, 2, figsize=(24, 8))
+
+    # Vertical layout: 2 rows, 1 column
+    fig, axes = plt.subplots(2, 1, figsize=(12, 14))
     sns.set_style("whitegrid")
-    
+
     subplot_configs = [
         {
             'ax': axes[0],
@@ -560,61 +561,61 @@ def create_baselines_lineplot(nn_data, logitlens_data, output_path):
             'xlabel': 'Layer'
         }
     ]
-    
+
     handles_dict = {}
-    
+
     for config in subplot_configs:
         ax = config['ax']
         data = config['data']
-        
+
         if not data:
             continue
-        
+
         all_layers = all_expected_layers
-        
+
         for llm in llm_order:
             for encoder in encoder_order:
                 key = (llm, encoder)
                 if key not in data:
                     continue
-                
+
                 layer_data = data[key]
                 layers = sorted(layer_data.keys())
                 values = [layer_data[l] for l in layers]
-                
+
                 if len(layers) == 0:
                     continue
-                
+
                 llm_label = llm_display_names.get(llm, llm)
                 encoder_label = encoder_display_names.get(encoder, encoder)
                 label = f"{llm_label} + {encoder_label}"
-                
+
                 marker = encoder_markers.get(encoder, 'o')
                 marker_facecolor = encoder_marker_facecolors.get(encoder, None)
-                
+
                 if marker_facecolor is not None:
-                    line, = ax.plot(layers, values, marker=marker, 
+                    line, = ax.plot(layers, values, marker=marker,
                                    color=color_map[key], markerfacecolor=marker_facecolor,
                                    markeredgewidth=2, linewidth=2.5, markersize=10)
                 else:
                     line, = ax.plot(layers, values, marker=marker,
                                    color=color_map[key], linewidth=2.5, markersize=10)
-                
+
                 if label not in handles_dict:
                     handles_dict[label] = line
-        
+
         ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
         ax.set_ylabel('Interpretable Tokens %\n(via automated judge)', fontsize=14, fontweight='bold')
         ax.set_title(config['title'], fontsize=18, fontweight='bold', pad=15)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
-        
+
         # Set x-axis to show only expected layers
         ax.set_xlim(min(all_expected_layers) - 0.5, max(all_expected_layers) + 0.5)
         ax.set_xticks(all_expected_layers)
         ax.set_xticklabels([str(t) for t in all_expected_layers])
         ax.tick_params(axis='both', labelsize=12)
-    
+
     ordered_handles = []
     ordered_labels = []
     for llm in llm_order:
@@ -625,27 +626,28 @@ def create_baselines_lineplot(nn_data, logitlens_data, output_path):
             if label in handles_dict:
                 ordered_handles.append(handles_dict[label])
                 ordered_labels.append(label)
-    
-    fig.legend(ordered_handles, ordered_labels, 
-              loc='lower center', 
-              bbox_to_anchor=(0.5, -0.08),
-              ncol=3, 
-              fontsize=15, 
+
+    # Legend at the bottom for vertical layout
+    fig.legend(ordered_handles, ordered_labels,
+              loc='lower center',
+              bbox_to_anchor=(0.5, -0.02),
+              ncol=3,
+              fontsize=13,
               framealpha=0.9,
-              columnspacing=2.5,
+              columnspacing=2.0,
               handlelength=2.5,
-              handletextpad=1.2)
-    
+              handletextpad=1.0)
+
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.20, wspace=0.25)
-    
+    plt.subplots_adjust(bottom=0.12, hspace=0.25)
+
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"✓ Saved: {output_path.name}")
-    
+
     png_path = output_path.with_suffix('.png')
     plt.savefig(png_path, dpi=150, bbox_inches='tight')
     print(f"✓ Saved: {png_path.name}")
-    
+
     plt.close()
 
 
