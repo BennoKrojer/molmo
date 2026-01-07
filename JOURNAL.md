@@ -6,18 +6,30 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-06 (FIX: Restore ablations in demo index.html)
-- **USER REPORT**: "ablations are missing from the demo - the ablations folder itself is there"
-- **ROOT CAUSE**: When I synced the Layer 0 LN-Lens fix from `unified_viewer_lite/` to website, I overwrote the index.html that had the ablations section. The `create_unified_viewer.py` only generates the main 3x3 grid.
-- **WORKFLOW LESSON**: Should run both scripts in sequence:
-  1. `create_unified_viewer.py` - creates main 3x3 grid
-  2. `add_models_to_viewer.py` - adds ablations section to index
-- **FIX**: Re-added ablations section with all 10 models:
-  - Qwen2-VL (off-the-shelf), Seeds 10/11, Linear connector
-  - Unfreeze ViT, Earlier ViT layers (6, 10)
-  - First sentence training, Top-bottom variants
-- **Git (website)**: `4a90b91` - Add ablations section to demo index page
-- **Git (molmo)**: `b38f48f` - Update website submodule
+### 2026-01-06 (SYSTEMIC FIX: create_unified_viewer.py now includes ablations automatically)
+- **USER REPORT**: "ablations are missing from the demo - please make sure things work"
+- **ROOT CAUSE ANALYSIS**:
+  - Fragmented workflow: needed to run 3 scripts (`create_unified_viewer.py` → `generate_ablation_viewers.py` → `add_models_to_viewer.py`)
+  - Easy to forget steps → incomplete index.html produced
+  - `generate_demo.sh` existed but wasn't obvious / user ran Python directly
+- **SYSTEMIC FIX**: Modified `create_unified_viewer.py` to handle ablations automatically:
+  - Added `--no-ablations` flag (ablations included BY DEFAULT)
+  - Scans for existing ablation viewers in `output-dir/ablations/`
+  - Adds ablation section to index.html if viewers found
+  - Now ONE command produces COMPLETE viewer
+- **FILES CHANGED**:
+  - `scripts/analysis/create_unified_viewer.py` - Added ablation handling (+130 lines)
+  - `generate_demo.sh` - Simplified to single command (was 3 steps)
+  - `README.md` - Updated documentation
+  - `CLAUDE.md` - Added "VIEWER GENERATION - SINGLE COMMAND" section
+- **NEW WORKFLOW** (either works):
+  ```bash
+  ./generate_demo.sh --num-images 10
+  # OR
+  python scripts/analysis/create_unified_viewer.py --output-dir ... --num-images 10
+  ```
+- **Git**: `ad47308` - Make create_unified_viewer.py include ablations automatically
+- **Previous quick fix**: `4a90b91` (website), `b38f48f`, `93bbd6b` (molmo) - manually restored ablations
 
 ### 2026-01-06 (Patchscopes Bug Fix: Persistent Hook)
 
