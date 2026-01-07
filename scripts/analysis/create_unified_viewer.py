@@ -5,9 +5,17 @@ This script scans all analysis results and creates a unified web interface with:
 1. Main index: 2D grid of LLMs × Vision Encoders
 2. Model pages: List of images for each model
 3. Unified image viewer: Dropdowns to switch between layers and analysis types
+4. Ablation studies section (optional, enabled by default)
 
 Usage:
+    # Full viewer with ablations (default)
     python create_unified_viewer.py --output-dir analysis_results/unified_viewer --num-images 300
+
+    # Skip ablations (main 3x3 grid only)
+    python create_unified_viewer.py --output-dir analysis_results/unified_viewer --no-ablations
+
+IMPORTANT: This script produces a COMPLETE viewer including ablations by default.
+           You do NOT need to run add_models_to_viewer.py separately anymore.
 """
 
 import json
@@ -1760,8 +1768,162 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
     
     return html
 
+
+# =============================================================================
+# ABLATION HANDLING
+# =============================================================================
+
+def load_ablations_config(config_path: Path) -> List[Dict]:
+    """Load ablations configuration from viewer_models.json."""
+    if not config_path.exists():
+        log.warning(f"Ablations config not found: {config_path}")
+        return []
+
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+
+    return config.get("ablations", [])
+
+
+def scan_ablation_availability(output_dir: Path, ablations: List[Dict]) -> List[Dict]:
+    """Scan which ablations have viewer data available."""
+    ablations_dir = output_dir / "ablations"
+    results = []
+
+    for ablation in ablations:
+        checkpoint = ablation.get("checkpoint", ablation.get("id", "unknown"))
+        name = ablation.get("name", checkpoint)
+
+        # Check if ablation folder exists in viewer output
+        ablation_folder = ablations_dir / checkpoint
+        has_viewer = ablation_folder.exists() and (ablation_folder / "index.html").exists()
+
+        # Count available image files
+        image_count = 0
+        if has_viewer:
+            image_count = len(list(ablation_folder.glob("image_*.html")))
+
+        results.append({
+            "name": name,
+            "checkpoint": checkpoint,
+            "has_viewer": has_viewer,
+            "image_count": image_count,
+            "config": ablation
+        })
+
+    return results
+
+
+def add_ablations_to_index(output_dir: Path, ablations: List[Dict]) -> bool:
+    """Add ablations section to the main index.html.
+
+    Returns True if successful, False otherwise.
+    """
+    index_path = output_dir / "index.html"
+    if not index_path.exists():
+        log.error(f"Main index.html not found at {index_path}")
+        return False
+
+    # Filter to only ablations with viewers
+    available_ablations = [a for a in ablations if a["has_viewer"]]
+
+    if not available_ablations:
+        log.info("  No ablations with viewers found - skipping ablations section")
+        return True
+
+    # Read existing index
+    with open(index_path, 'r') as f:
+        html_content = f.read()
+
+    # Check if ablations section already exists - remove it if so
+    if "Ablation Studies" in html_content:
+        log.info("  Ablations section already exists - replacing...")
+        # Find and remove existing ablations section
+        marker = '<h2 style="color: #2c3e50; margin-top: 50px;'
+        alt_marker = '<h2 style="margin-top: 40px;'  # Old format
+
+        for m in [marker, alt_marker]:
+            if m in html_content:
+                idx = html_content.find(m)
+                # Find the legend div that comes after ablations
+                legend_marker = '<div class="legend">'
+                legend_idx = html_content.find(legend_marker, idx)
+                if legend_idx > idx:
+                    html_content = html_content[:idx] + html_content[legend_idx:]
+                    break
+
+    # Generate ablation cards HTML
+    cards_html = ""
+    for ablation in available_ablations:
+        checkpoint = ablation["checkpoint"]
+        name = ablation["name"]
+        image_count = ablation["image_count"]
+
+        cards_html += f'''
+                    <tr>
+                        <td>{escape_for_html(name)}</td>
+                        <td style="text-align: left; font-weight: normal;">{image_count} images</td>
+                        <td class="model-cell available">
+                            <a href="ablations/{checkpoint}/index.html" class="model-link">View Results</a>
+                        </td>
+                    </tr>'''
+
+    # Create ablations section
+    ablations_section = f'''
+        <h2 style="color: #2c3e50; margin-top: 50px; border-top: 2px solid #eee; padding-top: 30px;">🔬 Ablation Studies & Additional Models</h2>
+        <p style="color: #7f8c8d; margin-bottom: 30px;">Exploring the impact of training variations, random seeds, and off-the-shelf models.</p>
+
+        <div class="grid-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model / Variation</th>
+                        <th>Details</th>
+                        <th>Results</th>
+                    </tr>
+                </thead>
+                <tbody>{cards_html}
+                </tbody>
+            </table>
+        </div>
+
+'''
+
+    # Insert ablations section before the legend
+    legend_marker = '<div class="legend">'
+    if legend_marker in html_content:
+        idx = html_content.find(legend_marker)
+        html_content = html_content[:idx] + ablations_section + html_content[idx:]
+    else:
+        # No legend found, insert before closing tags
+        closing = '</div>\n</body>'
+        if closing in html_content:
+            idx = html_content.find(closing)
+            html_content = html_content[:idx] + ablations_section + html_content[idx:]
+
+    # Write updated index
+    with open(index_path, 'w') as f:
+        f.write(html_content)
+
+    log.info(f"  ✅ Added {len(available_ablations)} ablations to main index.html")
+    return True
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Create unified interactive viewer for all analysis results")
+    parser = argparse.ArgumentParser(
+        description="Create unified interactive viewer for all analysis results",
+        epilog="""
+EXAMPLES:
+    # Create full viewer with ablations (DEFAULT - recommended!)
+    python create_unified_viewer.py --output-dir analysis_results/unified_viewer_lite --num-images 10
+
+    # Skip ablations section (main 3x3 grid only)
+    python create_unified_viewer.py --output-dir analysis_results/unified_viewer --no-ablations
+
+NOTE: Ablations are included by default. You do NOT need to run add_models_to_viewer.py separately.
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--output-dir", type=str, default="analysis_results/unified_viewer",
                        help="Output directory for the unified viewer")
     parser.add_argument("--num-images", type=int, default=300,
@@ -1770,6 +1932,10 @@ def main():
                        help="Which split to visualize (default: validation)")
     parser.add_argument("--lite-suffix", type=str, default="",
                        help="Suffix for lite JSON directories (e.g., '_lite10'). Use this for fast iteration!")
+    parser.add_argument("--no-ablations", action="store_true",
+                       help="Skip adding ablations section (only generate main 3x3 grid)")
+    parser.add_argument("--ablations-config", type=str, default="scripts/analysis/viewer_models.json",
+                       help="Path to ablations config file (default: scripts/analysis/viewer_models.json)")
     
     args = parser.parse_args()
     
@@ -1855,10 +2021,32 @@ def main():
     # Create main index
     log.info("\nCreating main index...")
     create_main_index(output_dir, model_availability)
-    
+
+    # Add ablations section (unless --no-ablations was specified)
+    if not args.no_ablations:
+        log.info("\nAdding ablations to index...")
+        ablations_config_path = Path(args.ablations_config)
+        ablations = load_ablations_config(ablations_config_path)
+
+        if ablations:
+            log.info(f"  Found {len(ablations)} ablations in config")
+            ablation_status = scan_ablation_availability(output_dir, ablations)
+            available_count = sum(1 for a in ablation_status if a["has_viewer"])
+            log.info(f"  {available_count}/{len(ablations)} have viewer data in {output_dir / 'ablations'}")
+
+            if available_count > 0:
+                add_ablations_to_index(output_dir, ablation_status)
+            else:
+                log.warning("  No ablation viewers found - run generate_ablation_viewers.py first to create them")
+        else:
+            log.info("  No ablations configured in viewer_models.json")
+    else:
+        log.info("\nSkipping ablations (--no-ablations specified)")
+
     log.info(f"\n✅ Unified viewer created successfully!")
     log.info(f"📂 Output directory: {output_dir}")
     log.info(f"🌐 Open {output_dir / 'index.html'} in a web browser to start exploring!")
+
 
 if __name__ == "__main__":
     main()

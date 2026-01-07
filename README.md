@@ -192,19 +192,26 @@ Explore all interpretability results in a unified HTML viewer:
 
 # Or with custom output directory
 ./generate_demo.sh --output-dir analysis_results/my_demo --num-images 10
+
+# Or run Python script directly (same result)
+python scripts/analysis/create_unified_viewer.py \
+    --output-dir analysis_results/unified_viewer_lite \
+    --num-images 10
 ```
 
 Open `analysis_results/unified_viewer_lite/index.html` in a browser.
 
 **What the demo includes:**
 - 9 main model viewers (3 LLMs × 3 Vision Encoders)
-- 10 ablation model viewers
+- 10 ablation model viewers (automatically linked if they exist in `ablations/` folder)
 - Unified index.html with navigation to all models
 
-**Individual scripts (for advanced use):**
-- `create_unified_viewer.py` - Generate main model viewers
-- `generate_ablation_viewers.py` - Generate ablation viewers
-- `add_models_to_viewer.py` - Update index.html with ablation links
+**NOTE:** `create_unified_viewer.py` now handles ablations automatically - you do NOT need
+to run multiple scripts. Use `--no-ablations` flag to skip ablations section if needed.
+
+**Individual scripts (for advanced use only):**
+- `generate_ablation_viewers.py` - Generate ablation image viewers (run once, then `create_unified_viewer.py` links them)
+- `add_models_to_viewer.py` - Legacy script, functionality now in `create_unified_viewer.py`
 
 ### Layer Evolution Analysis
 
