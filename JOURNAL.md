@@ -6,6 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-06 (FIX: Restore ablations in demo index.html)
+- **USER REPORT**: "ablations are missing from the demo - the ablations folder itself is there"
+- **ROOT CAUSE**: When I synced the Layer 0 LN-Lens fix from `unified_viewer_lite/` to website, I overwrote the index.html that had the ablations section. The `create_unified_viewer.py` only generates the main 3x3 grid.
+- **WORKFLOW LESSON**: Should run both scripts in sequence:
+  1. `create_unified_viewer.py` - creates main 3x3 grid
+  2. `add_models_to_viewer.py` - adds ablations section to index
+- **FIX**: Re-added ablations section with all 10 models:
+  - Qwen2-VL (off-the-shelf), Seeds 10/11, Linear connector
+  - Unfreeze ViT, Earlier ViT layers (6, 10)
+  - First sentence training, Top-bottom variants
+- **Git (website)**: `4a90b91` - Add ablations section to demo index page
+- **Git (molmo)**: `b38f48f` - Update website submodule
+
 ### 2026-01-06 (Patchscopes Bug Fix: Persistent Hook)
 
 **Critical bug fixed in `patchscopes_descriptive.py`**: Hook was only applied on first forward pass during autoregressive generation, causing all subsequent tokens to see original "X" instead of patched visual hidden state.
