@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-08 (Notebook Update: L2 Norm Plots)
+
+**Added two new plot sections to `paper_plots/paper_figures.ipynb`:**
+1. **L2 Norm Distribution (3x6 grid)**: Vision vs Text histograms with log scale, p99 and max markers
+2. **Max Token Embedding Values (3x3 grid)**: Individual embedding dimension distributions
+
+Both plots load pre-computed data from `analysis_results/` for fast execution (no GPU needed).
+Plots use 100% identical logic to standalone scripts for reproducibility.
+
 ### 2026-01-08 (CLAUDE.md Guidelines Update)
 
 **Added new guidelines to prevent future mistakes:**
