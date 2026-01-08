@@ -6,17 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-08 (Paper: Border Lines for L2 Norm Figures - FIXED)
+### 2026-01-08 (Paper: LaTeX Tabular for L2 Norm Figures - FINAL FIX)
 
-**Fixed appendix figures with proper borders:**
-- `scripts/analysis/add_borders_to_existing_plots.py` - Script to overlay borders on EXISTING plots (correct approach)
-- Restored original histogram plots (had accidentally replaced with line plots)
-- Added thick visible black borders around each Vision|Text pair (3x6 → 3x3 groupings)
-- Added thick visible black borders around each subplot in 3x3 max token grid
-- Added `\usepackage{float}` to main.tex for [H] placement
-- Changed figure placement from [ht] to [H] for tighter text-figure association
+**Replaced overlay approach with proper LaTeX tabular:**
+- Previous overlay approach produced misaligned borders (pixel estimates were wrong)
+- New approach: 18 individual PDFs (9 L2 norm + 9 max token) arranged in LaTeX tabular
+- `\begin{tabular}{|c|c|c|}` with `\hline` provides clean, native gridlines
+- Individual plots in `figures/l2norm_individual/` and `figures/max_token_individual/`
+- `generate_individual_max_token_plots.py` - Creates 9 individual max token PDFs
 
-**Lesson learned:** When adding borders to existing plots, DON'T regenerate plots from scratch - overlay borders on the saved PNG images instead.
+**Why this is better:**
+- LaTeX handles borders natively (no pixel guessing)
+- Individual files can be replaced/updated independently
+- Clean separation of content (plots) and presentation (tabular)
+
+**Lesson learned:** For grid figures, use LaTeX tabular with individual files instead of trying to overlay borders on combined images.
 
 ### 2026-01-08 (Paper: L2 Norm Analysis Appendix)
 
