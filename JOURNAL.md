@@ -6,6 +6,29 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-08 (Paper: Border Lines for L2 Norm Figures)
+
+**Added visual border lines to appendix figures:**
+- `scripts/analysis/regenerate_appendix_plots_with_borders.py` - Script to regenerate plots with borders
+- Updated `figures/l2norm_vision_text_distributions.pdf` with 3x3 grid borders
+- Updated `figures/max_token_embedding_distributions.pdf` with 3x3 grid borders
+
+Borders make it clearer which subplots belong to which model combination.
+
+### 2026-01-08 (Paper: L2 Norm Analysis Appendix)
+
+**Added new appendix section `app:outliers` to paper:**
+- `sections/appendix.tex`: New section "L2 Norm Analysis of Vision Tokens" with two subsections
+- `figures/l2norm_vision_text_distributions.pdf`: 3x6 grid showing Vision|Text L2 norm histograms
+- `figures/max_token_embedding_distributions.pdf`: 3x3 grid showing embedding dimension distributions
+- `sections/3_method.tex`: Updated figure caption to reference `\Cref{app:outliers}`
+
+**Key findings documented in paper:**
+- Vision tokens have 1-2 orders of magnitude larger L2 norms than text tokens
+- OLMo-7B has ~100x smaller embedding scale than LLaMA3/Qwen2
+- High L2 norms from uniform scaling, not sparse outliers
+- DINOv2 consistently produces largest L2 norms
+
 ### 2026-01-08 (Notebook Update: L2 Norm Plots)
 
 **Added two new plot sections to `paper_plots/paper_figures.ipynb`:**
