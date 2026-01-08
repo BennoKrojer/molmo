@@ -6,14 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-08 (Paper: Border Lines for L2 Norm Figures)
+### 2026-01-08 (Paper: Border Lines for L2 Norm Figures - FIXED)
 
-**Added visual border lines to appendix figures:**
-- `scripts/analysis/regenerate_appendix_plots_with_borders.py` - Script to regenerate plots with borders
-- Updated `figures/l2norm_vision_text_distributions.pdf` with 3x3 grid borders
-- Updated `figures/max_token_embedding_distributions.pdf` with 3x3 grid borders
+**Fixed appendix figures with proper borders:**
+- `scripts/analysis/add_borders_to_existing_plots.py` - Script to overlay borders on EXISTING plots (correct approach)
+- Restored original histogram plots (had accidentally replaced with line plots)
+- Added thick visible black borders around each Vision|Text pair (3x6 → 3x3 groupings)
+- Added thick visible black borders around each subplot in 3x3 max token grid
+- Added `\usepackage{float}` to main.tex for [H] placement
+- Changed figure placement from [ht] to [H] for tighter text-figure association
 
-Borders make it clearer which subplots belong to which model combination.
+**Lesson learned:** When adding borders to existing plots, DON'T regenerate plots from scratch - overlay borders on the saved PNG images instead.
 
 ### 2026-01-08 (Paper: L2 Norm Analysis Appendix)
 
