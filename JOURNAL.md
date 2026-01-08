@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-08 (CLAUDE.md Guidelines Update)
+
+**Added new guidelines to prevent future mistakes:**
+- TLDR updated: Re-read CLAUDE.md and JOURNAL.md during long conversations before significant changes
+- New section "INCREMENTAL CHANGES": Find exact code, make minimal changes, git push often
+- Emphasis on viewing visual outputs before modifying them
+
+**Lesson learned**: When asked for small plot changes, don't rewrite - find exact original code and modify minimally.
+
 ### 2026-01-08 (L2 Norm Analysis of Vision vs Text Tokens)
 
 **New analysis**: Measuring L2 norm of vision and text tokens across LLM layers to understand embedding magnitude differences.
