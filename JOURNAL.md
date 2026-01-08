@@ -6,6 +6,59 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-08 (L2 Norm Analysis of Vision vs Text Tokens)
+
+**New analysis**: Measuring L2 norm of vision and text tokens across LLM layers to understand embedding magnitude differences.
+
+**New scripts created**:
+- `scripts/analysis/sameToken_acrossLayers_l2norm.py` - Vision token L2 norm across layers
+- `scripts/analysis/sameToken_acrossLayers_text_l2norm.py` - Text token L2 norm across layers
+- `run_parallel_sameToken_l2norm.sh` - Run both on all 9 model combinations
+- `paper_plots/create_l2norm_plots.py` - Generate histogram visualizations
+
+**Key findings**:
+- OLMo-7B: Vision (~30-55) and text (~65) L2 norms are comparable
+- Llama3-8B: Vision (~620) >> text (~43) - order of magnitude larger
+- Qwen2-7B: Vision (~4000+) >>> text (~100-300) - massive gap
+
+**Output**: `paper_plots/paper_figures_output/l2norm_plots/`
+- 3x3 grid plot (PNG + PDF) with log scale
+- 9 individual model plots
+
+**Visualization**: Yellow→orange→red color scheme for layers (0,4,8,16,24,31), solid bars for vision, dashed for text.
+
+### 2026-01-06 (Patchscopes Integration into Demo Viewer)
+
+**Full integration of Patchscopes as 4th interpretability method in the unified viewer.**
+
+**Changes to `patchscopes_descriptive.py`**:
+- Added `--num-patches` argument (default: 10 random patches per image, matching lite viewer)
+- Added `--lite-suffix` argument for output directory naming (`_lite10`)
+- Added `--skip-html` flag for batch runs
+- Changed default layers to `0,2,4,8,16` (optimal for patchscopes)
+- Output format now matches logitlens/NN structure: `chunks → patches`
+- Each patch has `description` field (single string) instead of top-5
+
+**New file `run_parallel_patchscopes.sh`**:
+- Same pattern as `run_parallel_contextual_nn.sh`
+- Launches up to 8 independent GPU jobs for 9 model combinations
+- Uses staggered launches with model loading detection
+- Outputs to `analysis_results/patchscopes/`
+
+**Changes to `create_unified_viewer.py`**:
+- Added patchscopes scanning in `scan_analysis_results()`
+- Added patchscopes loading in `load_all_analysis_data()`
+- Updated CSS: 4-column grid, purple color for patchscopes
+- Updated HTML column order: **LN-Lens, Logit Lens, Embedding Matrix, Patchscopes**
+- Added JavaScript rendering for patchscopes descriptions
+
+**Files modified**:
+- `scripts/analysis/patchscopes/patchscopes_descriptive.py`
+- `scripts/analysis/create_unified_viewer.py`
+- `run_parallel_patchscopes.sh` (new)
+
+**Next steps**: Run patchscopes on all 9 models, regenerate demo viewer
+
 ### 2026-01-06 (SYSTEMIC FIX: create_unified_viewer.py now includes ablations automatically)
 - **USER REPORT**: "ablations are missing from the demo - please make sure things work"
 - **ROOT CAUSE ANALYSIS**:

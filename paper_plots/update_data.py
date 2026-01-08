@@ -575,6 +575,81 @@ def load_token_similarity_data():
 
 
 # =============================================================================
+# L2 NORM DATA (for token norm histograms)
+# =============================================================================
+
+VISION_L2NORM_DIR = RESULTS_DIR / "sameToken_acrossLayers_l2norm"
+TEXT_L2NORM_DIR = RESULTS_DIR / "sameToken_acrossLayers_text_l2norm"
+
+
+def load_l2norm_data():
+    """
+    Load L2 norm histogram data (vision and text).
+
+    Returns: {
+        'vision': {model_key: {layer: {counts, bin_edges, mean, std, ...}}},
+        'text': {model_key: {layer: {counts, bin_edges, mean, std, ...}}}
+    }
+    """
+    result = {'vision': {}, 'text': {}}
+
+    # Load vision L2 norms
+    if VISION_L2NORM_DIR.exists():
+        for ckpt_dir in VISION_L2NORM_DIR.iterdir():
+            if not ckpt_dir.is_dir():
+                continue
+            summary_file = ckpt_dir / "l2norm_across_layers_summary.json"
+            if not summary_file.exists():
+                continue
+
+            llm, encoder = extract_model_from_checkpoint(ckpt_dir.name)
+            if not llm or not encoder:
+                continue
+
+            key = f"{llm}+{encoder}"
+            with open(summary_file) as f:
+                data = json.load(f)
+
+            histogram_data = data.get('histogram_data', {})
+            result['vision'][key] = {
+                int(layer): layer_data
+                for layer, layer_data in histogram_data.items()
+            }
+
+    # Load text L2 norms
+    if TEXT_L2NORM_DIR.exists():
+        for ckpt_dir in TEXT_L2NORM_DIR.iterdir():
+            if not ckpt_dir.is_dir():
+                continue
+            summary_file = ckpt_dir / "text_l2norm_across_layers_summary.json"
+            if not summary_file.exists():
+                continue
+
+            llm, encoder = extract_model_from_checkpoint(ckpt_dir.name)
+            if not llm or not encoder:
+                continue
+
+            key = f"{llm}+{encoder}"
+            with open(summary_file) as f:
+                data = json.load(f)
+
+            histogram_data = data.get('histogram_data', {})
+            result['text'][key] = {
+                int(layer): layer_data
+                for layer, layer_data in histogram_data.items()
+            }
+
+    # Sort by layer
+    for modality in ['vision', 'text']:
+        result[modality] = {
+            k: dict(sorted(v.items()))
+            for k, v in sorted(result[modality].items())
+        }
+
+    return result
+
+
+# =============================================================================
 # LAYER ALIGNMENT DATA (for histogram plots)
 # =============================================================================
 
@@ -828,7 +903,15 @@ def main():
     token_similarity_data['text'] = {k: v for k, v in token_similarity_data['text'].items() if k in main_models}
     print(f"  Vision: {len(token_similarity_data['vision'])}, Text: {len(token_similarity_data['text'])} models")
     print()
-    
+
+    # Load L2 norm data
+    print("Extracting L2 norm data...")
+    l2norm_data = load_l2norm_data()
+    l2norm_data['vision'] = {k: v for k, v in l2norm_data['vision'].items() if k in main_models}
+    l2norm_data['text'] = {k: v for k, v in l2norm_data['text'].items() if k in main_models}
+    print(f"  Vision: {len(l2norm_data['vision'])}, Text: {len(l2norm_data['text'])} models")
+    print()
+
     # Layer alignment data (optional, slow)
     layer_alignment_data = None
     if not args.skip_alignment:
@@ -861,6 +944,7 @@ def main():
         'logitlens': logitlens_data,
         'contextual': contextual_data,
         'token_similarity': token_similarity_data,
+        'l2norm': l2norm_data,
         'similarity_histograms': similarity_histogram_data,
         'ablations': {
             'nn': ablations_nn,
