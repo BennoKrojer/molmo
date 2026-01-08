@@ -3,7 +3,7 @@
 > **Note**: This repo is forked from Molmo. Most training infrastructure comes from there. 
 > Focus on our interpretability study in `scripts/analysis/` and `analysis_results/`.
 
-TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task
+TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task. **During long conversations, re-read this file and recent JOURNAL.md before making significant changes.**
 
 ## ⚠️ DO NOT CREATE RANDOM FILES - CRITICAL ⚠️
 - **NEVER create random documentation files, summaries, or artifacts!**
@@ -52,6 +52,15 @@ TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATIO
 - Key scripts to check: `run_all_missing.sh`, `run_all_parallel_*.sh`, `run_all_combinations_*.sh`
 - These contain established parallelization patterns, GPU management, and error handling
 - Build on existing infrastructure rather than reinventing
+
+## INCREMENTAL CHANGES - CRITICAL ⚠️
+- **When modifying ANY existing working code/output:**
+  1. Find the EXACT code that produced the current (approved) result
+  2. Make MINIMAL changes to that code - don't rewrite from scratch
+  3. If tempted to "improve" or restructure, ASK first
+- **Git push after every successful change** - makes reverting trivial
+- **For visual outputs (plots, viewers):** USE the Read tool to VIEW the original before modifying
+- **Never assume you know what something looks like** - verify first
 
 ## MANDATORY PRE-FLIGHT CHECKLIST - CRITICAL ⚠️
 **Before running ANY command that costs money, time, or modifies data:**
@@ -132,6 +141,38 @@ ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
 - Format: `[YYYY-MM-DD] Brief description of change`
 - Keep it concise but informative
 - This is essential for reproducibility and tracking progress
+
+## VIEWER GENERATION - SINGLE COMMAND ⚠️
+
+**To regenerate the demo viewer, use ONE of these:**
+
+```bash
+# Option 1: Shell script (recommended)
+./generate_demo.sh --num-images 10
+
+# Option 2: Python script directly
+python scripts/analysis/create_unified_viewer.py \
+    --output-dir analysis_results/unified_viewer_lite \
+    --num-images 10
+```
+
+**IMPORTANT:**
+- `create_unified_viewer.py` now includes ablations AUTOMATICALLY (default behavior)
+- You do NOT need to run `add_models_to_viewer.py` separately anymore
+- Use `--no-ablations` flag to skip ablations section if needed
+
+**To sync to website after regeneration:**
+```bash
+rsync -av --delete analysis_results/unified_viewer_lite/ website/vlm_interp_demo/
+cd website && git add -A && git commit -m "Update demo" && git push
+cd ..
+git add website && git commit -m "Update website submodule" && git push
+```
+
+**Related scripts (for reference only - usually don't need to run directly):**
+- `generate_ablation_viewers.py` - Creates ablation image viewers in `ablations/` folder
+- `add_models_to_viewer.py` - Legacy script, functionality now in create_unified_viewer.py
+- `viewer_models.json` - Configuration for all models (main + ablations)
 
 ---
 
