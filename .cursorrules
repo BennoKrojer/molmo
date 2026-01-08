@@ -53,14 +53,40 @@ TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATIO
 - These contain established parallelization patterns, GPU management, and error handling
 - Build on existing infrastructure rather than reinventing
 
-## INCREMENTAL CHANGES - CRITICAL ⚠️
-- **When modifying ANY existing working code/output:**
-  1. Find the EXACT code that produced the current (approved) result
-  2. Make MINIMAL changes to that code - don't rewrite from scratch
-  3. If tempted to "improve" or restructure, ASK first
-- **Git push after every successful change** - makes reverting trivial
-- **For visual outputs (plots, viewers):** USE the Read tool to VIEW the original before modifying
-- **Never assume you know what something looks like** - verify first
+## ⚠️ EDIT, DON'T REWRITE - MOST CRITICAL ⚠️
+**This is the #1 cause of wasted time. STOP and read this before ANY code change.**
+
+- **ALWAYS EDIT existing code, NEVER rewrite from scratch**
+- **You have the Edit tool - USE IT for surgical changes**
+- **If you're about to write a new script that does something similar to existing code, STOP**
+
+### For Code Changes:
+1. **FIND** the exact file and function that currently produces the output
+2. **READ** that code to understand it
+3. **EDIT** only the specific lines that need changing (use Edit tool)
+4. **TEST** that the output is the same except for your intended change
+
+### For Plot/Figure Changes:
+1. **VIEW** the current output first (use Read tool on PNG/PDF)
+2. **FIND** the exact code that generated it (grep for filename, search notebook cells)
+3. **ADD** only the new code (e.g., border lines) to the EXISTING function
+4. **If you can't find the original code**: Overlay changes on the saved image, don't regenerate
+
+### Examples of WRONG vs RIGHT:
+❌ WRONG: "Let me write a new script to regenerate these plots with borders"
+✅ RIGHT: "Let me find the notebook cell that generates this, add 5 lines for borders"
+
+❌ WRONG: "I'll create regenerate_plots_v2.py based on the original logic"
+✅ RIGHT: "I'll edit line 45-50 of the existing script to add the new feature"
+
+❌ WRONG: Writing 200 lines of new code that reimplements existing functionality
+✅ RIGHT: Adding 5-10 lines to the existing working code
+
+### Why This Matters:
+- Rewrites lose hours of previous debugging and edge case handling
+- Rewrites often produce subtly different output (wrong plot type, missing features)
+- Rewrites are harder to review and more likely to introduce bugs
+- The user has already approved the current output - preserve it!
 
 ## MANDATORY PRE-FLIGHT CHECKLIST - CRITICAL ⚠️
 **Before running ANY command that costs money, time, or modifies data:**
@@ -134,6 +160,24 @@ ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
 - Before pushing: `git status`, check file sizes (`du -sh`) - never push files >100MB
 - After pushing: update JOURNAL.md immediately
 - **If you forget to git/journal, the user will ask - do it proactively!**
+
+## Paper Repo Workflow - CRITICAL
+The `paper/` submodule syncs with Overleaf. Researchers often edit directly on Overleaf.
+
+**ALWAYS pull before making changes to paper repo:**
+```bash
+cd paper
+git pull  # Get latest Overleaf changes first!
+# ... make your changes ...
+git add -A && git commit -m "message" && git push
+cd ..
+git add paper && git commit -m "Update paper submodule" && git push
+```
+
+**Why this matters:**
+- Overleaf and GitHub sync bidirectionally
+- If you push without pulling, you'll create merge conflicts
+- The user may have spent hours writing on Overleaf - don't overwrite their work!
 
 ## JOURNAL.md - CRITICAL
 - **Update JOURNAL.md after every significant change** - not just at end of session
