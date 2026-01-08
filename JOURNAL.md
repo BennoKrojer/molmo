@@ -15,6 +15,34 @@ A concise log of major changes, results, and git operations.
 
 **Lesson learned**: When asked for small plot changes, don't rewrite - find exact original code and modify minimally.
 
+### 2026-01-08 (Max L2 Norm Token Embedding Dimension Analysis)
+
+**New analysis**: Investigating whether high L2 norms are driven by few large embedding dimensions or uniformly larger values across all dimensions.
+
+**New scripts created**:
+- `scripts/analysis/extract_max_token_embeddings.py` - Extracts full embedding vector of max L2 norm vision token
+- `run_extract_max_embeddings.sh` - Parallel runner for all 9 models on 8 GPUs
+
+**Key findings**:
+- **OLMo-7B has ~100-150x smaller embedding scale** than Llama3/Qwen2 (std ~10-20 vs ~1700-11000)
+- **All distributions are Gaussian-like** - high L2 norms come from uniformly larger values across ALL 3584-4096 dimensions, NOT sparse outliers
+- **DINOv2 consistently produces the largest scale** across all LLMs
+- **Llama3-8B max tokens occur at layer 0** (input), while OLMo/Qwen max tokens occur at **layer 24** (late)
+
+| Model | Vision Encoder | Max L2 | Layer | Std Dev |
+|-------|---------------|--------|-------|---------|
+| OLMo-7B | CLIP | 743 | 24 | 11.60 |
+| OLMo-7B | DINOv2 | 1,011 | 24 | 15.80 |
+| OLMo-7B | SigLIP | 1,289 | 24 | 20.14 |
+| Llama3-8B | CLIP | 109,908 | 0 | 1,716.72 |
+| Llama3-8B | DINOv2 | 721,474 | 0 | 11,267.36 |
+| Llama3-8B | SigLIP | 196,945 | 0 | 3,076.76 |
+| Qwen2-7B | CLIP | 163,280 | 24 | 2,726.58 |
+| Qwen2-7B | DINOv2 | 475,051 | 24 | 7,933.76 |
+| Qwen2-7B | SigLIP | 231,242 | 24 | 3,862.31 |
+
+**Output**: `paper_plots/paper_figures_output/l2norm_plots/max_token_embedding_values_3x3.png`
+
 ### 2026-01-08 (L2 Norm Analysis of Vision vs Text Tokens)
 
 **New analysis**: Measuring L2 norm of vision and text tokens across LLM layers to understand embedding magnitude differences.
