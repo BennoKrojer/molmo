@@ -6,6 +6,26 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-09 (Paper: Qwen2-VL Section + Human Validation Updates)
+
+**Added Qwen2-VL subsection to paper (section 4.5):**
+- New figure `figures/fig_qwen2vl.pdf`: 3-panel plot showing Static NN, LogitLens, Contextual interpretability
+- Results consistent with main paper methodology (100 patches, same LLM judge)
+- Key findings: LN-Lens works well (60-73%) even on finetuned LLMs, Static NN very low (9-26%)
+- Added cross-reference from section 4.3 (layer evolution discussion)
+- Added `wang2024qwen2vl` citation to bibliography
+
+**Updated human validation numbers:**
+- Changed appendix numbers from old (n=323, κ=0.65) to final verified (n=360, κ=0.66, accuracy=84.7%)
+- Updated per-model breakdown table with correct numbers
+- Clarified methodology: majority vote criterion (≥50% of annotators)
+
+**Files changed:**
+- `paper/sections/4_experiments.tex`: Added Qwen2-VL subsection
+- `paper/sections/appendix.tex`: Updated human validation numbers and table
+- `paper/literature.bib`: Added Qwen2-VL citation
+- `paper/figures/fig_qwen2vl.pdf`: New figure
+
 ### 2026-01-08 (Paper: LaTeX Tabular for L2 Norm Figures - FINAL FIX)
 
 **Replaced overlay approach with proper LaTeX tabular:**
