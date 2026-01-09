@@ -6,6 +6,37 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-09 (Qwen2-VL: Complete Analysis with Layer Alignment and Token Similarity)
+
+**Added complete Qwen2-VL analysis (matching sec:which_layer for main models):**
+
+**New analysis script:**
+- `scripts/analysis/qwen2_vl/sameToken_acrossLayers_similarity.py` - Token drift analysis
+
+**Updated plotting scripts:**
+- `paper_plots/update_data.py` - Added `load_qwen2vl_layer_alignment_data()` and `load_qwen2vl_token_similarity_data()`
+- `paper_plots/create_qwen2vl_plots.py` - Changed to single combined lineplot (not 3 subplots)
+- `paper_plots/create_layer_alignment_heatmaps.py` - Added `create_qwen2vl_heatmap()`
+- `paper_plots/create_token_similarity_plots.py` - Added `create_qwen2vl_plot()`
+
+**New figures:**
+- `paper_figures_output/qwen2vl/qwen2vl_unified.pdf` - Single lineplot with 3 methods
+- `paper_figures_output/qwen2vl/qwen2vl_layer_alignment_heatmap.pdf` - Layer alignment
+- `paper_figures_output/qwen2vl/qwen2vl_token_similarity.pdf` - Token drift plot
+
+**Paper updates:**
+- `paper/sections/4_experiments.tex` - Added layer alignment and token similarity figures/discussion
+- `paper/figures/fig_qwen2vl_layer_alignment.pdf` - New figure
+- `paper/figures/fig_qwen2vl_token_similarity.pdf` - New figure
+
+**Key findings for Qwen2-VL:**
+- Layer alignment: Input vision tokens align most to mid-layer (layer 4) contextual embeddings
+- Token drift: Similarity drops from 0.96 (layer 1) to 0.10 (layer 27) - more drift than frozen LLMs
+- Interpretability: LN-Lens (60-73%) >> LogitLens (max 53%) >> Static NN (9-26%)
+
+**Git:**
+- Pushed to `final` branch and paper submodule
+
 ### 2026-01-09 (Paper: Qwen2-VL Section + Human Validation Updates)
 
 **Added Qwen2-VL subsection to paper (section 4.5):**
