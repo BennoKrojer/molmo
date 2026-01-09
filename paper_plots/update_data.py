@@ -477,6 +477,83 @@ def load_qwen2vl_contextual_results():
     return dict(sorted(data.items()))
 
 
+def load_qwen2vl_layer_alignment_data(skip_if_slow=False):
+    """
+    Load layer alignment data for Qwen2-VL: which LLM layers NNs come from for each vision layer.
+
+    Returns: {vision_layer: {llm_layer: count}}
+
+    Warning: This reads large JSON files and can take several minutes.
+    """
+    if skip_if_slow:
+        print("  Skipping Qwen2-VL layer alignment (--skip-alignment flag)")
+        return {}
+
+    qwen2vl_dir = CONTEXTUAL_NN_RAW_DIR / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
+    if not qwen2vl_dir.exists():
+        print(f"  ERROR: Qwen2-VL directory not found: {qwen2vl_dir}")
+        return {}
+
+    print(f"  Extracting Qwen2-VL layer alignment from {qwen2vl_dir}...")
+
+    # Qwen2-VL has 28 layers
+    vision_layers = [0, 1, 2, 4, 8, 16, 24, 26, 27]
+    counts = {vl: defaultdict(int) for vl in vision_layers}
+
+    for vl in vision_layers:
+        json_file = qwen2vl_dir / f"contextual_neighbors_visual{vl}_allLayers.json"
+        if not json_file.exists():
+            print(f"    Warning: visual{vl} not found")
+            continue
+
+        print(f"    Loading visual{vl}...", end=" ", flush=True)
+        with open(json_file, 'r') as f:
+            data = json.load(f)
+
+        total_nns = 0
+        for result in data.get('results', []):
+            # Qwen2-VL format: patches directly under result (no chunks)
+            for patch in result.get('patches', []):
+                for nn in patch.get('nearest_contextual_neighbors', []):
+                    layer = nn.get('contextual_layer')
+                    if layer is not None:
+                        counts[vl][layer] += 1
+                        total_nns += 1
+
+        print(f"{total_nns:,} NNs")
+
+    # Convert defaultdict to regular dict for JSON serialization
+    return {vl: dict(lc) for vl, lc in counts.items()}
+
+
+def load_qwen2vl_token_similarity_data():
+    """
+    Load token similarity data for Qwen2-VL.
+
+    Returns: {'vision': {layer: mean_similarity}}
+    """
+    qwen2vl_sim_dir = RESULTS_DIR / "sameToken_acrossLayers_similarity" / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
+    summary_file = qwen2vl_sim_dir / "similarity_across_layers_summary.json"
+
+    if not summary_file.exists():
+        print(f"  Warning: Qwen2-VL token similarity not found: {summary_file}")
+        return {}
+
+    with open(summary_file, 'r') as f:
+        data = json.load(f)
+
+    global_averages = data.get('global_averages', {})
+
+    # Extract vision token similarities
+    vision_similarities = {}
+    for layer_str, layer_data in global_averages.items():
+        layer_idx = int(layer_str)
+        mean_sim = layer_data.get('same_token', {}).get('mean_similarity', 0.0)
+        vision_similarities[layer_idx] = round(mean_sim, 6)
+
+    return {'vision': vision_similarities, 'text': {}}
+
+
 # =============================================================================
 # TOKEN SIMILARITY DATA (for same-token similarity plots)
 # =============================================================================
@@ -845,10 +922,13 @@ def main():
     print()
     
     if args.alignment_only:
-        # Only extract layer alignment
+        # Only extract layer alignment (main models + Qwen2-VL)
         print("Extracting layer alignment data (this takes several minutes)...")
         layer_alignment_data = load_layer_alignment_data(skip_if_slow=False)
-        
+
+        print("\nExtracting Qwen2-VL layer alignment data...")
+        qwen2vl_layer_alignment = load_qwen2vl_layer_alignment_data(skip_if_slow=False)
+
         # Load existing data.json and update just layer_alignment
         data_json_path = Path(__file__).parent / "data.json"
         if data_json_path.exists():
@@ -857,10 +937,12 @@ def main():
         else:
             output_data = {}
         output_data['layer_alignment'] = layer_alignment_data
-        
+        if qwen2vl_layer_alignment:
+            output_data['qwen2vl_layer_alignment'] = qwen2vl_layer_alignment
+
         with open(data_json_path, 'w') as f:
             json.dump(output_data, f, indent=2)
-        print(f"✓ Updated layer_alignment in {data_json_path}")
+        print(f"✓ Updated layer_alignment and qwen2vl_layer_alignment in {data_json_path}")
         return
     
     nn_data = load_nn_results()
@@ -882,7 +964,21 @@ def main():
     qwen2vl_logitlens = load_qwen2vl_logitlens_results()
     qwen2vl_contextual = load_qwen2vl_contextual_results()
     print(f"  NN: {len(qwen2vl_nn)} layers, LogitLens: {len(qwen2vl_logitlens)} layers, Contextual: {len(qwen2vl_contextual)} layers")
-    
+
+    # Load Qwen2-VL layer alignment data (optional, slow)
+    qwen2vl_layer_alignment = None
+    if not args.skip_alignment:
+        print("\nExtracting Qwen2-VL layer alignment data...")
+        qwen2vl_layer_alignment = load_qwen2vl_layer_alignment_data(skip_if_slow=False)
+        if qwen2vl_layer_alignment:
+            print(f"  Found: {len(qwen2vl_layer_alignment)} vision layers with layer alignment data")
+
+    # Load Qwen2-VL token similarity data
+    print("\nExtracting Qwen2-VL token similarity data...")
+    qwen2vl_token_similarity = load_qwen2vl_token_similarity_data()
+    if qwen2vl_token_similarity.get('vision'):
+        print(f"  Found: {len(qwen2vl_token_similarity['vision'])} layers with token similarity data")
+
     # Filter to expected layers only
     print("Filtering to expected layers: [0, 1, 2, 4, 8, 16, 24, N-2, N-1]...")
     nn_data = filter_to_expected_layers(nn_data)
@@ -957,9 +1053,9 @@ def main():
             'contextual': qwen2vl_contextual
         }
     }
-    
+
     data_json_path = Path(__file__).parent / "data.json"
-    
+
     # If skipping alignment, preserve existing layer_alignment from data.json
     if args.skip_alignment and data_json_path.exists():
         with open(data_json_path, 'r') as f:
@@ -967,9 +1063,19 @@ def main():
         if 'layer_alignment' in existing_data:
             output_data['layer_alignment'] = existing_data['layer_alignment']
             print("  (Preserved existing layer_alignment)")
-    elif layer_alignment_data:
-        output_data['layer_alignment'] = layer_alignment_data
-    
+        if 'qwen2vl_layer_alignment' in existing_data:
+            output_data['qwen2vl_layer_alignment'] = existing_data['qwen2vl_layer_alignment']
+            print("  (Preserved existing qwen2vl_layer_alignment)")
+    else:
+        if layer_alignment_data:
+            output_data['layer_alignment'] = layer_alignment_data
+        if qwen2vl_layer_alignment:
+            output_data['qwen2vl_layer_alignment'] = qwen2vl_layer_alignment
+
+    # Add Qwen2-VL token similarity if available
+    if qwen2vl_token_similarity.get('vision'):
+        output_data['qwen2vl_token_similarity'] = qwen2vl_token_similarity
+
     with open(data_json_path, 'w') as f:
         json.dump(output_data, f, indent=2)
     print(f"✓ Saved data to {data_json_path}")

@@ -26,32 +26,41 @@ def load_data():
 
 
 def create_unified_plot(nn_data, logitlens_data, contextual_data):
-    """Create unified plot with all three methods."""
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    """Create single lineplot with all three methods as separate lines."""
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.set_style("whitegrid")
 
-    configs = [
-        (axes[0], nn_data, '(a) Static V-Lens (NN)', 'tab:blue'),
-        (axes[1], logitlens_data, '(b) Logit Lens', 'tab:orange'),
-        (axes[2], contextual_data, '(c) Contextual V-Lens', 'tab:green')
+    # Method configs with correct naming (matching main paper figures)
+    methods = [
+        (nn_data, 'Input Embedding Matrix', 'tab:blue', 'o'),
+        (logitlens_data, 'Output Embedding Matrix (LogitLens)', 'tab:orange', 's'),
+        (contextual_data, 'LN-Lens', 'tab:green', '^')
     ]
 
-    for ax, data, title, color in configs:
+    for data, label, color, marker in methods:
         if data:
             layers = sorted(data.keys())
             values = [data[l] for l in layers]
-            ax.plot(layers, values, marker='o', color=color, linewidth=3,
-                   markersize=10, label='Qwen2-VL-7B')
+            ax.plot(layers, values, marker=marker, color=color, linewidth=2.5,
+                   markersize=10, label=label)
 
-        ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
-        ax.set_title(title, fontsize=16, fontweight='bold', pad=10)
-        ax.grid(True, alpha=0.3)
-        ax.set_ylim(0, 100)
-        ax.tick_params(labelsize=11)
+    ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=16, fontweight='bold', pad=12)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, 100)
+    ax.tick_params(labelsize=12)
+
+    # Combine all layers to set proper x limits
+    all_layers = set()
+    for data, _, _, _ in methods:
         if data:
-            ax.set_xlim(min(layers) - 0.5, max(layers) + 0.5)
-            ax.legend(fontsize=12)
+            all_layers.update(data.keys())
+    if all_layers:
+        ax.set_xlim(min(all_layers) - 0.5, max(all_layers) + 0.5)
+
+    # Legend for the three methods (not the model)
+    ax.legend(fontsize=12, framealpha=0.95, loc='best')
 
     plt.tight_layout()
     return fig

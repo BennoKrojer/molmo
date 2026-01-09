@@ -152,21 +152,67 @@ def create_combined_3x3_plot(all_data, output_path):
     plt.close()
 
 
+def create_qwen2vl_plot(vision_data, text_data, output_path):
+    """Create a single token similarity plot for Qwen2-VL."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Extract layers and similarities
+    vision_layers = sorted(vision_data.keys())
+    vision_similarities = [vision_data[l] for l in vision_layers]
+
+    # For Qwen2-VL, we only have vision tokens (off-the-shelf model, no text similarity data)
+    ax.plot(vision_layers, vision_similarities,
+           marker='o', linewidth=2.5, markersize=10,
+           label='Vision tokens', color='#2E86AB')
+
+    # If we have text data, plot it too
+    if text_data:
+        text_layers = sorted(text_data.keys())
+        text_similarities = [text_data[l] for l in text_layers]
+        ax.plot(text_layers, text_similarities,
+               marker='s', linewidth=2.5, markersize=10,
+               label='Text tokens', color='#A23B72')
+        ax.legend(fontsize=12, framealpha=0.95)
+
+    # Title and labels
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=16, fontweight='bold', pad=12)
+    ax.set_xlabel('LLM Layer', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Cosine Similarity to Layer 0', fontsize=14, fontweight='bold')
+
+    # Styling
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_ylim(0, 1.05)
+    ax.tick_params(labelsize=12)
+
+    all_layers = sorted(set(vision_layers))
+    if all_layers:
+        ax.set_xlim(min(all_layers) - 1, max(all_layers) + 1)
+        ax.set_xticks(all_layers)
+
+    plt.tight_layout()
+
+    # Save
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path.with_suffix('.pdf'), dpi=300, bbox_inches='tight')
+    print(f"✓ Saved: {output_path.name}")
+    plt.close()
+
+
 def main():
     print("Creating token similarity plots...")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"Output: {OUTPUT_DIR}\n")
-    
+
     # Load data from data.json
     all_data = load_token_similarity_data()
-    
+
     if not all_data:
         print("ERROR: No token_similarity data found in data.json!")
         print("  Run: python update_data.py")
         return
-    
+
     print(f"✓ Loaded data for {len(all_data)} model combinations\n")
-    
+
     # Print summary
     print("Available model combinations:")
     for (llm, encoder) in sorted(all_data.keys()):
@@ -175,13 +221,31 @@ def main():
         print(f"  {LLM_DISPLAY.get(llm, llm)} + {ENC_DISPLAY.get(encoder, encoder)}: "
               f"Vision layers {vision_layers}, Text layers {text_layers}")
     print()
-    
+
     # Create combined 3x3 plot
     print("=" * 50)
     print("Creating combined 3x3 plot...")
     combined_path = OUTPUT_DIR / "token_similarity_combined_3x3.png"
     create_combined_3x3_plot(all_data, combined_path)
-    
+
+    # Create Qwen2-VL plot if data exists
+    print()
+    print("=" * 50)
+    print("Creating Qwen2-VL token similarity plot...")
+    with open(DATA_JSON) as f:
+        data = json.load(f)
+    qwen2vl_token_sim = data.get('qwen2vl_token_similarity', {})
+    if qwen2vl_token_sim:
+        qwen2vl_vision = {int(k): v for k, v in qwen2vl_token_sim.get('vision', {}).items()}
+        qwen2vl_text = {int(k): v for k, v in qwen2vl_token_sim.get('text', {}).items()}
+        if qwen2vl_vision:
+            qwen2vl_output_dir = SCRIPT_DIR / "paper_figures_output" / "qwen2vl"
+            qwen2vl_output_dir.mkdir(parents=True, exist_ok=True)
+            qwen2vl_path = qwen2vl_output_dir / "qwen2vl_token_similarity.png"
+            create_qwen2vl_plot(qwen2vl_vision, qwen2vl_text, qwen2vl_path)
+    else:
+        print("  No qwen2vl_token_similarity data found in data.json")
+
     print(f"\n✓ All plots saved to {OUTPUT_DIR}")
 
 

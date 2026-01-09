@@ -196,6 +196,60 @@ def create_combined_3x3_heatmap(all_counts, output_path):
     plt.close()
 
 
+def create_qwen2vl_heatmap(counts, output_path):
+    """Create a single heatmap for Qwen2-VL (off-the-shelf model)."""
+    vision_layers = VISION_LAYERS_QWEN
+    llm_layers = LLM_LAYERS_QWEN
+    n_vision = len(vision_layers)
+    n_llm = len(llm_layers)
+
+    # Build the matrix: rows = vision layers (Y), cols = LLM layers (X)
+    matrix = np.zeros((n_vision, n_llm))
+
+    for i, vl in enumerate(vision_layers):
+        # counts keys are ints for Qwen2-VL
+        layer_counts = counts.get(vl, counts.get(str(vl), {}))
+        total = sum(layer_counts.values())
+        if total > 0:
+            for j, ll in enumerate(llm_layers):
+                matrix[i, j] = layer_counts.get(ll, layer_counts.get(str(ll), 0)) / total
+
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Heatmap with pcolormesh for cell borders
+    # Fixed 0-1 color range for comparability
+    im = ax.pcolormesh(matrix, cmap='viridis', vmin=0, vmax=1.0,
+                       edgecolors='black', linewidth=0.5)
+    ax.set_aspect('auto')
+
+    # Labels
+    ax.set_xlabel('LLM Layer', fontsize=18)
+    ax.set_ylabel('Vision Layer', fontsize=18)
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=20, fontweight='bold', pad=15)
+
+    # Y-axis: vision layers (ticks at cell centers: 0.5, 1.5, ...)
+    ax.set_yticks([i + 0.5 for i in range(n_vision)])
+    ax.set_yticklabels([str(vl) for vl in vision_layers], fontsize=15)
+
+    # X-axis: LLM layers (ticks at cell centers)
+    ax.set_xticks([i + 0.5 for i in range(n_llm)])
+    ax.set_xticklabels([str(ll) for ll in llm_layers], fontsize=15)
+
+    # Colorbar
+    cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+    cbar.set_label('Proportion of Top-5 NNs', fontsize=16)
+    cbar.ax.tick_params(labelsize=15)
+
+    plt.tight_layout()
+
+    # Save
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path.with_suffix('.pdf'), dpi=300, bbox_inches='tight')
+    print(f"✓ Saved: {output_path.name}")
+    plt.close()
+
+
 def main():
     print("Creating layer alignment heatmaps...")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -231,7 +285,21 @@ def main():
     print("Creating combined 3x3 heatmap...")
     combined_path = OUTPUT_DIR / "heatmap_combined_3x3.png"
     create_combined_3x3_heatmap(all_counts, combined_path)
-    
+
+    # Create Qwen2-VL heatmap (off-the-shelf model)
+    print("\n" + "=" * 50)
+    print("Creating Qwen2-VL heatmap...")
+    with open(DATA_JSON) as f:
+        data = json.load(f)
+    qwen2vl_counts = data.get('qwen2vl_layer_alignment', {})
+    if qwen2vl_counts:
+        qwen2vl_output_dir = SCRIPT_DIR / "paper_figures_output" / "qwen2vl"
+        qwen2vl_output_dir.mkdir(parents=True, exist_ok=True)
+        qwen2vl_path = qwen2vl_output_dir / "qwen2vl_layer_alignment_heatmap.png"
+        create_qwen2vl_heatmap(qwen2vl_counts, qwen2vl_path)
+    else:
+        print("  No qwen2vl_layer_alignment data found in data.json")
+
     print(f"\n✓ All heatmaps saved to {OUTPUT_DIR}")
 
 
