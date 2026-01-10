@@ -409,7 +409,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
             <h3>Available Analyses</h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-label">Static NN</div>
+                    <div class="stat-label">Input Emb.</div>
                     <div class="stat-value">{len(nn_layers)}</div>
                     <div class="stat-label">layers</div>
                 </div>
@@ -419,7 +419,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
                     <div class="stat-label">layers</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Contextual NN</div>
+                    <div class="stat-label">LN-Lens</div>
                     <div class="stat-value">{len(ctx_layers)}</div>
                     <div class="stat-label">layers</div>
                 </div>

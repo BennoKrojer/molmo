@@ -71,9 +71,9 @@ def create_individual_plots(nn_data, logitlens_data, contextual_data):
     figs = {}
 
     methods = {
-        'nn': ('Static V-Lens (NN)', nn_data, 'tab:blue'),
-        'logitlens': ('Logit Lens', logitlens_data, 'tab:orange'),
-        'contextual': ('Contextual V-Lens', contextual_data, 'tab:green')
+        'nn': ('Input Embedding Matrix', nn_data, 'tab:blue'),
+        'logitlens': ('LogitLens', logitlens_data, 'tab:orange'),
+        'contextual': ('LN-Lens', contextual_data, 'tab:green')
     }
 
     for method_key, (method_name, data, color) in methods.items():

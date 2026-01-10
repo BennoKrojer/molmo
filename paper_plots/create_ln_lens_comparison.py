@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create figure comparing LN-Lens vs Static NN vs LogitLens.
+Create figure comparing LN-Lens vs Input Embedding Matrix vs LogitLens.
 
 Shows an image with a highlighted patch and arrows pointing to
 text boxes showing the top-5 neighbors for each method.
@@ -360,7 +360,7 @@ def create_text_box(ax, neighbors, method_name, is_contextual=False, color='#219
                 ax.text(0.02, y_pos, f'{i+1}. {token}', fontsize=8,
                        ha='left', va='center', color='#333333')
         else:
-            # For Static NN / LogitLens: just show token and similarity
+            # For Input Embedding Matrix / LogitLens: just show token and similarity
             token = neighbor.get('token', neighbor.get('predicted_token', ''))
             sim = neighbor.get('similarity', neighbor.get('probability', 0))
 
@@ -487,7 +487,7 @@ def create_compact_ln_lens_box(ax, neighbors, top_k=3, font_scale=1.0):
 
 
 def create_compact_baseline_box(ax, neighbors, title, title_color, border_color, top_k=3, font_scale=1.0):
-    """Create a compact box for baseline methods (Static NN, LogitLens).
+    """Create a compact box for baseline methods (Input Embedding Matrix, LogitLens).
 
     Args:
         ax: Matplotlib axes
@@ -560,7 +560,7 @@ def create_comparison_figure_v5(image_idx=0, patch_row=12, patch_col=12):
     Layout:
     - Image on left
     - LN-Lens box (top right, full width of text area)
-    - Static NN + LogitLens boxes (bottom right, side by side, half width each)
+    - Input Emb. + LogitLens boxes (bottom right, side by side, half width each)
     """
 
     # Load all data
@@ -914,31 +914,96 @@ def create_2x1_grid_figure():
     return fig
 
 
+def create_2x1_variant(variant_config):
+    """Create a 2x1 figure with specific configuration."""
+    image_indices = variant_config['images']
+    patch_positions = variant_config['patches']
+    layers = variant_config['layers']
+    models_to_use = variant_config['models']
+
+    fig = plt.figure(figsize=(8, 10))
+
+    margin_left = 0.03
+    margin_right = 0.02
+    margin_top = 0.04
+    margin_bottom = 0.04
+    v_gap = 0.05
+
+    panel_width = 1 - margin_left - margin_right
+    panel_height = (1 - margin_top - margin_bottom - v_gap) / 2
+
+    panels = [
+        (margin_left, margin_bottom + panel_height + v_gap, panel_width, panel_height),
+        (margin_left, margin_bottom, panel_width, panel_height),
+    ]
+
+    subfig_labels = ['a)', 'b)']
+
+    for model_info, layer, (img_idx, (patch_row, patch_col)), panel_bounds, label in zip(
+        models_to_use, layers, zip(image_indices, patch_positions), panels, subfig_labels
+    ):
+        create_single_panel(
+            fig, panel_bounds,
+            image_idx=img_idx,
+            patch_row=patch_row,
+            patch_col=patch_col,
+            model_key=model_info['key'],
+            model_display=model_info['display'],
+            layer=layer,
+            subfig_label=label
+        )
+
+    return fig
+
+
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Creating LN-Lens comparison figure v4 (single panel)...")
+    # Define 8 different variants with different images, patches, models, layers
+    ALL_MODELS = [
+        {'key': 'train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_lite10', 'display': 'OLMo-7B + SigLIP'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_lite10', 'display': 'OLMo-7B + CLIP'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_lite10', 'display': 'LLaMA3-8B + DINOv2'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_lite10', 'display': 'LLaMA3-8B + SigLIP'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_lite10', 'display': 'Qwen2-7B + SigLIP'},
+        {'key': 'train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_lite10', 'display': 'OLMo-7B + DINOv2'},
+    ]
 
-    # Use patch on clock tower (row 10, col 9) - interesting semantic content
-    fig = create_comparison_figure_v4(image_idx=0, patch_row=10, patch_col=9)
+    variants = [
+        # Variant 1: OLMo+SigLIP & LLaMA3+DINOv2, images 0,3, patches (10,9), (12,12)
+        {'images': [0, 3], 'patches': [(10, 9), (12, 12)], 'layers': [8, 16], 'models': [ALL_MODELS[0], ALL_MODELS[2]]},
+        # Variant 2: OLMo+CLIP & Qwen2+SigLIP, images 1,5, different patches
+        {'images': [1, 5], 'patches': [(8, 10), (14, 8)], 'layers': [4, 16], 'models': [ALL_MODELS[1], ALL_MODELS[4]]},
+        # Variant 3: LLaMA3+SigLIP & OLMo+DINOv2, images 2,7
+        {'images': [2, 7], 'patches': [(12, 6), (10, 14)], 'layers': [8, 24], 'models': [ALL_MODELS[3], ALL_MODELS[5]]},
+        # Variant 4: OLMo+SigLIP & OLMo+CLIP, images 0,1, same model family
+        {'images': [0, 1], 'patches': [(11, 11), (9, 13)], 'layers': [8, 8], 'models': [ALL_MODELS[0], ALL_MODELS[1]]},
+        # Variant 5: Different images, OLMo+DINOv2 & LLaMA3+SigLIP
+        {'images': [4, 6], 'patches': [(13, 7), (8, 12)], 'layers': [16, 4], 'models': [ALL_MODELS[5], ALL_MODELS[3]]},
+        # Variant 6: OLMo+CLIP & LLaMA3+DINOv2, images 2,8
+        {'images': [2, 8], 'patches': [(10, 10), (12, 10)], 'layers': [8, 16], 'models': [ALL_MODELS[1], ALL_MODELS[2]]},
+        # Variant 7: Qwen2+SigLIP & OLMo+SigLIP, images 3,9
+        {'images': [3, 9], 'patches': [(9, 8), (11, 15)], 'layers': [16, 8], 'models': [ALL_MODELS[4], ALL_MODELS[0]]},
+        # Variant 8: LLaMA3+DINOv2 & OLMo+DINOv2, images 5,0
+        {'images': [5, 0], 'patches': [(14, 10), (8, 8)], 'layers': [4, 24], 'models': [ALL_MODELS[2], ALL_MODELS[5]]},
+    ]
 
-    for ext in ['pdf', 'png']:
-        output_file = OUTPUT_DIR / f'ln_lens_comparison_v4.{ext}'
-        fig.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
-        print(f"  Saved {output_file}")
+    print("Creating 8 variants of 2x1 comparison figures...\n")
 
-    plt.close(fig)
+    for i, config in enumerate(variants, 1):
+        print(f"Variant {i}: {config['models'][0]['display']} & {config['models'][1]['display']}")
+        print(f"  Images: {config['images']}, Patches: {config['patches']}, Layers: {config['layers']}")
 
-    print("\nCreating 2x1 grid comparison figure...")
-    fig_2x1 = create_2x1_grid_figure()
+        fig = create_2x1_variant(config)
 
-    for ext in ['pdf', 'png']:
-        output_file = OUTPUT_DIR / f'ln_lens_comparison_2x1.{ext}'
-        fig_2x1.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
-        print(f"  Saved {output_file}")
+        for ext in ['pdf', 'png']:
+            output_file = OUTPUT_DIR / f'ln_lens_comparison_2x1_v{i}.{ext}'
+            fig.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='white')
 
-    plt.close(fig_2x1)
-    print("Done!")
+        print(f"  Saved variant {i}\n")
+        plt.close(fig)
+
+    print("Done! Check paper_figures_output/ln_lens_comparison_2x1_v1.png through v8.png")
 
 
 if __name__ == '__main__':

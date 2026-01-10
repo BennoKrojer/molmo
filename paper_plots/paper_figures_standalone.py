@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-V-Lens Paper Figures - Standalone Script
+LN-Lens Paper Figures - Standalone Script
 =========================================
 Just run: python paper_figures_standalone.py
 
@@ -145,7 +145,7 @@ def create_unified_plot():
 # =============================================================================
 
 if __name__ == '__main__':
-    print("V-Lens Paper Figures")
+    print("LN-Lens Paper Figures")
     print("=" * 40)
     create_unified_plot()
     print(f"\nFigures saved to: {OUTPUT_DIR.absolute()}")

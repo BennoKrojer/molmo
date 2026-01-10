@@ -199,9 +199,9 @@ def main():
 
     # Generate plots for each method
     methods = {
-        'nn': ('Static NN', convert_keys_to_int(ablations.get('nn', {}))),
+        'nn': ('Input Emb.', convert_keys_to_int(ablations.get('nn', {}))),
         'logitlens': ('LogitLens', convert_keys_to_int(ablations.get('logitlens', {}))),
-        'contextual': ('Contextual V-Lens', convert_keys_to_int(ablations.get('contextual', {})))
+        'contextual': ('LN-Lens', convert_keys_to_int(ablations.get('contextual', {})))
     }
 
     # Inject baseline into ablations data for plotting

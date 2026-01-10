@@ -8,8 +8,8 @@ Code for "The surprising interpretability of vision tokens in LLMs".
 
 We study how frozen LLMs process visual soft prompt tokens from vision encoders. We train connector-only models (MLP) mapping vision tokens to LLM embedding space, then analyze interpretability using three methods:
 
-1. **Static NN** - Nearest neighbors in LLM vocabulary embeddings
-2. **LogitLens** - Applying LM head to intermediate representations  
+1. **Input Embedding Matrix** - Nearest neighbors in LLM input embedding matrix
+2. **LogitLens** - Applying LM head to intermediate representations (output embedding matrix)
 3. **LN-Lens (ours)** - Nearest neighbors in contextual text embeddings
 
 ## Setup
@@ -116,7 +116,7 @@ python scripts/analysis/precompute_contextual_caches.py \
 All tools analyze vision tokens across layers: **0, 1, 2, 4, 8, 16, 24, N-2, N-1**  
 (where N=32 for OLMo/LLaMA, N=28 for Qwen2)
 
-### Static NN (Vocabulary Nearest Neighbors)
+### Input Embedding Matrix (Vocabulary Nearest Neighbors)
 
 Finds nearest neighbors in LLM input embedding matrix.
 
@@ -166,7 +166,7 @@ GPT-4o evaluates whether nearest neighbor tokens are semantically meaningful for
 
 ```bash
 # Run on all model combinations
-./llm_judge/run_all_parallel_nn.sh          # Static NN
+./llm_judge/run_all_parallel_nn.sh          # Input Embedding Matrix
 ./llm_judge/run_all_parallel_logitlens.sh   # LogitLens
 ./llm_judge/run_all_parallel_contextual.sh  # LN-Lens
 
@@ -239,7 +239,7 @@ molmo_data/
 │   └── Qwen_Qwen2-VL-7B-Instruct/
 
 analysis_results/
-├── nearest_neighbors/              # Static NN results
+├── nearest_neighbors/              # Input Embedding Matrix results
 ├── logit_lens/                     # LogitLens results
 ├── contextual_nearest_neighbors/   # LN-Lens results (CC corpus)
 ├── contextual_nearest_neighbors_vg/# LN-Lens results (VG corpus)
