@@ -1127,14 +1127,15 @@ def main():
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     sns.set_style("whitegrid")
     
+    # Order: Input Embedding Matrix, Output Embedding Matrix (LogitLens), LN-Lens (ours last)
     configs = [
-        (axes[0], nn_data, '(a) Static V-Lens (NN)'),
-        (axes[1], logitlens_data, '(b) Logit Lens'),
-        (axes[2], contextual_data, '(c) Contextual V-Lens'),
+        (axes[0], nn_data, '(a) Input Embedding Matrix'),
+        (axes[1], logitlens_data, '(b) Output Embedding Matrix (LogitLens)'),
+        (axes[2], contextual_data, '(c) LN-Lens (Ours)'),
     ]
-    
+
     handles = {}
-    for ax, data, title in configs:
+    for idx, (ax, data, title) in enumerate(configs):
         all_layers = sorted(set(l for d in data.values() for l in d.keys()))
         for llm in LLM_ORDER:
             for enc in ENC_ORDER:
@@ -1154,7 +1155,9 @@ def main():
                 if lbl not in handles:
                     handles[lbl] = line
         ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
+        # Shared y-axis: only show label on leftmost plot
+        if idx == 0:
+            ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
         ax.set_title(title, fontsize=16, fontweight='bold', pad=10)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)

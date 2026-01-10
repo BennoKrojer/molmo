@@ -86,16 +86,17 @@ def create_unified_plot():
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     sns.set_style("whitegrid")
     
+    # Order: Input Embedding Matrix, Output Embedding Matrix (LogitLens), LN-Lens (ours last)
     configs = [
-        (axes[0], NN_DATA, '(a) Static V-Lens (NN)'),
-        (axes[1], LOGITLENS_DATA, '(b) Logit Lens'),
-        (axes[2], CONTEXTUAL_DATA, '(c) Contextual V-Lens'),
+        (axes[0], NN_DATA, '(a) Input Embedding Matrix'),
+        (axes[1], LOGITLENS_DATA, '(b) Output Embedding Matrix (LogitLens)'),
+        (axes[2], CONTEXTUAL_DATA, '(c) LN-Lens (Ours)'),
     ]
-    
+
     handles = {}
-    for ax, data, title in configs:
+    for idx, (ax, data, title) in enumerate(configs):
         all_layers = sorted(set(l for d in data.values() for l in d.keys()))
-        
+
         for llm in LLM_ORDER:
             for enc in ENC_ORDER:
                 key = f"{llm}+{enc}"
@@ -105,7 +106,7 @@ def create_unified_plot():
                 values = [data[key][l] for l in layers]
                 lbl = label(llm, enc)
                 marker, fill = ENC_MARKERS[enc], ENC_FILL[enc]
-                
+
                 if fill is not None:
                     line, = ax.plot(layers, values, marker=marker, color=colors[(llm, enc)],
                                    markerfacecolor=fill, markeredgewidth=2, linewidth=2.5, markersize=10)
@@ -114,9 +115,11 @@ def create_unified_plot():
                                    linewidth=2.5, markersize=10)
                 if lbl not in handles:
                     handles[lbl] = line
-        
+
         ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
+        # Shared y-axis: only show label on leftmost plot
+        if idx == 0:
+            ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
         ax.set_title(title, fontsize=16, fontweight='bold', pad=10)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
