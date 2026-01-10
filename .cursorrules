@@ -192,6 +192,61 @@ ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
   Found: Qwen2-VL NN script didn't force square images → Variable grids produced → ROOT FIX: add --force-square
 - This avoids hours of debugging loops from repeatedly patching symptoms
 
+## ⚠️ DATA LOADING FOR PAPER FIGURES - CRITICAL ⚠️
+
+**This section exists because of a critical bug: glob patterns picked up ablation files instead of main results, causing wrong data in paper figures.**
+
+### Directory Structure
+```
+analysis_results/llm_judge_{type}/
+├── main/                    # Main experiment results (9 model combos)
+│   └── llm_judge_{model}_{layer}_*/
+└── ablations/               # Ablation variants (seeds, connectors, etc.)
+    └── llm_judge_{model}_{layer}_*/
+```
+
+### Rules for Loading Data
+
+1. **NEVER use recursive glob (`**`) without exclusion filters**
+   ```python
+   # BAD - picks up ablations too!
+   for f in results_dir.glob("**/results_*.json"):
+
+   # GOOD - explicitly exclude ablations
+   for f in results_dir.glob("**/results_*.json"):
+       if '/ablations/' in str(f):
+           continue
+   ```
+
+2. **PREFER explicit paths over glob patterns**
+   - Use `paper_data_manifest.json` for paper figure data
+   - Manifest contains exact file paths, not patterns
+
+3. **VALIDATE against golden values**
+   ```python
+   # Key data points that MUST match expected values
+   GOLDEN_VALUES = {
+       ('olmo-7b', 'vit-l-14-336', 16): 70.0,  # LN-Lens layer 16
+       # ... more expected values
+   }
+   for key, expected in GOLDEN_VALUES.items():
+       actual = loaded_data[key]
+       if abs(actual - expected) > 2.0:
+           raise ValueError(f"Data mismatch: {key} expected {expected}, got {actual}")
+   ```
+
+4. **When adding new data to existing directories:**
+   - CHECK what scripts read from that directory
+   - VERIFY glob patterns won't accidentally pick up new files
+   - If in doubt, use a separate directory
+
+### What Went Wrong (2026-01-10)
+- `create_lineplot_unified.py` used `glob("**/results_*.json")`
+- `ablations/` subdirectory was added inside `llm_judge_contextual_nn/`
+- Glob pattern picked up ablation files (42% accuracy) instead of main results (70%)
+- Paper figure showed wrong data for weeks
+- **Fix:** Added `/ablations/` exclusion filter to all loading functions
+
 ## Git Workflow - CRITICAL
 - **ALWAYS commit and push after fixing bugs or making changes** - don't wait!
 - Push to GitHub after: bug fixes, new scripts, new results, any significant work
