@@ -1,0 +1,84 @@
+{
+  "_comment": "Manifest for paper figure data - explicit paths and golden values to prevent data loading bugs",
+  "_created": "2026-01-10",
+  "_purpose": "Validate that paper figures use correct data files and values",
+
+  "directories": {
+    "llm_judge_nearest_neighbors": {
+      "description": "LLM Judge results for Input Embedding Matrix (Static NN)",
+      "base_path": "analysis_results/llm_judge_nearest_neighbors",
+      "main_results_pattern": "llm_judge_{llm}_{encoder}_layer{N}_gpt5_cropped",
+      "ablations_path": "analysis_results/llm_judge_nearest_neighbors/ablations"
+    },
+    "llm_judge_logitlens": {
+      "description": "LLM Judge results for Output Embedding Matrix (LogitLens)",
+      "base_path": "analysis_results/llm_judge_logitlens",
+      "main_results_pattern": "llm_judge_{llm}_{encoder}_layer{N}_gpt5_cropped",
+      "ablations_path": "analysis_results/llm_judge_logitlens/ablations"
+    },
+    "llm_judge_contextual_nn": {
+      "description": "LLM Judge results for LN-Lens (Contextual NN)",
+      "base_path": "analysis_results/llm_judge_contextual_nn",
+      "main_results_pattern": "llm_judge_{llm}_{encoder}_contextual{N}_gpt5_cropped",
+      "ablations_path": "analysis_results/llm_judge_contextual_nn/ablations"
+    }
+  },
+
+  "golden_values": {
+    "_comment": "Key checkpoints to validate - if these don't match, something is wrong",
+    "_tolerance": 2.0,
+
+    "contextual_nn": {
+      "olmo-7b_vit-l-14-336_layer16": {
+        "path": "analysis_results/llm_judge_contextual_nn/llm_judge_olmo-7b_vit-l-14-336_contextual16_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 70.0,
+        "note": "This was the buggy value - ablation showed 42%, main shows 70%"
+      },
+      "olmo-7b_vit-l-14-336_layer24": {
+        "path": "analysis_results/llm_judge_contextual_nn/llm_judge_olmo-7b_vit-l-14-336_contextual24_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 70.0
+      },
+      "llama3-8b_vit-l-14-336_layer16": {
+        "path": "analysis_results/llm_judge_contextual_nn/llm_judge_llama3-8b_vit-l-14-336_contextual16_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 82.0
+      }
+    },
+
+    "nearest_neighbors": {
+      "olmo-7b_vit-l-14-336_layer0": {
+        "path": "analysis_results/llm_judge_nearest_neighbors/llm_judge_olmo-7b_vit-l-14-336_layer0_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 55.0
+      },
+      "olmo-7b_vit-l-14-336_layer16": {
+        "path": "analysis_results/llm_judge_nearest_neighbors/llm_judge_olmo-7b_vit-l-14-336_layer16_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 62.0
+      }
+    },
+
+    "logitlens": {
+      "olmo-7b_vit-l-14-336_layer16": {
+        "path": "analysis_results/llm_judge_logitlens/llm_judge_olmo-7b_vit-l-14-336_layer16_gpt5_cropped/results_validation.json",
+        "expected_accuracy": 23.0
+      }
+    }
+  },
+
+  "models": {
+    "main_9_combinations": [
+      {"llm": "olmo-7b", "encoder": "vit-l-14-336", "llm_layers": 32},
+      {"llm": "olmo-7b", "encoder": "siglip", "llm_layers": 32},
+      {"llm": "olmo-7b", "encoder": "dinov2-large-336", "llm_layers": 32},
+      {"llm": "llama3-8b", "encoder": "vit-l-14-336", "llm_layers": 32},
+      {"llm": "llama3-8b", "encoder": "siglip", "llm_layers": 32},
+      {"llm": "llama3-8b", "encoder": "dinov2-large-336", "llm_layers": 32},
+      {"llm": "qwen2-7b", "encoder": "vit-l-14-336", "llm_layers": 28},
+      {"llm": "qwen2-7b", "encoder": "siglip", "llm_layers": 28},
+      {"llm": "qwen2-7b", "encoder": "dinov2-large-336", "llm_layers": 28}
+    ],
+    "expected_layers": {
+      "olmo-7b": [0, 1, 2, 4, 8, 16, 24, 30, 31],
+      "llama3-8b": [0, 1, 2, 4, 8, 16, 24, 30, 31],
+      "qwen2-7b": [0, 1, 2, 4, 8, 16, 24, 26, 27]
+    }
+  }
+}
