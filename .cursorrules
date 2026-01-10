@@ -199,11 +199,11 @@ ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
 ### Directory Structure
 ```
 analysis_results/llm_judge_{type}/
-├── main/                    # Main experiment results (9 model combos)
-│   └── llm_judge_{model}_{layer}_*/
-└── ablations/               # Ablation variants (seeds, connectors, etc.)
+├── llm_judge_{model}_{layer}_*/   # Main experiment results (9 model combos)
+└── ablations/                      # Ablation variants (seeds, connectors, etc.)
     └── llm_judge_{model}_{layer}_*/
 ```
+**Note:** Main results are at top level (not in `main/` subfolder). Protection is via exclusion filter.
 
 ### Rules for Loading Data
 
