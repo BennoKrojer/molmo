@@ -382,20 +382,23 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         {
             'ax': axes[0],
             'data': nn_data,
-            'title': 'Input Embedding Matrix',
-            'xlabel': 'Layer'
+            'title': 'a) Input Embedding Matrix',
+            'xlabel': 'Layer',
+            'show_ylabel': True
         },
         {
             'ax': axes[1],
             'data': logitlens_data,
-            'title': 'Output Embedding Matrix (Logitlens)',
-            'xlabel': 'Layer'
+            'title': 'b) Output Embedding Matrix (LogitLens)',
+            'xlabel': 'Layer',
+            'show_ylabel': False
         },
         {
             'ax': axes[2],
             'data': contextual_data,
-            'title': 'LN-Lens',
-            'xlabel': 'Layer'
+            'title': 'c) LN-Lens',
+            'xlabel': 'Layer',
+            'show_ylabel': False
         }
     ]
     
@@ -450,8 +453,9 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         
         # Customize subplot
         ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
-        ax.set_ylabel('Interpretable Tokens %\n(via automated judge)', fontsize=14, fontweight='bold')
-        ax.set_title(config['title'], fontsize=18, fontweight='bold', pad=15)
+        if config.get('show_ylabel', False):
+            ax.set_ylabel('% of interpretable vision tokens', fontsize=14, fontweight='bold')
+        ax.set_title(config['title'], fontsize=16, fontweight='bold', pad=15)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
         
