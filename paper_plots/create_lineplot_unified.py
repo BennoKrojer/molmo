@@ -23,7 +23,65 @@ import sys
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
 OUTPUT_DIR = SCRIPT_DIR / "paper_figures_output" / "interpretability"
+MANIFEST_PATH = PROJECT_ROOT / "paper_data_manifest.json"
+
+
+def validate_against_manifest(data, data_type, strict=False):
+    """
+    Validate loaded data against golden values in the manifest.
+
+    Args:
+        data: Dict of {(llm, encoder): {layer: accuracy}}
+        data_type: One of 'nearest_neighbors', 'logitlens', 'contextual_nn'
+        strict: If True, raise error on mismatch; if False, print warning
+
+    Returns:
+        True if all validations pass, False otherwise
+    """
+    if not MANIFEST_PATH.exists():
+        print(f"  Warning: Manifest not found at {MANIFEST_PATH}, skipping validation")
+        return True
+
+    with open(MANIFEST_PATH) as f:
+        manifest = json.load(f)
+
+    golden = manifest.get('golden_values', {}).get(data_type, {})
+    tolerance = manifest.get('golden_values', {}).get('_tolerance', 2.0)
+
+    all_valid = True
+    for key, info in golden.items():
+        # Parse key like "olmo-7b_vit-l-14-336_layer16"
+        parts = key.rsplit('_', 1)
+        if len(parts) != 2:
+            continue
+        model_part, layer_part = parts
+        llm, encoder = model_part.split('_', 1)
+
+        # Extract layer number
+        layer_num = int(re.search(r'\d+', layer_part).group())
+
+        expected = info.get('expected_accuracy')
+        if expected is None:
+            continue
+
+        # Check if we have this data
+        if (llm, encoder) in data and layer_num in data[(llm, encoder)]:
+            actual = data[(llm, encoder)][layer_num]
+            diff = abs(actual - expected)
+
+            if diff > tolerance:
+                msg = f"  ⚠️  VALIDATION FAIL: {data_type} {llm}+{encoder} layer {layer_num}: expected {expected}%, got {actual}% (diff={diff:.1f}%)"
+                if strict:
+                    raise ValueError(msg)
+                else:
+                    print(msg)
+                    all_valid = False
+            else:
+                print(f"  ✓ Validated: {llm}+{encoder} layer {layer_num} = {actual}% (expected {expected}%)")
+
+    return all_valid
 
 
 def load_nn_results(results_dir):
@@ -882,7 +940,21 @@ def main():
     if not nn_data and not logitlens_data and not contextual_data:
         print("ERROR: No results found!")
         return
-    
+
+    # Validate against golden values from manifest
+    print("\n" + "="*50)
+    print("Validating data against manifest golden values...")
+    all_valid = True
+    if nn_data:
+        all_valid &= validate_against_manifest(nn_data, 'nearest_neighbors')
+    if logitlens_data:
+        all_valid &= validate_against_manifest(logitlens_data, 'logitlens')
+    if contextual_data:
+        all_valid &= validate_against_manifest(contextual_data, 'contextual_nn')
+
+    if not all_valid:
+        print("\n⚠️  WARNING: Some validations failed! Check data sources.")
+
     # Create output directory
     if args.output:
         output_path = Path(args.output)
