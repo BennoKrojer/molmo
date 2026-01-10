@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 27
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer27_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:09<01:28,  9.84s/it]Processing images:  30%|███       | 3/10 [00:21<00:49,  7.01s/it]Processing images:  40%|████      | 4/10 [00:35<00:56,  9.36s/it]Processing images:  50%|█████     | 5/10 [00:36<00:31,  6.37s/it]Processing images:  60%|██████    | 6/10 [00:48<00:32,  8.19s/it]Processing images:  70%|███████   | 7/10 [00:55<00:24,  8.05s/it]Processing images:  90%|█████████ | 9/10 [01:05<00:06,  6.60s/it]Processing images: 100%|██████████| 10/10 [01:05<00:00,  6.58s/it]
+  Patch (13, 9): ['2', ' ', '1']... -> FAIL
+  Patch (0, 12): [' Apple', ')\n\n', ')']... -> PASS
+  Patch (10, 8): ['F', 'I', ' F']... -> PASS
+  Patch (8, 13): [' #', '…)\n\n', ' &)']... -> FAIL
+  Patch (7, 13): ['永', ' forever', ' never']... -> FAIL
+  Patch (3, 4): [' natural', ' Natural', '挑']... -> PASS
+
+============================================================
+Results: 3/6 (50.0%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped/visualizations
+============================================================
+

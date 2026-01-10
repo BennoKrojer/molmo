@@ -1,0 +1,452 @@
+==============================================
+V-Lens Demo Generator
+==============================================
+Output directory: analysis_results/unified_viewer_lite_final
+Images per model: 10
+
+[1/3] Generating main model viewers (9 models)...
+INFO:__main__:Scanning analysis results...
+INFO:__main__:Loading PixMoCap dataset (validation split)...
+INFO:__main__:✓ Dataset loaded successfully
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 41.85s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 38.64s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.84s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.41s
+INFO:__main__:  ✅ Total load time: 81.74s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 10.1s (1.0 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 38.85s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 39.03s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.77s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.40s
+INFO:__main__:  ✅ Total load time: 79.06s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 9.7s (1.0 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_siglip...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 51.77s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 48.49s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.96s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.51s
+INFO:__main__:  ✅ Total load time: 101.72s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 12.6s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 52.46s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 37.05s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.78s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.40s
+INFO:__main__:  ✅ Total load time: 90.68s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 9.5s (1.1 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 61.27s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 36.97s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.75s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.40s
+INFO:__main__:  ✅ Total load time: 99.38s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 9.6s (1.0 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_siglip...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 79.46s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 47.87s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 30, 31]
+INFO:__main__:    ⏱️  LN-Lens: 0.97s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.54s
+INFO:__main__:  ✅ Total load time: 128.84s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 12.6s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 43.16s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 46.28s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 26, 27]
+INFO:__main__:    ⏱️  LN-Lens: 0.75s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.39s
+INFO:__main__:  ✅ Total load time: 90.58s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 8.8s (1.1 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 43.21s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 45.96s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 26, 27]
+INFO:__main__:    ⏱️  LN-Lens: 1.52s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.40s
+INFO:__main__:  ✅ Total load time: 91.09s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 8.9s (1.1 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite_final/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/index.html
+INFO:__main__:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+WARNING:__main__:    Could not create preprocessor: file molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded/config.yaml not found, will use original images
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 53.61s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 59.19s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:    Loaded visual_layer=0 with contextual_layers=[1, 2, 4, 8, 16, 24, 26, 27]
+INFO:__main__:    ⏱️  LN-Lens: 1.88s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.50s
+INFO:__main__:  ✅ Total load time: 115.18s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 10.7s (0.9 images/sec)
+INFO:__main__:
+Creating main index...
+INFO:__main__:Created main index: analysis_results/unified_viewer_lite_final/index.html
+INFO:__main__:
+✅ Unified viewer created successfully!
+INFO:__main__:📂 Output directory: analysis_results/unified_viewer_lite_final
+INFO:__main__:🌐 Open analysis_results/unified_viewer_lite_final/index.html in a web browser to start exploring!
+
+[2/3] Generating ablation model viewers (10 models)...
+INFO:__main__:Will generate viewers for 10 ablation(s)
+INFO:__main__:Loading PixMoCap dataset...
+INFO:__main__:Dataset loaded: 2048 examples
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Qwen2-VL (off-the-shelf)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Seed 10
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Seed 11
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Linear Connector
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Unfreeze LLM
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: First-Sentence Captions
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Earlier ViT Layer (6)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Earlier ViT Layer (10)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: TopBottom Task
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: TopBottom + Unfreeze
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:DONE!
+INFO:__main__:============================================================
+
+[3/3] Updating main index with ablation links...
+Loaded config from scripts/analysis/viewer_models.json
+  Main models: 9
+  Ablations: 10
+
+Validating data availability...
+
+================================================================================
+VALIDATION REPORT
+================================================================================
+
+✅ llama3-8b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ llama3-8b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ llama3-8b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_siglip
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_siglip
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ qwen2-7b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ qwen2-7b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ qwen2-7b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ Qwen2-VL (off-the-shelf)
+   ID: qwen2-vl
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ Seed 10
+   ID: seed10
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Seed 11
+   ID: seed11
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Linear Connector
+   ID: linear
+   nn          : 10 layers - [0, 1, 2, 3, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Unfreeze LLM
+   ID: unfreeze
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ First-Sentence Captions
+   ID: first-sentence
+   nn          : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Earlier ViT Layer (6)
+   ID: earlier-vit-6
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Earlier ViT Layer (10)
+   ID: earlier-vit-10
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ TopBottom Task
+   ID: topbottom
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ TopBottom + Unfreeze
+   ID: topbottom-unfreeze
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+--------------------------------------------------------------------------------
+SUMMARY: 19 models with data, 0 models missing data
+--------------------------------------------------------------------------------
+
+================================================================================
+ADDING ABLATIONS TO VIEWER
+================================================================================
+
+Will add 10 ablation models:
+  - Qwen2-VL (off-the-shelf) (EXISTS)
+  - Seed 10 (EXISTS)
+  - Seed 11 (EXISTS)
+  - Linear Connector (EXISTS)
+  - Unfreeze LLM (EXISTS)
+  - First-Sentence Captions (EXISTS)
+  - Earlier ViT Layer (6) (EXISTS)
+  - Earlier ViT Layer (10) (EXISTS)
+  - TopBottom Task (EXISTS)
+  - TopBottom + Unfreeze (EXISTS)
+
+Updating main index.html...
+  ✅ Updated main index.html with 10 ablations
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+To fully generate ablation viewers, run the main create_unified_viewer.py 
+with ablation support enabled. This script has:
+
+1. ✅ Validated all data paths
+2. ✅ Updated main index.html with ablation links
+3. ⚠️  Ablation image viewers need generation (use main script)
+
+The main index now links to ablations in: ablations/<checkpoint>/index.html
+
+
+==============================================
+Demo generation complete!
+==============================================
+
+Output: analysis_results/unified_viewer_lite_final/
+
+Contents:
+total 64
+drwxr-xr-x 12 bkroje nogroup  4096 Dec 31 10:57 .
+drwxr-xr-x 39 bkroje nogroup  4096 Dec 31 10:39 ..
+drwxr-xr-x 12 bkroje nogroup  4096 Dec 31 10:59 ablations
+-rw-r--r--  1 bkroje nogroup 16023 Jan  1 15:55 index.html
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:43 train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:45 train_mlp-only_pixmo_cap_resize_llama3-8b_siglip
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:41 train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:49 train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:52 train_mlp-only_pixmo_cap_resize_olmo-7b_siglip
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:47 train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:55 train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:57 train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip
+drwxr-xr-x  2 bkroje nogroup  4096 Dec 31 10:54 train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10
+
+To view: Open analysis_results/unified_viewer_lite_final/index.html in a browser
+

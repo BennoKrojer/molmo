@@ -1,0 +1,160 @@
+Loaded config from scripts/analysis/viewer_models.json
+  Main models: 9
+  Ablations: 10
+
+Validating data availability...
+
+================================================================================
+VALIDATION REPORT
+================================================================================
+
+✅ llama3-8b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ llama3-8b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ llama3-8b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_llama3-8b_siglip
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ olmo-7b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_olmo-7b_siglip
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ qwen2-7b + vit-l-14-336
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ qwen2-7b + dinov2-large-336
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ qwen2-7b + siglip
+   ID: train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip
+   nn          : 13 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 26, 27, 28]
+   logitlens   : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 25, 26, 27, 28]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ Qwen2-VL (off-the-shelf)
+   ID: qwen2-vl
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 26, 27]
+
+✅ Seed 10
+   ID: seed10
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Seed 11
+   ID: seed11
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Linear Connector
+   ID: linear
+   nn          : 10 layers - [0, 1, 2, 3, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Unfreeze LLM
+   ID: unfreeze
+   nn          : 15 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31, 32]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ First-Sentence Captions
+   ID: first-sentence
+   nn          : 14 layers - [0, 1, 2, 3, 4, 8, 12, 16, 20, 24, 28, 29, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Earlier ViT Layer (6)
+   ID: earlier-vit-6
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ Earlier ViT Layer (10)
+   ID: earlier-vit-10
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ TopBottom Task
+   ID: topbottom
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+✅ TopBottom + Unfreeze
+   ID: topbottom-unfreeze
+   nn          :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   logitlens   :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+   contextual  :  9 layers - [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+--------------------------------------------------------------------------------
+SUMMARY: 19 models with data, 0 models missing data
+--------------------------------------------------------------------------------
+
+================================================================================
+ADDING ABLATIONS TO VIEWER
+================================================================================
+
+Will add 10 ablation models:
+  - Qwen2-VL (off-the-shelf) (EXISTS)
+  - Seed 10 (EXISTS)
+  - Seed 11 (EXISTS)
+  - Linear Connector (EXISTS)
+  - Unfreeze LLM (EXISTS)
+  - First-Sentence Captions (EXISTS)
+  - Earlier ViT Layer (6) (EXISTS)
+  - Earlier ViT Layer (10) (EXISTS)
+  - TopBottom Task (EXISTS)
+  - TopBottom + Unfreeze (EXISTS)
+
+Updating main index.html...
+  ✅ Updated main index.html with 10 ablations
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+To fully generate ablation viewers, run the main create_unified_viewer.py 
+with ablation support enabled. This script has:
+
+1. ✅ Validated all data paths
+2. ✅ Updated main index.html with ablation links
+3. ⚠️  Ablation image viewers need generation (use main script)
+
+The main index now links to ablations in: ablations/<checkpoint>/index.html
+

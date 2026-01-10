@@ -1,0 +1,117 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 4
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer4_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/100 [00:00<?, ?it/s]Processing images:   1%|          | 1/100 [00:09<16:27,  9.97s/it]Processing images:   2%|▏         | 2/100 [00:21<17:28, 10.70s/it]Processing images:   3%|▎         | 3/100 [00:30<16:30, 10.21s/it]Processing images:   4%|▍         | 4/100 [00:41<16:26, 10.27s/it]Processing images:   5%|▌         | 5/100 [00:56<19:06, 12.07s/it]Processing images:   6%|▌         | 6/100 [01:10<19:53, 12.70s/it]Processing images:   7%|▋         | 7/100 [01:21<18:48, 12.13s/it]Processing images:   8%|▊         | 8/100 [01:28<15:57, 10.41s/it]Processing images:   9%|▉         | 9/100 [01:38<15:58, 10.53s/it]Processing images:  10%|█         | 10/100 [01:48<15:20, 10.23s/it]Processing images:  11%|█         | 11/100 [02:08<19:51, 13.38s/it]Processing images:  12%|█▏        | 12/100 [02:17<17:23, 11.86s/it]Processing images:  13%|█▎        | 13/100 [02:30<17:53, 12.34s/it]Processing images:  14%|█▍        | 14/100 [02:40<16:24, 11.45s/it]Processing images:  15%|█▌        | 15/100 [02:48<14:55, 10.54s/it]Processing images:  16%|█▌        | 16/100 [02:59<14:57, 10.69s/it]Processing images:  17%|█▋        | 17/100 [03:11<15:26, 11.16s/it]Processing images:  18%|█▊        | 18/100 [03:39<21:53, 16.02s/it]Processing images:  19%|█▉        | 19/100 [03:47<18:31, 13.73s/it]Processing images:  20%|██        | 20/100 [04:02<18:38, 13.98s/it]Processing images:  21%|██        | 21/100 [04:14<17:49, 13.54s/it]Processing images:  22%|██▏       | 22/100 [04:26<16:55, 13.01s/it]Processing images:  23%|██▎       | 23/100 [04:36<15:36, 12.16s/it]Processing images:  24%|██▍       | 24/100 [04:47<15:01, 11.87s/it]Processing images:  25%|██▌       | 25/100 [04:58<14:14, 11.39s/it]Processing images:  26%|██▌       | 26/100 [05:06<12:55, 10.48s/it]Processing images:  27%|██▋       | 27/100 [05:18<13:19, 10.95s/it]Processing images:  28%|██▊       | 28/100 [05:27<12:23, 10.33s/it]Processing images:  29%|██▉       | 29/100 [05:35<11:31,  9.74s/it]Processing images:  30%|███       | 30/100 [05:43<10:44,  9.21s/it]Processing images:  31%|███       | 31/100 [05:54<11:05,  9.64s/it]Processing images:  32%|███▏      | 32/100 [06:00<09:50,  8.68s/it]Processing images:  33%|███▎      | 33/100 [06:19<12:55, 11.58s/it]Processing images:  34%|███▍      | 34/100 [06:35<14:25, 13.11s/it]Processing images:  35%|███▌      | 35/100 [06:44<12:42, 11.74s/it]Processing images:  36%|███▌      | 36/100 [06:54<12:04, 11.32s/it]Processing images:  37%|███▋      | 37/100 [07:08<12:47, 12.18s/it]Processing images:  38%|███▊      | 38/100 [07:19<12:05, 11.70s/it]Processing images:  39%|███▉      | 39/100 [07:30<11:48, 11.61s/it]Processing images:  40%|████      | 40/100 [07:41<11:14, 11.24s/it]Processing images:  41%|████      | 41/100 [07:54<11:43, 11.93s/it]Processing images:  42%|████▏     | 42/100 [08:05<11:10, 11.55s/it]Processing images:  43%|████▎     | 43/100 [08:21<12:15, 12.90s/it]Processing images:  44%|████▍     | 44/100 [08:28<10:30, 11.25s/it]Processing images:  45%|████▌     | 45/100 [08:39<10:06, 11.02s/it]Processing images:  46%|████▌     | 46/100 [08:48<09:28, 10.53s/it]Processing images:  47%|████▋     | 47/100 [08:54<08:01,  9.09s/it]Processing images:  48%|████▊     | 48/100 [09:03<07:52,  9.08s/it]Processing images:  49%|████▉     | 49/100 [09:20<09:41, 11.41s/it]Processing images:  50%|█████     | 50/100 [09:30<09:15, 11.10s/it]Processing images:  51%|█████     | 51/100 [09:42<09:08, 11.20s/it]Processing images:  52%|█████▏    | 52/100 [09:53<08:55, 11.16s/it]Processing images:  53%|█████▎    | 53/100 [10:05<09:05, 11.61s/it]Processing images:  54%|█████▍    | 54/100 [10:17<08:47, 11.46s/it]Processing images:  55%|█████▌    | 55/100 [10:27<08:23, 11.19s/it]Processing images:  56%|█████▌    | 56/100 [10:36<07:44, 10.57s/it]Processing images:  57%|█████▋    | 57/100 [10:43<06:49,  9.52s/it]Processing images:  58%|█████▊    | 58/100 [10:54<06:50,  9.76s/it]Processing images:  59%|█████▉    | 59/100 [11:05<06:57, 10.17s/it]Processing images:  60%|██████    | 60/100 [11:16<07:00, 10.52s/it]Processing images:  61%|██████    | 61/100 [11:25<06:35, 10.15s/it]Processing images:  62%|██████▏   | 62/100 [11:33<06:02,  9.53s/it]Processing images:  63%|██████▎   | 63/100 [11:47<06:42, 10.87s/it]Processing images:  64%|██████▍   | 64/100 [12:00<06:46, 11.30s/it]Processing images:  65%|██████▌   | 65/100 [12:10<06:27, 11.08s/it]Processing images:  66%|██████▌   | 66/100 [12:19<05:51, 10.34s/it]Processing images:  67%|██████▋   | 67/100 [12:30<05:45, 10.46s/it]Processing images:  68%|██████▊   | 68/100 [12:38<05:14,  9.84s/it]Processing images:  69%|██████▉   | 69/100 [12:49<05:18, 10.28s/it]Processing images:  70%|███████   | 70/100 [13:01<05:22, 10.74s/it]Processing images:  71%|███████   | 71/100 [13:10<04:58, 10.29s/it]Processing images:  72%|███████▏  | 72/100 [13:17<04:14,  9.09s/it]Processing images:  73%|███████▎  | 73/100 [13:25<04:01,  8.94s/it]Processing images:  74%|███████▍  | 74/100 [13:30<03:20,  7.69s/it]Processing images:  75%|███████▌  | 75/100 [13:43<03:55,  9.41s/it]Processing images:  76%|███████▌  | 76/100 [13:53<03:45,  9.41s/it]Processing images:  77%|███████▋  | 77/100 [14:02<03:37,  9.44s/it]Processing images:  78%|███████▊  | 78/100 [14:14<03:39,  9.98s/it]Processing images:  79%|███████▉  | 79/100 [14:24<03:29,  9.96s/it]Processing images:  80%|████████  | 80/100 [14:30<02:57,  8.89s/it]Processing images:  81%|████████  | 81/100 [15:13<06:01, 19.03s/it]Processing images:  82%|████████▏ | 82/100 [15:23<04:55, 16.41s/it]Processing images:  83%|████████▎ | 83/100 [15:35<04:16, 15.07s/it]Processing images:  84%|████████▍ | 84/100 [15:43<03:29, 13.12s/it]Processing images:  85%|████████▌ | 85/100 [15:52<02:55, 11.71s/it]Processing images:  86%|████████▌ | 86/100 [16:00<02:28, 10.63s/it]Processing images:  87%|████████▋ | 87/100 [16:08<02:08,  9.86s/it]Processing images:  88%|████████▊ | 88/100 [16:16<01:51,  9.30s/it]Processing images:  89%|████████▉ | 89/100 [16:34<02:10, 11.89s/it]Processing images:  90%|█████████ | 90/100 [16:45<01:55, 11.51s/it]Processing images:  91%|█████████ | 91/100 [16:53<01:36, 10.70s/it]Processing images:  92%|█████████▏| 92/100 [17:03<01:22, 10.28s/it]Processing images:  93%|█████████▎| 93/100 [17:11<01:08,  9.83s/it]Processing images:  94%|█████████▍| 94/100 [17:21<00:58,  9.83s/it]Processing images:  95%|█████████▌| 95/100 [17:30<00:46,  9.39s/it]Processing images:  96%|█████████▌| 96/100 [17:40<00:38,  9.68s/it]Processing images:  97%|█████████▋| 97/100 [17:48<00:27,  9.22s/it]Processing images:  98%|█████████▊| 98/100 [17:57<00:18,  9.06s/it]Processing images:  99%|█████████▉| 99/100 [18:04<00:08,  8.57s/it]Processing images: 100%|██████████| 100/100 [18:12<00:00,  8.19s/it]Processing images: 100%|██████████| 100/100 [18:12<00:00, 10.92s/it]
+  Patch (11, 9): ['"](', '),\n\n', "',\n"]... -> FAIL
+  Patch (2, 0): [' skype', '"](', '𫭼']... -> FAIL
+  Patch (0, 6): [' River', ' sidew', ' river']... -> PASS
+  Patch (5, 5): [' Maver', ' Kab', '颏']... -> PASS
+  Patch (4, 6): ['竞价', '῟', ' STREET']... -> PASS
+  Patch (4, 1): [' ██', '.\n', 'سوق']... -> PASS
+  Patch (2, 9): ['猶', ' トラ', '/ws']... -> FAIL
+  Patch (13, 6): ['eed', 'FO', '並']... -> FAIL
+  Patch (1, 12): [' достижени', " .'</", ' texas']... -> FAIL
+  Patch (12, 5): ['.ed', 'QQ', 'ccd']... -> FAIL
+  Patch (13, 7): ['льц', '"..', '(stypy']... -> FAIL
+  Patch (9, 13): ['rnd', ' stupidity', 'TMP']... -> FAIL
+  Patch (1, 8): ['\tFROM', '鹧', 'Chicken']... -> PASS
+  Patch (10, 11): ['偎', ' Ludwig', ' dwarf']... -> FAIL
+  Patch (7, 10): ['.\n\n\n\n\n\n\n\n', ' Nottingham', ' Staff']... -> FAIL
+  Patch (0, 8): ['פיתוח', ':`~', 'RGBO']... -> FAIL
+  Patch (0, 7): [' data', 'DT', 'Ḳ']... -> PASS
+  Patch (1, 10): [' Salman', '.pictureBox', ' playback']... -> FAIL
+  Patch (3, 13): [' GOODMAN', 'larımız', ' tại']... -> FAIL
+  Patch (4, 3): ['猩', ' rho', 'ﻳ']... -> FAIL
+  Patch (9, 3): ['工作方案', ' clazz', ' walkthrough']... -> FAIL
+  Patch (11, 0): ['恸', '𬀩', 'dıkl']... -> FAIL
+  Patch (0, 6): [' sniper', '瑷', '.writerow']... -> FAIL
+  Patch (10, 3): ['................', '\r', ' XK']... -> FAIL
+  Patch (3, 8): [' Tigers', 'hänge', ' Clown']... -> PASS
+  Patch (13, 1): [' uğra', ' wires', '_atoms']... -> PASS
+  Patch (11, 12): ['碲', ' intimidate', 'それぞ']... -> FAIL
+  Patch (10, 9): ['.\n\n\n\n\n\n\n\n', ' .\r\n', ' massac']... -> FAIL
+  Patch (7, 9): ['NonQuery', '理智', 'odzi']... -> FAIL
+  Patch (4, 0): ['("\n', '".\n\n\n\n', 'Mayor']... -> FAIL
+  Patch (8, 2): ["'S", '⼝', '’s']... -> PASS
+  Patch (10, 10): [' adına', 'การ', "']='"]... -> FAIL
+  Patch (5, 1): [' front', 'rou', 'polator']... -> PASS
+  Patch (0, 1): [' gg', 'roupon', ' הסיפור']... -> FAIL
+  Patch (13, 12): [' القوم', 'รายงาน', ' xu']... -> FAIL
+  Patch (3, 1): [' ZZ', ' crispy', '𝑻']... -> PASS
+  Patch (12, 10): [' Ludwig', ' 따라', 'يدة']... -> FAIL
+  Patch (7, 10): ['澭', '坚定不', ' buttonWithType']... -> FAIL
+  Patch (6, 3): [' keywords', '惺', 'Ray']... -> FAIL
+  Patch (5, 1): [' nostalgic', 'bp', 'celain']... -> FAIL
+  Patch (2, 11): ['_RESOURCES', ' SNAP', 'ミニ']... -> FAIL
+  Patch (3, 13): [' bgColor', '時の', '"](']... -> FAIL
+  Patch (13, 13): [' Vintage', 'تك', '.entries']... -> FAIL
+  Patch (6, 8): [' Wrestling', '곸', 'รวบรวม']... -> FAIL
+  Patch (1, 12): ['حذر', '₂', '荬']... -> FAIL
+  Patch (1, 9): ['�다', '!!");\n', 'ے']... -> FAIL
+  Patch (6, 13): [')\n', '}}\n', '...\n\n']... -> FAIL
+  Patch (1, 10): [' çocukların', 'stück', ' *)\n']... -> FAIL
+  Patch (6, 7): ['aoke', 'idot', ' beef']... -> PASS
+  Patch (6, 4): ['tas', '-logo', '槍']... -> FAIL
+  Patch (11, 0): [' indonesia', 'iche', '⻘']... -> FAIL
+  Patch (5, 2): ['ABL', ' Devon', ' ArgumentError']... -> FAIL
+  Patch (0, 11): [' Şub', '𫘪', 'ṛ']... -> FAIL
+  Patch (13, 4): ['և', 'Ik', ' Interracial']... -> FAIL
+  Patch (9, 0): [' الكمبيوتر', ' Gmail', 'Mal']... -> FAIL
+  Patch (9, 11): [')\n', '.\n', '.)\n']... -> FAIL
+  Patch (2, 5): ['瘵', 'を見せ', ' zab']... -> FAIL
+  Patch (6, 12): ['ehr', 'ɶ', ' Lionel']... -> FAIL
+  Patch (1, 6): ['겨', 'lahoma', ' systemFontOfSize']... -> FAIL
+  Patch (10, 11): ['揭晓', ' Parents', 'ינם']... -> FAIL
+  Patch (5, 5): [' \n\n\n\n\n', ' bbw', 'ครบ']... -> FAIL
+  Patch (11, 6): [' dame', '唷', ' Monkey']... -> FAIL
+  Patch (11, 4): ['adastro', '旅', ' דו']... -> FAIL
+  Patch (6, 8): [' detergent', '报告期内', '盛典']... -> PASS
+  Patch (10, 7): [' StringType', ' Wikimedia', 'にお']... -> FAIL
+  Patch (3, 7): ['produto', '逵', '报纸']... -> FAIL
+  Patch (12, 12): [">'+", ' ;-', '-example']... -> FAIL
+  Patch (1, 3): [' wur', ' baise', ' Reds']... -> PASS
+  Patch (0, 11): ['_Reset', '瀱', 'Kitchen']... -> FAIL
+  Patch (12, 1): [' ک', ' Jacket', 'иков']... -> FAIL
+  Patch (4, 2): ['爱尔兰', 'чик', ' eing']... -> FAIL
+  Patch (5, 4): ['ට', ',', ' electorate']... -> FAIL
+  Patch (1, 7): [' sektör', '_apply', '台灣']... -> FAIL
+  Patch (4, 3): ['.OS', ' mgr', '提振']... -> FAIL
+  Patch (1, 11): [' deltas', 'yyyyMMdd', '펠']... -> FAIL
+  Patch (6, 13): ['.......', 'お', 'aben']... -> FAIL
+  Patch (5, 1): [' {};\r\n', ' lắng', 'ok']... -> FAIL
+  Patch (8, 4): ['ingleton', '.ed', '爷']... -> FAIL
+  Patch (11, 8): ['Ⲙ', 'схем', ' MQ']... -> FAIL
+  Patch (6, 9): [' Services', '끼', 'larımız']... -> FAIL
+  Patch (2, 13): ['機', ' Key', ' continuation']... -> PASS
+  Patch (6, 10): ['_hover', ' pornografia', ' coloc']... -> FAIL
+  Patch (6, 6): [' eing', ',"\\', "'+\n"]... -> FAIL
+  Patch (3, 11): [' Billy', 'anzeigen', '东莞']... -> FAIL
+  Patch (12, 3): [' lời', '뽐', '炼']... -> FAIL
+  Patch (4, 12): ['TransparentColor', 'rp', 'grp']... -> FAIL
+  Patch (12, 9): ['亟', ' März', ' ther']... -> FAIL
+  Patch (1, 4): [' cemetery', ' springs', ' Component']... -> PASS
+  Patch (11, 1): [' twink', ' artificially', 'Smoke']... -> FAIL
+  Patch (11, 8): ['mişti', ' initials', '𝘾']... -> FAIL
+  Patch (3, 1): ['lobber', ' nbr', 'ʑ']... -> FAIL
+  Patch (9, 10): ['detalle', ">'+", 'spiel']... -> FAIL
+  Patch (13, 4): ['.mm', ' markedly', ' intox']... -> FAIL
+  Patch (4, 6): [' ל', '_stock', '─']... -> FAIL
+  Patch (2, 13): ['쓩', 'LiveData', '_Reset']... -> FAIL
+  Patch (8, 6): ['orgt', ' Sto', 'iae']... -> FAIL
+  Patch (6, 13): [' wiel', ' Mountain', 'Tel']... -> FAIL
+  Patch (5, 4): [' Herbert', " '?", '.*;\r\n']... -> FAIL
+  Patch (11, 9): [' שב', 'sätze', '=").']... -> FAIL
+  Patch (12, 8): ['0', '"\r\n', "('='"]... -> FAIL
+
+============================================================
+Results: 16/100 (16.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/visualizations
+============================================================
+

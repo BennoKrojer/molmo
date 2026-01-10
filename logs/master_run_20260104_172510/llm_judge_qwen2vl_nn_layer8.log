@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 8
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer8_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:11<01:42, 11.35s/it]Processing images:  30%|███       | 3/10 [00:22<00:48,  6.97s/it]Processing images:  40%|████      | 4/10 [00:31<00:46,  7.71s/it]Processing images:  50%|█████     | 5/10 [00:31<00:26,  5.28s/it]Processing images:  60%|██████    | 6/10 [00:46<00:33,  8.30s/it]Processing images:  70%|███████   | 7/10 [00:56<00:26,  8.87s/it]Processing images:  90%|█████████ | 9/10 [01:05<00:06,  6.90s/it]Processing images: 100%|██████████| 10/10 [01:05<00:00,  6.60s/it]
+  Patch (13, 9): ['tworzyć', 'фан', ' Fibonacci']... -> FAIL
+  Patch (0, 12): ['."/', ' nursery', 'upuncture']... -> FAIL
+  Patch (10, 8): ['_PARAMETERS', ' stationed', 'OrUpdate']... -> FAIL
+  Patch (8, 13): ['פיק', 'gué', ' snatch']... -> FAIL
+  Patch (7, 13): ['怔', '(il', ' を']... -> FAIL
+  Patch (3, 4): [' Ryzen', 'โดน', 'rnd']... -> PASS
+
+============================================================
+Results: 1/6 (16.7%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/visualizations
+============================================================
+

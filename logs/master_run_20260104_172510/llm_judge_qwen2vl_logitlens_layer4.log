@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 4
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer4_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:09<01:27,  9.74s/it]Processing images:  30%|███       | 3/10 [00:19<00:43,  6.18s/it]Processing images:  40%|████      | 4/10 [00:28<00:41,  6.98s/it]Processing images:  50%|█████     | 5/10 [00:28<00:23,  4.77s/it]Processing images:  60%|██████    | 6/10 [00:40<00:28,  7.22s/it]Processing images:  70%|███████   | 7/10 [00:49<00:23,  7.74s/it]Processing images:  90%|█████████ | 9/10 [00:57<00:05,  5.96s/it]Processing images: 100%|██████████| 10/10 [00:57<00:00,  5.77s/it]
+  Patch (13, 9): [' onDestroy', '/gui', ' Fem']... -> FAIL
+  Patch (0, 12): ['享有', '沟', '臨']... -> FAIL
+  Patch (10, 8): ['偈', '泅', 'ịnh']... -> FAIL
+  Patch (8, 13): ['eatures', 'issance', 'eature']... -> FAIL
+  Patch (7, 13): ['/gin', 'fon', 'light']... -> PASS
+  Patch (3, 4): ['异', ' Türkiye', '溟']... -> FAIL
+
+============================================================
+Results: 1/6 (16.7%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/visualizations
+============================================================
+

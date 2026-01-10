@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 8
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer8_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:05,  1.57it/s]Processing images:  20%|██        | 2/10 [00:12<00:56,  7.04s/it]Processing images:  30%|███       | 3/10 [00:20<00:53,  7.67s/it]Processing images:  50%|█████     | 5/10 [00:31<00:32,  6.51s/it]Processing images:  70%|███████   | 7/10 [00:43<00:18,  6.21s/it]Processing images:  80%|████████  | 8/10 [00:57<00:16,  8.06s/it]Processing images: 100%|██████████| 10/10 [01:20<00:00,  9.42s/it]Processing images: 100%|██████████| 10/10 [01:20<00:00,  8.03s/it]
+  Patch (2, 13): ['alu', '宦', ' UIButton']... -> FAIL
+  Patch (0, 12): ['arch', '有效的', '无效']... -> FAIL
+  Patch (6, 8): [' ál', 'oble', ' Também']... -> FAIL
+  Patch (5, 4): ['现象', '形态', 'gent']... -> PASS
+  Patch (3, 5): [' ', '专业的', '梗']... -> FAIL
+  Patch (2, 8): ['安抚', '钚', 'さんに']... -> FAIL
+
+============================================================
+Results: 1/6 (16.7%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/visualizations
+============================================================
+

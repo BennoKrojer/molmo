@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 24
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer24_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:13<02:02, 13.64s/it]Processing images:  30%|███       | 3/10 [00:23<00:49,  7.05s/it]Processing images:  40%|████      | 4/10 [00:40<01:04, 10.71s/it]Processing images:  50%|█████     | 5/10 [00:41<00:36,  7.28s/it]Processing images:  60%|██████    | 6/10 [00:52<00:34,  8.68s/it]Processing images:  70%|███████   | 7/10 [01:01<00:26,  8.78s/it]Processing images:  90%|█████████ | 9/10 [01:09<00:06,  6.50s/it]Processing images: 100%|██████████| 10/10 [01:09<00:00,  6.98s/it]
+  Patch (13, 9): ['_W', 'isa', 'visitor']... -> PASS
+  Patch (0, 12): ['DataService', 'upuncture', 'ertype']... -> FAIL
+  Patch (10, 8): ['icina', ' lil', 'aisy']... -> FAIL
+  Patch (8, 13): [' noodles', '.tiles', ' לרכוש']... -> FAIL
+  Patch (7, 13): ['(today', '使命感', 'bcd']... -> FAIL
+  Patch (3, 4): [' Navbar', '千元', '_multiplier']... -> FAIL
+
+============================================================
+Results: 1/6 (16.7%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/visualizations
+============================================================
+

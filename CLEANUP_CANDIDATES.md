@@ -76,15 +76,30 @@ scripts/analysis/interactive_nearest_neighbors_viewer.py
 
 ## 3. RUN SCRIPTS - Many may be redundant
 
-### Potentially superseded by `run_all_missing.sh`
+### Understanding the run script landscape:
+- **`run_all_combinations_*.sh`** = Main 3x3 models (9 combinations)
+- **`run_all_missing.sh`** = Ablations + Qwen2-VL (NOT main models!)
+- **`run_all_ablations_*.sh`** = Older scripts for ablations (superseded by run_all_missing.sh)
+
+### Superseded by `run_all_missing.sh` (ablation scripts):
 ```
 run_all_ablations_nn.sh              → Phase 1 in run_all_missing.sh
 run_all_ablations_logitlens.sh       → Phase 2 in run_all_missing.sh
 run_all_ablations_contextual_nn.sh   → Phase 3 in run_all_missing.sh
-run_all_combinations_nn.sh           → Partial overlap
-run_all_combinations_logitlens.sh    → Partial overlap
-run_all_combinations_contextual_nn.sh → Partial overlap
 ```
+
+### Still needed for main 3x3 models:
+```
+run_all_combinations_nn.sh           → KEEP (main models)
+run_all_combinations_logitlens.sh    → KEEP (main models)
+run_all_combinations_contextual_nn.sh → KEEP (main models)
+```
+
+### REFACTORING OPPORTUNITY: `run_all_missing.sh` is 958 lines!
+Consider splitting into:
+- `run_ablations.sh` - just ablations
+- `run_qwen2vl.sh` - just Qwen2-VL  
+- `run_all_missing.sh` - thin wrapper calling both
 
 ### One-time use scripts (already executed?)
 ```
@@ -207,23 +222,34 @@ Can be cleaned periodically (keep recent logs only).
 
 ## SCRIPTS REFERENCED IN README (KEEP!)
 
-These are explicitly documented and must be kept:
+### Analysis scripts (core functionality):
 ```
-scripts/analysis/create_unified_viewer.py
-scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
-scripts/analysis/logitlens.py
-scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
-scripts/analysis/create_contextual_embeddings.py
-scripts/analysis/precompute_contextual_caches.py
-scripts/analysis/generate_ablation_viewers.py
-scripts/analysis/add_models_to_viewer.py
-scripts/analysis/analyze_concreteness.py
-scripts/analysis/analyze_visual_attributes.py
-scripts/train.py
-generate_demo.sh
-run_all_missing.sh
-run_all_combinations_*.sh
-run_all_parallel_*.sh (in llm_judge/)
+scripts/analysis/create_unified_viewer.py          # Demo viewer
+scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py  # Static NN
+scripts/analysis/logitlens.py                      # LogitLens
+scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py   # LN-Lens
+scripts/analysis/create_contextual_embeddings.py   # Contextual embeddings
+scripts/analysis/precompute_contextual_caches.py   # Cache precomputation
+scripts/analysis/generate_ablation_viewers.py      # Ablation viewers
+scripts/analysis/add_models_to_viewer.py           # Link models to index
+scripts/train.py                                   # Training
+```
+
+### Run scripts:
+```
+generate_demo.sh                     # Unified demo generation
+run_all_missing.sh                   # Ablations + Qwen2-VL (958 lines - needs refactoring!)
+run_all_combinations_nn.sh           # Main 3x3 models - NN
+run_all_combinations_logitlens.sh    # Main 3x3 models - LogitLens
+run_all_combinations_contextual_nn.sh # Main 3x3 models - LN-Lens
+```
+
+### LLM Judge scripts:
+```
+llm_judge/run_all_parallel_nn.sh
+llm_judge/run_all_parallel_logitlens.sh
+llm_judge/run_all_parallel_contextual.sh
+llm_judge/run_all_parallel_nn_ablations.sh
 ```
 
 ---
@@ -235,4 +261,5 @@ When you return, restart with:
 ```bash
 ./run_all_missing.sh --qwen2vl-only --force-qwen2vl
 ```
+
 

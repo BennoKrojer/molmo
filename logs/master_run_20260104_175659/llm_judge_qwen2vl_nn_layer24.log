@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 24
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer24_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:08,  1.02it/s]Processing images:  20%|██        | 2/10 [00:14<01:06,  8.25s/it]Processing images:  30%|███       | 3/10 [00:24<01:04,  9.28s/it]Processing images:  50%|█████     | 5/10 [00:36<00:36,  7.29s/it]Processing images:  70%|███████   | 7/10 [00:45<00:18,  6.06s/it]Processing images:  80%|████████  | 8/10 [00:53<00:13,  6.61s/it]Processing images: 100%|██████████| 10/10 [01:29<00:00, 11.13s/it]Processing images: 100%|██████████| 10/10 [01:29<00:00,  8.92s/it]
+  Patch (2, 13): [' parchment', ' Lindsay', '.species']... -> FAIL
+  Patch (0, 12): ['DataService', 'upuncture', 'ertype']... -> FAIL
+  Patch (6, 8): [' FEC', '冰雪', '王府']... -> FAIL
+  Patch (5, 4): ['iciones', '(PC', '🃏']... -> FAIL
+  Patch (3, 5): ['_Begin', 'Students', ' ücretsiz']... -> FAIL
+  Patch (2, 8): ['NSMutableDictionary', '崀', ' requestId']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/visualizations
+============================================================
+

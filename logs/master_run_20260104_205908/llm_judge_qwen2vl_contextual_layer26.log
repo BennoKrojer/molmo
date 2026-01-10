@@ -1,0 +1,117 @@
+
+============================================================
+LLM Judge - CONTEXTUAL
+Model: qwen2-7b + qwen2-vl
+Layer: 26
+Input: analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/contextual_neighbors_visual0_allLayers.json
+Output: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual26_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/100 [00:00<?, ?it/s]Processing images:   1%|          | 1/100 [00:16<26:51, 16.28s/it]Processing images:   2%|▏         | 2/100 [00:36<30:32, 18.70s/it]Processing images:   3%|▎         | 3/100 [00:45<23:10, 14.34s/it]Processing images:   4%|▍         | 4/100 [00:58<22:11, 13.87s/it]Processing images:   5%|▌         | 5/100 [01:12<22:02, 13.92s/it]Processing images:   6%|▌         | 6/100 [01:21<18:47, 12.00s/it]Processing images:   7%|▋         | 7/100 [01:31<17:28, 11.27s/it]Processing images:   8%|▊         | 8/100 [01:42<17:32, 11.44s/it]Processing images:   9%|▉         | 9/100 [01:49<15:02,  9.91s/it]Processing images:  10%|█         | 10/100 [01:59<15:11, 10.12s/it]Processing images:  11%|█         | 11/100 [02:19<19:18, 13.02s/it]Processing images:  12%|█▏        | 12/100 [02:28<17:03, 11.64s/it]Processing images:  13%|█▎        | 13/100 [02:39<16:38, 11.48s/it]Processing images:  14%|█▍        | 14/100 [02:46<14:45, 10.30s/it]Processing images:  15%|█▌        | 15/100 [02:56<14:15, 10.07s/it]Processing images:  16%|█▌        | 16/100 [03:02<12:36,  9.01s/it]Processing images:  17%|█▋        | 17/100 [03:09<11:40,  8.43s/it]Processing images:  18%|█▊        | 18/100 [03:19<12:09,  8.89s/it]Processing images:  19%|█▉        | 19/100 [03:33<13:48, 10.23s/it]Processing images:  20%|██        | 20/100 [03:40<12:39,  9.49s/it]Processing images:  21%|██        | 21/100 [03:50<12:25,  9.44s/it]Processing images:  22%|██▏       | 22/100 [04:00<12:34,  9.67s/it]Processing images:  23%|██▎       | 23/100 [04:11<12:53, 10.05s/it]Processing images:  24%|██▍       | 24/100 [04:24<13:50, 10.93s/it]Processing images:  25%|██▌       | 25/100 [04:38<14:40, 11.74s/it]Processing images:  26%|██▌       | 26/100 [04:45<12:48, 10.38s/it]Processing images:  27%|██▋       | 27/100 [04:50<10:53,  8.95s/it]Processing images:  28%|██▊       | 28/100 [05:02<11:39,  9.71s/it]Processing images:  29%|██▉       | 29/100 [05:22<15:16, 12.91s/it]Processing images:  30%|███       | 30/100 [05:31<13:30, 11.58s/it]Processing images:  31%|███       | 31/100 [05:41<12:44, 11.08s/it]Processing images:  32%|███▏      | 32/100 [05:55<13:43, 12.11s/it]Processing images:  33%|███▎      | 33/100 [06:07<13:31, 12.11s/it]Processing images:  34%|███▍      | 34/100 [06:18<12:54, 11.74s/it]Processing images:  35%|███▌      | 35/100 [06:28<11:59, 11.07s/it]Processing images:  36%|███▌      | 36/100 [06:41<12:26, 11.67s/it]Processing images:  37%|███▋      | 37/100 [06:52<12:08, 11.56s/it]Processing images:  38%|███▊      | 38/100 [06:58<10:14,  9.91s/it]Processing images:  39%|███▉      | 39/100 [07:11<10:53, 10.71s/it]Processing images:  40%|████      | 40/100 [07:18<09:45,  9.76s/it]Processing images:  41%|████      | 41/100 [07:27<09:17,  9.45s/it]Processing images:  42%|████▏     | 42/100 [07:39<09:56, 10.29s/it]Processing images:  43%|████▎     | 43/100 [07:53<10:43, 11.29s/it]Processing images:  44%|████▍     | 44/100 [08:03<10:17, 11.02s/it]Processing images:  45%|████▌     | 45/100 [08:12<09:28, 10.34s/it]Processing images:  46%|████▌     | 46/100 [08:25<09:56, 11.05s/it]Processing images:  47%|████▋     | 47/100 [08:37<10:10, 11.51s/it]Processing images:  48%|████▊     | 48/100 [08:44<08:49, 10.19s/it]Processing images:  49%|████▉     | 49/100 [08:59<09:42, 11.41s/it]Processing images:  50%|█████     | 50/100 [09:09<09:09, 10.99s/it]Processing images:  51%|█████     | 51/100 [09:20<09:04, 11.11s/it]Processing images:  52%|█████▏    | 52/100 [09:27<07:47,  9.74s/it]Processing images:  53%|█████▎    | 53/100 [09:36<07:27,  9.52s/it]Processing images:  54%|█████▍    | 54/100 [09:42<06:29,  8.46s/it]Processing images:  55%|█████▌    | 55/100 [09:50<06:17,  8.39s/it]Processing images:  56%|█████▌    | 56/100 [09:57<05:50,  7.96s/it]Processing images:  57%|█████▋    | 57/100 [10:10<06:48,  9.50s/it]Processing images:  58%|█████▊    | 58/100 [10:20<06:41,  9.56s/it]Processing images:  59%|█████▉    | 59/100 [10:32<07:04, 10.36s/it]Processing images:  60%|██████    | 60/100 [10:44<07:12, 10.81s/it]Processing images:  61%|██████    | 61/100 [10:50<06:12,  9.55s/it]Processing images:  62%|██████▏   | 62/100 [11:01<06:14,  9.86s/it]Processing images:  63%|██████▎   | 63/100 [11:19<07:35, 12.31s/it]Processing images:  64%|██████▍   | 64/100 [11:37<08:29, 14.15s/it]Processing images:  65%|██████▌   | 65/100 [11:47<07:26, 12.75s/it]Processing images:  66%|██████▌   | 66/100 [11:54<06:21, 11.23s/it]Processing images:  67%|██████▋   | 67/100 [12:07<06:20, 11.54s/it]Processing images:  68%|██████▊   | 68/100 [12:20<06:23, 11.97s/it]Processing images:  69%|██████▉   | 69/100 [12:35<06:39, 12.89s/it]Processing images:  70%|███████   | 70/100 [12:46<06:14, 12.47s/it]Processing images:  71%|███████   | 71/100 [12:54<05:19, 11.00s/it]Processing images:  72%|███████▏  | 72/100 [13:03<04:55, 10.57s/it]Processing images:  73%|███████▎  | 73/100 [13:11<04:21,  9.67s/it]Processing images:  74%|███████▍  | 74/100 [13:23<04:27, 10.29s/it]Processing images:  75%|███████▌  | 75/100 [13:37<04:47, 11.50s/it]Processing images:  76%|███████▌  | 76/100 [13:47<04:26, 11.09s/it]Processing images:  77%|███████▋  | 77/100 [13:55<03:52, 10.12s/it]Processing images:  78%|███████▊  | 78/100 [14:07<03:54, 10.67s/it]Processing images:  79%|███████▉  | 79/100 [14:16<03:35, 10.28s/it]Processing images:  80%|████████  | 80/100 [14:27<03:31, 10.56s/it]Processing images:  81%|████████  | 81/100 [14:39<03:25, 10.82s/it]Processing images:  82%|████████▏ | 82/100 [14:49<03:10, 10.61s/it]Processing images:  83%|████████▎ | 83/100 [14:58<02:50, 10.03s/it]Processing images:  84%|████████▍ | 84/100 [15:10<02:52, 10.80s/it]Processing images:  85%|████████▌ | 85/100 [15:19<02:32, 10.17s/it]Processing images:  86%|████████▌ | 86/100 [15:28<02:16,  9.78s/it]Processing images:  87%|████████▋ | 87/100 [15:38<02:07,  9.79s/it]Processing images:  88%|████████▊ | 88/100 [15:46<01:51,  9.32s/it]Processing images:  89%|████████▉ | 89/100 [15:58<01:51, 10.14s/it]Processing images:  90%|█████████ | 90/100 [16:09<01:43, 10.32s/it]Processing images:  91%|█████████ | 91/100 [16:18<01:31, 10.15s/it]Processing images:  92%|█████████▏| 92/100 [16:25<01:13,  9.18s/it]Processing images:  93%|█████████▎| 93/100 [16:37<01:08,  9.77s/it]Processing images:  94%|█████████▍| 94/100 [16:43<00:53,  8.89s/it]Processing images:  95%|█████████▌| 95/100 [16:50<00:40,  8.15s/it]Processing images:  96%|█████████▌| 96/100 [16:57<00:32,  8.01s/it]Processing images:  97%|█████████▋| 97/100 [17:10<00:28,  9.38s/it]Processing images:  98%|█████████▊| 98/100 [17:23<00:20, 10.49s/it]Processing images:  99%|█████████▉| 99/100 [17:31<00:09,  9.62s/it]Processing images: 100%|██████████| 100/100 [17:50<00:00, 12.41s/it]Processing images: 100%|██████████| 100/100 [17:50<00:00, 10.70s/it]
+  Patch (11, 9): ['windows', 'windows', 'windows']... -> PASS
+  Patch (2, 0): ['meadow', 'theme', 'meadow']... -> FAIL
+  Patch (0, 6): ['river', 'riverside', 'riverride']... -> PASS
+  Patch (13, 7): ['twelve', 'twelve', 'twelve']... -> PASS
+  Patch (5, 0): ['night', 'night', 'nightstand']... -> PASS
+  Patch (4, 6): ['22pm', 'ten.pm', '04pm']... -> PASS
+  Patch (4, 1): ['broccolli', 'dutch', 'norris']... -> FAIL
+  Patch (2, 7): ['misy', 'acaccia', 'atasty']... -> FAIL
+  Patch (13, 6): ['7', '1970s', '9']... -> FAIL
+  Patch (1, 12): ['brown.', 'color.', 'wave.']... -> PASS
+  Patch (12, 5): ['stepped', 'stepping', 'stepping']... -> PASS
+  Patch (9, 13): ['forest', 'forest', 'forest']... -> PASS
+  Patch (1, 8): ['chicken', 'chicken', 'chicken']... -> PASS
+  Patch (10, 11): ['new', 'nw', 'nw']... -> PASS
+  Patch (7, 10): ['etc', 'college', 'etc']... -> PASS
+  Patch (0, 8): ['purple', 'purple', 'purple']... -> PASS
+  Patch (0, 7): ['data', 'anything']... -> PASS
+  Patch (1, 9): ['downfall', '<3', 'downfall']... -> PASS
+  Patch (3, 13): ['sunglasses', 'white', 'windows']... -> PASS
+  Patch (4, 3): ['grey', 'gray', 'gray']... -> PASS
+  Patch (9, 3): ['hand', 'hand', 'hand']... -> PASS
+  Patch (11, 0): ['o', 'man`s', 'parl']... -> FAIL
+  Patch (0, 6): ['dried', 'dried', 'dried']... -> PASS
+  Patch (10, 3): ['flower', 'flower', 'flower']... -> PASS
+  Patch (3, 8): ['background\\\\', 'background\\\\', 'fanciest']... -> PASS
+  Patch (13, 1): ['cable', 'cables', 'cables']... -> PASS
+  Patch (11, 12): ['518', "'w", '"$2']... -> PASS
+  Patch (12, 11): ['dogs', 'dog', 'dogs']... -> PASS
+  Patch (9, 13): ['meme', 'meme', 'meme']... -> PASS
+  Patch (7, 9): ['hyrdrant', 'click', 'either']... -> FAIL
+  Patch (4, 0): ['saurkraut', 'saftey', 'scaffolding']... -> PASS
+  Patch (8, 2): ['leaves', 'leaves', 'leaves']... -> PASS
+  Patch (10, 10): ['shutters', 'shutters', 'blacks']... -> PASS
+  Patch (5, 1): ['a', 'lagoon', 'from']... -> FAIL
+  Patch (0, 1): ['sprawled', 'sprawled', 'sprawled']... -> PASS
+  Patch (13, 12): ['slate', 'slate', 'slate']... -> PASS
+  Patch (2, 12): ['app', 'app', 'app']... -> PASS
+  Patch (12, 10): ['circles', 'circles', 'buttons']... -> PASS
+  Patch (7, 10): ['you', 'you', 'you']... -> PASS
+  Patch (6, 3): ['aerobatics', 'skater', 'blimp']... -> FAIL
+  Patch (5, 1): ['wlaking', 'wicked', 'wagging']... -> FAIL
+  Patch (2, 11): ['muffin', 'muffler', 'backgroun']... -> PASS
+  Patch (3, 13): ['home', 'homes', 'homes']... -> PASS
+  Patch (13, 13): ['leaves', 'leaves', 'shredded']... -> PASS
+  Patch (6, 2): ['redbull', 'blond/red', 'lifeguard/red']... -> PASS
+  Patch (1, 12): ['photo', 'photo', 'photo']... -> PASS
+  Patch (1, 9): ["oyster']", "cane']", 'screen']... -> PASS
+  Patch (6, 13): ['10', '107', '1970s']... -> FAIL
+  Patch (1, 10): ['trees', 'reeds', 'reed']... -> FAIL
+  Patch (6, 7): ['icons', 'logo', 'logo']... -> PASS
+  Patch (6, 4): ['boy', 'boy', 'man']... -> PASS
+  Patch (11, 0): ['1970s', 'rood', 'steet']... -> FAIL
+  Patch (4, 11): ['share', 'share', 'share']... -> PASS
+  Patch (0, 11): ['plain', 'yelloow', 'z\\ebra']... -> FAIL
+  Patch (13, 4): ['grass', 'grass', 'court']... -> PASS
+  Patch (8, 5): ['triangles', 'triangle', 'triangle']... -> PASS
+  Patch (9, 11): ['plain', 'background', 'vertical']... -> PASS
+  Patch (2, 3): ['toilets', 'toilets', 'toilets']... -> FAIL
+  Patch (6, 12): ['bandana', 'bandana', 'bandana']... -> PASS
+  Patch (1, 6): ["oyster']", "cane']", 'two]']... -> FAIL
+  Patch (10, 1): ['snowboard', 'snow', 'snow']... -> PASS
+  Patch (5, 5): ['autumm', '1970s', 'biggest']... -> PASS
+  Patch (11, 6): ['guns', 'guns', 'guns']... -> PASS
+  Patch (11, 4): ['5', '508615', '518']... -> PASS
+  Patch (6, 8): ['white', 'mist', 'white']... -> PASS
+  Patch (10, 7): ['white', 'white', 'white']... -> PASS
+  Patch (3, 7): ['patio', 'patio', 'backyard']... -> PASS
+  Patch (12, 12): ['plugged', 'plugged', '1970s']... -> PASS
+  Patch (1, 3): ['spaghetti', 'antibacterial', 'antibacterial']... -> PASS
+  Patch (0, 11): ['horns', 'horns', 'horns']... -> PASS
+  Patch (12, 1): ['background\\\\\\\\', 'wc)', 'background\\\\\\\\']... -> PASS
+  Patch (4, 2): ['tablcloth', 'tahara', 'tablw']... -> FAIL
+  Patch (5, 4): ['white', 'white', 'white']... -> PASS
+  Patch (1, 6): ['virgin', 'virgin', 'virgin']... -> PASS
+  Patch (4, 3): ['to', 'alt', 'li']... -> PASS
+  Patch (1, 11): ['theater', 'theatre', 'theatre']... -> PASS
+  Patch (6, 13): ['patterned', 'patterns', 'patterns']... -> PASS
+  Patch (5, 1): ['m.way', 'anyway', 'anyway']... -> FAIL
+  Patch (8, 4): ['bear', 'squirrel', 'cuckoo']... -> PASS
+  Patch (11, 8): ['ans', 'leg-&', 'amd']... -> FAIL
+  Patch (6, 9): ["o'meat", "o'meat", "six'o"]... -> FAIL
+  Patch (2, 13): ['images', 'country]', 'images']... -> PASS
+  Patch (6, 10): ['sad', 'eyes', 'sad']... -> PASS
+  Patch (6, 6): ['dresses', 'dresses', 'dress']... -> PASS
+  Patch (3, 11): ['benhk', 'knickknacks', 'handke']... -> FAIL
+  Patch (12, 3): ["'5", '"24', '"10']... -> FAIL
+  Patch (4, 12): ['patterson', 'auditorium', 'would']... -> FAIL
+  Patch (12, 11): ['events', 'next', 'events']... -> PASS
+  Patch (12, 6): ['table', 'table', 'desk']... -> PASS
+  Patch (11, 11): ['blue', 'blue', 'blue']... -> PASS
+  Patch (1, 4): ['helicopters', 'helicopters', 'helicopters']... -> PASS
+  Patch (11, 1): ['plate', 'plate', 'white']... -> PASS
+  Patch (11, 8): ['fuller', 'final', 'fully']... -> FAIL
+  Patch (3, 1): ['statue', 'sculpture', 'sculpture']... -> FAIL
+  Patch (9, 10): ['bucket', 'pinned', 'bucket']... -> FAIL
+  Patch (13, 4): ['mushrooms', 'mushrooms', 'mushrooms']... -> FAIL
+  Patch (4, 6): ['peopl', 'peopl', 'peoplw']... -> FAIL
+  Patch (2, 13): ['plate', 'plate', 'plate']... -> PASS
+  Patch (8, 6): ['gray', 'gray', 'gray']... -> PASS
+  Patch (6, 13): ['background\\\\\\\\', 'background\\\\\\\\', 'background\\\\\\\\']... -> PASS
+
+============================================================
+Results: 73/100 (73.0%)
+Saved to: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual26_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual26_gpt5_cropped/visualizations
+============================================================
+

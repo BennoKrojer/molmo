@@ -5,17 +5,27 @@ Patchscopes with Descriptive Few-Shot Prompt for Visual Tokens
 Instead of identity prompt (X->X), use a descriptive prompt that teaches
 the model to explain/describe what something is:
 
-    Dog is a type of animal, domesticated and a common pet, with four legs and fur.
-    Mathematics is a field of study concerned with numbers, quantities, and shapes.
-    Paris is the capital city of France, known for the Eiffel Tower and art museums.
-    X is
+    Dog: Dog is a type of animal, domesticated and a common pet, with four legs and fur.
+    Mathematics: Mathematics is a field of study concerned with numbers, quantities, and shapes.
+    Paris: Paris is the capital city of France, known for the Eiffel Tower and art museums.
+    X:
 
 Then patch a vision token's hidden state into "X" and let the model generate
 a free-form description. This might reveal what the visual content encodes.
 
+Output format matches logitlens/NN for unified viewer integration:
+- One JSON per layer: patchscopes_layer{N}.json
+- Structure: {checkpoint, split, num_images, layer_idx, results: [{image_idx, chunks: [{patches}]}]}
+- Each patch has: patch_idx, patch_row, patch_col, description (single string)
+
 Usage:
+    # Standard run (10 random patches per image, matches other analysis)
     python scripts/analysis/patchscopes/patchscopes_descriptive.py \
-        --ckpt-path <path> --num-images 10 --layers 0,8,16,24,31 --max-new-tokens 20
+        --ckpt-path <path> --num-images 10 --layers 0,2,4,8,16 --num-patches 10
+
+    # Legacy mode (center patches)
+    python scripts/analysis/patchscopes/patchscopes_descriptive.py \
+        --ckpt-path <path> --num-images 10 --layers 0,2,4,8,16 --sample-center 0.2
 """
 
 import argparse
@@ -23,6 +33,7 @@ import gc
 import json
 import math
 import os
+import random
 import time
 import torch
 from pathlib import Path
@@ -35,11 +46,11 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 # Descriptive few-shot prompt
-DESCRIPTIVE_PROMPT = """Dog is a type of animal, domesticated and a common pet, with four legs and fur.
-Mathematics is a field of study concerned with numbers, quantities, and shapes.
-Paris is the capital city of France, known for the Eiffel Tower and art museums.
-Blue is a color often associated with the sky and ocean, calming and serene.
-X is"""
+DESCRIPTIVE_PROMPT = """Dog: Dog is a type of animal, domesticated and a common pet, with four legs and fur.
+Mathematics: Mathematics is a field of study concerned with numbers, quantities, and shapes.
+Paris: Paris is the capital city of France, known for the Eiffel Tower and art museums.
+Blue: Blue is a color often associated with the sky and ocean, calming and serene.
+X: """
 
 
 def get_transformer_blocks(model):
@@ -143,9 +154,9 @@ def generate_with_patch(model, tokenizer, prompt_ids, patch_hidden_state,
 
 
 def run_descriptive_patchscopes(model, tokenizer, visual_hidden_states,
-                                 layer_idx, device, max_new_tokens=20):
+                                 layer_idx, device, max_new_tokens=20, patch_indices=None):
     """
-    Run descriptive Patchscopes for all visual tokens at a given layer.
+    Run descriptive Patchscopes for visual tokens at a given layer.
 
     Args:
         model: The model
@@ -154,6 +165,7 @@ def run_descriptive_patchscopes(model, tokenizer, visual_hidden_states,
         layer_idx: Layer to patch at
         device: Device
         max_new_tokens: Max tokens to generate per patch
+        patch_indices: Optional list of patch indices to process (default: all)
 
     Returns:
         List of dicts with patch info and generated descriptions
@@ -164,13 +176,16 @@ def run_descriptive_patchscopes(model, tokenizer, visual_hidden_states,
     prompt_tokens = tokenizer.encode(DESCRIPTIVE_PROMPT)
     prompt_ids = torch.tensor(prompt_tokens, device=device).unsqueeze(0)
 
-    # Find position of "X" (should be second-to-last, before " is")
-    # The prompt ends with "X is", so X is at position -2
-    patch_position = len(prompt_tokens) - 2
+    # Find position of "X" - prompt ends with "X: " which tokenizes as ["X", ":", " "]
+    # So X is at position -3
+    patch_position = len(prompt_tokens) - 3
 
     results = []
 
-    for patch_idx in range(num_patches):
+    # Use provided indices or all patches
+    indices_to_process = patch_indices if patch_indices is not None else range(num_patches)
+
+    for patch_idx in indices_to_process:
         patch_hs = visual_hidden_states[patch_idx]
 
         generated_text, generated_tokens = generate_with_patch(
@@ -194,9 +209,69 @@ def run_descriptive_patchscopes(model, tokenizer, visual_hidden_states,
     return results
 
 
+def get_center_patch_indices(grid_size, sample_fraction):
+    """Get indices of center patches based on sample fraction."""
+    if sample_fraction >= 1.0:
+        return None  # Process all patches
+
+    # Calculate center region size
+    center_size = int(grid_size * math.sqrt(sample_fraction))
+    if center_size < 1:
+        center_size = 1
+
+    # Calculate start/end of center region
+    start = (grid_size - center_size) // 2
+    end = start + center_size
+
+    # Get indices of center patches
+    indices = []
+    for row in range(start, end):
+        for col in range(start, end):
+            indices.append(row * grid_size + col)
+
+    return indices
+
+
+def get_random_patch_indices(total_patches, num_patches, seed=None):
+    """Get random patch indices for consistent sampling across layers.
+
+    Args:
+        total_patches: Total number of patches (e.g., 576 for 24x24 grid)
+        num_patches: Number of patches to sample
+        seed: Random seed for reproducibility
+
+    Returns:
+        Sorted list of patch indices
+    """
+    if num_patches >= total_patches:
+        return list(range(total_patches))
+
+    rng = random.Random(seed)
+    indices = rng.sample(range(total_patches), num_patches)
+    return sorted(indices)  # Sort for consistent patch ordering
+
+
 def process_images(model, tokenizer, preprocessor, dataset, num_images,
-                   layers, device, max_new_tokens=20):
-    """Process multiple images and generate descriptions for each patch."""
+                   layers, device, max_new_tokens=20, sample_center=1.0,
+                   num_patches=None, seed=42):
+    """Process multiple images and generate descriptions for each patch.
+
+    Args:
+        model: The VLM model
+        tokenizer: Tokenizer
+        preprocessor: Image preprocessor
+        dataset: Dataset to process
+        num_images: Number of images to process
+        layers: List of layer indices
+        device: CUDA device
+        max_new_tokens: Max tokens to generate per patch
+        sample_center: Fraction of center patches (legacy mode)
+        num_patches: Number of random patches per image (new mode, overrides sample_center)
+        seed: Random seed for reproducibility
+
+    Returns:
+        Dict mapping layer_idx -> list of image results (in logitlens-compatible format)
+    """
     blocks = get_transformer_blocks(model)
     num_layers = len(blocks)
 
@@ -242,7 +317,20 @@ def process_images(model, tokenizer, preprocessor, dataset, num_images,
         visual_positions = image_input_idx_np[image_input_idx_np >= 0]
         num_visual_tokens = len(visual_positions)
 
-        print(f"    Visual tokens: {num_visual_tokens}")
+        grid_size = int(math.sqrt(num_visual_tokens))
+
+        # Determine which patches to process
+        if num_patches is not None:
+            # New mode: random patches with consistent seed per image
+            patch_indices = get_random_patch_indices(
+                num_visual_tokens, num_patches, seed=seed + img_idx
+            )
+        else:
+            # Legacy mode: center patches
+            patch_indices = get_center_patch_indices(grid_size, sample_center)
+
+        num_to_process = len(patch_indices) if patch_indices else num_visual_tokens
+        print(f"    Visual tokens: {num_visual_tokens} (processing {num_to_process})")
 
         # For each layer, extract visual hidden states and generate descriptions
         for layer_idx in layers:
@@ -258,15 +346,23 @@ def process_images(model, tokenizer, preprocessor, dataset, num_images,
             # Run descriptive Patchscopes
             patch_results = run_descriptive_patchscopes(
                 model, tokenizer, visual_hidden_states,
-                layer_idx, device, max_new_tokens
+                layer_idx, device, max_new_tokens, patch_indices
             )
 
+            # Format in logitlens-compatible structure:
+            # Each image has chunks -> patches structure
             all_results[layer_idx].append({
                 "image_idx": img_idx,
                 "ground_truth_caption": caption,
-                "num_visual_tokens": num_visual_tokens,
-                "grid_size": int(math.sqrt(num_visual_tokens)),
-                "patches": patch_results,
+                "chunks": [{
+                    "chunk_name": "Full Image",
+                    "patches": [{
+                        "patch_idx": p["patch_idx"],
+                        "patch_row": p["patch_row"],
+                        "patch_col": p["patch_col"],
+                        "description": p["generated_text"],  # Single description string
+                    } for p in patch_results]
+                }]
             })
 
             print(f"done")
@@ -567,16 +663,36 @@ def main():
     parser = argparse.ArgumentParser(description="Patchscopes with descriptive few-shot prompt")
     parser.add_argument("--ckpt-path", type=str, required=True)
     parser.add_argument("--num-images", type=int, default=10)
-    parser.add_argument("--layers", type=str, default="0,8,16,24,31",
-                        help="Comma-separated layer indices")
+    parser.add_argument("--layers", type=str, default="0,2,4,8,16",
+                        help="Comma-separated layer indices (default: 0,2,4,8,16)")
     parser.add_argument("--max-new-tokens", type=int, default=20,
                         help="Max tokens to generate per patch")
     parser.add_argument("--output-dir", type=str,
-                        default="analysis_results/patchscopes_descriptive")
+                        default="analysis_results/patchscopes")
+    parser.add_argument("--num-patches", type=int, default=10,
+                        help="Number of random patches per image (default: 10)")
+    parser.add_argument("--sample-center", type=float, default=None,
+                        help="Legacy: fraction of center patches to sample (overridden by --num-patches)")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for patch selection")
+    parser.add_argument("--lite-suffix", type=str, default="",
+                        help="Suffix for output dir (e.g., '_lite10' for unified viewer)")
+    parser.add_argument("--skip-html", action="store_true",
+                        help="Skip HTML viewer generation (for batch runs)")
     args = parser.parse_args()
 
     device = torch.device("cuda")
     layers = [int(l.strip()) for l in args.layers.split(",")]
+
+    # Determine sampling mode
+    if args.sample_center is not None:
+        sampling_mode = f"center {args.sample_center:.0%}"
+        num_patches = None
+        sample_center = args.sample_center
+    else:
+        sampling_mode = f"{args.num_patches} random patches"
+        num_patches = args.num_patches
+        sample_center = 1.0
 
     print("=" * 70)
     print("PATCHSCOPES DESCRIPTIVE - Visual Token Descriptions")
@@ -585,6 +701,8 @@ def main():
     print(f"Images: {args.num_images}")
     print(f"Layers: {layers}")
     print(f"Max new tokens: {args.max_new_tokens}")
+    print(f"Sampling: {sampling_mode}")
+    print(f"Seed: {args.seed}")
     print()
     print("Prompt template:")
     print("-" * 50)
@@ -609,6 +727,7 @@ def main():
 
     model = model.half().cuda().eval()
     torch.cuda.empty_cache()
+    print("✓ Model loaded")
 
     # Load tokenizer and preprocessor
     model_config = ModelConfig.load(
@@ -642,34 +761,44 @@ def main():
     start_time = time.time()
     results = process_images(
         model, tokenizer, preprocessor, dataset,
-        args.num_images, layers, device, args.max_new_tokens
+        args.num_images, layers, device, args.max_new_tokens,
+        sample_center=sample_center, num_patches=num_patches, seed=args.seed
     )
     elapsed = time.time() - start_time
 
     print(f"\n✓ Processed {args.num_images} images in {elapsed:.1f}s")
 
-    # Save results
-    checkpoint_name = os.path.basename(args.ckpt_path.rstrip('/'))
-    output_dir = Path(args.output_dir) / checkpoint_name
+    # Build checkpoint name for output directory (match logitlens/NN pattern)
+    # From: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/step12000-unsharded
+    # To: train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded
+    ckpt_parts = args.ckpt_path.rstrip('/').split('/')
+    checkpoint_name = ckpt_parts[-2] + "_" + ckpt_parts[-1]  # e.g., train_..._step12000-unsharded
+
+    # Add lite suffix if specified
+    output_dir = Path(args.output_dir) / f"{checkpoint_name}{args.lite_suffix}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save JSON results
+    # Save JSON results in logitlens-compatible format
     for layer_idx, layer_results in results.items():
-        json_path = output_dir / f"descriptive_layer{layer_idx}.json"
+        json_path = output_dir / f"patchscopes_layer{layer_idx}.json"
         with open(json_path, "w") as f:
             json.dump({
                 "checkpoint": args.ckpt_path,
+                "split": "validation",
+                "num_images": args.num_images,
+                "layer_idx": layer_idx,
                 "method": "patchscopes_descriptive",
                 "prompt": DESCRIPTIVE_PROMPT,
-                "layer_idx": layer_idx,
                 "max_new_tokens": args.max_new_tokens,
+                "num_patches_per_image": num_patches if num_patches else "center",
                 "results": layer_results,
             }, f, indent=2)
         print(f"  ✓ Saved: {json_path}")
 
-    # Create HTML viewer
-    print("\nCreating HTML viewer...")
-    create_html_viewer(results, output_dir, checkpoint_name, dataset)
+    # Create HTML viewer (unless skipped)
+    if not args.skip_html:
+        print("\nCreating HTML viewer...")
+        create_html_viewer(results, output_dir, checkpoint_name, dataset)
 
     # Print sample results
     print("\n" + "=" * 70)
@@ -680,8 +809,11 @@ def main():
         if results[layer_idx]:
             img_data = results[layer_idx][0]
             print(f"\nLayer {layer_idx}:")
-            for patch in img_data["patches"][:5]:
-                print(f"  [{patch['patch_row']},{patch['patch_col']}]: \"{patch['generated_text'][:60]}...\"")
+            # Access via new structure: chunks[0]["patches"]
+            patches = img_data["chunks"][0]["patches"]
+            for patch in patches[:5]:
+                desc = patch.get("description", "")[:60]
+                print(f"  [{patch['patch_row']},{patch['patch_col']}]: \"{desc}...\"")
 
     print("\n" + "=" * 70)
     print("DONE")

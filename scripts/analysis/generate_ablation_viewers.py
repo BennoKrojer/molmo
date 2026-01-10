@@ -690,10 +690,11 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
             image_idx, image_base64, ground_truth,
             checkpoint,  # checkpoint_name
             llm, ve,  # Use actual llm/ve for lookup
-            nn_layers, logit_layers, [], ctx_layers,  # ctx_cc=empty, ctx_vg=ctx_layers (VG corpus)
+            nn_layers, logit_layers, [], ctx_layers, [],  # ctx_cc=empty, ctx_vg=ctx_layers, patchscopes=empty
             unified_patch_data, grid_size, patches_per_chunk,
             {},  # interpretability_map empty
-            grid_rows=grid_rows, grid_cols=grid_cols  # For non-square grids (Qwen2-VL)
+            grid_rows=grid_rows, grid_cols=grid_cols,  # For non-square grids (Qwen2-VL)
+            display_name=display_name  # Use ablation's name instead of computed LLM+VE
         )
     except Exception as e:
         import traceback

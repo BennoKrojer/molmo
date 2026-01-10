@@ -39,9 +39,10 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 # Identity prompt template (from Patchscopes paper)
-# Paper format: "tok1->tok1; tok2->tok2; ... tokk->" with "->" after token to decode
-# The model learns to repeat tokens, so after "?->" it should output the patched token
-IDENTITY_PROMPT = "cat->cat; 1135->1135; hello->hello; ?->"
+# Paper format: "tok1->tok1; tok2->tok2; ... ; X" where X is the placeholder
+# The model learns to repeat tokens, so after patching X with hidden state,
+# it should output what the hidden state encodes (the next token prediction)
+IDENTITY_PROMPT = "cat->cat; dog->dog; hello->hello; X"
 
 
 def patch_idx_to_row_col(patch_idx, patches_per_chunk):
@@ -142,9 +143,9 @@ def run_patchscopes_batch(model, tokenizer, visual_hidden_states, layer_idx, dev
     # Tokenize identity prompt
     identity_tokens = tokenizer.encode(IDENTITY_PROMPT)
     seq_len = len(identity_tokens)
-    # Find position of "?" (second-to-last, before "->")
-    # With format "...?->", we patch at "?" and predict after "->"
-    patch_position = seq_len - 2  # Position of "?" before final "->"
+    # Paper format: patch at last position (the "X" placeholder)
+    # Then read logits at last position to get prediction
+    patch_position = seq_len - 1  # Last position (the "X")
 
     # Get transformer blocks
     blocks = get_transformer_blocks(model)

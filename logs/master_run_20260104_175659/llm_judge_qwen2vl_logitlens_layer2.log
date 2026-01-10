@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 2
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer2_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:07,  1.18it/s]Processing images:  20%|██        | 2/10 [00:11<00:54,  6.76s/it]Processing images:  30%|███       | 3/10 [00:24<01:04,  9.29s/it]Processing images:  50%|█████     | 5/10 [00:33<00:33,  6.78s/it]Processing images:  70%|███████   | 7/10 [00:43<00:17,  5.96s/it]Processing images:  80%|████████  | 8/10 [00:53<00:13,  6.83s/it]Processing images: 100%|██████████| 10/10 [01:05<00:00,  6.54s/it]Processing images: 100%|██████████| 10/10 [01:05<00:00,  6.55s/it]
+  Patch (2, 13): [' IDb', 'ارات', '宦']... -> FAIL
+  Patch (0, 12): ['享有', '沟', 'これら']... -> FAIL
+  Patch (6, 8): ['amburg', '标志性', '弄']... -> FAIL
+  Patch (5, 4): ['病理', '乘', 'doi']... -> FAIL
+  Patch (3, 5): ['imulator', '徒', '勖']... -> FAIL
+  Patch (2, 8): ['/GPL', 'さんに', '领先的']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped/visualizations
+============================================================
+

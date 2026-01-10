@@ -1,0 +1,30 @@
+================================================================================
+Extract Max L2 Norm Vision Token Embedding
+================================================================================
+
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+Target layers: [0, 4, 8, 16, 24, 27]
+Number of images: 10
+
+Loading model from molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+Detected full checkpoint (30.00 GB)
+Loading checkpoint weights...
+Loaded 577 parameter tensors
+Moving model to GPU (fp16)...
+Model loaded on device: cuda
+
+Loading PixMo-Cap validation split...
+
+Processing 10 images...
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:08,  1.04it/s]Processing images:  20%|██        | 2/10 [00:01<00:06,  1.22it/s]Processing images:  30%|███       | 3/10 [00:02<00:05,  1.32it/s]Processing images:  40%|████      | 4/10 [00:03<00:04,  1.38it/s]Processing images:  50%|█████     | 5/10 [00:04<00:04,  1.19it/s]Processing images:  60%|██████    | 6/10 [00:04<00:03,  1.26it/s]Processing images:  70%|███████   | 7/10 [00:05<00:02,  1.34it/s]Processing images:  80%|████████  | 8/10 [00:06<00:01,  1.39it/s]Processing images:  90%|█████████ | 9/10 [00:06<00:00,  1.43it/s]Processing images: 100%|██████████| 10/10 [00:07<00:00,  1.48it/s]Processing images: 100%|██████████| 10/10 [00:07<00:00,  1.36it/s]
+
+================================================================================
+Results
+================================================================================
+Max L2 norm: 163280.30 at layer 24
+  Image idx: 8, Token idx: 385
+  Embedding dim: 3584
+  mean=-67.0786, std=2726.5808
+  min=-9104.0000, max=12640.0000
+
+✓ Saved to analysis_results/max_token_embeddings/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_max_token.json

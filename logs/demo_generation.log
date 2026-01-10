@@ -1,0 +1,295 @@
+INFO:__main__:Scanning analysis results...
+INFO:__main__:Loading PixMoCap dataset (validation split)...
+INFO:__main__:✓ Dataset loaded successfully
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='openai', resize='default' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 53.43s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 47.71s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 7.22s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.73s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 109.09s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 13.1s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='dino', resize='dino' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 48.61s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 46.93s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 7.67s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.77s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 103.97s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 13.0s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_llama3-8b_siglip...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='siglip', resize='siglip' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 66.38s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 59.13s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 10.17s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.95s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 136.63s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 16.1s (0.6 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='openai', resize='default' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 66.01s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 43.82s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 8.07s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.76s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 118.66s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 12.9s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='dino', resize='dino' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 72.87s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 46.24s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 7.38s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.73s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 127.22s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 13.0s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_olmo-7b_siglip...
+INFO:__main__:  Found: NN=15, Logit=15, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='siglip', resize='siglip' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 15 NN files...
+INFO:__main__:    ⏱️  NN: 103.88s
+INFO:__main__:    Loading 15 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 86.90s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 31: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 30: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 30, 31])
+INFO:__main__:    ⏱️  LN-Lens: 14.17s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 1.16s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 206.11s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 17.3s (0.6 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+INFO:root:Padding tokenizer with 418 tokens
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='openai', resize='default' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 77.62s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 84.23s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 26: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 27: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:    ⏱️  LN-Lens: 11.94s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.90s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 174.69s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 11.8s (0.8 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='dino', resize='dino' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 82.35s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 90.12s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 26: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 27: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:    ⏱️  LN-Lens: 10.55s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 0.93s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 183.95s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 14.0s (0.7 images/sec)
+INFO:__main__:
+Scanning train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip...
+INFO:__main__:  Found: NN=13, Logit=14, Contextual_CC=0, Contextual_VG=9, Patchscopes=0
+INFO:__main__:Created model index: analysis_results/unified_viewer_lite/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/index.html
+INFO:viewer_lib:    Creating preprocessor from checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+INFO:olmo.data.model_preprocessor:★★★ MultiModalPreprocessor initialized: normalize='siglip', resize='siglip' ★★★
+INFO:viewer_lib:    ✓ Preprocessor created successfully
+INFO:__main__:  📦 Loading all analysis data at once (this is much faster)...
+INFO:__main__:    Loading 13 NN files...
+INFO:__main__:    ⏱️  NN: 92.26s
+INFO:__main__:    Loading 14 Logit Lens files...
+INFO:__main__:    ⏱️  Logit Lens: 87.21s
+INFO:__main__:    Loading 0 LN-Lens (CC) files...
+INFO:__main__:    ⏱️  LN-Lens (CC): 0.00s
+INFO:__main__:    Loading 9 LN-Lens files...
+INFO:__main__:      Visual layer 0: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 26: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 2: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 24: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 1: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 8: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 16: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 27: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:      Visual layer 4: loaded 10 images (contextual layers: [1, 2, 4, 8, 16, 24, 26, 27])
+INFO:__main__:    ⏱️  LN-Lens: 11.83s
+INFO:__main__:    Loading interpretability heuristic...
+INFO:__main__:    ⏱️  Interpretability: 1.05s
+INFO:__main__:    No patchscopes data available for this model
+INFO:__main__:  ✅ Total load time: 192.35s
+INFO:__main__:  Creating unified image viewers (now fast since data is cached!)...
+INFO:__main__:  ✓ Created 10/10 image viewers in 16.8s (0.6 images/sec)
+INFO:__main__:
+Creating main index...
+INFO:__main__:Created main index: analysis_results/unified_viewer_lite/index.html
+INFO:__main__:
+Adding ablations to index...
+INFO:__main__:  Found 10 ablations in config
+INFO:__main__:  10/10 have viewer data in analysis_results/unified_viewer_lite/ablations
+INFO:__main__:  ✅ Added 10 ablations to main index.html
+INFO:__main__:
+✅ Unified viewer created successfully!
+INFO:__main__:📂 Output directory: analysis_results/unified_viewer_lite
+INFO:__main__:🌐 Open analysis_results/unified_viewer_lite/index.html in a web browser to start exploring!

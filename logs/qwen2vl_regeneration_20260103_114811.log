@@ -1,0 +1,43 @@
+==========================================
+MASTER SCRIPT: Running All Missing Tasks
+==========================================
+Log directory: logs/master_run_20260103_114811
+Dry run: false
+Test mode: false
+Force Qwen2-VL: true
+Qwen2-VL only: true
+==========================================
+
+[2026-01-03 11:48:11] Starting master script
+[2026-01-03 11:48:11] Configuration: NUM_IMAGES=300, LAYERS=0,1,2,4,8,16,24,30,31, SPLIT=validation
+[2026-01-03 11:48:11] 
+[2026-01-03 11:48:11] ========== PHASE 0: Validation ==========
+[2026-01-03 11:48:11] Checking Python script syntax...
+[2026-01-03 11:48:12]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
+[2026-01-03 11:48:12]   ✓ scripts/analysis/logitlens.py
+[2026-01-03 11:48:12]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
+[2026-01-03 11:48:12]   ✓ llm_judge/run_single_model_with_viz.py
+[2026-01-03 11:48:12]   ✓ llm_judge/run_single_model_with_viz_contextual.py
+[2026-01-03 11:48:12]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py
+[2026-01-03 11:48:12]   ✓ scripts/analysis/qwen2_vl/logitlens.py
+[2026-01-03 11:48:12] Checking imports and dependencies...
+Warning: translation disabled (googletrans import error: module 'httpcore' has no attribute 'SyncHTTPTransport'). To enable, install compatible versions, e.g.:
+  pip install 'googletrans==4.0.0rc1' 'httpx<0.24' 'httpcore<1.0'
+[2026-01-03 11:48:17]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py imports OK
+[2026-01-03 11:48:21]   ✓ scripts/analysis/logitlens.py imports OK
+[2026-01-03 11:48:27]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py imports OK
+[2026-01-03 11:48:33]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py imports OK
+[2026-01-03 11:48:38]   ✓ scripts/analysis/qwen2_vl/logitlens.py imports OK
+[2026-01-03 11:48:38] Checking API key file...
+[2026-01-03 11:48:38]   ✓ llm_judge/api_key.txt exists and is non-empty
+[2026-01-03 11:48:38] SKIP: Ablation validation (--qwen2vl-only mode)
+[2026-01-03 11:48:38] ✓ All validations passed
+[2026-01-03 11:48:38] 
+[2026-01-03 11:48:38] 
+[2026-01-03 11:48:38] SKIP: Phases 1-6 (ablations) - running Qwen2-VL only mode
+[2026-01-03 11:48:38] 
+[2026-01-03 11:48:38] ========== PHASE 7: Static NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 11:48:38] FORCE: Deleting old Qwen2-VL data (--force-qwen2vl flag set)
+[2026-01-03 11:48:38] ✓ Old Qwen2-VL data deleted
+[2026-01-03 11:48:38] RUNNING: Static NN for Qwen2-VL (all 9 layers)
+[2026-01-03 11:48:38]   Command: python3 scripts/analysis/qwen2_vl/nearest_neighbors.py             --num-images 300             --layers 0,1,2,4,8,16,24,26,27             --fixed-resolution 448             --force-square             --output-dir analysis_results/nearest_neighbors/qwen2_vl

@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 27
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer27_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:05,  1.59it/s]Processing images:  20%|██        | 2/10 [00:13<01:01,  7.68s/it]Processing images:  30%|███       | 3/10 [00:23<01:00,  8.71s/it]Processing images:  50%|█████     | 5/10 [00:36<00:37,  7.50s/it]Processing images:  70%|███████   | 7/10 [00:47<00:19,  6.55s/it]Processing images:  80%|████████  | 8/10 [00:55<00:13,  7.00s/it]Processing images: 100%|██████████| 10/10 [01:07<00:00,  6.57s/it]Processing images: 100%|██████████| 10/10 [01:07<00:00,  6.75s/it]
+  Patch (2, 13): ['.', '前后', ' flick']... -> FAIL
+  Patch (0, 12): [' Apple', ')\n\n', ')']... -> PASS
+  Patch (6, 8): ['建筑', '的', '…']... -> PASS
+  Patch (5, 4): [' cloud', 'cloud', '\n']... -> PASS
+  Patch (3, 5): ['��', 'ergus', ' coordinated']... -> FAIL
+  Patch (2, 8): ['imit', '�', ' Castro']... -> FAIL
+
+============================================================
+Results: 3/6 (50.0%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer27_gpt5_cropped/visualizations
+============================================================
+

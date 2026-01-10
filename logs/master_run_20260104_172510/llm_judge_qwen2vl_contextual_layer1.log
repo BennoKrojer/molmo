@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - CONTEXTUAL
+Model: qwen2-7b + qwen2-vl
+Layer: 1
+Input: analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/contextual_neighbors_visual0_allLayers.json
+Output: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual1_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:10<01:34, 10.48s/it]Processing images:  30%|███       | 3/10 [00:19<00:43,  6.24s/it]Processing images:  40%|████      | 4/10 [00:39<01:04, 10.78s/it]Processing images:  50%|█████     | 5/10 [00:39<00:36,  7.33s/it]Processing images:  60%|██████    | 6/10 [00:48<00:31,  7.83s/it]Processing images:  70%|███████   | 7/10 [00:56<00:23,  7.90s/it]Processing images:  90%|█████████ | 9/10 [01:08<00:06,  6.97s/it]Processing images: 100%|██████████| 10/10 [01:08<00:00,  6.85s/it]
+  Patch (13, 9): ['red', 'red', 'red']... -> FAIL
+  Patch (0, 12): ['didn', 'isn', 'flatscreen)']... -> FAIL
+  Patch (10, 8): ['advertisisng', 'o', 'murray']... -> PASS
+  Patch (8, 13): ['&,', '&,', '*&']... -> FAIL
+  Patch (7, 13): ['107', '1970s', '1']... -> FAIL
+  Patch (3, 4): ['bicolor', 'color', 'curly']... -> PASS
+
+============================================================
+Results: 2/6 (33.3%)
+Saved to: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual1_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual1_gpt5_cropped/visualizations
+============================================================
+

@@ -2711,7 +2711,6 @@
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00096_patch0",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c4f98220>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         " snapchat",
         "\u03ad",
@@ -2720,11 +2719,17 @@
         " \u0436"
       ],
       "patch_row": 12,
-      "patch_col": 4
+      "patch_col": 4,
+      "gpt_response": {
+        "reasoning": "The cropped region shows a gray divider and partial tan bone-like object without any text or symbols. Concrete relations would require visible objects or characters matching the words; none of the candidate words (\"snapchat\", \"\u03ad\", \"Bark\", \"enzie\", \"\u0436\") are literally depicted. Abstract relations would involve concepts or emotions linked to the region; none of the words conceptually relate to a gray divider or bone fragment. Global relations would refer to items elsewhere in the full image; the full image shows skulls/faces, not anything tied to these words. Therefore, none of the candidates relate to the highlighted region.",
+        "interpretable": false,
+        "concrete_words": [],
+        "abstract_words": [],
+        "global_words": []
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00096_patch1",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c4f98f40>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         " Schultz",
         " Cassidy",
@@ -2733,11 +2738,21 @@
         "heads"
       ],
       "patch_row": 9,
-      "patch_col": 1
+      "patch_col": 1,
+      "gpt_response": {
+        "reasoning": "The cropped region shows the upper part of a skull, i.e., a head. Among the candidate words, 'head' directly names what is visible, so it is concretely related. The full image contains multiple heads, so 'heads' describes something elsewhere in the image and is globally related. The other words ('Schultz', 'Cassidy', 'olar') do not relate to the region either concretely or abstractly.",
+        "interpretable": true,
+        "concrete_words": [
+          "head"
+        ],
+        "abstract_words": [],
+        "global_words": [
+          "heads"
+        ]
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch2",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c5076230>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         "precipitate (translated from \u6dc0)",
         " MouseEventArgs",
@@ -2746,11 +2761,17 @@
         "-prepend"
       ],
       "patch_row": 11,
-      "patch_col": 15
+      "patch_col": 15,
+      "gpt_response": {
+        "reasoning": "The highlighted region shows part of a human-like face (no text or symbols). None of the candidate words correspond to visible objects or text here, so there are no concrete matches. They also do not describe concepts related to the face region (no relevant abstract ties). Elsewhere in the full image there are skulls and faces, but none of the provided words relate to those either, so no global matches.",
+        "interpretable": false,
+        "concrete_words": [],
+        "abstract_words": [],
+        "global_words": []
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch3",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c5074b80>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         "eras",
         ".pose",
@@ -2759,11 +2780,17 @@
         "-f"
       ],
       "patch_row": 16,
-      "patch_col": 11
+      "patch_col": 11,
+      "gpt_response": {
+        "reasoning": "The highlighted region shows a plain area with a vertical white divider and gray background; there is no visible text or recognizable object. Therefore, none of the candidate words match anything concretely in the crop. Abstractly, the words (e.g., 'eras', '.pose', '_H', '\u0627\u0644\u0634\u0631\u0643\u0627\u062a', '-f') do not describe concepts or emotions tied to this simple divider area. Globally, elsewhere in the full image there are skulls/faces, but none of the candidate words directly describe those elements either.",
+        "interpretable": false,
+        "concrete_words": [],
+        "abstract_words": [],
+        "global_words": []
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00096_patch4",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c5076950>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         " hairy",
         " Hair",
@@ -2772,11 +2799,21 @@
         " Scotch"
       ],
       "patch_row": 7,
-      "patch_col": 16
+      "patch_col": 16,
+      "gpt_response": {
+        "reasoning": "The highlighted region is a narrow vertical strip with gray and white areas; it does not clearly show any specific object like hair. Therefore, none of the words are concretely visible here. No broader abstract concepts are depicted either. However, elsewhere in the full image (the rightmost portrait) there is visible hair, so hair-related words are globally related.",
+        "interpretable": true,
+        "concrete_words": [],
+        "abstract_words": [],
+        "global_words": [
+          " hairy",
+          " Hair",
+          " hair"
+        ]
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00096_patch5",
-      "error": "Failed to load image: HTTPSConnectionPool(host='iscd.sorbonne-universite.fr', port=443): Max retries exceeded with url: /wp-content/uploads/elementor/thumbs/4head-pcik7udiq5vnyxi9mojdpjqe5zw94flvoo9xt46jtc.png (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x7fb4c4f85480>, 'Connection to iscd.sorbonne-universite.fr timed out. (connect timeout=30)'))",
       "candidates": [
         " skulls",
         " skull",
@@ -2785,7 +2822,20 @@
         "Science"
       ],
       "patch_row": 13,
-      "patch_col": 7
+      "patch_col": 7,
+      "gpt_response": {
+        "reasoning": "The highlighted region shows the lower portion of a human skull with teeth. Concrete relations: words that name the visible object match, such as 'skull'/'Skull' (and even the plural 'skulls' refers to the same object type). Abstract relations: 'Science' is conceptually related since skulls are used in scientific/anatomical contexts, though the word itself isn\u2019t shown. Global relations: there\u2019s nothing in the rest of the image that is relevant but not present in the box that isn\u2019t already covered; 'Helmet' does not appear.",
+        "interpretable": true,
+        "concrete_words": [
+          " skulls",
+          " skull",
+          " Skull"
+        ],
+        "abstract_words": [
+          "Science"
+        ],
+        "global_words": []
+      }
     },
     {
       "instance_id": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00031_patch0",

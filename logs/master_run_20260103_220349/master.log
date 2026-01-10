@@ -1,0 +1,73 @@
+[2026-01-03 22:03:49] Starting master script
+[2026-01-03 22:03:49] Configuration: NUM_IMAGES=300, LAYERS=0,1,2,4,8,16,24,30,31, SPLIT=validation
+[2026-01-03 22:03:49] 
+[2026-01-03 22:03:49] ========== PHASE 0: Validation ==========
+[2026-01-03 22:03:49] Checking Python script syntax...
+[2026-01-03 22:03:49]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
+[2026-01-03 22:03:49]   ✓ scripts/analysis/logitlens.py
+[2026-01-03 22:03:49]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
+[2026-01-03 22:03:49]   ✓ llm_judge/run_llm_judge.py
+[2026-01-03 22:03:49]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py
+[2026-01-03 22:03:49]   ✓ scripts/analysis/qwen2_vl/logitlens.py
+[2026-01-03 22:03:49] Checking imports and dependencies...
+[2026-01-03 22:03:54]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py imports OK
+[2026-01-03 22:03:59]   ✓ scripts/analysis/logitlens.py imports OK
+[2026-01-03 22:04:04]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py imports OK
+[2026-01-03 22:04:10]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py imports OK
+[2026-01-03 22:04:15]   ✓ scripts/analysis/qwen2_vl/logitlens.py imports OK
+[2026-01-03 22:04:15] Checking API key file...
+[2026-01-03 22:04:15]   ✓ llm_judge/api_key.txt exists and is non-empty
+[2026-01-03 22:04:15] SKIP: Ablation validation (--qwen2vl-only mode)
+[2026-01-03 22:04:15] ✓ All validations passed
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] SKIP: Phases 1-6 (ablations) - running Qwen2-VL only mode
+[2026-01-03 22:04:15] ✓ Loaded API key for Qwen2-VL LLM Judge phases
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 7: Static NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 22:04:15] SKIP: Static NN complete for Qwen2-VL (9 layers)
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 8: LogitLens for Qwen2-VL (9 layers) ==========
+[2026-01-03 22:04:15] SKIP: LogitLens complete for Qwen2-VL (9 layers)
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 9: LLM Judge NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 0
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 1
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 2
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 4
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 8
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 16
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 24
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 26
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge NN for Qwen2-VL layer 27
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 10: LLM Judge LogitLens for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 0
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 1
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 2
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 4
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 8
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 16
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 24
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 26
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge LogitLens for Qwen2-VL layer 27
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 10.5: Contextual NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 22:04:15] SKIP: Contextual NN complete for Qwen2-VL (9 allLayers files)
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ========== PHASE 11: LLM Judge Contextual NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 0
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 1
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 2
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 4
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 8
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 16
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 24
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 26
+[2026-01-03 22:04:15] DRY-RUN: LLM Judge Contextual for Qwen2-VL layer 27
+[2026-01-03 22:04:15] 
+[2026-01-03 22:04:15] ==========================================
+[2026-01-03 22:04:15] MASTER SCRIPT COMPLETED
+[2026-01-03 22:04:15] ==========================================
+[2026-01-03 22:04:15] Log directory: logs/master_run_20260103_220349
+[2026-01-03 22:04:15] Check logs/master_run_20260103_220349/master.log for full details

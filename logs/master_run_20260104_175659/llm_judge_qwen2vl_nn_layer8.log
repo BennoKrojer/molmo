@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 8
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer8_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:06,  1.39it/s]Processing images:  20%|██        | 2/10 [00:13<01:03,  7.90s/it]Processing images:  30%|███       | 3/10 [00:23<01:02,  8.99s/it]Processing images:  50%|█████     | 5/10 [00:34<00:34,  6.88s/it]Processing images:  70%|███████   | 7/10 [00:46<00:19,  6.42s/it]Processing images:  80%|████████  | 8/10 [00:56<00:14,  7.30s/it]Processing images: 100%|██████████| 10/10 [01:07<00:00,  6.54s/it]Processing images: 100%|██████████| 10/10 [01:07<00:00,  6.72s/it]
+  Patch (2, 13): ['讓', '-create', 'ရ']... -> FAIL
+  Patch (0, 12): ['."/', ' nursery', 'upuncture']... -> FAIL
+  Patch (6, 8): [' signings', '/tab', ' broadcasters']... -> FAIL
+  Patch (5, 4): ['hoot', '❜', '/mainwindow']... -> FAIL
+  Patch (3, 5): [' Leicester', 'bildung', ' WHITE']... -> FAIL
+  Patch (2, 8): [':"",', '읻', 'UTILITY']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer8_gpt5_cropped/visualizations
+============================================================
+

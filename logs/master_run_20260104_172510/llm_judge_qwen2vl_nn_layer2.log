@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 2
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer2_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:11<01:40, 11.14s/it]Processing images:  30%|███       | 3/10 [00:22<00:50,  7.20s/it]Processing images:  40%|████      | 4/10 [00:39<01:02, 10.37s/it]Processing images:  50%|█████     | 5/10 [00:39<00:35,  7.04s/it]Processing images:  60%|██████    | 6/10 [00:51<00:34,  8.50s/it]Processing images:  70%|███████   | 7/10 [00:59<00:25,  8.37s/it]Processing images:  90%|█████████ | 9/10 [01:08<00:06,  6.59s/it]Processing images: 100%|██████████| 10/10 [01:08<00:00,  6.85s/it]
+  Patch (13, 9): ['();\n', '。\r\n', '1']... -> FAIL
+  Patch (0, 12): ['pdf', ' periodically', 'LK']... -> FAIL
+  Patch (10, 8): [' בפייסבוק', 'Researchers', 'aramel']... -> FAIL
+  Patch (8, 13): ['.spy', ' tuna', ' knocks']... -> FAIL
+  Patch (7, 13): [' を', '\tcd', '怔']... -> FAIL
+  Patch (3, 4): ['珰', '谰', 'rika']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer2_gpt5_cropped/visualizations
+============================================================
+

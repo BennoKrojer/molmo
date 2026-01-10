@@ -1,0 +1,28 @@
+================================================================================
+Text Token L2 Norm Across Layers (Single-GPU)
+================================================================================
+
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+Dataset split: validation
+Number of images: 10
+Target layers: [0, 4, 8, 16, 24, 31]
+Histogram bins: 50
+
+Loading model from molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+Detected full checkpoint (29.09 GB)
+Skipping pretrained weights loading (checkpoint contains all weights)
+Loading checkpoint weights...
+Traceback (most recent call last):
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/sameToken_acrossLayers_text_l2norm.py", line 470, in <module>
+    main()
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/sameToken_acrossLayers_text_l2norm.py", line 354, in main
+    checkpoint_weights = torch.load(checkpoint_file, map_location="cpu")
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/env/lib/python3.10/site-packages/torch/serialization.py", line 1025, in load
+    return _load(opened_zipfile,
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/env/lib/python3.10/site-packages/torch/serialization.py", line 1446, in _load
+    result = unpickler.load()
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/env/lib/python3.10/site-packages/torch/serialization.py", line 1416, in persistent_load
+    typed_storage = load_tensor(dtype, nbytes, key, _maybe_decode_ascii(location))
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/env/lib/python3.10/site-packages/torch/serialization.py", line 1381, in load_tensor
+    storage = zip_file.get_storage_from_record(name, numel, torch.UntypedStorage)._typed_storage()._untyped_storage
+RuntimeError: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 360710144 bytes. Error code 12 (Cannot allocate memory)
