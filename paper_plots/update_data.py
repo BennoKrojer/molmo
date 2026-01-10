@@ -528,30 +528,43 @@ def load_qwen2vl_layer_alignment_data(skip_if_slow=False):
 
 def load_qwen2vl_token_similarity_data():
     """
-    Load token similarity data for Qwen2-VL.
+    Load token similarity data for Qwen2-VL (both vision and text).
 
-    Returns: {'vision': {layer: mean_similarity}}
+    Returns: {'vision': {layer: mean_similarity}, 'text': {layer: mean_similarity}}
     """
-    qwen2vl_sim_dir = RESULTS_DIR / "sameToken_acrossLayers_similarity" / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
-    summary_file = qwen2vl_sim_dir / "similarity_across_layers_summary.json"
+    result = {'vision': {}, 'text': {}}
 
-    if not summary_file.exists():
-        print(f"  Warning: Qwen2-VL token similarity not found: {summary_file}")
-        return {}
+    # Load vision token similarities
+    vision_dir = RESULTS_DIR / "sameToken_acrossLayers_similarity" / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
+    vision_file = vision_dir / "similarity_across_layers_summary.json"
 
-    with open(summary_file, 'r') as f:
-        data = json.load(f)
+    if vision_file.exists():
+        with open(vision_file, 'r') as f:
+            data = json.load(f)
+        global_averages = data.get('global_averages', {})
+        for layer_str, layer_data in global_averages.items():
+            layer_idx = int(layer_str)
+            mean_sim = layer_data.get('same_token', {}).get('mean_similarity', 0.0)
+            result['vision'][layer_idx] = round(mean_sim, 4)
+    else:
+        print(f"  Warning: Qwen2-VL vision token similarity not found: {vision_file}")
 
-    global_averages = data.get('global_averages', {})
+    # Load text token similarities
+    text_dir = RESULTS_DIR / "sameToken_acrossLayers_text_similarity" / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
+    text_file = text_dir / "text_similarity_across_layers_summary.json"
 
-    # Extract vision token similarities
-    vision_similarities = {}
-    for layer_str, layer_data in global_averages.items():
-        layer_idx = int(layer_str)
-        mean_sim = layer_data.get('same_token', {}).get('mean_similarity', 0.0)
-        vision_similarities[layer_idx] = round(mean_sim, 6)
+    if text_file.exists():
+        with open(text_file, 'r') as f:
+            data = json.load(f)
+        global_averages = data.get('global_averages', {})
+        for layer_str, layer_data in global_averages.items():
+            layer_idx = int(layer_str)
+            mean_sim = layer_data.get('same_token', {}).get('mean_similarity', 0.0)
+            result['text'][layer_idx] = round(mean_sim, 4)
+    else:
+        print(f"  Warning: Qwen2-VL text token similarity not found: {text_file}")
 
-    return {'vision': vision_similarities, 'text': {}}
+    return result
 
 
 # =============================================================================

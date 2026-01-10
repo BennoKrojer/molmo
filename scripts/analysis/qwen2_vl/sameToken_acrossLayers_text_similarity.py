@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Compute cosine similarity of vision tokens across layers to layer 0 for Qwen2-VL.
+Compute cosine similarity of TEXT tokens across layers to layer 0 for Qwen2-VL.
 
-This script traces vision tokens through Qwen2-VL LLM layers and computes the cosine similarity
-between each vision token at layer N and the same token at layer 0 (input layer).
+This script traces text tokens through Qwen2-VL LLM layers and computes the cosine similarity
+between each text token at layer N and the same token at layer 0 (raw embedding lookup).
 
-This is the Qwen2-VL equivalent of scripts/analysis/sameToken_acrossLayers_similarity.py
+This is the Qwen2-VL equivalent of scripts/analysis/sameToken_acrossLayers_text_similarity.py
 
 Usage:
-    CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/sameToken_acrossLayers_similarity.py \
-        --num-images 100 --output-dir analysis_results/sameToken_acrossLayers_similarity/qwen2_vl
+    CUDA_VISIBLE_DEVICES=0 python scripts/analysis/qwen2_vl/sameToken_acrossLayers_text_similarity.py \
+        --num-images 100 --output-dir analysis_results/sameToken_acrossLayers_text_similarity/qwen2_vl
 """
 
 import argparse
@@ -33,40 +33,59 @@ except ImportError:
     print("Warning: PixMoCap dataset not available.")
 
 
+# Qwen2-VL special token IDs
 IMAGE_PAD_TOKEN_ID = 151655  # <|image_pad|> token ID in Qwen2-VL
+VISION_START_TOKEN_ID = 151652  # <|vision_start|>
+VISION_END_TOKEN_ID = 151653  # <|vision_end|>
+VISION_PAD_TOKEN_ID = 151654  # <|vision_pad|>
 
 
-def find_image_token_positions(input_ids):
-    """Find positions of vision tokens in the input sequence."""
+def get_special_token_ids():
+    """Get special token IDs to exclude from text analysis."""
+    return {
+        IMAGE_PAD_TOKEN_ID,
+        VISION_START_TOKEN_ID,
+        VISION_END_TOKEN_ID,
+        VISION_PAD_TOKEN_ID,
+    }
+
+
+def find_text_token_positions(input_ids):
+    """
+    Find positions of text tokens (non-vision, non-special) in the input sequence.
+
+    Returns:
+        text_positions: list of positions that are actual text tokens
+        num_text_tokens: count of text tokens
+    """
     if isinstance(input_ids, torch.Tensor):
         input_ids = input_ids.cpu().numpy()
 
     if len(input_ids.shape) == 2:
         input_ids = input_ids[0]
 
-    image_positions = np.where(input_ids == IMAGE_PAD_TOKEN_ID)[0]
+    special_ids = get_special_token_ids()
 
-    if len(image_positions) == 0:
-        return None, None, 0
+    text_positions = []
+    for pos, token_id in enumerate(input_ids):
+        if token_id not in special_ids:
+            text_positions.append(pos)
 
-    start_idx = int(image_positions[0])
-    end_idx = int(image_positions[-1]) + 1
-    num_vision_tokens = len(image_positions)
-
-    return start_idx, end_idx, num_vision_tokens
+    return text_positions, len(text_positions)
 
 
-def compute_similarity_to_layer0(model, processor, image, prompt, device, layers_to_analyze=None):
+def compute_text_similarity_to_layer0(model, processor, image, caption, device, layers_to_analyze=None):
     """
-    Compute cosine similarity of vision tokens at each layer to their layer 0 version.
+    Compute cosine similarity of text tokens at each layer to their layer 0 version.
 
     Returns:
         dict with:
         - 'layer_similarities': dict[layer_idx] -> {"same_token": {"mean": x}, "baseline": {"mean": y}}
         - 'metadata': dict with shape info
     """
-    # Prepare inputs
-    text_with_image = f"<|image_pad|>{prompt}"
+    # Prepare inputs with image and caption
+    # Format: <|vision_start|><|image_pad|>...<|vision_end|>caption_text
+    text_with_image = f"<|image_pad|>{caption}"
 
     model_inputs = processor(
         images=[image],
@@ -76,12 +95,15 @@ def compute_similarity_to_layer0(model, processor, image, prompt, device, layers
     model_inputs = {k: v.to(device) if isinstance(v, torch.Tensor) else v
                     for k, v in model_inputs.items()}
 
-    # Find vision token positions
+    # Find text token positions
     input_ids = model_inputs['input_ids']
-    vision_start, vision_end, num_vision_tokens = find_image_token_positions(input_ids)
+    text_positions, num_text_tokens = find_text_token_positions(input_ids)
 
-    if num_vision_tokens == 0:
-        raise ValueError("No vision tokens found in input sequence")
+    if num_text_tokens == 0:
+        raise ValueError("No text tokens found in input sequence")
+
+    # Convert to tensor for indexing
+    text_positions_tensor = torch.tensor(text_positions, device=device)
 
     # Run forward pass
     with torch.no_grad():
@@ -91,9 +113,9 @@ def compute_similarity_to_layer0(model, processor, image, prompt, device, layers
     hidden_states = outputs.hidden_states
     num_layers = len(hidden_states)
 
-    # Extract and normalize layer 0 vision tokens
-    layer0_features = hidden_states[0][:, vision_start:vision_end, :].squeeze(0)  # [num_vision, hidden_dim]
-    layer0_features_norm = torch.nn.functional.normalize(layer0_features.float(), dim=-1)
+    # Extract and normalize layer 0 text tokens
+    layer0_features = hidden_states[0][0, text_positions_tensor, :].float()  # [num_text, hidden_dim]
+    layer0_features_norm = torch.nn.functional.normalize(layer0_features, dim=-1)
 
     # Determine which layers to analyze
     if layers_to_analyze is None:
@@ -105,16 +127,15 @@ def compute_similarity_to_layer0(model, processor, image, prompt, device, layers
         if layer_idx >= num_layers:
             continue
 
-        # Extract and normalize vision tokens at this layer
-        layerN_features = hidden_states[layer_idx][:, vision_start:vision_end, :].squeeze(0)
-        layerN_features_norm = torch.nn.functional.normalize(layerN_features.float(), dim=-1)
+        # Extract and normalize text tokens at this layer
+        layerN_features = hidden_states[layer_idx][0, text_positions_tensor, :].float()
+        layerN_features_norm = torch.nn.functional.normalize(layerN_features, dim=-1)
 
         # SAME TOKEN: Compute cosine similarity between same-position tokens
-        # (layer0_features_norm * layerN_features_norm).sum(dim=-1) gives per-token similarity
-        similarity_same = (layer0_features_norm * layerN_features_norm).sum(dim=-1)  # [num_vision]
+        similarity_same = (layer0_features_norm * layerN_features_norm).sum(dim=-1)  # [num_text]
 
         # BASELINE: Compare to shuffled tokens (different positions)
-        shuffled_indices = torch.randperm(num_vision_tokens, device=layerN_features_norm.device)
+        shuffled_indices = torch.randperm(num_text_tokens, device=device)
         layerN_shuffled = layerN_features_norm[shuffled_indices, :]
         similarity_baseline = (layer0_features_norm * layerN_shuffled).sum(dim=-1)
 
@@ -131,15 +152,16 @@ def compute_similarity_to_layer0(model, processor, image, prompt, device, layers
                 "min": float(similarity_baseline.min().item()),
                 "max": float(similarity_baseline.max().item()),
             },
-            "num_patches": num_vision_tokens
+            "num_text_tokens": num_text_tokens
         }
 
         del layerN_features, layerN_features_norm, similarity_same, similarity_baseline
 
     metadata = {
-        'num_vision_tokens': num_vision_tokens,
+        'num_text_tokens': num_text_tokens,
         'hidden_dim': int(hidden_states[0].shape[-1]),
-        'num_layers': num_layers
+        'num_layers': num_layers,
+        'total_seq_len': int(input_ids.shape[1])
     }
 
     # Clean up
@@ -153,7 +175,7 @@ def compute_similarity_to_layer0(model, processor, image, prompt, device, layers
 
 
 def preload_images(dataset, num_images, max_size=1024):
-    """Preload and preprocess images."""
+    """Preload and preprocess images with their captions."""
     cached_data = []
 
     for img_idx in range(num_images):
@@ -167,7 +189,7 @@ def preload_images(dataset, num_images, max_size=1024):
             colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange']
             color = colors[img_idx % len(colors)]
             image = Image.new('RGB', (224, 224), color=color)
-            caption = f"A solid {color} image"
+            caption = f"A solid {color} image with some text description."
 
         # Resize if too large
         if max(image.size) > max_size:
@@ -181,12 +203,12 @@ def preload_images(dataset, num_images, max_size=1024):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute vision token similarity across layers for Qwen2-VL")
+    parser = argparse.ArgumentParser(description="Compute text token similarity across layers for Qwen2-VL")
     parser.add_argument("--model-name", type=str, default="Qwen/Qwen2-VL-7B-Instruct")
     parser.add_argument("--num-images", type=int, default=100)
     parser.add_argument("--split", type=str, default="validation")
     parser.add_argument("--output-dir", type=str,
-                        default="analysis_results/sameToken_acrossLayers_similarity/qwen2_vl")
+                        default="analysis_results/sameToken_acrossLayers_text_similarity/qwen2_vl")
     parser.add_argument("--layers", type=str, default=None,
                         help="Comma-separated list of layers to analyze (default: all layers 1-27)")
     args = parser.parse_args()
@@ -200,7 +222,7 @@ def main():
         layers_to_analyze = list(range(1, 28))  # All layers 1-27 (28 total including layer 0)
 
     print("=" * 70)
-    print("QWEN2-VL VISION TOKEN SIMILARITY ACROSS LAYERS")
+    print("QWEN2-VL TEXT TOKEN SIMILARITY ACROSS LAYERS")
     print("=" * 70)
     print(f"Model: {args.model_name}")
     print(f"Images: {args.num_images}")
@@ -235,10 +257,9 @@ def main():
     print()
 
     # Process images
-    print("Computing token similarities...")
+    print("Computing text token similarities...")
     process_start = time.time()
 
-    prompt = "Describe this image in detail."
     all_results = []
 
     # Accumulators for global averages
@@ -248,8 +269,8 @@ def main():
     for img_idx in tqdm(range(args.num_images), desc="Processing"):
         image_data = cached_images[img_idx]
 
-        result = compute_similarity_to_layer0(
-            model, processor, image_data['image'], prompt, device, layers_to_analyze
+        result = compute_text_similarity_to_layer0(
+            model, processor, image_data['image'], image_data['caption'], device, layers_to_analyze
         )
 
         # Store per-image results
@@ -262,10 +283,10 @@ def main():
 
         # Accumulate for global averages
         for layer_idx, layer_data in result['layer_similarities'].items():
-            num_patches = layer_data['num_patches']
-            layer_similarities_sum[layer_idx]["same"] += layer_data['same_token']['mean'] * num_patches
-            layer_similarities_sum[layer_idx]["baseline"] += layer_data['baseline_different_token']['mean'] * num_patches
-            layer_similarities_count[layer_idx] += num_patches
+            num_tokens = layer_data['num_text_tokens']
+            layer_similarities_sum[layer_idx]["same"] += layer_data['same_token']['mean'] * num_tokens
+            layer_similarities_sum[layer_idx]["baseline"] += layer_data['baseline_different_token']['mean'] * num_tokens
+            layer_similarities_count[layer_idx] += num_tokens
 
         gc.collect()
         torch.cuda.empty_cache()
@@ -286,7 +307,7 @@ def main():
                 "baseline_different_token": {
                     "mean_similarity": layer_similarities_sum[layer_idx]["baseline"] / total_count,
                 },
-                "total_patches": total_count
+                "total_text_tokens": total_count
             }
 
     # Save results
@@ -296,7 +317,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save summary
-    summary_file = output_dir / "similarity_across_layers_summary.json"
+    summary_file = output_dir / "text_similarity_across_layers_summary.json"
     summary_data = {
         'model_name': args.model_name,
         'split': args.split,
@@ -311,7 +332,7 @@ def main():
     print(f"Saved summary: {summary_file}")
 
     # Save detailed results
-    detailed_file = output_dir / "similarity_across_layers_detailed.json"
+    detailed_file = output_dir / "text_similarity_across_layers_detailed.json"
     detailed_data = {
         'model_name': args.model_name,
         'split': args.split,
@@ -326,7 +347,7 @@ def main():
     # Print summary
     print()
     print("=" * 70)
-    print("Summary: Average Cosine Similarity to Layer 0")
+    print("Summary: Average Cosine Similarity of Text Tokens to Layer 0")
     print("=" * 70)
     print(f"{'Layer':<10} {'Same Token':<20} {'Different Token':<20}")
     print("-" * 50)

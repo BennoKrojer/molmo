@@ -153,41 +153,65 @@ def create_combined_3x3_plot(all_data, output_path):
 
 
 def create_qwen2vl_plot(vision_data, text_data, output_path):
-    """Create a single token similarity plot for Qwen2-VL."""
-    fig, ax = plt.subplots(figsize=(10, 6))
+    """
+    Create a single token similarity plot for Qwen2-VL.
 
-    # Extract layers and similarities
+    ADHERENCE TO 3x3 PLOT (create_combined_3x3_plot):
+    - Same colors: Vision=#2E86AB, Text=#A23B72
+    - Same line style: linewidth=2.5, markersize=8, alpha=0.8
+    - Same markers: Vision='o', Text='s'
+    - Same y-axis label format: 'Cosine Similarity\\nto Layer 0' (with newline)
+    - Same axis label fontsize: 15 (no bold)
+    - Same title style: fontsize=16, fontweight='bold', pad=10
+    - Same grid: alpha=0.3, linestyle='--'
+    - Same y limits: 0 to 1.05
+    - Same tick size: 12
+    """
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Plot vision tokens (same style as 3x3 plot)
     vision_layers = sorted(vision_data.keys())
     vision_similarities = [vision_data[l] for l in vision_layers]
-
-    # For Qwen2-VL, we only have vision tokens (off-the-shelf model, no text similarity data)
     ax.plot(vision_layers, vision_similarities,
-           marker='o', linewidth=2.5, markersize=10,
-           label='Vision tokens', color='#2E86AB')
+           marker='o', linewidth=2.5, markersize=8,
+           label='Vision tokens', color='#2E86AB', alpha=0.8)
 
-    # If we have text data, plot it too
+    # Plot text tokens (same style as 3x3 plot)
     if text_data:
         text_layers = sorted(text_data.keys())
         text_similarities = [text_data[l] for l in text_layers]
         ax.plot(text_layers, text_similarities,
-               marker='s', linewidth=2.5, markersize=10,
-               label='Text tokens', color='#A23B72')
-        ax.legend(fontsize=12, framealpha=0.95)
+               marker='s', linewidth=2.5, markersize=8,
+               label='Text tokens', color='#A23B72', alpha=0.8)
 
-    # Title and labels
-    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=16, fontweight='bold', pad=12)
-    ax.set_xlabel('LLM Layer', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Cosine Similarity to Layer 0', fontsize=14, fontweight='bold')
+    # Title (same style as 3x3)
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=16, fontweight='bold', pad=10)
 
-    # Styling
+    # Axis labels (same style as 3x3 - fontsize=15, NO bold, y-axis has newline)
+    ax.set_xlabel('LLM Layer', fontsize=15)
+    ax.set_ylabel('Cosine Similarity\nto Layer 0', fontsize=15)
+
+    # Styling (same as 3x3)
     ax.grid(True, alpha=0.3, linestyle='--')
     ax.set_ylim(0, 1.05)
     ax.tick_params(labelsize=12)
 
-    all_layers = sorted(set(vision_layers))
+    # X-axis limits and ticks (same logic as 3x3)
+    all_layers = sorted(set(vision_layers + (list(text_data.keys()) if text_data else [])))
     if all_layers:
         ax.set_xlim(min(all_layers) - 1, max(all_layers) + 1)
-        ax.set_xticks(all_layers)
+        # Show subset of x-ticks if too many (same logic as 3x3)
+        if len(all_layers) > 15:
+            step = max(1, len(all_layers) // 8)
+            shown_layers = all_layers[::step]
+            if all_layers[-1] not in shown_layers:
+                shown_layers.append(all_layers[-1])
+            ax.set_xticks(shown_layers)
+        else:
+            ax.set_xticks(all_layers)
+
+    # Legend (same style as 3x3 global legend)
+    ax.legend(fontsize=14, framealpha=0.9, loc='lower left')
 
     plt.tight_layout()
 
