@@ -6,6 +6,37 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Terminology Standardization for ICML)
+
+**Comprehensive terminology update across codebase:**
+- "Static NN" / "Static V-Lens" → "Input Embedding Matrix" or "Input Emb."
+- "Contextual NN" / "Contextual V-Lens" → "LN-Lens"
+
+**Files updated:**
+
+*Paper (already pushed earlier):*
+- sections/4_experiments.tex: Table headers, figure captions, inline text
+- sections/1_intro.tex: Method descriptions
+- sections/appendix.tex: Section titles
+- sections/6_causal.tex: Comments
+
+*Python scripts:*
+- paper_plots/create_ablations_plots.py: Method labels
+- paper_plots/create_qwen2vl_plots.py: Method labels
+- paper_plots/create_ln_lens_comparison.py: Docstrings
+- paper_plots/paper_figures_standalone.py: Header/prints
+- scripts/analysis/generate_ablation_viewers.py: HTML labels
+
+*Documentation:*
+- README.md: Method descriptions, section titles
+- CLAUDE.md: Method descriptions, directory comments
+- paper_plots/paper_figures.ipynb: Labels and titles
+
+*Regenerated:*
+- All ablation plots with updated labels (mega + grouped)
+
+**Git:** Pushed to `final` branch (commits 938c16a, eadb32d) and paper submodule (commit 074c6fd)
+
 ### 2026-01-10 (Paper: Update main results figure layout)
 
 **Updated main results figure (fig1_unified_interpretability):**
