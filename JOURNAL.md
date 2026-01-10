@@ -6,6 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Fix: LN-Lens figure data - ablations exclusion)
+
+**Root cause identified:** The glob pattern `**/results_*.json` in `create_lineplot_unified.py` was picking up files from the `ablations/` subdirectory in `llm_judge_contextual_nn/`. This caused incorrect data to be loaded for the main LN-Lens figure (e.g., layer 16 showed 42% instead of 70% for OLMo+ViT).
+
+**Fix:** Added filter to exclude `/ablations/` paths in all three loading functions:
+- `load_nn_results()`
+- `load_logitlens_results()`
+- `load_contextual_results()`
+
+**Verification:** Layer 16 for olmo-7b + vit-l-14-336 now correctly shows 70% (from main results file) instead of 42% (from ablation variant).
+
+**Git:** Pushed to `final` branch (b9291f7) and paper submodule (01f0fa4)
+
 ### 2026-01-10 (Terminology Standardization for ICML)
 
 **Comprehensive terminology update across codebase:**
