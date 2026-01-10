@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Paper: Resolve Overleaf merge conflict)
+
+**Resolved merge conflict in paper submodule:**
+- Conflict in `sections/4_experiments.tex` between HEAD and Overleaf branch
+- Kept HEAD version with correct single-plot caption for Qwen2-VL figure
+- Overleaf had old (a), (b), (c) format with TODO that was already implemented
+
+**Git:**
+- Pushed merge commit to paper repo
+- Updated paper submodule reference in main repo
+
 ### 2026-01-09 (Qwen2-VL: Complete Analysis with Layer Alignment and Token Similarity)
 
 **Added complete Qwen2-VL analysis (matching sec:which_layer for main models):**
