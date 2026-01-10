@@ -1,414 +1,170 @@
-# Project-wide Cursor rules for this codebase
+# CLAUDE.md - Rules for AI Assistants
 
-## ⚠️⚠️⚠️ RE-READ THIS FILE EVERY 10-15 MESSAGES ⚠️⚠️⚠️
-**Before ANY significant action (writing code, generating figures, running scripts), re-read this file!**
-**This has caused major bugs when ignored. NO EXCEPTIONS.**
+## At the Start of Every Chat
 
-> **Note**: This repo is forked from Molmo. Most training infrastructure comes from there.
-> Focus on our interpretability study in `scripts/analysis/` and `analysis_results/`.
+**Read these files to understand context:**
+1. **README.md** - Project overview, setup, model configurations
+2. **JOURNAL.md** - Last few days of entries (recent changes, bugs, fixes)
+3. **paper/main.tex** - Abstract and intro (understand the research goals)
+4. **SCHEMA_STANDARDIZATION.md** - JSON formats, display names (if working with data)
 
-TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task.
+---
 
-## ⚠️ DO NOT CREATE RANDOM FILES - CRITICAL ⚠️
-- **NEVER create random documentation files, summaries, or artifacts!**
-- **We have DEDICATED files for documentation:**
-  - `JOURNAL.md` - ALL changes, bug fixes, new results (updated after EVERY change)
-  - `README.md` - Project overview and setup instructions
-  - Existing `.md` files - Check these first before creating anything new
-- **The ONLY workflow for documenting work:**
-  1. Make changes to code/scripts
-  2. Git commit and push
-  3. Update JOURNAL.md immediately
-- **DO NOT create files like:**
-  - `WORK_SUMMARY_*.md`
-  - `FIX_SUMMARY.md`
-  - `NOTES.md`
-  - Any other random documentation files
-- **Exception:** Only create new files when explicitly needed for functionality (scripts, configs, data)
-- **If you're about to create a .md file, STOP and ask yourself: Should this go in JOURNAL.md instead?**
-- **The answer is almost always YES**
+## ⚠️ THE THREE RULES ⚠️
 
-## Error Handling
-- NEVER use try-except blocks to silently catch and hide errors
-- Let errors fail loudly so they can be debugged properly
-- Only use try-except for specific, expected errors with explicit recovery logic
-- Exception: ImportError for optional dependencies is okay
+**These are the most violated rules. Read them before EVERY significant action.**
 
-## Running commands
-- Always use the environment: `source ../../env/bin/activate && export PYTHONPATH=$PYTHONPATH:$(pwd)`
-- Run commands in background so user can keep chatting
-- For long scripts (>few seconds), provide the command and let user run it to see output
-- **If terminal returns empty output**: STOP immediately and tell user. Don't retry silently.
-  - This is a Cursor bug. User should restart Cursor to fix it.
-  - Never keep trying the same command when output is empty
+### 1. EDIT, NEVER REWRITE
+- **ALWAYS edit existing code, NEVER rewrite from scratch**
+- Find the exact file/function, make surgical changes with Edit tool
+- If you're about to write 50+ lines of new code doing something similar to existing code, STOP
 
-## Debugging
-- Clean up temporary scripts, print statements, and logs after fixing errors
+### 2. VALIDATE DATA BEFORE PLOTTING
+- Never trust glob patterns - they can pick up wrong files (e.g., ablations)
+- Check `paper_data_manifest.json` for expected values
+- If a number looks different than expected, investigate before proceeding
 
-## Flagging Inconsistencies
-- **ALWAYS flag anything that seems fishy or inconsistent** - investigate immediately
-- Examples: different layer counts across analysis types, missing data, unexpected numbers
-- Don't just report numbers - verify they make sense and match expectations
-- If numbers differ from what was expected, stop and investigate WHY before continuing
+### 3. COMMIT AND DOCUMENT IMMEDIATELY
+- `git commit && git push` after every fix
+- Update JOURNAL.md right after pushing
+- Don't batch changes - commit as you go
 
-## CHECK EXISTING SCRIPTS FIRST - CRITICAL ⚠️
-- **Before creating new scripts, ALWAYS search for existing ones that do similar things!**
-- Key scripts to check: `run_all_missing.sh`, `run_all_parallel_*.sh`, `run_all_combinations_*.sh`
-- These contain established parallelization patterns, GPU management, and error handling
-- Build on existing infrastructure rather than reinventing
+---
 
-## ⚠️ EDIT, DON'T REWRITE - MOST CRITICAL ⚠️
-**This is the #1 cause of wasted time. STOP and read this before ANY code change.**
+## Code Changes
 
-- **ALWAYS EDIT existing code, NEVER rewrite from scratch**
-- **You have the Edit tool - USE IT for surgical changes**
-- **If you're about to write a new script that does something similar to existing code, STOP**
+**Before changing any code:**
+1. FIND the exact file that produces the current output
+2. READ and understand it
+3. EDIT only the specific lines needed (use Edit tool)
+4. TEST that output matches except for your intended change
 
-### For Code Changes:
-1. **FIND** the exact file and function that currently produces the output
-2. **READ** that code to understand it
-3. **EDIT** only the specific lines that need changing (use Edit tool)
-4. **TEST** that the output is the same except for your intended change
+**For figures/plots:**
+- Find the EXACT script that generated it (grep for filename)
+- Make minimal edits to that script
+- NEVER create "standalone" scripts with hardcoded data
+- NEVER copy data values into new files
 
-### For Plot/Figure Changes:
-1. **VIEW** the current output first (use Read tool on PNG/PDF)
-2. **FIND** the exact code that generated it (grep for filename, search notebook cells)
-3. **ADD** only the new code (e.g., border lines) to the EXISTING function
-4. **If you can't find the original code**: Overlay changes on the saved image, don't regenerate
+**Check existing scripts first:**
+- Search for `run_all_*.sh`, `run_all_parallel_*.sh` before creating new ones
+- These have established patterns for GPU management, error handling
 
-### Examples of WRONG vs RIGHT:
-❌ WRONG: "Let me write a new script to regenerate these plots with borders"
-✅ RIGHT: "Let me find the notebook cell that generates this, add 5 lines for borders"
+**When adapting code for new models:**
+- Verify EVERY detail matches original (layers, colors, fonts, markers)
+- Explicitly state adherence: "Uses same markersize=8 as original"
 
-❌ WRONG: "I'll create regenerate_plots_v2.py based on the original logic"
-✅ RIGHT: "I'll edit line 45-50 of the existing script to add the new feature"
+---
 
-❌ WRONG: Writing 200 lines of new code that reimplements existing functionality
-✅ RIGHT: Adding 5-10 lines to the existing working code
+## Data Loading
 
-### Why This Matters:
-- Rewrites lose hours of previous debugging and edge case handling
-- Rewrites often produce subtly different output (wrong plot type, missing features)
-- Rewrites are harder to review and more likely to introduce bugs
-- The user has already approved the current output - preserve it!
-
-### ⚠️ FIGURES AND DATA - ABSOLUTE RULE ⚠️
-**NEVER create "standalone" scripts with hardcoded data to regenerate figures!**
-
-- If a figure exists and works, find the EXACT script that generated it
-- Use that SAME script with minimal edits (e.g., change a title string)
-- NEVER copy data into a new file or hardcode values - always load from original source
-- If you can't find the original script, ASK before creating anything new
-
-**What went wrong before:**
-- User asked to update figure labels (terminology change)
-- I created `paper_figures_standalone.py` with HARDCODED data from `data.json`
-- The hardcoded data was DIFFERENT from actual results in `analysis_results/`
-- Result: Figures had wrong data, wrong x-axis, wasted hours debugging
-
-**What I should have done:**
-- Find original script: `create_lineplot_unified.py`
-- Edit ONLY the label strings in that script
-- Run the original script which loads correct data from JSON files
-
-## ⚠️ EXPLICIT ADHERENCE CONFIRMATION - CRITICAL ⚠️
-**When adapting existing code/plots/scripts for new models or analyses:**
-
-1. **DO NOT report back until you've explicitly verified adherence**
-2. **Before saying "done", check EVERY detail matches the original:**
-   - Same layers (if 3x3 uses all 32 layers, new plot must use all N layers)
-   - Same colors, line styles, markers, alpha values
-   - Same axis labels, fonts, sizes
-   - Same data format and structure
-3. **When reporting, explicitly state HOW it adheres:**
-   - "Uses same markersize=8 as 3x3 plot"
-   - "Uses all 28 layers (1-28) like 3x3 uses all 32 layers (1-32)"
-   - "Uses same color scheme: Vision=#2E86AB, Text=#A23B72"
-4. **If you haven't explicitly confirmed adherence, assume you missed something**
-
-## MANDATORY PRE-FLIGHT CHECKLIST - CRITICAL ⚠️
-**Before running ANY command that costs money, time, or modifies data:**
-
-### General Checklist:
-1. ✅ Check existing `.sh` files for established patterns
-2. ✅ Grep for relevant patterns in the codebase (e.g., `grep -r "pattern" dir/`)
-3. ✅ Read argparse defaults in Python scripts (`parser.add_argument`)
-4. ✅ Verify against existing results/naming conventions
-5. ✅ If ANY doubt remains, ASK the user before executing
-
-### API Calls Checklist (LLM Judge):
-**NEVER change API settings without explicit user approval!**
-
-Before any LLM judge run:
-1. ✅ Check `llm_judge/*.sh` for `--api-provider` and `--api-model` flags
-2. ✅ Check Python script argparse defaults (around line 330-335)
-3. ✅ Verify existing results use same naming (e.g., `gpt5` in directory names)
-4. ✅ Confirm API provider matches existing setup (openai vs openrouter)
-5. ✅ If changing ANY API setting, ASK USER FIRST
-
-**Why this matters:**
-- Different APIs = different costs and results
-- Results must be comparable to existing data
-- User is paying real money for these evaluations
-- Changing APIs silently wastes budget and breaks consistency
-
-### Example - What to Check:
-```bash
-# Check shell scripts for API settings
-grep -r "api-provider\|api-model" llm_judge/*.sh
-
-# Check Python defaults
-grep "default=" llm_judge/run_*.py | grep -i "api"
-
-# Check existing result naming
-ls analysis_results/llm_judge_*/llm_judge_*_gpt* | head -3
-```
-
-## VALIDATION BEFORE EXECUTION - CRITICAL ⚠️
-- **NEVER start long-running generation without validating data paths first!**
-- Before any viewer/analysis generation:
-  1. Validate ALL data paths exist and are correct
-  2. Check that ALL analysis types have data (nn, logitlens, contextual)
-  3. FAIL LOUDLY if any data is missing - NO partial data allowed!
-  4. Print exactly what's missing and where it should be
-- Use `--validate-only` flags when available
-- Example failure that was caught: Qwen2-VL contextual path was `ablations/...` but should be `qwen2_vl/...`
-  - Old validation: passed because NN and LogitLens existed (partial data)
-  - New validation: FAILS because contextual is missing (strict mode)
-- **Special case: Qwen2-VL** (off-the-shelf model) has different folder structure:
-  - Qwen2-VL: `qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/` (special case)
-  - Ablations: `ablations/{checkpoint}/` (standard pattern)
-  - Always double-check Qwen2-VL paths in viewer_models.json!
-
-## ROOT CAUSE ANALYSIS - CRITICAL ⚠️
-- **NEVER patch symptoms without understanding the root cause!**
-- When encountering weird/unexpected behavior (e.g., missing grid cells, wrong counts):
-  1. STOP - Do not immediately fix the visible symptom
-  2. ASK WHY - Why is this happening in the first place?
-  3. TRACE BACK - Go to the data generation scripts, check preprocessing, verify assumptions
-  4. VERIFY - Test hypotheses with minimal examples before making changes
-  5. FIX ROOT - Fix the actual source of the problem, not downstream symptoms
-- Example: Missing grid cells in viewer → Don't patch the HTML → Investigate WHY patches are missing →
-  Found: Qwen2-VL NN script didn't force square images → Variable grids produced → ROOT FIX: add --force-square
-- This avoids hours of debugging loops from repeatedly patching symptoms
-
-## ⚠️ DATA LOADING FOR PAPER FIGURES - CRITICAL ⚠️
-
-**This section exists because of a critical bug: glob patterns picked up ablation files instead of main results, causing wrong data in paper figures.**
-
-### Directory Structure
+**Directory structure:**
 ```
 analysis_results/llm_judge_{type}/
-├── llm_judge_{model}_{layer}_*/   # Main experiment results (9 model combos)
-└── ablations/                      # Ablation variants (seeds, connectors, etc.)
+├── llm_judge_{model}_{layer}_*/   # Main results
+└── ablations/                      # Ablation variants
     └── llm_judge_{model}_{layer}_*/
 ```
-**Note:** Main results are at top level (not in `main/` subfolder). Protection is via exclusion filter.
 
-### Rules for Loading Data
-
-1. **NEVER use recursive glob (`**`) without exclusion filters**
+**Rules:**
+1. NEVER use `**` glob without excluding `/ablations/`:
    ```python
-   # BAD - picks up ablations too!
-   for f in results_dir.glob("**/results_*.json"):
-
-   # GOOD - explicitly exclude ablations
-   for f in results_dir.glob("**/results_*.json"):
+   for f in path.glob("**/results_*.json"):
        if '/ablations/' in str(f):
            continue
    ```
 
-2. **PREFER explicit paths over glob patterns**
-   - Use `paper_data_manifest.json` for paper figure data
-   - Manifest contains exact file paths, not patterns
+2. Validate against `paper_data_manifest.json` golden values
 
-3. **VALIDATE against golden values**
-   ```python
-   # Key data points that MUST match expected values
-   GOLDEN_VALUES = {
-       ('olmo-7b', 'vit-l-14-336', 16): 70.0,  # LN-Lens layer 16
-       # ... more expected values
-   }
-   for key, expected in GOLDEN_VALUES.items():
-       actual = loaded_data[key]
-       if abs(actual - expected) > 2.0:
-           raise ValueError(f"Data mismatch: {key} expected {expected}, got {actual}")
-   ```
+3. When adding data to existing directories, check what scripts read from there
 
-4. **When adding new data to existing directories:**
-   - CHECK what scripts read from that directory
-   - VERIFY glob patterns won't accidentally pick up new files
-   - If in doubt, use a separate directory
+**What went wrong (2026-01-10):** Glob pattern picked up ablation files (42%) instead of main results (70%). Paper figure had wrong data.
 
-### What Went Wrong (2026-01-10)
-- `create_lineplot_unified.py` used `glob("**/results_*.json")`
-- `ablations/` subdirectory was added inside `llm_judge_contextual_nn/`
-- Glob pattern picked up ablation files (42% accuracy) instead of main results (70%)
-- Paper figure showed wrong data for weeks
-- **Fix:** Added `/ablations/` exclusion filter to all loading functions
+---
 
-## Git Workflow - CRITICAL
-- **ALWAYS commit and push after fixing bugs or making changes** - don't wait!
-- Push to GitHub after: bug fixes, new scripts, new results, any significant work
-- Before pushing: `git status`, check file sizes (`du -sh`) - never push files >100MB
-- After pushing: update JOURNAL.md immediately
-- **If you forget to git/journal, the user will ask - do it proactively!**
+## Execution
 
-## Paper Repo Workflow - CRITICAL
-The `paper/` submodule syncs with Overleaf. Researchers often edit directly on Overleaf.
+**Running commands:**
+- Use: `source ../../env/bin/activate`
+- Run long scripts in background
+- If terminal returns empty: STOP, tell user (Cursor bug)
 
-**ALWAYS pull before making changes to paper repo:**
+**Error handling:**
+- Let errors fail loudly - no silent try-except
+- Clean up debug prints after fixing
+
+**Pre-flight checklist (before costly operations):**
+1. Check existing `.sh` files for patterns
+2. Grep codebase for similar code
+3. Read argparse defaults
+4. If ANY doubt, ASK user first
+
+**LLM Judge API calls:**
+- NEVER change `--api-provider` or `--api-model` without asking
+- Check existing results naming (e.g., `gpt5` in directory names)
+
+---
+
+## Version Control
+
+**Git workflow:**
+- Commit and push after EVERY fix (don't wait)
+- Check `git status` and file sizes before pushing (no files >100MB)
+- Update JOURNAL.md immediately after pushing
+
+**Paper repo (Overleaf sync):**
 ```bash
 cd paper
-git pull  # Get latest Overleaf changes first!
-# ... make your changes ...
-git add -A && git commit -m "message" && git push
-cd ..
-git add paper && git commit -m "Update paper submodule" && git push
+git pull          # ALWAYS pull first!
+# make changes
+git add -A && git commit -m "msg" && git push
+cd .. && git add paper && git commit -m "Update paper submodule" && git push
 ```
 
-**Why this matters:**
-- Overleaf and GitHub sync bidirectionally
-- If you push without pulling, you'll create merge conflicts
-- The user may have spent hours writing on Overleaf - don't overwrite their work!
+**JOURNAL.md:**
+- Update after every significant change
+- Format: `[YYYY-MM-DD] Brief description`
+- Log: bug fixes, new scripts, results, git pushes
 
-## JOURNAL.md - CRITICAL
-- **Update JOURNAL.md after every significant change** - not just at end of session
-- Log: bug fixes, new scripts, new results, git pushes, deleted files
-- Format: `[YYYY-MM-DD] Brief description of change`
-- Keep it concise but informative
-- This is essential for reproducibility and tracking progress
+---
 
-## VIEWER GENERATION - SINGLE COMMAND ⚠️
+## Investigation
 
-**To regenerate the demo viewer, use ONE of these:**
+**When something seems wrong:**
+1. STOP - don't patch the visible symptom
+2. ASK WHY - trace back to data generation
+3. VERIFY - test hypotheses with minimal examples
+4. FIX ROOT - fix the source, not downstream
 
+**Flag inconsistencies immediately:**
+- Different layer counts across analysis types
+- Missing data, unexpected numbers
+- If numbers differ from expected, investigate WHY
+
+---
+
+## Quick Reference
+
+**Regenerate demo viewer:**
 ```bash
-# Option 1: Shell script (recommended)
-./generate_demo.sh --num-images 10
-
-# Option 2: Python script directly
 python scripts/analysis/create_unified_viewer.py \
     --output-dir analysis_results/unified_viewer_lite \
     --num-images 10
 ```
 
-**IMPORTANT:**
-- `create_unified_viewer.py` now includes ablations AUTOMATICALLY (default behavior)
-- You do NOT need to run `add_models_to_viewer.py` separately anymore
-- Use `--no-ablations` flag to skip ablations section if needed
-
-**To sync to website after regeneration:**
+**Sync to website:**
 ```bash
 rsync -av --delete analysis_results/unified_viewer_lite/ website/vlm_interp_demo/
 cd website && git add -A && git commit -m "Update demo" && git push
-cd ..
-git add website && git commit -m "Update website submodule" && git push
+cd .. && git add website && git commit -m "Update website submodule" && git push
 ```
 
-**Related scripts (for reference only - usually don't need to run directly):**
-- `generate_ablation_viewers.py` - Creates ablation image viewers in `ablations/` folder
-- `add_models_to_viewer.py` - Legacy script, functionality now in create_unified_viewer.py
-- `viewer_models.json` - Configuration for all models (main + ablations)
+**Key paths:**
+- Checkpoints: `molmo_data/checkpoints/`
+- Analysis results: `analysis_results/`
+- Contextual embeddings: `molmo_data/contextual_llm_embeddings_vg/`
+- Viewer config: `scripts/analysis/viewer_models.json`
 
----
-
-## Project Overview
-
-**Research question**: How do frozen LLMs process visual soft prompt tokens?
-
-**Main study**: 3 LLMs × 3 Vision Encoders = 9 model combinations
-- LLMs: LLaMA3-8B, OLMo-7B, Qwen2-7B (32, 32, 28 layers respectively)
-- Vision Encoders: ViT-L/14-336 (CLIP), DINOv2-L-336, SigLIP
-- Training: Connector-only (MLP), 12k steps on PixMo-Cap
-
-**Interpretability methods**:
-1. Input Embedding Matrix - nearest neighbors in LLM input embedding (called "NN" in code)
-2. LogitLens - apply LM head to intermediate representations (output embedding matrix)
-3. LN-Lens (ours) - contextual nearest neighbors (called "contextual" in code)
-
-**Layers analyzed**: 0, 1, 2, 4, 8, 16, 24, N-2, N-1 (where N = num_layers)
-- OLMo/LLaMA (32 layers): 0, 1, 2, 4, 8, 16, 24, 30, 31
-- Qwen2 (28 layers): 0, 1, 2, 4, 8, 16, 24, 26, 27
-
----
-
-## Directory Structure
-
-### Checkpoints
-- `molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_{llm}_{vision}/`
-- Exception: qwen2-7b + vit-l-14-336 has `_seed10` suffix
-- Ablations: `molmo_data/checkpoints/ablations/`
-
-### Contextual Embeddings
-- `molmo_data/contextual_llm_embeddings_vg/` (Visual Genome corpus)
-- Subdirs: `allenai_OLMo-7B-1024-preview/`, `meta-llama_Meta-Llama-3-8B/`, `Qwen_Qwen2-7B/`, `Qwen_Qwen2-VL-7B-Instruct/`
-- Each has `layer_N/` directories with embeddings and `embeddings_cache.pt`
-
-### Analysis Results
-- `analysis_results/nearest_neighbors/` - Input Embedding Matrix
-- `analysis_results/logit_lens/` - LogitLens
-- `analysis_results/contextual_nearest_neighbors/` - LN-Lens (CC corpus)
-- `analysis_results/contextual_nearest_neighbors_vg/` - LN-Lens (VG corpus)
-- `analysis_results/llm_judge_*/` - GPT-4o evaluation results
-- `analysis_results/unified_viewer_lite/` - HTML viewer (10 images)
-- `analysis_results/ablations_comparison/` - Ablation analysis
-
-### Key Scripts
-- `scripts/analysis/create_contextual_embeddings.py` - extract contextual embeddings
-- `scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` - Input Embedding Matrix
-- `scripts/analysis/logitlens.py` - LogitLens
-- `scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py` - LN-Lens
-- `scripts/analysis/create_unified_viewer.py` - HTML visualization (main models)
-- `scripts/analysis/qwen2_vl/` - Qwen2-VL specific (off-the-shelf model)
-- `llm_judge/run_single_model_with_viz.py` - GPT-4o evaluation
-
-### Viewer Management Scripts
-- `scripts/analysis/viewer_models.json` - Config file for all models (main + ablations)
-- `scripts/analysis/add_models_to_viewer.py` - Validate data, update main index
-- `scripts/analysis/generate_ablation_viewers.py` - Generate ablation image viewers
-
-### Run Scripts (shell)
-- `run_all_combinations_nn.sh` - run static NN on all models
-- `run_all_combinations_logitlens.sh` - run LogitLens on all models
-- `run_all_combinations_contextual_nn.sh [cc|vg]` - run LN-Lens on all models
-- `llm_judge/run_all_parallel_*.sh` - run LLM judge evaluations
-
----
-
-## Visualization
-- Use 10 images for lite viewer (not 100 or 300)
-- Don't regenerate `unified_viewer_lite/` unless necessary
-- Add new models incrementally
-
----
-
-## Paper Abstract (for context)
-
-**Title**: The surprising interpretability of vision tokens in LLMs
-
-\begin{abstract}
-In this paper we shed light on a puzzling question:
-How can frozen LLMs integrate non-linguistic input, such as visual soft prompt tokens?
-More colloquially: How does an LLM convert visual tokens into ``words'' it can understand?
-Specifically, across various vision and language models we train only a small connector (MLP) to map vision tokens to the prefix space of a LLM.
-We find that existing interpretability tools such as Logitlens are not adequate and too coarse-grained to show us precisely how individual visual tokens relate to language embeddings, and what they semantically ``contain''.
-Thus to answer our question, how LLMs integrate visual tokens, we propose a new \textit{lens} for interpreting how vision tokens align with the LLM embedding space.
-V-Lens shows that the nearest neighbors of vision tokens are highly interpretable.
-Surprisingly, even at the input layer visual soft prompts are already interpretable for some LLMs and vision encoders (e.g. OLMO-7B \& CLIP-ViT).
-When applying our V-Lens as \textit{contextual} nearest-neighbors in later layers, opposed to static nearest-neighbors at the input layer, we find that interpretability increases already in early layers.
-Especially for LLMs where we initially find low interpretability at the input level (e.g. Qwen2), we see a stark increase.
-We investigate further:
-We find that non-salient parts of the image (background, black padding on the side) are less interpretable and further away from any language embeddings.
-For interpretable tokens, we characterize their interpretability in detail:
-interpretability is precise/local (akin to segmentation maps) and across different levels of abstraction or types of concepts: colors, objects, and OCR to more abstract concepts in later layers.
-
-Overall our study provides strong evidence that vision tokens (and broadly soft prompts) are more interpretable and aligned with LLM's embedding space than previously thought.
-We release tools/framework/lens that provides researchers with highly detailed interpretations of what goes on inside vision tokens of an LLM.
-\end{abstract}
-
-**Key contributions**:
-1. Evidence that visual soft prompts are interpretable and aligned with LLM embedding space
-2. LN-Lens: contextual nearest neighbors method for interpreting vision tokens
-3. Large corpus of contextual text embeddings for VL interpretability
-4. Extensive ablations across 9 model combinations
+**Model info:**
+- OLMo/LLaMA: 32 layers → analyze 0,1,2,4,8,16,24,30,31
+- Qwen2: 28 layers → analyze 0,1,2,4,8,16,24,26,27
+- Exception: `qwen2-7b_vit-l-14-336` has `_seed10` suffix
