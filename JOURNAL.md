@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Paper: Update main results figure layout)
+
+**Updated main results figure (fig1_unified_interpretability):**
+- Shared y-axis label (only on leftmost plot)
+- New titles: "(a) Input Embedding Matrix", "(b) Output Embedding Matrix (LogitLens)", "(c) LN-Lens (Ours)"
+- Order: baselines first, our method last
+- Shared legend at bottom
+
+**Git:** Pushed to paper submodule and main repo
+
 ### 2026-01-10 (Paper: Combine Qwen2-VL figures into subfigures)
 
 **Combined two Qwen2-VL figures into one with subfigures:**
