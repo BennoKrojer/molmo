@@ -373,8 +373,8 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
     print(f"  X-axis ticks (union of expected layers): {all_expected_layers}")
     
     # Create figure with 3 subplots side by side
-    # Make it much wider to give plenty of room for x-axis labels
-    fig, axes = plt.subplots(1, 3, figsize=(36, 8))
+    # Size optimized for paper: wide enough for x-axis labels (26,27,30,31 are close)
+    fig, axes = plt.subplots(1, 3, figsize=(18, 4))
     sns.set_style("whitegrid")
     
     # Titles and data for each subplot
@@ -440,31 +440,32 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                 
                 # Plot line
                 if marker_facecolor is not None:
-                    line, = ax.plot(layers, values, marker=marker, 
+                    line, = ax.plot(layers, values, marker=marker,
                                    color=color_map[key], markerfacecolor=marker_facecolor,
-                                   markeredgewidth=2, linewidth=2.5, markersize=10)
+                                   markeredgewidth=1.5, linewidth=2, markersize=8)
                 else:
                     line, = ax.plot(layers, values, marker=marker,
-                                   color=color_map[key], linewidth=2.5, markersize=10)
+                                   color=color_map[key], linewidth=2, markersize=8)
                 
                 # Store handle for legend (only once)
                 if label not in handles_dict:
                     handles_dict[label] = line
         
         # Customize subplot
-        ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
+        ax.set_xlabel(config['xlabel'], fontsize=12)
         if config.get('show_ylabel', False):
-            ax.set_ylabel('% of interpretable vision tokens', fontsize=14, fontweight='bold')
-        ax.set_title(config['title'], fontsize=16, fontweight='bold', pad=15)
+            ax.set_ylabel('% of interpretable vision tokens', fontsize=11)
+        ax.set_title(config['title'], fontsize=13, fontweight='bold', pad=8)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
-        
+
         # Set x-axis to show only expected layers (where we have data)
         ax.set_xlim(min(all_expected_layers) - 0.5, max(all_expected_layers) + 0.5)
         # Show all expected layers as ticks
         ax.set_xticks(all_expected_layers)
         ax.set_xticklabels([str(t) for t in all_expected_layers])
-        ax.tick_params(axis='both', labelsize=12)
+        ax.tick_params(axis='x', labelsize=8)
+        ax.tick_params(axis='y', labelsize=9)
     
     # Create single shared legend at the bottom
     # Get handles and labels in the desired order
@@ -479,21 +480,20 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                 ordered_handles.append(handles_dict[label])
                 ordered_labels.append(label)
     
-    # Add legend well below the plots with larger font and more spacing
-    fig.legend(ordered_handles, ordered_labels, 
-              loc='lower center', 
-              bbox_to_anchor=(0.5, -0.08),
-              ncol=3, 
-              fontsize=15, 
+    # Add legend below the plots - positioned lower to avoid overlap with x-axis
+    fig.legend(ordered_handles, ordered_labels,
+              loc='lower center',
+              bbox_to_anchor=(0.5, -0.12),
+              ncol=3,
+              fontsize=10,
               framealpha=0.9,
-              columnspacing=2.5,
-              handlelength=2.5,
-              handletextpad=1.2)
-    
-    # Adjust layout with proper spacing
+              columnspacing=1.5,
+              handlelength=2.0,
+              handletextpad=0.8)
+
+    # Adjust layout with tight spacing between subplots
     plt.tight_layout()
-    # Add significant space at the bottom for the legend
-    plt.subplots_adjust(bottom=0.20, wspace=0.28)
+    plt.subplots_adjust(bottom=0.22, wspace=0.15)
     
     # Save figure
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
