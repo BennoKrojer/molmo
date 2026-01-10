@@ -6,6 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (CLAUDE.md consolidation + demo regeneration)
+
+**CLAUDE.md consolidation:** Reduced from 413 → 171 lines (59% reduction)
+- Added "At the Start of Every Chat" section listing required files to read
+- Consolidated 18+ sections into 7 clear sections
+- Promoted "THREE RULES" prominently: 1) Edit never rewrite, 2) Validate data before plotting, 3) Commit immediately
+- Moved detailed patterns to README.md where appropriate
+
+**Demo viewer regeneration:**
+- Ran `create_unified_viewer.py` with 10 images
+- All 9 model combinations + 10 ablations included
+- Synced to `website/vlm_interp_demo/` and pushed
+
+**Git:** Pushed CLAUDE.md changes (b874200), website updated (da652b5)
+
 ### 2026-01-10 (Fix: LN-Lens figure data - ablations exclusion)
 
 **Root cause identified:** The glob pattern `**/results_*.json` in `create_lineplot_unified.py` was picking up files from the `ablations/` subdirectory in `llm_judge_contextual_nn/`. This caused incorrect data to be loaded for the main LN-Lens figure (e.g., layer 16 showed 42% instead of 70% for OLMo+ViT).
