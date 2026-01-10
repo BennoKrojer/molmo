@@ -1,9 +1,13 @@
 # Project-wide Cursor rules for this codebase
 
-> **Note**: This repo is forked from Molmo. Most training infrastructure comes from there. 
+## ⚠️⚠️⚠️ RE-READ THIS FILE EVERY 10-15 MESSAGES ⚠️⚠️⚠️
+**Before ANY significant action (writing code, generating figures, running scripts), re-read this file!**
+**This has caused major bugs when ignored. NO EXCEPTIONS.**
+
+> **Note**: This repo is forked from Molmo. Most training infrastructure comes from there.
 > Focus on our interpretability study in `scripts/analysis/` and `analysis_results/`.
 
-TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task. **During long conversations, re-read this file and recent JOURNAL.md before making significant changes.**
+TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATION.md and probably any other md files. Anytime a new chat is opened, recap a bit README.md and recent JOURNAL.md entries. Optionally the other md files depending on the task.
 
 ## ⚠️ DO NOT CREATE RANDOM FILES - CRITICAL ⚠️
 - **NEVER create random documentation files, summaries, or artifacts!**
@@ -87,6 +91,25 @@ TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATIO
 - Rewrites often produce subtly different output (wrong plot type, missing features)
 - Rewrites are harder to review and more likely to introduce bugs
 - The user has already approved the current output - preserve it!
+
+### ⚠️ FIGURES AND DATA - ABSOLUTE RULE ⚠️
+**NEVER create "standalone" scripts with hardcoded data to regenerate figures!**
+
+- If a figure exists and works, find the EXACT script that generated it
+- Use that SAME script with minimal edits (e.g., change a title string)
+- NEVER copy data into a new file or hardcode values - always load from original source
+- If you can't find the original script, ASK before creating anything new
+
+**What went wrong before:**
+- User asked to update figure labels (terminology change)
+- I created `paper_figures_standalone.py` with HARDCODED data from `data.json`
+- The hardcoded data was DIFFERENT from actual results in `analysis_results/`
+- Result: Figures had wrong data, wrong x-axis, wasted hours debugging
+
+**What I should have done:**
+- Find original script: `create_lineplot_unified.py`
+- Edit ONLY the label strings in that script
+- Run the original script which loads correct data from JSON files
 
 ## ⚠️ EXPLICIT ADHERENCE CONFIRMATION - CRITICAL ⚠️
 **When adapting existing code/plots/scripts for new models or analyses:**
