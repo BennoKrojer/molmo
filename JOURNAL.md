@@ -6,6 +6,27 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Qwen2-VL token similarity plot: fixed to match 3x3 exactly)
+
+**Fixed Qwen2-VL token similarity plot to match 3x3 style:**
+- Added text token similarity script: `scripts/analysis/qwen2_vl/sameToken_acrossLayers_text_similarity.py`
+- Re-ran vision similarity with ALL 27 layers (was only 8)
+- Re-ran text similarity with ALL 27 layers
+- Updated plotting code to match 3x3 exactly:
+  - Same colors: Vision=#2E86AB, Text=#A23B72
+  - Same markers: Vision='o', Text='s'
+  - Same line style: linewidth=2.5, markersize=8, alpha=0.8
+  - Same y-axis label format with newline
+  - Same fontsize=15 (no bold) on axis labels
+
+**Interesting finding:** Qwen2-VL text tokens start with very LOW similarity to layer 0 (~0.15 at layer 1)
+compared to frozen LLM models where text tokens stay close to original (~1.0 for Llama3, ~0.5-0.6 for OLMo).
+This confirms Qwen2-VL's LLM is finetuned, not frozen.
+
+**Added CLAUDE.md rule:** Explicit adherence confirmation before reporting changes.
+
+**Git:** Pushed to `final` branch and paper submodule
+
 ### 2026-01-10 (Paper: Resolve Overleaf merge conflict)
 
 **Resolved merge conflict in paper submodule:**
