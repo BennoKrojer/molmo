@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-10 (Paper: Combine Qwen2-VL figures into subfigures)
+
+**Combined two Qwen2-VL figures into one with subfigures:**
+- Layer alignment + token drift now side by side (0.48\linewidth each)
+- Saves vertical space in the ablation subsection
+- Updated text reference to use combined `fig:qwen2vl_analysis`
+
+**Git:** Pushed to paper submodule and updated main repo
+
 ### 2026-01-10 (Qwen2-VL token similarity plot: fixed to match 3x3 exactly)
 
 **Fixed Qwen2-VL token similarity plot to match 3x3 style:**
