@@ -88,6 +88,21 @@ TLDR: Important files are this one, README.md, JOURNAL.md, SCHEMA_STANDARDIZATIO
 - Rewrites are harder to review and more likely to introduce bugs
 - The user has already approved the current output - preserve it!
 
+## ⚠️ EXPLICIT ADHERENCE CONFIRMATION - CRITICAL ⚠️
+**When adapting existing code/plots/scripts for new models or analyses:**
+
+1. **DO NOT report back until you've explicitly verified adherence**
+2. **Before saying "done", check EVERY detail matches the original:**
+   - Same layers (if 3x3 uses all 32 layers, new plot must use all N layers)
+   - Same colors, line styles, markers, alpha values
+   - Same axis labels, fonts, sizes
+   - Same data format and structure
+3. **When reporting, explicitly state HOW it adheres:**
+   - "Uses same markersize=8 as 3x3 plot"
+   - "Uses all 28 layers (1-28) like 3x3 uses all 32 layers (1-32)"
+   - "Uses same color scheme: Vision=#2E86AB, Text=#A23B72"
+4. **If you haven't explicitly confirmed adherence, assume you missed something**
+
 ## MANDATORY PRE-FLIGHT CHECKLIST - CRITICAL ⚠️
 **Before running ANY command that costs money, time, or modifies data:**
 
@@ -230,9 +245,9 @@ git add website && git commit -m "Update website submodule" && git push
 - Training: Connector-only (MLP), 12k steps on PixMo-Cap
 
 **Interpretability methods**:
-1. Static NN - nearest neighbors in LLM vocabulary (called "NN" in code)
-2. LogitLens - apply LM head to intermediate representations
-3. LN-Lens (ours) - contextual nearest neighbors (called "contextual NN" in code)
+1. Input Embedding Matrix - nearest neighbors in LLM input embedding (called "NN" in code)
+2. LogitLens - apply LM head to intermediate representations (output embedding matrix)
+3. LN-Lens (ours) - contextual nearest neighbors (called "contextual" in code)
 
 **Layers analyzed**: 0, 1, 2, 4, 8, 16, 24, N-2, N-1 (where N = num_layers)
 - OLMo/LLaMA (32 layers): 0, 1, 2, 4, 8, 16, 24, 30, 31
@@ -253,7 +268,7 @@ git add website && git commit -m "Update website submodule" && git push
 - Each has `layer_N/` directories with embeddings and `embeddings_cache.pt`
 
 ### Analysis Results
-- `analysis_results/nearest_neighbors/` - Static NN
+- `analysis_results/nearest_neighbors/` - Input Embedding Matrix
 - `analysis_results/logit_lens/` - LogitLens
 - `analysis_results/contextual_nearest_neighbors/` - LN-Lens (CC corpus)
 - `analysis_results/contextual_nearest_neighbors_vg/` - LN-Lens (VG corpus)
@@ -263,7 +278,7 @@ git add website && git commit -m "Update website submodule" && git push
 
 ### Key Scripts
 - `scripts/analysis/create_contextual_embeddings.py` - extract contextual embeddings
-- `scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` - static NN
+- `scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py` - Input Embedding Matrix
 - `scripts/analysis/logitlens.py` - LogitLens
 - `scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py` - LN-Lens
 - `scripts/analysis/create_unified_viewer.py` - HTML visualization (main models)
