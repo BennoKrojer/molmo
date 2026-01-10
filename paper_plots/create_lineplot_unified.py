@@ -30,8 +30,11 @@ def load_nn_results(results_dir):
     """Load nearest neighbors results."""
     results_dir = Path(results_dir)
     data = defaultdict(lambda: defaultdict(dict))
-    
+
     for results_file in results_dir.glob("**/results_*.json"):
+        # Skip ablations subdirectory - those are separate experiments
+        if '/ablations/' in str(results_file):
+            continue
         with open(results_file, 'r') as f:
             results = json.load(f)
         
@@ -66,8 +69,11 @@ def load_logitlens_results(results_dir):
     """Load logit lens results."""
     results_dir = Path(results_dir)
     data = defaultdict(lambda: defaultdict(dict))
-    
+
     for results_file in results_dir.glob("**/results_*.json"):
+        # Skip ablations subdirectory - those are separate experiments
+        if '/ablations/' in str(results_file):
+            continue
         with open(results_file, 'r') as f:
             spresults = json.load(f)
         
@@ -171,8 +177,11 @@ def load_contextual_results(results_dir, nn_results_dir=None):
     """Load contextual NN results."""
     results_dir = Path(results_dir)
     data = defaultdict(lambda: defaultdict(dict))
-    
+
     for results_file in results_dir.glob("**/results_*.json"):
+        # Skip ablations subdirectory - those are separate experiments
+        if '/ablations/' in str(results_file):
+            continue
         with open(results_file, 'r') as f:
             spresults = json.load(f)
         
