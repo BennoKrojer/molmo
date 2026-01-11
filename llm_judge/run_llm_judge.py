@@ -170,8 +170,18 @@ def construct_paths(args):
                 if not allLayers_files:
                     allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
                 if allLayers_files:
-                    input_json = allLayers_files[0]
-                    break
+                    # FIXED: Use the file matching the target visual layer
+                    # (layer 16 → visual16_allLayers.json, NOT visual0)
+                    target_file = ckpt_dir / f"contextual_neighbors_visual{layer_num}_allLayers.json"
+                    if not target_file.exists():
+                        target_file = ckpt_dir / f"contextual_neighbors_visual{layer_num}_allLayers_multi-gpu.json"
+                    if target_file.exists():
+                        input_json = target_file
+                        break
+                    else:
+                        print(f"ERROR: Could not find visual{layer_num}_allLayers.json in {ckpt_dir}")
+                        print(f"Available files: {[f.name for f in allLayers_files]}")
+                        sys.exit(1)
                 # Fallback to layer-specific files
                 for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
                     match = re.search(r'_contextual(\d+)_multi-gpu\.json$', str(cand))
