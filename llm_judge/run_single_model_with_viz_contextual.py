@@ -394,9 +394,18 @@ def main():
         # Fallback to old naming with _multi-gpu suffix
         allLayers_files = sorted(ckpt_dir.glob("contextual_neighbors_visual*_allLayers_multi-gpu.json"))
     if allLayers_files:
-        # Use the first allLayers file (they all contain all layers, just different visual layers)
-        # We'll filter by contextual layer when processing
-        input_json = allLayers_files[0]
+        # FIXED: Use the file matching the target visual layer
+        # (contextual16 → visual16_allLayers.json, NOT visual0)
+        target_file = ckpt_dir / f"contextual_neighbors_visual{target_layer}_allLayers.json"
+        if not target_file.exists():
+            # Try with _multi-gpu suffix
+            target_file = ckpt_dir / f"contextual_neighbors_visual{target_layer}_allLayers_multi-gpu.json"
+        if target_file.exists():
+            input_json = target_file
+        else:
+            print(f"ERROR: Could not find visual{target_layer}_allLayers.json in {ckpt_dir}")
+            print(f"Available files: {[f.name for f in allLayers_files]}")
+            sys.exit(1)
     else:
         # Fallback to old format: contextual_neighbors_visual{v}_contextual{c}_multi-gpu.json
         for cand in sorted(ckpt_dir.glob("contextual_neighbors_visual*_contextual*_multi-gpu.json")):
