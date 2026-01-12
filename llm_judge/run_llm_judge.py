@@ -9,6 +9,23 @@ Usage:
     python run_llm_judge.py --analysis-type nn --llm olmo-7b --vision-encoder vit-l-14-336 ...
     python run_llm_judge.py --analysis-type logitlens --llm olmo-7b --vision-encoder vit-l-14-336 ...
     python run_llm_judge.py --analysis-type contextual --llm olmo-7b --vision-encoder vit-l-14-336 ...
+
+IMPORTANT - 3x3 BBox Coordinate System:
+    The LLM judge evaluates patches using a 3x3 bounding box for visual context.
+    Results store the TOP-LEFT corner of the bbox, but NN data comes from the CENTER:
+
+        Stored in results: (patch_row, patch_col) = top-left corner of 3x3 bbox
+        Actual NN lookup:  (center_row, center_col) = (patch_row + 1, patch_col + 1)
+
+    Example: If results show patch (13, 9), the NN data is from patch (14, 10).
+
+    See lines ~696-700 in the main loop:
+        center_row = patch_row + bbox_size // 2  # bbox_size=3, so +1
+        center_col = patch_col + bbox_size // 2
+        patch_data = patch_map.get((center_row, center_col))
+
+    Any script reading LLM judge results must apply this +1 offset when looking up
+    the corresponding contextual NN data.
 """
 
 import os
