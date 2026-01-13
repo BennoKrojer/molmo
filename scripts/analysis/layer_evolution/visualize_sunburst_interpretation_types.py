@@ -15,10 +15,11 @@ from pathlib import Path
 import plotly.graph_objects as go
 
 
-def format_preceding_context(caption, word, max_words=4):
+def format_context(caption, word, max_words=4):
     """
-    Extract preceding context and format as '...context *word*'.
-    Returns None if word not found or no preceding context.
+    Format caption to show context around word.
+    Prefers preceding context ("...context *word*").
+    Falls back to following context ("*word* context...") if word is at start.
     """
     cap_lower = caption.lower()
     word_lower = word.lower()
@@ -29,33 +30,41 @@ def format_preceding_context(caption, word, max_words=4):
         return None
 
     start_idx = match.start()
+    end_idx = match.end()
+
     preceding = caption[:start_idx].strip()
+    following = caption[end_idx:].strip().rstrip('.')
 
-    if not preceding:
-        # Word at start - no preceding context
-        return None
+    # Prefer preceding context
+    if preceding:
+        words_before = preceding.split()[-max_words:]
+        context = " ".join(words_before)
+        if len(preceding.split()) > max_words:
+            return f"...{context} *{word}*"
+        else:
+            return f"{context} *{word}*"
 
-    # Take last N words
-    words_before = preceding.split()[-max_words:]
-    if not words_before:
-        return None
+    # Fall back to following context
+    if following:
+        words_after = following.split()[:max_words]
+        context = " ".join(words_after)
+        if len(following.split()) > max_words:
+            return f"*{word}* {context}..."
+        else:
+            return f"*{word}* {context}"
 
-    context = " ".join(words_before)
-    # Add ellipsis if we truncated
-    if len(preceding.split()) > max_words:
-        return f"...{context} *{word}*"
-    else:
-        return f"{context} *{word}*"
+    # Just the word if no context
+    return f"*{word}*"
 
 
-def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
+def create_sunburst(data, output_path, num_words=3, num_phrases_per_word=2):
     """
     Create a 3-ring sunburst chart using Plotly.
     Plotly's insidetextorientation='radial' handles text orientation automatically.
 
     Defaults chosen for readability:
-    - 5 words per category (not 8) to avoid crowding
-    - 2 phrases per word (not 3) to keep outer ring readable
+    - 3 words per category to ensure text fits in all segments
+    - 2 phrases per word to keep outer ring readable
     """
     # Colors for the 3 categories
     colors = {
@@ -71,20 +80,13 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
     values = []
     marker_colors = []
 
-    # Root (empty center)
-    ids.append("root")
-    labels.append("")
-    parents.append("")
-    values.append(0)
-    marker_colors.append("white")
-
-    # Level 1: Categories
+    # Level 1: Categories (no root - categories are top level with parent="")
     for cat in ['Concrete', 'Abstract', 'Global']:
         cat_count = data[cat]['count']
         ids.append(cat)
         labels.append(f"{cat}<br>({cat_count:,})")
-        parents.append("root")
-        values.append(cat_count)  # Proportional to count
+        parents.append("")  # Top level
+        values.append(cat_count)
         marker_colors.append(colors[cat])
 
     # Level 2: Words (proportional to word counts)
@@ -108,7 +110,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
             # Format captions as preceding context
             formatted = []
             for cap in raw_captions:
-                ctx = format_preceding_context(cap, word)
+                ctx = format_context(cap, word)
                 if ctx:
                     formatted.append(ctx)
 
@@ -145,26 +147,27 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
         labels=labels,
         parents=parents,
         values=values,
-        branchvalues="total",
+        # Don't use branchvalues="total" - let Plotly handle sizing
         marker=dict(
             colors=marker_colors,
-            line=dict(width=1, color='white')  # White borders for clarity
+            line=dict(width=1, color='white')
         ),
-        insidetextorientation='radial',  # Automatic radial text orientation!
-        textfont=dict(size=11),
-        maxdepth=3,  # Show all 3 levels
+        insidetextorientation='radial',
+        textfont=dict(size=12),
+        maxdepth=3,
+        textinfo='label',  # Show labels only
     ))
 
     fig.update_layout(
         title=dict(
             text="Interpretation Types: Words and Context Phrases",
-            font=dict(size=18),
-            x=0.5,  # Center title
+            font=dict(size=20),
+            x=0.5,
         ),
-        width=1400,  # Larger for better readability
-        height=1400,
-        margin=dict(t=60, l=20, r=20, b=20),
-        uniformtext=dict(minsize=8, mode='hide'),  # Hide text if too small
+        width=1800,  # Even larger
+        height=1800,
+        margin=dict(t=80, l=30, r=30, b=30),
+        uniformtext=dict(minsize=5),  # Allow smaller text
     )
 
     # Save as PDF and PNG
@@ -185,7 +188,7 @@ def main():
     with open(data_path, 'rb') as f:
         data = pickle.load(f)
 
-    create_sunburst(data, output_path, num_words=8, num_phrases_per_word=3)
+    create_sunburst(data, output_path)  # Use defaults: 3 words, 2 phrases
 
     # Copy to paper figures
     import shutil
