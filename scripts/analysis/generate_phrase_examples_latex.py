@@ -72,14 +72,10 @@ def squash_resize_pil(image: Image.Image, target_size: int) -> Image.Image:
 
 
 def preprocess_and_draw_bbox(image: Image.Image, vision_encoder: str,
-                              patch_row: int, patch_col: int) -> Image.Image:
+                              patch_row: int, patch_col: int) -> tuple[Image.Image, Image.Image]:
     """
     Apply vision encoder preprocessing and draw red bbox around the target patch.
-
-    The patch coordinates in metadata are already defined on the PROCESSED image's
-    patch grid (after preprocessing). So we just need to:
-    1. Apply the correct preprocessing for this vision encoder
-    2. Draw bbox at the patch coordinates in the processed image's space
+    Returns both full image and 5x5 patch crop.
 
     Args:
         image: Original PIL image
@@ -88,7 +84,7 @@ def preprocess_and_draw_bbox(image: Image.Image, vision_encoder: str,
         patch_col: Column in the processed patch grid (top-left of 3x3 bbox)
 
     Returns:
-        Preprocessed image with red bbox
+        (full_image, crop_image): Full preprocessed image and 5x5 patch crop, both with bbox
     """
     # Normalize vision encoder name
     if 'siglip' in vision_encoder.lower():
@@ -120,12 +116,26 @@ def preprocess_and_draw_bbox(image: Image.Image, vision_encoder: str,
     x2 = int((center_col + 1) * cell_size)
     y2 = int((center_row + 1) * cell_size)
 
-    # Draw red bbox (3px thick)
+    # Draw red bbox (3px thick) on full image
     draw = ImageDraw.Draw(processed)
     for i in range(3):
         draw.rectangle([x1-i, y1-i, x2+i, y2+i], outline='red')
 
-    return processed
+    # Create 5x5 patch crop centered on target patch
+    # Crop region: 2 patches before center, center patch, 2 patches after = 5 patches
+    crop_row_start = max(0, center_row - 2)
+    crop_col_start = max(0, center_col - 2)
+    crop_row_end = min(grid_size, center_row + 3)
+    crop_col_end = min(grid_size, center_col + 3)
+
+    crop_x1 = int(crop_col_start * cell_size)
+    crop_y1 = int(crop_row_start * cell_size)
+    crop_x2 = int(crop_col_end * cell_size)
+    crop_y2 = int(crop_row_end * cell_size)
+
+    crop = processed.crop((crop_x1, crop_y1, crop_x2, crop_y2))
+
+    return processed, crop
 
 
 def find_token_bounds(phrase: str, token: str) -> tuple[str, str, str]:
@@ -236,15 +246,15 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
     lines.append(r"""% Auto-generated phrase example figures
 % Images should be in figures/phrase_examples/
 
-\newcommand{\phraseexample}[4]{%
-  % #1: image path, #2: LN-Lens phrase, #3: Random phrase, #4: model info
+\newcommand{\phraseexample}[5]{%
+  % #1: full image, #2: crop image, #3: LN-Lens phrase, #4: Random phrase, #5: model info
   \begin{minipage}[t]{0.47\textwidth}
-    \centering
-    \includegraphics[width=0.55\textwidth]{#1}\\[0.3em]
     \raggedright
-    {\footnotesize\textbf{LN-Lens:} #2}\\[0.1em]
-    {\footnotesize\textbf{Random:} #3}\\[0.1em]
-    {\scriptsize\textit{#4}}
+    \includegraphics[height=2.8cm]{#1}\hspace{0.3em}%
+    \includegraphics[height=2.8cm]{#2}\\[0.3em]
+    {\footnotesize\textbf{LN-Lens:} #3}\\[0.1em]
+    {\footnotesize\textbf{Random:} #4}\\[0.1em]
+    {\scriptsize\textit{#5}}
   \end{minipage}%
 }
 """)
@@ -269,7 +279,8 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
             global_idx1 = start_idx + pair_idx
 
             # Format example 1
-            img1 = f"figures/phrase_examples/example_{global_idx1:02d}.pdf"
+            img1_full = f"figures/phrase_examples/example_{global_idx1:02d}.pdf"
+            img1_crop = f"figures/phrase_examples/example_{global_idx1:02d}_crop.pdf"
             phrase1 = format_phrase_latex(ex1['phrase'], ex1['token'])
             random1 = format_phrase_latex(ex1['_comparison_phrase'], ex1['token'])
 
@@ -284,13 +295,14 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
             llm1_display = LLM_DISPLAY.get(ex1['llm'], ex1['llm'])
             model1 = f"{llm1_display}+{vision1_display}, L{ex1['layer']}"
 
-            lines.append(r"\phraseexample{" + img1 + "}{" + phrase1 + "}{" + random1 + "}{" + model1 + "}")
+            lines.append(r"\phraseexample{" + img1_full + "}{" + img1_crop + "}{" + phrase1 + "}{" + random1 + "}{" + model1 + "}")
 
             if ex2:
                 global_idx2 = start_idx + pair_idx + 1
                 lines.append(r"\hfill")
 
-                img2 = f"figures/phrase_examples/example_{global_idx2:02d}.pdf"
+                img2_full = f"figures/phrase_examples/example_{global_idx2:02d}.pdf"
+                img2_crop = f"figures/phrase_examples/example_{global_idx2:02d}_crop.pdf"
                 phrase2 = format_phrase_latex(ex2['phrase'], ex2['token'])
                 random2 = format_phrase_latex(ex2['_comparison_phrase'], ex2['token'])
 
@@ -305,7 +317,7 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
                 llm2_display = LLM_DISPLAY.get(ex2['llm'], ex2['llm'])
                 model2 = f"{llm2_display}+{vision2_display}, L{ex2['layer']}"
 
-                lines.append(r"\phraseexample{" + img2 + "}{" + phrase2 + "}{" + random2 + "}{" + model2 + "}")
+                lines.append(r"\phraseexample{" + img2_full + "}{" + img2_crop + "}{" + phrase2 + "}{" + random2 + "}{" + model2 + "}")
 
             lines.append(r"\\[1em]")
 
@@ -363,18 +375,20 @@ def main():
 
         image = Image.open(image_path).convert('RGB')
 
-        # Preprocess and draw bbox
-        processed = preprocess_and_draw_bbox(
+        # Preprocess and draw bbox - returns full image and 5x5 crop
+        full_img, crop_img = preprocess_and_draw_bbox(
             image,
             ex['vision'],
             ex['patch_row'],
             ex['patch_col']
         )
 
-        # Save as PDF
-        output_path = output_dir / f"example_{i:02d}.pdf"
-        processed.save(output_path, 'PDF', resolution=150)
-        print(f"Saved: {output_path}")
+        # Save both as PDF
+        full_path = output_dir / f"example_{i:02d}.pdf"
+        crop_path = output_dir / f"example_{i:02d}_crop.pdf"
+        full_img.save(full_path, 'PDF', resolution=150)
+        crop_img.save(crop_path, 'PDF', resolution=150)
+        print(f"Saved: {full_path} and crop")
 
     # Generate LaTeX code
     latex_code = generate_latex_table(selected, str(output_dir))
