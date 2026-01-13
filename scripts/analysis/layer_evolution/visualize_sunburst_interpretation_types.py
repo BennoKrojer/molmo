@@ -73,6 +73,12 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
     parents = []
     values = []
     marker_colors = []
+    font_sizes = []  # Progressive font sizes by depth level
+
+    # Font sizes: inner ring big, middle medium, outer small
+    FONT_SIZE_CATEGORY = 22  # Inner ring (Concrete, Abstract, Global)
+    FONT_SIZE_WORD = 13      # Middle ring (words)
+    FONT_SIZE_PHRASE = 10    # Outer ring (phrases)
 
     # First pass: calculate visual values for each category
     cat_visual_values = {}
@@ -103,6 +109,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
         parents.append("")
         values.append(cat_visual_values[cat])  # Use visual value, not total
         marker_colors.append(colors[cat])
+        font_sizes.append(FONT_SIZE_CATEGORY)
 
     # Level 2: Words + Others
     for cat in ['Concrete', 'Abstract', 'Global']:
@@ -121,6 +128,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
             r, g, b = int(lighter[:2], 16), int(lighter[2:4], 16), int(lighter[4:], 16)
             r, g, b = min(255, r+60), min(255, g+60), min(255, b+60)
             marker_colors.append(f'#{r:02x}{g:02x}{b:02x}')
+            font_sizes.append(FONT_SIZE_WORD)  # Same as words level
 
         for word, word_info in cd['sorted_words']:
             word_count = word_info['count']
@@ -131,6 +139,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
             parents.append(cat)
             values.append(word_count)  # Proportional to count
             marker_colors.append(colors[cat])
+            font_sizes.append(FONT_SIZE_WORD)
 
             # Level 3: Phrases with REAL counts from data + Others
             phrases_dict = word_info.get('phrases', {})
@@ -197,6 +206,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
                     parents.append(word_id)
                     values.append(phrase_values[i])
                     marker_colors.append(colors[cat])
+                    font_sizes.append(FONT_SIZE_PHRASE)
 
                 # Add "Others" segment if showing
                 if show_others and len(phrase_values) > len(top_n):
@@ -211,6 +221,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
                     r, g, b = int(lighter[:2], 16), int(lighter[2:4], 16), int(lighter[4:], 16)
                     r, g, b = min(255, r+80), min(255, g+80), min(255, b+80)
                     marker_colors.append(f'#{r:02x}{g:02x}{b:02x}')
+                    font_sizes.append(FONT_SIZE_PHRASE)
             else:
                 # Fallback - single phrase with just the word
                 phrase_id = f"{word_id}-phrase0"
@@ -219,6 +230,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
                 parents.append(word_id)
                 values.append(word_count)
                 marker_colors.append(colors[cat])
+                font_sizes.append(FONT_SIZE_PHRASE)
 
     # Validate data before creating sunburst (Plotly fails silently with bad data)
     for i, (id_, parent, val) in enumerate(zip(ids, parents, values)):
@@ -232,7 +244,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
             if abs(val - children_sum) > 0.01:
                 raise ValueError(f"Category '{id_}' value {val} != children sum {children_sum}")
 
-    # Create sunburst
+    # Create sunburst with progressive font sizes
     fig = go.Figure(go.Sunburst(
         ids=ids,
         labels=labels,
@@ -244,7 +256,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
             line=dict(width=0.5, color='white')
         ),
         insidetextorientation='radial',
-        textfont=dict(size=12),
+        textfont=dict(size=font_sizes),  # Progressive sizes per segment
         maxdepth=3,
         textinfo='label',
     ))
