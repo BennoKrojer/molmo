@@ -6,8 +6,13 @@ Sunburst chart for interpretation types showing:
 - Outer ring: Example phrases with preceding context ("...the black *word*")
 
 Uses Plotly sunburst with insidetextorientation='radial' for automatic text orientation.
+
+Usage:
+    python visualize_sunburst_interpretation_types.py
+    python visualize_sunburst_interpretation_types.py --data sunburst_data_layer0.pkl --suffix "_layer0" --title "Layer 0"
 """
 
+import argparse
 import pickle
 import re
 from pathlib import Path
@@ -44,7 +49,7 @@ def format_context(caption, word, max_words=3):
     return f"<b>{word}</b>"
 
 
-def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
+def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, title=None):
     """
     Create a 3-ring sunburst chart using Plotly.
     Plotly's insidetextorientation='radial' handles text orientation automatically.
@@ -53,6 +58,8 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
     - "Others" capped at 20% visually, labeled with actual %
     - 2 phrases per word
     """
+    if title is None:
+        title = "Interpretation Types: Words and Context Phrases"
     # Colors for the 3 categories
     colors = {
         'Concrete': '#4CAF50',  # Green
@@ -125,17 +132,27 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
             values.append(word_count)  # Proportional to count
             marker_colors.append(colors[cat])
 
-            # Level 3: Phrases with REAL counts from data
+            # Level 3: Phrases with REAL counts from data + Others
             phrases_dict = word_info.get('phrases', {})
 
             if phrases_dict:
-                # Sort by count and take top 3
-                sorted_phrases = sorted(phrases_dict.items(), key=lambda x: x[1], reverse=True)[:3]
+                # Sort ALL phrases by count, take top 3 for display
+                all_sorted = sorted(phrases_dict.items(), key=lambda x: x[1], reverse=True)
+                top_3 = all_sorted[:3]
 
-                # Calculate total for these top phrases to ensure they sum to word_count
-                phrase_total = sum(count for _, count in sorted_phrases)
+                # Calculate totals for Others percentage
+                total_all = sum(count for _, count in all_sorted)
+                top_3_total = sum(count for _, count in top_3)
+                others_count = total_all - top_3_total
+                others_pct = (others_count / total_all * 100) if total_all > 0 else 0
 
-                for i, (phrase_text, phrase_count) in enumerate(sorted_phrases):
+                # Visual cap: Others at 10% of word's visual space
+                # others_visual = min(others_share, 0.10) of word_count
+                others_visual = min(others_count / total_all, 0.10) * word_count if total_all > 0 else 0
+                shown_visual = word_count - others_visual
+
+                # Add top 3 phrases, scaled to shown_visual
+                for i, (phrase_text, phrase_count) in enumerate(top_3):
                     phrase_id = f"{word_id}-phrase{i}"
 
                     # Convert *word* format to <b>word</b> for HTML bold
@@ -144,15 +161,30 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
                     ids.append(phrase_id)
                     labels.append(label)
                     parents.append(word_id)
-                    # Scale phrase counts to sum to word_count (for branchvalues="total")
-                    scaled_value = int(phrase_count / phrase_total * word_count) if phrase_total > 0 else word_count // 3
-                    values.append(scaled_value)
+                    # Scale to shown_visual (leaving room for Others)
+                    scaled_value = int(phrase_count / top_3_total * shown_visual) if top_3_total > 0 else int(shown_visual // 3)
+                    values.append(max(1, scaled_value))  # Ensure at least 1
                     marker_colors.append(colors[cat])
 
-                # Add remainder to first phrase to ensure exact sum
-                phrase_sum = sum(values[-len(sorted_phrases):])
-                if phrase_sum < word_count:
-                    values[-len(sorted_phrases)] += (word_count - phrase_sum)
+                # Add "Others" segment if there are more phrases
+                if others_count > 0 and others_pct > 0.5:  # Only show if >0.5%
+                    phrase_id = f"{word_id}-others"
+                    ids.append(phrase_id)
+                    labels.append(f"Others ({others_pct:.0f}%)")
+                    parents.append(word_id)
+                    values.append(max(1, int(others_visual)))
+                    # Lighter color for Others
+                    base_color = colors[cat]
+                    lighter = base_color.replace('#', '')
+                    r, g, b = int(lighter[:2], 16), int(lighter[2:4], 16), int(lighter[4:], 16)
+                    r, g, b = min(255, r+80), min(255, g+80), min(255, b+80)
+                    marker_colors.append(f'#{r:02x}{g:02x}{b:02x}')
+
+                # Ensure exact sum to word_count
+                num_phrase_segments = len(top_3) + (1 if others_count > 0 and others_pct > 0.5 else 0)
+                phrase_sum = sum(values[-num_phrase_segments:])
+                if phrase_sum != word_count:
+                    values[-num_phrase_segments] += (word_count - phrase_sum)
             else:
                 # Fallback - single phrase with just the word
                 phrase_id = f"{word_id}-phrase0"
@@ -181,7 +213,7 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
 
     fig.update_layout(
         title=dict(
-            text="Interpretation Types: Words and Context Phrases",
+            text=title,
             font=dict(size=18),
             x=0.5,
             y=0.98,
@@ -200,24 +232,36 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Generate sunburst visualization')
+    parser.add_argument('--data', default='sunburst_data.pkl',
+                        help='Data filename (in analysis_results/layer_evolution/)')
+    parser.add_argument('--suffix', default='',
+                        help='Suffix for output filename (e.g., "_layer0")')
+    parser.add_argument('--title', default=None,
+                        help='Chart title (e.g., "Layer 0")')
+    parser.add_argument('--no-paper-copy', action='store_true',
+                        help='Skip copying to paper figures')
+    args = parser.parse_args()
+
     base_dir = Path(__file__).parent.parent.parent.parent
-    data_path = base_dir / 'analysis_results/layer_evolution/sunburst_data.pkl'
-    output_path = base_dir / 'analysis_results/layer_evolution/sunburst_interpretation_types.pdf'
+    data_path = base_dir / f'analysis_results/layer_evolution/{args.data}'
+    output_path = base_dir / f'analysis_results/layer_evolution/sunburst_interpretation_types{args.suffix}.pdf'
 
     # Also save to paper figures
-    paper_output = base_dir / 'paper/figures/fig_sunburst_interpretation_types.pdf'
+    paper_output = base_dir / f'paper/figures/fig_sunburst_interpretation_types{args.suffix}.pdf'
 
     with open(data_path, 'rb') as f:
         data = pickle.load(f)
 
-    create_sunburst(data, output_path)  # Use defaults: 3 words, 2 phrases
+    create_sunburst(data, output_path, title=args.title)
 
     # Copy to paper figures
-    import shutil
-    shutil.copy(output_path, paper_output)
-    shutil.copy(str(output_path).replace('.pdf', '.png'),
-                str(paper_output).replace('.pdf', '.png'))
-    print(f"Copied to {paper_output}")
+    if not args.no_paper_copy:
+        import shutil
+        shutil.copy(output_path, paper_output)
+        shutil.copy(str(output_path).replace('.pdf', '.png'),
+                    str(paper_output).replace('.pdf', '.png'))
+        print(f"Copied to {paper_output}")
 
 
 if __name__ == '__main__':

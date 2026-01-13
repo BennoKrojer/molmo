@@ -4,8 +4,14 @@ Generate sunburst data from LLM judge contextual results.
 
 Extracts words categorized as Concrete/Abstract/Global and their
 preceding context phrases from captions.
+
+Usage:
+    python generate_sunburst_data.py --layers all --include-qwen2vl
+    python generate_sunburst_data.py --layers first
+    python generate_sunburst_data.py --layers last
 """
 
+import argparse
 import json
 import pickle
 import re
@@ -52,16 +58,24 @@ def load_contextual_nn_results(base_dir, model_name, layer):
     """Load contextual NN results to get caption data."""
     nn_dir = base_dir / "contextual_nearest_neighbors"
 
-    # Try different naming patterns
+    # Handle Qwen2-VL special case
+    if model_name.lower() in ['qwen2vl', 'qwen2-vl']:
+        qwen2vl_dir = nn_dir / "qwen2_vl" / "Qwen_Qwen2-VL-7B-Instruct"
+        layer_file = qwen2vl_dir / f"contextual_neighbors_visual{layer}_allLayers.json"
+        if layer_file.exists():
+            with open(layer_file) as f:
+                return json.load(f)
+        return None
+
+    # Try different naming patterns for standard models
     patterns = [
         f"train_mlp-only_pixmo_cap_resize_{model_name}_step12000-unsharded",
-        f"{model_name}",
+        model_name,
     ]
 
     for pattern in patterns:
         model_dir = nn_dir / pattern
         if model_dir.exists():
-            # Look for layer file
             layer_file = model_dir / f"contextual_neighbors_visual{layer}_allLayers.json"
             if layer_file.exists():
                 with open(layer_file) as f:
@@ -107,10 +121,42 @@ def extract_captions_for_words(nn_data, words_set):
     return word_captions
 
 
+def get_layer_filter(layer_mode):
+    """Return a function that filters layers based on mode."""
+    if layer_mode == 'all':
+        return lambda layer, model: True
+    elif layer_mode == 'first':
+        return lambda layer, model: layer == 0
+    elif layer_mode == 'last':
+        # OLMo/LLaMA: 32 layers -> last is 31
+        # Qwen2: 28 layers -> last is 27
+        def is_last(layer, model):
+            if 'qwen2' in model.lower():
+                return layer == 27
+            return layer == 31
+        return is_last
+    else:
+        raise ValueError(f"Unknown layer mode: {layer_mode}")
+
+
 def main():
+    parser = argparse.ArgumentParser(description='Generate sunburst data')
+    parser.add_argument('--layers', choices=['all', 'first', 'last'], default='all',
+                        help='Which layers to include: all, first (0), or last (31/27)')
+    parser.add_argument('--include-qwen2vl', action='store_true',
+                        help='Include Qwen2-VL model data')
+    parser.add_argument('--output-suffix', default='',
+                        help='Suffix for output filename (e.g., "_layer0")')
+    args = parser.parse_args()
+
+    layer_filter = get_layer_filter(args.layers)
+
     base_dir = Path(__file__).parent.parent.parent.parent
     results_dir = base_dir / "analysis_results/llm_judge_contextual_nn"
-    output_path = base_dir / "analysis_results/layer_evolution/sunburst_data.pkl"
+
+    # Output path with optional suffix
+    suffix = args.output_suffix or f"_{args.layers}" if args.layers != 'all' else ''
+    output_path = base_dir / f"analysis_results/layer_evolution/sunburst_data{suffix}.pkl"
 
     # Categories to collect
     categories = {
@@ -121,11 +167,20 @@ def main():
 
     category_totals = {'Concrete': 0, 'Abstract': 0, 'Global': 0}
 
-    # Process all LLM judge results (excluding ablations)
+    # Collect result directories from main dir and Qwen2-VL subdir
     result_dirs = list(results_dir.glob("llm_judge_*_contextual*_gpt5_cropped"))
     result_dirs = [d for d in result_dirs if '/ablations/' not in str(d) and d.is_dir()]
 
+    # Include Qwen2-VL if requested
+    if args.include_qwen2vl:
+        qwen2vl_dir = results_dir / "qwen2-vl"
+        if qwen2vl_dir.exists():
+            qwen2vl_dirs = list(qwen2vl_dir.glob("llm_judge_*_contextual*_gpt5_cropped"))
+            result_dirs.extend(qwen2vl_dirs)
+            print(f"Including {len(qwen2vl_dirs)} Qwen2-VL directories", flush=True)
+
     print(f"Found {len(result_dirs)} LLM judge result directories", flush=True)
+    print(f"Layer filter: {args.layers}", flush=True)
 
     all_word_captions = defaultdict(list)
     nn_data_cache = {}  # Cache NN data per model to avoid reloading
@@ -145,6 +200,10 @@ def main():
             layer = int(layer_match.group(1))
             model_name = parts[:layer_match.start()]
         else:
+            continue
+
+        # Apply layer filter
+        if not layer_filter(layer, model_name):
             continue
 
         print(f"Processing {model_name} layer {layer}...", flush=True)
