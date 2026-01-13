@@ -18,7 +18,7 @@ import plotly.graph_objects as go
 def format_context(caption, word, max_words=3):
     """
     Format caption to show PRECEDING context only (autoregressive LLM sees only past).
-    Format: "...word1 word2 word3 TARGET" (always max 3 preceding words, UPPERCASE target)
+    Format: "...word1 word2 word3 <b>target</b>" (always max 3 preceding words)
     """
     cap_lower = caption.lower()
     word_lower = word.lower()
@@ -31,20 +31,17 @@ def format_context(caption, word, max_words=3):
     start_idx = match.start()
     preceding = caption[:start_idx].strip()
 
-    # Use UPPERCASE for target word - more visible than bold at small sizes
-    target = word.upper()
-
     # Always show up to 3 preceding words - never truncate further
     if preceding:
         words_before = preceding.split()[-max_words:]  # Take last 3 words
-        context = " ".join(words_before).lower()  # lowercase context
+        context = " ".join(words_before)
         if len(preceding.split()) > max_words:
-            return f"...{context} {target}"
+            return f"...{context} <b>{word}</b>"
         else:
-            return f"{context} {target}"
+            return f"{context} <b>{word}</b>"
 
-    # No preceding context - just the uppercase word
-    return target
+    # No preceding context - just the bold word
+    return f"<b>{word}</b>"
 
 
 def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
@@ -128,32 +125,42 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
             values.append(word_count)  # Proportional to count
             marker_colors.append(colors[cat])
 
-            # Level 3: Phrases with preceding context
-            raw_captions = word_info.get('captions', [])
+            # Level 3: Phrases with REAL counts from data
+            phrases_dict = word_info.get('phrases', {})
 
-            # Format captions - get UNIQUE phrases only
-            formatted = []
-            seen = set()
-            for cap in raw_captions:
-                ctx = format_context(cap, word)
-                if ctx and ctx not in seen:
-                    formatted.append(ctx)
-                    seen.add(ctx)
-                if len(formatted) >= 3:  # Max 3 unique phrases
-                    break
+            if phrases_dict:
+                # Sort by count and take top 3
+                sorted_phrases = sorted(phrases_dict.items(), key=lambda x: x[1], reverse=True)[:3]
 
-            # Fallback - just the word
-            if not formatted:
-                formatted = [f"<b>{word}</b>"]
+                # Calculate total for these top phrases to ensure they sum to word_count
+                phrase_total = sum(count for _, count in sorted_phrases)
 
-            # Merge all phrases into ONE segment with <br> newlines
-            phrase_id = f"{word_id}-phrases"
-            combined_label = "<br>".join(formatted)
-            ids.append(phrase_id)
-            labels.append(combined_label)
-            parents.append(word_id)
-            values.append(word_count)  # Single segment gets full word value
-            marker_colors.append(colors[cat])
+                for i, (phrase_text, phrase_count) in enumerate(sorted_phrases):
+                    phrase_id = f"{word_id}-phrase{i}"
+
+                    # Convert *word* format to <b>word</b> for HTML bold
+                    label = phrase_text.replace(f'*{word}*', f'<b>{word}</b>')
+
+                    ids.append(phrase_id)
+                    labels.append(label)
+                    parents.append(word_id)
+                    # Scale phrase counts to sum to word_count (for branchvalues="total")
+                    scaled_value = int(phrase_count / phrase_total * word_count) if phrase_total > 0 else word_count // 3
+                    values.append(scaled_value)
+                    marker_colors.append(colors[cat])
+
+                # Add remainder to first phrase to ensure exact sum
+                phrase_sum = sum(values[-len(sorted_phrases):])
+                if phrase_sum < word_count:
+                    values[-len(sorted_phrases)] += (word_count - phrase_sum)
+            else:
+                # Fallback - single phrase with just the word
+                phrase_id = f"{word_id}-phrase0"
+                ids.append(phrase_id)
+                labels.append(f"<b>{word}</b>")
+                parents.append(word_id)
+                values.append(word_count)
+                marker_colors.append(colors[cat])
 
     # Create sunburst
     fig = go.Figure(go.Sunburst(
