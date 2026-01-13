@@ -253,7 +253,7 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
     \includegraphics[height=2.8cm]{#1}\hspace{0.3em}%
     \includegraphics[height=2.8cm]{#2}\\[0.3em]
     {\footnotesize\textbf{LN-Lens:} #3}\\[0.1em]
-    {\footnotesize\textbf{Random:} #4}\\[0.1em]
+    {\footnotesize\textbf{Random phrase, same token:} #4}\\[0.1em]
     {\scriptsize\textit{#5}}
   \end{minipage}%
 }
