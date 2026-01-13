@@ -6,16 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-13 (Sunburst chart fixes)
+### 2026-01-13 (Sunburst chart fixes - Plotly)
 
-**Fixed sunburst visualization issues:**
-- Created reusable script: `scripts/analysis/layer_evolution/visualize_sunburst_interpretation_types.py`
-- Wedges now PROPORTIONAL to actual word counts (not uniform)
-- Shows multiple example phrases per word (up to 3)
-- Filters captions to show preceding context format ("...the black")
-- Proper radial text orientation with 180° flip on left side
+**Switched to Plotly for proper radial text:**
+- `insidetextorientation='radial'` handles text orientation automatically
+- No more manual rotation calculations
+- Script: `scripts/analysis/layer_evolution/visualize_sunburst_interpretation_types.py`
 
-**Git:** Pushed to final (2431855, b8ea38f), paper repo updated (eaf08b4)
+**All requirements now met:**
+1. ✓ Wedges proportional to actual word counts
+2. ✓ Multiple example phrases per word (up to 3)
+3. ✓ Preceding context format: "...context *word*"
+4. ✓ Radial text orientation (Plotly auto-handles, never upside down)
+
+**Git:** Pushed to final (a7b67be, ba5110a), paper repo updated (1ecfb2e)
 
 ### 2026-01-13 (Interpretation types visualization - ablations bug fix + paper update)
 
