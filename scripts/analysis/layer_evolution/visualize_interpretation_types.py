@@ -49,7 +49,11 @@ def load_interpretation_types(results_dir, nn_results_dir, llm, vision_encoder):
         # Check if this file matches our model
         if model_pattern not in path_str:
             continue
-        
+
+        # Skip ablations directory (CLAUDE.md rule: never use ** glob without excluding ablations)
+        if '/ablations/' in path_str:
+            continue
+
         # Extract layer from path (matches _contextual0_, _contextual1_, etc.)
         match = re.search(r'_contextual(\d+)_', path_str)
         if not match:
