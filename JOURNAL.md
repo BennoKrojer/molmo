@@ -6,6 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Per-model sunburst generation - 30 plots)
+
+**Added per-model filtering for sunburst data generation:**
+- New `--model` argument to filter to specific model
+- Fixed Qwen2-VL caption extraction (different data structure: results → patches → neighbors, no 'chunks' level)
+- Fixed suffix handling bug when `--layers=all` with custom `--output-suffix`
+
+**Generated 30 sunburst plots (10 models × 3 layer variants):**
+- Models: 9 trained (OLMo-7B, Llama3-8B, Qwen2-7B × ViT-L/SigLIP/DINOv2) + Qwen2-VL
+- Layer variants: all layers, layer 0, last layer (31 or 27)
+- Batch script: `scripts/analysis/layer_evolution/generate_all_sunbursts.sh`
+- Output: `analysis_results/layer_evolution/sunburst_interpretation_types_<model>_<layer>.pdf`
+
+**Git:** Pushed to final (3d5e326)
+
 ### 2026-01-13 (Sunburst chart - layer variants + Others for phrases)
 
 **Added "Others" segment to phrase layer:**
