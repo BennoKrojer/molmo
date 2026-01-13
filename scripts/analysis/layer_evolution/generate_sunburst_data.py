@@ -139,16 +139,16 @@ def get_layer_filter(layer_mode):
     """Return a function that filters layers based on mode."""
     if layer_mode == 'all':
         return lambda layer, model: True
-    elif layer_mode == 'first':
-        return lambda layer, model: layer == 0
-    elif layer_mode == 'last':
-        # OLMo/LLaMA: 32 layers -> last is 31
-        # Qwen2: 28 layers -> last is 27
-        def is_last(layer, model):
+    elif layer_mode == 'early':
+        # Early layers: 0, 1, 2
+        return lambda layer, model: layer in [0, 1, 2]
+    elif layer_mode == 'late':
+        # Late layers: 31, 30, 24 for OLMo/LLaMA; 27, 26, 24 for Qwen2
+        def is_late(layer, model):
             if 'qwen2' in model.lower():
-                return layer == 27
-            return layer == 31
-        return is_last
+                return layer in [27, 26, 24]
+            return layer in [31, 30, 24]
+        return is_late
     else:
         raise ValueError(f"Unknown layer mode: {layer_mode}")
 
@@ -172,8 +172,8 @@ def get_model_display_name(model_key):
 
 def main():
     parser = argparse.ArgumentParser(description='Generate sunburst data')
-    parser.add_argument('--layers', choices=['all', 'first', 'last'], default='all',
-                        help='Which layers to include: all, first (0), or last (31/27)')
+    parser.add_argument('--layers', choices=['all', 'early', 'late'], default='all',
+                        help='Which layers to include: all, early (0,1,2), or late (31,30,24 / 27,26,24)')
     parser.add_argument('--model', default=None,
                         help='Filter to specific model (e.g., "olmo-7b_vit-l-14-336" or "qwen2vl")')
     parser.add_argument('--include-qwen2vl', action='store_true',

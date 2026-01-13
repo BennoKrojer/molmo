@@ -36,17 +36,17 @@ DISPLAY_NAMES["qwen2-7b_dinov2-large-336"]="Qwen2-7B DINOv2"
 DISPLAY_NAMES["qwen2vl"]="Qwen2-VL-7B"
 
 # Layer variants
-LAYER_VARIANTS=("all" "first" "last")
+LAYER_VARIANTS=("all" "early" "late")
 
 declare -A LAYER_SUFFIX
 LAYER_SUFFIX["all"]=""
-LAYER_SUFFIX["first"]="_layer0"
-LAYER_SUFFIX["last"]="_layerLast"
+LAYER_SUFFIX["early"]="_early"
+LAYER_SUFFIX["late"]="_late"
 
 declare -A LAYER_TITLE
 LAYER_TITLE["all"]="All Layers"
-LAYER_TITLE["first"]="Layer 0"
-LAYER_TITLE["last"]="Last Layer"
+LAYER_TITLE["early"]="Early Layers (0,1,2)"
+LAYER_TITLE["late"]="Late Layers"
 
 echo "Generating 30 sunburst data files and plots..."
 echo ""
