@@ -57,8 +57,8 @@ def resize_and_pad_pil(image: Image.Image, target_size: int) -> tuple[Image.Imag
 
     resized = image.resize((new_w, new_h), Image.Resampling.BILINEAR)
 
-    # Pad to square with gray background (matching the model's pad_value after normalization)
-    padded = Image.new('RGB', (target_size, target_size), (127, 127, 127))
+    # Pad to square with black background (pad_value=0 in original resize_and_pad)
+    padded = Image.new('RGB', (target_size, target_size), (0, 0, 0))
     offset_x = (target_size - new_w) // 2
     offset_y = (target_size - new_h) // 2
     padded.paste(resized, (offset_x, offset_y))
