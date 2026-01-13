@@ -35,7 +35,14 @@ A concise log of major changes, results, and git operations.
 **CLAUDE.md update:**
 - Added rule to explicitly confirm reading CLAUDE.md at start of each chat
 
-**Git:** Pushed to final (a50889d, 806fdac, 48fa5ec, d6c7c6c)
+**Sunburst chart created:**
+- 3-ring nested pie chart showing: Type → Top Words → Visual Genome Phrases
+- Inner: Concrete 65%, Abstract 19%, Global 16%
+- Middle: Top 8 words per type (colors dominate Concrete, positional terms for Abstract)
+- Outer: Example phrase contexts from Visual Genome corpus
+- Script: inline in conversation, data saved to `analysis_results/layer_evolution/sunburst_data.pkl`
+
+**Git:** Pushed to final (a50889d, 806fdac, 48fa5ec, d6c7c6c, 2342c45, d76ee10)
 
 ### 2026-01-12 (Phrase annotation examples - LaTeX approach)
 
