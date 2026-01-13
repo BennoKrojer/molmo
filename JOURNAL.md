@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Sunburst chart - layer variants + Others for phrases)
+
+**Added "Others" segment to phrase layer:**
+- Shows remaining phrases not in top 3
+- Visually capped at 10%, labeled with actual percentage (e.g., "Others (24%)")
+
+**Added layer filtering and multiple variants:**
+- `--layers all/first/last` argument in data generation
+- `--include-qwen2vl` flag for Qwen2-VL data
+- Generated 3 sunburst variants:
+  - All layers: Concrete 10,617 / Abstract 3,089 / Global 2,532
+  - Layer 0: Concrete 1,281 / Abstract 365 / Global 282
+  - Last layer: Concrete 944 / Abstract 314 / Global 254
+
+**Git:** Pushed to final (af9af2c), paper repo updated (ba33e9c)
+
 ### 2026-01-13 (Sunburst chart - REAL phrase counts)
 
 **Major fix: phrases now have real occurrence counts:**
