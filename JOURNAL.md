@@ -19,13 +19,22 @@ A concise log of major changes, results, and git operations.
 - Fix: Limit phrases to `min(3, word_count)` and distribute values properly
 - Added validation: check all values positive, verify parent-child sums before rendering
 
+**Changed layer groupings from first/last to early/late:**
+- Early layers: 0, 1, 2
+- Late layers: 31, 30, 24 for OLMo/LLaMA; 27, 26, 24 for Qwen2
+
 **Generated 30 sunburst plots (10 models × 3 layer variants):**
 - Models: 9 trained (OLMo-7B, Llama3-8B, Qwen2-7B × ViT-L/SigLIP/DINOv2) + Qwen2-VL
-- Layer variants: all layers, layer 0, last layer (31 or 27)
+- Layer variants: all layers, early (0,1,2), late (31,30,24 or 27,26,24)
 - Batch script: `scripts/analysis/layer_evolution/generate_all_sunbursts.sh`
-- Output: `analysis_results/layer_evolution/sunburst_interpretation_types_<model>_<layer>.pdf`
+- Output: `analysis_results/layer_evolution/sunburst_interpretation_types_<model>[_early|_late].pdf`
 
-**Git:** Pushed to final (8f54414)
+**Added to paper appendix:**
+- New subsection "Per-Model Interpretation Type Breakdown" with 10 figures (one per model)
+- Each figure has 3 subfigures side by side: All layers, Early, Late
+- Pushed to paper repo (6df6643)
+
+**Git:** Pushed to final (46fc9f8)
 
 ### 2026-01-13 (Sunburst chart - layer variants + Others for phrases)
 
