@@ -6,6 +6,29 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-12 (Phrase annotation examples - LaTeX approach)
+
+**Refactored appendix phrase examples:**
+- Replaced matplotlib-generated PDFs with pure LaTeX approach
+- Images: Just preprocessed vision encoder input with red bbox
+- Text: Native LaTeX with `\colorbox{yellow!50}{\textbf{word}}` highlighting
+- Script: `scripts/analysis/generate_phrase_examples_latex.py`
+
+**Vision encoder preprocessing (high-res for paper):**
+- CLIP: resize + pad (preserves aspect ratio), black padding
+- SigLIP/DINOv2: squash to square
+- 3x resolution (1008×1008 or 1152×1152) for print quality
+- 300 DPI PDF output
+
+**Layout:**
+- Full image + 5×5 crop side by side, left-aligned
+- Main image: 3.2cm height, crop: 2.0cm height
+- Label: "Random phrase, same token:" (merged from Overleaf)
+
+**Fixed:** Typo in background.tex (`\Sigme` → `\Sigma`)
+
+**Git:** Multiple commits to paper submodule and main repo (final branch)
+
 ### 2026-01-10 (CLAUDE.md consolidation + demo regeneration)
 
 **CLAUDE.md consolidation:** Reduced from 413 → 171 lines (59% reduction)
