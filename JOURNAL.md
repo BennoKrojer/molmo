@@ -6,21 +6,36 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-13 (Interpretation types visualization - ablations bug fix)
+### 2026-01-13 (Interpretation types visualization - ablations bug fix + paper update)
 
-**Critical bug fixed in `visualize_interpretation_types.py`:**
+**Critical bug fixed in interpretation types scripts:**
+- `visualize_interpretation_types.py` and `compare_interpretation_types.py`
 - Glob pattern `**/results_*.json` was picking up ablation files
 - For olmo-7b+vit-l-14-336: 90 files loaded instead of 9 (1 main + 9 ablations × 9 layers)
 - Added `/ablations/` exclusion per CLAUDE.md rule
+- Verified: visual_attributes and pos_tags scripts use direct globs (no `**`), not affected
 
 **Regenerated plots:**
 - `analysis_results/layer_evolution/interpretation_types_combined.pdf` (3x3 grid)
 - `analysis_results/layer_evolution/interpretation_types_average.pdf`
+- `analysis_results/layer_evolution/interpretation_types_qwen2vl.pdf` (new)
+
+**Paper appendix updated (`sec:evolution_details`):**
+- Added 3x3 interpretation types figure with caption
+- Added Qwen2-VL interpretation types figure
+- Added explanatory text for concrete/abstract/global categories
+- Key finding: concrete dominates (70-75%), stable across layers
+
+**Numerical data summary (averages across 9 models):**
+- Concrete: 72-75% (stable across layers)
+- Abstract: 12-15%
+- Global: 11-13%
+- SigLIP shows higher global (20-30%) vs CLIP/DINOv2
 
 **CLAUDE.md update:**
 - Added rule to explicitly confirm reading CLAUDE.md at start of each chat
 
-**Git:** Pushed to final (a50889d)
+**Git:** Pushed to final (a50889d, 806fdac, 48fa5ec, d6c7c6c)
 
 ### 2026-01-12 (Phrase annotation examples - LaTeX approach)
 
