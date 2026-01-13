@@ -15,11 +15,10 @@ from pathlib import Path
 import plotly.graph_objects as go
 
 
-def format_context(caption, word, max_words=4):
+def format_context(caption, word, max_words=3):
     """
-    Format caption to show context around word.
-    Prefers preceding context ("...context *word*").
-    Falls back to following context ("*word* context...") if word is at start.
+    Format caption to show PRECEDING context only (autoregressive LLM sees only past).
+    Format: "...word1 word2 word3 TARGET" (always max 3 preceding words, UPPERCASE target)
     """
     cap_lower = caption.lower()
     word_lower = word.lower()
@@ -30,41 +29,32 @@ def format_context(caption, word, max_words=4):
         return None
 
     start_idx = match.start()
-    end_idx = match.end()
-
     preceding = caption[:start_idx].strip()
-    following = caption[end_idx:].strip().rstrip('.')
 
-    # Prefer preceding context
+    # Use UPPERCASE for target word - more visible than bold at small sizes
+    target = word.upper()
+
+    # Always show up to 3 preceding words - never truncate further
     if preceding:
-        words_before = preceding.split()[-max_words:]
-        context = " ".join(words_before)
+        words_before = preceding.split()[-max_words:]  # Take last 3 words
+        context = " ".join(words_before).lower()  # lowercase context
         if len(preceding.split()) > max_words:
-            return f"...{context} *{word}*"
+            return f"...{context} {target}"
         else:
-            return f"{context} *{word}*"
+            return f"{context} {target}"
 
-    # Fall back to following context
-    if following:
-        words_after = following.split()[:max_words]
-        context = " ".join(words_after)
-        if len(following.split()) > max_words:
-            return f"*{word}* {context}..."
-        else:
-            return f"*{word}* {context}"
-
-    # Just the word if no context
-    return f"*{word}*"
+    # No preceding context - just the uppercase word
+    return target
 
 
-def create_sunburst(data, output_path, num_words=3, num_phrases_per_word=2):
+def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
     """
     Create a 3-ring sunburst chart using Plotly.
     Plotly's insidetextorientation='radial' handles text orientation automatically.
 
-    Defaults chosen for readability:
-    - 3 words per category to ensure text fits in all segments
-    - 2 phrases per word to keep outer ring readable
+    - 5 words per category
+    - "Others" capped at 20% visually, labeled with actual %
+    - 2 phrases per word
     """
     # Colors for the 3 categories
     colors = {
@@ -80,21 +70,55 @@ def create_sunburst(data, output_path, num_words=3, num_phrases_per_word=2):
     values = []
     marker_colors = []
 
-    # Level 1: Categories (no root - categories are top level with parent="")
+    # First pass: calculate visual values for each category
+    cat_visual_values = {}
+    cat_data = {}
+    for cat in ['Concrete', 'Abstract', 'Global']:
+        words_dict = data[cat]['words']
+        sorted_words = sorted(words_dict.items(), key=lambda x: x[1]['count'], reverse=True)[:num_words]
+        shown_count = sum(w[1]['count'] for w in sorted_words)
+        other_count = data[cat]['count'] - shown_count
+        other_pct = other_count / data[cat]['count'] * 100
+        # Others visual capped at 20% => 25% of shown
+        others_visual = min(other_count, shown_count * 0.25)
+        cat_visual = shown_count + others_visual
+        cat_visual_values[cat] = cat_visual
+        cat_data[cat] = {
+            'sorted_words': sorted_words,
+            'other_count': other_count,
+            'other_pct': other_pct,
+            'others_visual': others_visual,
+            'shown_count': shown_count
+        }
+
+    # Level 1: Categories with adjusted visual values
     for cat in ['Concrete', 'Abstract', 'Global']:
         cat_count = data[cat]['count']
         ids.append(cat)
         labels.append(f"{cat}<br>({cat_count:,})")
-        parents.append("")  # Top level
-        values.append(cat_count)
+        parents.append("")
+        values.append(cat_visual_values[cat])  # Use visual value, not total
         marker_colors.append(colors[cat])
 
-    # Level 2: Words (proportional to word counts)
+    # Level 2: Words + Others
     for cat in ['Concrete', 'Abstract', 'Global']:
-        words_dict = data[cat]['words']
-        sorted_words = sorted(words_dict.items(), key=lambda x: x[1]['count'], reverse=True)[:num_words]
+        cd = cat_data[cat]
 
-        for word, word_info in sorted_words:
+        # Add "Others" segment
+        if cd['other_count'] > 0:
+            other_id = f"{cat}-other"
+            ids.append(other_id)
+            labels.append(f"Others ({cd['other_pct']:.0f}%)")
+            parents.append(cat)
+            values.append(cd['others_visual'])
+            # Lighter color
+            base_color = colors[cat]
+            lighter = base_color.replace('#', '')
+            r, g, b = int(lighter[:2], 16), int(lighter[2:4], 16), int(lighter[4:], 16)
+            r, g, b = min(255, r+60), min(255, g+60), min(255, b+60)
+            marker_colors.append(f'#{r:02x}{g:02x}{b:02x}')
+
+        for word, word_info in cd['sorted_words']:
             word_count = word_info['count']
             word_id = f"{cat}-{word}"
 
@@ -107,39 +131,29 @@ def create_sunburst(data, output_path, num_words=3, num_phrases_per_word=2):
             # Level 3: Phrases with preceding context
             raw_captions = word_info.get('captions', [])
 
-            # Format captions as preceding context
+            # Format captions - get UNIQUE phrases only
             formatted = []
+            seen = set()
             for cap in raw_captions:
                 ctx = format_context(cap, word)
-                if ctx:
+                if ctx and ctx not in seen:
                     formatted.append(ctx)
+                    seen.add(ctx)
+                if len(formatted) >= 3:  # Max 3 unique phrases
+                    break
 
-            # If no good preceding context, try using raw captions that have ...
+            # Fallback - just the word
             if not formatted:
-                for cap in raw_captions:
-                    if cap.startswith('...') or '...' in cap:
-                        formatted.append(cap)
+                formatted = [f"<b>{word}</b>"]
 
-            # Fallback
-            if not formatted:
-                formatted = [f"*{word}*"] * num_phrases_per_word
-
-            # Take up to num_phrases_per_word
-            phrases = formatted[:num_phrases_per_word]
-
-            # Add phrase entries (split word count among phrases)
-            phrase_value = word_count // len(phrases) if phrases else word_count
-            for i, phrase in enumerate(phrases):
-                phrase_id = f"{word_id}-phrase{i}"
-                ids.append(phrase_id)
-                # Truncate long phrases for readability
-                if len(phrase) > 25:
-                    phrase = phrase[:22] + "..."
-                labels.append(phrase)
-                parents.append(word_id)
-                values.append(phrase_value)
-                # Lighter color for phrases
-                marker_colors.append(colors[cat])
+            # Merge all phrases into ONE segment with <br> newlines
+            phrase_id = f"{word_id}-phrases"
+            combined_label = "<br>".join(formatted)
+            ids.append(phrase_id)
+            labels.append(combined_label)
+            parents.append(word_id)
+            values.append(word_count)  # Single segment gets full word value
+            marker_colors.append(colors[cat])
 
     # Create sunburst
     fig = go.Figure(go.Sunburst(
@@ -147,27 +161,28 @@ def create_sunburst(data, output_path, num_words=3, num_phrases_per_word=2):
         labels=labels,
         parents=parents,
         values=values,
-        # Don't use branchvalues="total" - let Plotly handle sizing
+        branchvalues="total",  # Children must sum to parent - no gaps
         marker=dict(
             colors=marker_colors,
-            line=dict(width=1, color='white')
+            line=dict(width=0.5, color='white')
         ),
         insidetextorientation='radial',
         textfont=dict(size=12),
         maxdepth=3,
-        textinfo='label',  # Show labels only
+        textinfo='label',
     ))
 
     fig.update_layout(
         title=dict(
             text="Interpretation Types: Words and Context Phrases",
-            font=dict(size=20),
+            font=dict(size=18),
             x=0.5,
+            y=0.98,
         ),
-        width=1800,  # Even larger
-        height=1800,
-        margin=dict(t=80, l=30, r=30, b=30),
-        uniformtext=dict(minsize=5),  # Allow smaller text
+        width=1000,
+        height=1000,
+        margin=dict(t=40, l=0, r=0, b=0),
+        uniformtext=dict(minsize=6, mode='hide'),  # Hide if can't fit at min size
     )
 
     # Save as PDF and PNG
