@@ -48,10 +48,14 @@ def format_preceding_context(caption, word, max_words=4):
         return f"{context} *{word}*"
 
 
-def create_sunburst(data, output_path, num_words=8, num_phrases_per_word=3):
+def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2):
     """
     Create a 3-ring sunburst chart using Plotly.
     Plotly's insidetextorientation='radial' handles text orientation automatically.
+
+    Defaults chosen for readability:
+    - 5 words per category (not 8) to avoid crowding
+    - 2 phrases per word (not 3) to keep outer ring readable
     """
     # Colors for the 3 categories
     colors = {
@@ -126,6 +130,9 @@ def create_sunburst(data, output_path, num_words=8, num_phrases_per_word=3):
             for i, phrase in enumerate(phrases):
                 phrase_id = f"{word_id}-phrase{i}"
                 ids.append(phrase_id)
+                # Truncate long phrases for readability
+                if len(phrase) > 25:
+                    phrase = phrase[:22] + "..."
                 labels.append(phrase)
                 parents.append(word_id)
                 values.append(phrase_value)
@@ -139,19 +146,25 @@ def create_sunburst(data, output_path, num_words=8, num_phrases_per_word=3):
         parents=parents,
         values=values,
         branchvalues="total",
-        marker=dict(colors=marker_colors),
+        marker=dict(
+            colors=marker_colors,
+            line=dict(width=1, color='white')  # White borders for clarity
+        ),
         insidetextorientation='radial',  # Automatic radial text orientation!
-        textfont=dict(size=10),
+        textfont=dict(size=11),
+        maxdepth=3,  # Show all 3 levels
     ))
 
     fig.update_layout(
         title=dict(
             text="Interpretation Types: Words and Context Phrases",
-            font=dict(size=18)
+            font=dict(size=18),
+            x=0.5,  # Center title
         ),
-        width=1200,
-        height=1200,
-        margin=dict(t=50, l=10, r=10, b=10)
+        width=1400,  # Larger for better readability
+        height=1400,
+        margin=dict(t=60, l=20, r=20, b=20),
+        uniformtext=dict(minsize=8, mode='hide'),  # Hide text if too small
     )
 
     # Save as PDF and PNG
