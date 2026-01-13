@@ -89,6 +89,10 @@ def extract_captions_for_words(nn_data, words_set):
     Extract captions containing specific words from NN data.
     OPTIMIZED: O(captions) instead of O(words × captions)
     Returns dict: word -> list of captions
+
+    Handles two data structures:
+    - Trained models: results -> chunks -> patches -> neighbors
+    - Qwen2-VL: results -> patches -> neighbors (no 'chunks' level)
     """
     word_captions = defaultdict(list)
 
@@ -98,25 +102,35 @@ def extract_captions_for_words(nn_data, words_set):
     # Convert words_set to lowercase for matching
     words_lower = {w.lower() for w in words_set}
 
+    def process_patches(patches):
+        """Process patches and extract matching captions."""
+        for patch in patches:
+            neighbors = patch.get('nearest_contextual_neighbors', [])
+            for neighbor in neighbors:
+                caption = neighbor.get('caption', '')
+                if not caption:
+                    continue
+
+                # Tokenize caption once, check all words at once
+                caption_lower = caption.lower()
+                caption_words = set(re.findall(r'\b\w+\b', caption_lower))
+
+                # Find intersection with target words
+                matches = caption_words & words_lower
+                for word in matches:
+                    word_captions[word].append(caption)
+
     for result in nn_data['results']:
+        # Handle trained model structure: results -> chunks -> patches
         chunks = result.get('chunks', [])
-        for chunk in chunks:
-            patches = chunk.get('patches', [])
-            for patch in patches:
-                neighbors = patch.get('nearest_contextual_neighbors', [])
-                for neighbor in neighbors:
-                    caption = neighbor.get('caption', '')
-                    if not caption:
-                        continue
-
-                    # Tokenize caption once, check all words at once
-                    caption_lower = caption.lower()
-                    caption_words = set(re.findall(r'\b\w+\b', caption_lower))
-
-                    # Find intersection with target words
-                    matches = caption_words & words_lower
-                    for word in matches:
-                        word_captions[word].append(caption)
+        if chunks:
+            for chunk in chunks:
+                patches = chunk.get('patches', [])
+                process_patches(patches)
+        else:
+            # Handle Qwen2-VL structure: results -> patches (no chunks)
+            patches = result.get('patches', [])
+            process_patches(patches)
 
     return word_captions
 
@@ -139,12 +153,31 @@ def get_layer_filter(layer_mode):
         raise ValueError(f"Unknown layer mode: {layer_mode}")
 
 
+def get_model_display_name(model_key):
+    """Get display name for a model key."""
+    display_names = {
+        'olmo-7b_vit-l-14-336': 'OLMo-7B ViT-L',
+        'olmo-7b_siglip': 'OLMo-7B SigLIP',
+        'olmo-7b_dinov2-large-336': 'OLMo-7B DINOv2',
+        'llama3-8b_vit-l-14-336': 'Llama3-8B ViT-L',
+        'llama3-8b_siglip': 'Llama3-8B SigLIP',
+        'llama3-8b_dinov2-large-336': 'Llama3-8B DINOv2',
+        'qwen2-7b_vit-l-14-336_seed10': 'Qwen2-7B ViT-L',
+        'qwen2-7b_siglip': 'Qwen2-7B SigLIP',
+        'qwen2-7b_dinov2-large-336': 'Qwen2-7B DINOv2',
+        'qwen2vl': 'Qwen2-VL-7B',
+    }
+    return display_names.get(model_key, model_key)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Generate sunburst data')
     parser.add_argument('--layers', choices=['all', 'first', 'last'], default='all',
                         help='Which layers to include: all, first (0), or last (31/27)')
+    parser.add_argument('--model', default=None,
+                        help='Filter to specific model (e.g., "olmo-7b_vit-l-14-336" or "qwen2vl")')
     parser.add_argument('--include-qwen2vl', action='store_true',
-                        help='Include Qwen2-VL model data')
+                        help='Include Qwen2-VL model data (ignored if --model is specified)')
     parser.add_argument('--output-suffix', default='',
                         help='Suffix for output filename (e.g., "_layer0")')
     args = parser.parse_args()
@@ -155,7 +188,12 @@ def main():
     results_dir = base_dir / "analysis_results/llm_judge_contextual_nn"
 
     # Output path with optional suffix
-    suffix = args.output_suffix or f"_{args.layers}" if args.layers != 'all' else ''
+    if args.output_suffix:
+        suffix = args.output_suffix
+    elif args.layers != 'all':
+        suffix = f"_{args.layers}"
+    else:
+        suffix = ''
     output_path = base_dir / f"analysis_results/layer_evolution/sunburst_data{suffix}.pkl"
 
     # Categories to collect
@@ -171,13 +209,25 @@ def main():
     result_dirs = list(results_dir.glob("llm_judge_*_contextual*_gpt5_cropped"))
     result_dirs = [d for d in result_dirs if '/ablations/' not in str(d) and d.is_dir()]
 
-    # Include Qwen2-VL if requested
-    if args.include_qwen2vl:
+    # Include Qwen2-VL if requested (or if specific model is qwen2vl)
+    include_qwen2vl = args.include_qwen2vl or (args.model and 'qwen2' in args.model.lower() and 'vl' in args.model.lower())
+    if include_qwen2vl:
         qwen2vl_dir = results_dir / "qwen2-vl"
         if qwen2vl_dir.exists():
             qwen2vl_dirs = list(qwen2vl_dir.glob("llm_judge_*_contextual*_gpt5_cropped"))
             result_dirs.extend(qwen2vl_dirs)
             print(f"Including {len(qwen2vl_dirs)} Qwen2-VL directories", flush=True)
+
+    # Filter to specific model if requested
+    if args.model:
+        model_filter = args.model.lower()
+        # For Qwen2-VL, filter dirs in qwen2-vl subdirectory
+        if 'qwen2' in model_filter and 'vl' in model_filter:
+            result_dirs = [d for d in result_dirs if 'qwen2-vl' in str(d)]
+        else:
+            # For trained models, filter by model name pattern
+            result_dirs = [d for d in result_dirs if model_filter in d.name.lower() and 'qwen2-vl' not in str(d)]
+        print(f"Model filter: {args.model} -> {len(result_dirs)} directories", flush=True)
 
     print(f"Found {len(result_dirs)} LLM judge result directories", flush=True)
     print(f"Layer filter: {args.layers}", flush=True)
