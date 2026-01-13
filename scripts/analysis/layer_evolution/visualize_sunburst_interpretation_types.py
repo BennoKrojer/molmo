@@ -136,55 +136,81 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
             phrases_dict = word_info.get('phrases', {})
 
             if phrases_dict:
-                # Sort ALL phrases by count, take top 3 for display
+                # Sort ALL phrases by count, take top N for display
                 all_sorted = sorted(phrases_dict.items(), key=lambda x: x[1], reverse=True)
-                top_3 = all_sorted[:3]
 
-                # Calculate totals for Others percentage
+                # Calculate totals for Others percentage (using all phrases)
                 total_all = sum(count for _, count in all_sorted)
-                top_3_total = sum(count for _, count in top_3)
-                others_count = total_all - top_3_total
+
+                # Determine how many phrases we can show given word_count
+                # Each phrase needs at least 1 unit, and we might need 1 for Others
+                max_phrases = min(3, word_count)  # Can't show more phrases than word_count
+                top_n = all_sorted[:max_phrases]
+
+                top_n_total = sum(count for _, count in top_n)
+                others_count = total_all - top_n_total
                 others_pct = (others_count / total_all * 100) if total_all > 0 else 0
 
-                # Visual cap: Others at 10% of word's visual space
-                # others_visual = min(others_share, 0.10) of word_count
-                others_visual = min(others_count / total_all, 0.10) * word_count if total_all > 0 else 0
-                shown_visual = word_count - others_visual
+                # Decide if we show Others (only if we have budget and it's meaningful)
+                show_others = others_count > 0 and others_pct > 0.5 and word_count > len(top_n)
 
-                # Add top 3 phrases, scaled to shown_visual
-                for i, (phrase_text, phrase_count) in enumerate(top_3):
+                # Distribute word_count among phrases (and Others if shown)
+                num_segments = len(top_n) + (1 if show_others else 0)
+
+                # For small word_counts, distribute evenly; for larger, use proportions
+                if word_count <= num_segments:
+                    # Just give 1 to each (may not show Others)
+                    phrase_values = [1] * min(len(top_n), word_count)
+                    if word_count > len(top_n) and show_others:
+                        phrase_values.append(1)
+                else:
+                    # Calculate proportional values
+                    if show_others:
+                        others_visual = max(1, min(int(others_count / total_all * word_count), int(word_count * 0.10)))
+                        shown_visual = word_count - others_visual
+                    else:
+                        shown_visual = word_count
+                        others_visual = 0
+
+                    phrase_values = []
+                    for phrase_text, phrase_count in top_n:
+                        scaled = int(phrase_count / top_n_total * shown_visual) if top_n_total > 0 else shown_visual // len(top_n)
+                        phrase_values.append(max(1, scaled))
+
+                    if show_others:
+                        phrase_values.append(others_visual)
+
+                    # Adjust to ensure exact sum
+                    diff = word_count - sum(phrase_values)
+                    if diff != 0:
+                        # Add/subtract from largest value
+                        max_idx = phrase_values.index(max(phrase_values))
+                        phrase_values[max_idx] += diff
+
+                # Add top phrases
+                for i, (phrase_text, phrase_count) in enumerate(top_n[:len(phrase_values) if not show_others else len(phrase_values)-1]):
                     phrase_id = f"{word_id}-phrase{i}"
-
-                    # Convert *word* format to <b>word</b> for HTML bold
                     label = phrase_text.replace(f'*{word}*', f'<b>{word}</b>')
 
                     ids.append(phrase_id)
                     labels.append(label)
                     parents.append(word_id)
-                    # Scale to shown_visual (leaving room for Others)
-                    scaled_value = int(phrase_count / top_3_total * shown_visual) if top_3_total > 0 else int(shown_visual // 3)
-                    values.append(max(1, scaled_value))  # Ensure at least 1
+                    values.append(phrase_values[i])
                     marker_colors.append(colors[cat])
 
-                # Add "Others" segment if there are more phrases
-                if others_count > 0 and others_pct > 0.5:  # Only show if >0.5%
+                # Add "Others" segment if showing
+                if show_others and len(phrase_values) > len(top_n):
                     phrase_id = f"{word_id}-others"
                     ids.append(phrase_id)
                     labels.append(f"Others ({others_pct:.0f}%)")
                     parents.append(word_id)
-                    values.append(max(1, int(others_visual)))
+                    values.append(phrase_values[-1])
                     # Lighter color for Others
                     base_color = colors[cat]
                     lighter = base_color.replace('#', '')
                     r, g, b = int(lighter[:2], 16), int(lighter[2:4], 16), int(lighter[4:], 16)
                     r, g, b = min(255, r+80), min(255, g+80), min(255, b+80)
                     marker_colors.append(f'#{r:02x}{g:02x}{b:02x}')
-
-                # Ensure exact sum to word_count
-                num_phrase_segments = len(top_3) + (1 if others_count > 0 and others_pct > 0.5 else 0)
-                phrase_sum = sum(values[-num_phrase_segments:])
-                if phrase_sum != word_count:
-                    values[-num_phrase_segments] += (word_count - phrase_sum)
             else:
                 # Fallback - single phrase with just the word
                 phrase_id = f"{word_id}-phrase0"
@@ -193,6 +219,18 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
                 parents.append(word_id)
                 values.append(word_count)
                 marker_colors.append(colors[cat])
+
+    # Validate data before creating sunburst (Plotly fails silently with bad data)
+    for i, (id_, parent, val) in enumerate(zip(ids, parents, values)):
+        if val <= 0:
+            raise ValueError(f"Invalid value {val} for id '{id_}' (parent='{parent}'). Values must be positive.")
+
+    # Verify parent-child sums for branchvalues="total"
+    for i, (id_, parent, val) in enumerate(zip(ids, parents, values)):
+        if parent == '':  # Root nodes
+            children_sum = sum(v for p, v in zip(parents, values) if p == id_)
+            if abs(val - children_sum) > 0.01:
+                raise ValueError(f"Category '{id_}' value {val} != children sum {children_sum}")
 
     # Create sunburst
     fig = go.Figure(go.Sunburst(
