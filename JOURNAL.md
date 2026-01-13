@@ -13,13 +13,19 @@ A concise log of major changes, results, and git operations.
 - Fixed Qwen2-VL caption extraction (different data structure: results → patches → neighbors, no 'chunks' level)
 - Fixed suffix handling bug when `--layers=all` with custom `--output-suffix`
 
+**Fixed sunburst rendering for small word counts:**
+- Bug: When `word_count < num_phrases`, using `max(1, scaled_value)` made phrase sums exceed word_count
+- The correction then created negative values, which Plotly silently ignored (rendering empty plots)
+- Fix: Limit phrases to `min(3, word_count)` and distribute values properly
+- Added validation: check all values positive, verify parent-child sums before rendering
+
 **Generated 30 sunburst plots (10 models × 3 layer variants):**
 - Models: 9 trained (OLMo-7B, Llama3-8B, Qwen2-7B × ViT-L/SigLIP/DINOv2) + Qwen2-VL
 - Layer variants: all layers, layer 0, last layer (31 or 27)
 - Batch script: `scripts/analysis/layer_evolution/generate_all_sunbursts.sh`
 - Output: `analysis_results/layer_evolution/sunburst_interpretation_types_<model>_<layer>.pdf`
 
-**Git:** Pushed to final (3d5e326)
+**Git:** Pushed to final (8f54414)
 
 ### 2026-01-13 (Sunburst chart - layer variants + Others for phrases)
 
