@@ -6,13 +6,31 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-13 (Sunburst chart - UPPERCASE target words)
+### 2026-01-13 (Sunburst chart - REAL phrase counts)
 
-**Improved visibility of target words in phrases:**
-- Changed from `<b>word</b>` HTML bold to UPPERCASE (e.g., "...the FOREGROUND")
-- Bold was too subtle at small font sizes in radial text orientation
-- Multiple unique phrases now merged into one segment with `<br>` newlines
-- Shows up to 3 different phrases per word
+**Major fix: phrases now have real occurrence counts:**
+- Created `generate_sunburst_data.py` to count actual phrase occurrences
+- Optimized extraction: O(captions) instead of O(words × captions)
+- Cached NN data per model (9 loads instead of 81)
+
+**Example real counts for 'black':**
+- `*black*`: 63,878 (word at caption start)
+- `...white faces and *black*`: 22,053
+- `a *black*`: 21,394
+
+**Visualization updated:**
+- Phrase wedges proportional to REAL counts (not artificial word_count/3)
+- Reverted to `<b>word</b>` HTML bold (UPPERCASE was my mistake, not requested)
+- Top 3 phrases per word based on actual frequency
+
+**Git:** Pushed to final (671b497), paper repo updated (5515821)
+
+### 2026-01-13 (Sunburst chart - UPPERCASE target words) [REVERTED]
+
+**Note:** This change was reverted - UPPERCASE was not requested by user.
+
+~~Improved visibility of target words in phrases:~~
+~~Changed from `<b>word</b>` HTML bold to UPPERCASE~~
 
 **Git:** Pushed to final (d4961fa), paper repo updated (8e3e16f)
 
