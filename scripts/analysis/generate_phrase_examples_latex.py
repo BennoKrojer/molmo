@@ -32,11 +32,15 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 # Vision encoder configs
+# For paper display, we use 3x resolution for high quality while maintaining preprocessing logic
 VISION_CONFIGS = {
     'vit-l-14-336': {'size': 336, 'method': 'resize_pad', 'grid': 24, 'display': 'CLIP'},
     'siglip': {'size': 384, 'method': 'squash', 'grid': 27, 'display': 'SigLIP'},
     'dinov2-large-336': {'size': 336, 'method': 'squash', 'grid': 24, 'display': 'DINOv2'},
 }
+
+# High-res multiplier for paper figures
+HIRES_SCALE = 3
 
 LLM_DISPLAY = {
     'llama3-8b': 'LLaMA3',
@@ -75,7 +79,7 @@ def preprocess_and_draw_bbox(image: Image.Image, vision_encoder: str,
                               patch_row: int, patch_col: int) -> tuple[Image.Image, Image.Image]:
     """
     Apply vision encoder preprocessing and draw red bbox around the target patch.
-    Returns both full image and 5x5 patch crop.
+    Returns both full image and 5x5 patch crop, both at high resolution.
 
     Args:
         image: Original PIL image
@@ -95,34 +99,37 @@ def preprocess_and_draw_bbox(image: Image.Image, vision_encoder: str,
         vision_key = 'vit-l-14-336'
 
     config = VISION_CONFIGS[vision_key]
-    target_size = config['size']
+    base_size = config['size']
     method = config['method']
     grid_size = config['grid']
+
+    # Use high-res version for paper quality
+    target_size = base_size * HIRES_SCALE
 
     # Apply +1 offset: stored coords are top-left of 3x3, actual patch is center
     center_row = patch_row + 1
     center_col = patch_col + 1
 
-    # Apply preprocessing
+    # Apply preprocessing at high resolution
     if method == 'resize_pad':
         processed, _ = resize_and_pad_pil(image, target_size)
     else:
         processed = squash_resize_pil(image, target_size)
 
-    # Calculate bbox position - coordinates are already in processed image's grid
+    # Calculate bbox position - scale cell size for high-res
     cell_size = target_size / grid_size
     x1 = int(center_col * cell_size)
     y1 = int(center_row * cell_size)
     x2 = int((center_col + 1) * cell_size)
     y2 = int((center_row + 1) * cell_size)
 
-    # Draw red bbox (3px thick) on full image
+    # Draw red bbox - thicker for high-res (scale with HIRES_SCALE)
     draw = ImageDraw.Draw(processed)
-    for i in range(3):
+    bbox_thickness = 2 * HIRES_SCALE
+    for i in range(bbox_thickness):
         draw.rectangle([x1-i, y1-i, x2+i, y2+i], outline='red')
 
     # Create 5x5 patch crop centered on target patch
-    # Crop region: 2 patches before center, center patch, 2 patches after = 5 patches
     crop_row_start = max(0, center_row - 2)
     crop_col_start = max(0, center_col - 2)
     crop_row_end = min(grid_size, center_row + 3)
@@ -250,8 +257,8 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
   % #1: full image, #2: crop image, #3: LN-Lens phrase, #4: Random phrase, #5: model info
   \begin{minipage}[t]{0.47\textwidth}
     \raggedright
-    \includegraphics[height=2.8cm]{#1}\hspace{0.3em}%
-    \includegraphics[height=2.8cm]{#2}\\[0.3em]
+    \includegraphics[height=3.2cm]{#1}\hspace{0.2em}%
+    \includegraphics[height=2.0cm]{#2}\\[0.3em]
     {\footnotesize\textbf{LN-Lens:} #3}\\[0.1em]
     {\footnotesize\textbf{Random phrase, same token:} #4}\\[0.1em]
     {\scriptsize\textit{#5}}
@@ -383,11 +390,11 @@ def main():
             ex['patch_col']
         )
 
-        # Save both as PDF
+        # Save both as PDF at high resolution
         full_path = output_dir / f"example_{i:02d}.pdf"
         crop_path = output_dir / f"example_{i:02d}_crop.pdf"
-        full_img.save(full_path, 'PDF', resolution=150)
-        crop_img.save(crop_path, 'PDF', resolution=150)
+        full_img.save(full_path, 'PDF', resolution=300)
+        crop_img.save(crop_path, 'PDF', resolution=300)
         print(f"Saved: {full_path} and crop")
 
     # Generate LaTeX code
