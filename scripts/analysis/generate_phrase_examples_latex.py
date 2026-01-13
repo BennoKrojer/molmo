@@ -236,14 +236,15 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
     lines.append(r"""% Auto-generated phrase example figures
 % Images should be in figures/phrase_examples/
 
-\newcommand{\phraseexample}[5]{%
-  % #1: image path, #2: LN-Lens phrase, #3: Random phrase, #4: model info, #5: annotation
+\newcommand{\phraseexample}[4]{%
+  % #1: image path, #2: LN-Lens phrase, #3: Random phrase, #4: model info
   \begin{minipage}[t]{0.47\textwidth}
     \centering
-    \includegraphics[width=0.65\textwidth]{#1}\\[0.3em]
-    {\footnotesize\textbf{LN-Lens:} #2}\\[0.15em]
-    {\footnotesize\textbf{Random:} #3}\\[0.15em]
-    {\scriptsize\textit{#4} \hfill #5}
+    \includegraphics[width=0.55\textwidth]{#1}\\[0.3em]
+    \raggedright
+    {\footnotesize\textbf{LN-Lens:} #2}\\[0.1em]
+    {\footnotesize\textbf{Random:} #3}\\[0.1em]
+    {\scriptsize\textit{#4}}
   \end{minipage}%
 }
 """)
@@ -283,15 +284,7 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
             llm1_display = LLM_DISPLAY.get(ex1['llm'], ex1['llm'])
             model1 = f"{llm1_display}+{vision1_display}, L{ex1['layer']}"
 
-            nc1 = ex1.get('better_than_no_context', '')
-            if nc1 == 'yes':
-                annot1 = r'\cmark'
-            elif nc1 == 'no':
-                annot1 = r'\xmark'
-            else:
-                annot1 = '--'
-
-            lines.append(r"\phraseexample{" + img1 + "}{" + phrase1 + "}{" + random1 + "}{" + model1 + "}{" + annot1 + "}")
+            lines.append(r"\phraseexample{" + img1 + "}{" + phrase1 + "}{" + random1 + "}{" + model1 + "}")
 
             if ex2:
                 global_idx2 = start_idx + pair_idx + 1
@@ -312,15 +305,7 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
                 llm2_display = LLM_DISPLAY.get(ex2['llm'], ex2['llm'])
                 model2 = f"{llm2_display}+{vision2_display}, L{ex2['layer']}"
 
-                nc2 = ex2.get('better_than_no_context', '')
-                if nc2 == 'yes':
-                    annot2 = r'\cmark'
-                elif nc2 == 'no':
-                    annot2 = r'\xmark'
-                else:
-                    annot2 = '--'
-
-                lines.append(r"\phraseexample{" + img2 + "}{" + phrase2 + "}{" + random2 + "}{" + model2 + "}{" + annot2 + "}")
+                lines.append(r"\phraseexample{" + img2 + "}{" + phrase2 + "}{" + random2 + "}{" + model2 + "}")
 
             lines.append(r"\\[1em]")
 
@@ -331,9 +316,8 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
             lines.append(r"\caption{")
             lines.append(r"    \textbf{Phrase annotation examples (" + example_range + r").}")
             lines.append(r"    Each panel shows a vision token's patch (red box) preprocessed as the vision encoder sees it.")
-            lines.append(r"    \textbf{LN-Lens}: Top contextual nearest neighbor phrase.")
-            lines.append(r"    \textbf{Random}: A random VG phrase with the same token.")
-            lines.append(r"    Annotation: \cmark~= context helps, --~= neutral, \xmark~= context unhelpful.")
+            lines.append(r"    \textbf{LN-Lens}: Top contextual nearest neighbor phrase from \vlens.")
+            lines.append(r"    \textbf{Random}: A random VG phrase containing the same token.")
             lines.append(r"}")
             lines.append(r"\label{fig:phrase_examples}")
         else:
