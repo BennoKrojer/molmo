@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Interpretation types visualization - ablations bug fix)
+
+**Critical bug fixed in `visualize_interpretation_types.py`:**
+- Glob pattern `**/results_*.json` was picking up ablation files
+- For olmo-7b+vit-l-14-336: 90 files loaded instead of 9 (1 main + 9 ablations × 9 layers)
+- Added `/ablations/` exclusion per CLAUDE.md rule
+
+**Regenerated plots:**
+- `analysis_results/layer_evolution/interpretation_types_combined.pdf` (3x3 grid)
+- `analysis_results/layer_evolution/interpretation_types_average.pdf`
+
+**CLAUDE.md update:**
+- Added rule to explicitly confirm reading CLAUDE.md at start of each chat
+
+**Git:** Pushed to final (a50889d)
+
 ### 2026-01-12 (Phrase annotation examples - LaTeX approach)
 
 **Refactored appendix phrase examples:**
