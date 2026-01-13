@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Sunburst chart - UPPERCASE target words)
+
+**Improved visibility of target words in phrases:**
+- Changed from `<b>word</b>` HTML bold to UPPERCASE (e.g., "...the FOREGROUND")
+- Bold was too subtle at small font sizes in radial text orientation
+- Multiple unique phrases now merged into one segment with `<br>` newlines
+- Shows up to 3 different phrases per word
+
+**Git:** Pushed to final (d4961fa), paper repo updated (8e3e16f)
+
 ### 2026-01-13 (Sunburst chart fixes - Plotly)
 
 **Switched to Plotly for proper radial text:**
@@ -16,7 +26,7 @@ A concise log of major changes, results, and git operations.
 **All requirements now met:**
 1. ✓ Wedges proportional to actual word counts
 2. ✓ Multiple example phrases per word (up to 3)
-3. ✓ Preceding context format: "...context *word*"
+3. ✓ Preceding context format: "...context WORD" (UPPERCASE target)
 4. ✓ Radial text orientation (Plotly auto-handles, never upside down)
 
 **Git:** Pushed to final (a7b67be, ba5110a), paper repo updated (1ecfb2e)
