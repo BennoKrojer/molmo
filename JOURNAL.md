@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Sunburst chart fixes)
+
+**Fixed sunburst visualization issues:**
+- Created reusable script: `scripts/analysis/layer_evolution/visualize_sunburst_interpretation_types.py`
+- Wedges now PROPORTIONAL to actual word counts (not uniform)
+- Shows multiple example phrases per word (up to 3)
+- Filters captions to show preceding context format ("...the black")
+- Proper radial text orientation with 180° flip on left side
+
+**Git:** Pushed to final (2431855, b8ea38f), paper repo updated (eaf08b4)
+
 ### 2026-01-13 (Interpretation types visualization - ablations bug fix + paper update)
 
 **Critical bug fixed in interpretation types scripts:**
