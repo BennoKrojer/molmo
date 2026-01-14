@@ -6,15 +6,25 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-14 (Appendix sunbursts → tables)
+### 2026-01-14 (Appendix sunbursts → tables - validated)
 
 **Changed:** Replaced all 30 appendix sunburst figures with LaTeX tables.
 - 10 models × 3 layer groups (all/early/late)
 - Top 10 words per category (Concrete/Abstract/Global)
 - Example Visual Genome phrases with **bold** target word
+- Consistent academic style: `[ht]` placement, `\small` font, no vertical bars
+- Caption at end, matching paper conventions
+- Fixed: Unicode escaping, corrupt backslash sequences, brace balance
 - File: `paper/figures/interpretation_type_tables.tex`
+- Generator: `scripts/analysis/generate_interpretation_tables_v2.py`
 
-**Git:** Paper pushed (79cde6d), main repo pushed (9fa9688)
+**Validation:** All 30 tables pass comprehensive checks:
+- Balanced braces (1362/1362)
+- All 3 categories present in each table
+- No problematic Unicode or escaping issues
+- Compiles without LaTeX errors
+
+**Git:** Paper pushed (6507e09), main repo pushed (24147bf)
 
 ### 2026-01-14 (Icicle plot replaces sunburst)
 
