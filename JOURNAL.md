@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Icicle plot replaces sunburst)
+
+**Changed:** Replaced sunburst visualization with icicle plot for interpretation types figure.
+- Icicle layout: 3 category rows × 6 words × 5 phrases each
+- Proper text measurement to guarantee text fits within boxes
+- Target word shown in **bold** using mathtext
+- File: `analysis_results/layer_evolution/icicle_final.pdf`
+
+**Git:** Paper pushed (131bd48), main repo pushed (93ceab3)
+
 ### 2026-01-14 (Fix x-axis label overlap in 3x3 plots)
 
 **Fixed:** X-axis labels (30/31 for OLMo/Llama, 26/27 for Qwen2) were overlapping in POS tags and visual attributes 3×3 combined plots.
@@ -26,6 +36,19 @@ A concise log of major changes, results, and git operations.
 **For colleague:** Created `human_correlations/human_study_similarities_all_visual_layers.json`
 - 360 instances with cosine similarities across ALL visual layers (9 per model)
 - Ready for human-model correlation analysis
+
+### 2026-01-14 (Human study limitation: visual_layer=0 only)
+
+**Documented known limitation:** The LN-Lens human study (`interp_data_contextual/`) used only `visual_layer=0` due to an early limitation in the data generation pipeline.
+
+- Human study shows ~49% interpretability (LN-Lens) vs ~35% (Static NN)
+- Paper figure (`fig1_unified_interpretability.pdf`) uses best visual layer per model → ~70% interpretability
+- This explains the discrepancy: human validation was done on the least favorable visual layer
+- **Implication:** Human study numbers are a conservative lower bound for LN-Lens interpretability
+
+**Updated READMEs** to clarify this limitation:
+- `human_correlations/CONTEXTUAL_STUDY_README.md`
+- `human_correlations/human_correlations/SIMILARITY_DATA_README.md`
 
 ### 2026-01-13 (LN-Lens extraction: 36 supplement images)
 
