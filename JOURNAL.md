@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Appendix sunbursts → tables)
+
+**Changed:** Replaced all 30 appendix sunburst figures with LaTeX tables.
+- 10 models × 3 layer groups (all/early/late)
+- Top 10 words per category (Concrete/Abstract/Global)
+- Example Visual Genome phrases with **bold** target word
+- File: `paper/figures/interpretation_type_tables.tex`
+
+**Git:** Paper pushed (79cde6d), main repo pushed (9fa9688)
+
 ### 2026-01-14 (Icicle plot replaces sunburst)
 
 **Changed:** Replaced sunburst visualization with icicle plot for interpretation types figure.
