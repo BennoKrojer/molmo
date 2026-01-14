@@ -6,6 +6,27 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Fix x-axis label overlap in 3x3 plots)
+
+**Fixed:** X-axis labels (30/31 for OLMo/Llama, 26/27 for Qwen2) were overlapping in POS tags and visual attributes 3×3 combined plots.
+- Root cause: plotting at actual layer values (30,31 only 1 unit apart vs 16,24 which are 8 apart)
+- Fix: use evenly-spaced indices for x-axis, with actual layer numbers as tick labels
+- Updated both `analyze_pos_tags.py` and `analyze_visual_attributes.py`
+- Regenerated and pushed to Overleaf
+
+**Git:** Paper pushed (9d877a4), main repo pushed (3ef4e29)
+
+### 2026-01-14 (Fixed olmo-7b_vit missing visual31)
+
+**Bug:** `olmo-7b_vit` was missing `visual31` entirely - never extracted in original run
+- Also `visual4` and `visual8` were missing 36 supplement images
+- Created `fix_olmo_vit_missing_layers.sh` to extract and merge missing data
+- All 9 visual layers now have 136 images each
+
+**For colleague:** Created `human_correlations/human_study_similarities_all_visual_layers.json`
+- 360 instances with cosine similarities across ALL visual layers (9 per model)
+- Ready for human-model correlation analysis
+
 ### 2026-01-13 (LN-Lens extraction: 36 supplement images)
 
 **Completed contextual NN extraction for all 9 model combinations:**
