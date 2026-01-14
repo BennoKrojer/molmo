@@ -6,6 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Sunburst font sizes + counting method documentation)
+
+**Progressive font sizes in sunburst:**
+- Inner ring (categories): 22pt
+- Middle ring (words): 13pt
+- Outer ring (phrases): 10pt
+- Removed `uniformtext` setting which was overriding per-segment sizes
+
+**IMPORTANT: Counting difference between line plot and sunburst:**
+- **Line plot** (`visualize_interpretation_types.py`): Per-patch counting with priority rule (concrete > abstract > global). Each patch counts as ONE category.
+- **Sunburst** (`generate_sunburst_data.py`): Per-word counting. Each classified word counts, so a patch with both concrete and abstract words contributes to both categories.
+- This causes different percentages: e.g., Qwen2-VL late layers show Concrete 66.7% (line) vs 56.8% (sunburst)
+- Both are correct but measure different things: "% of patches with concrete" vs "% of words that are concrete"
+
 ### 2026-01-13 (Per-model sunburst generation - 30 plots)
 
 **Added per-model filtering for sunburst data generation:**
