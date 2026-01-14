@@ -2,10 +2,14 @@
 
 ## At the Start of Every Chat
 
+**IMPORTANT:** At the very start of every conversation, explicitly tell the user:
+1. That you have read CLAUDE.md
+2. How you plan to adhere to the THREE RULES throughout the *whole* conversation
+
 **Read these files to understand context:**
 1. **README.md** - Project overview, setup, model configurations
 2. **JOURNAL.md** - Last few days of entries (recent changes, bugs, fixes)
-3. **paper/main.tex** - Abstract and intro (understand the research goals)
+3. **paper/icml2026_main.tex** - Abstract and intro (understand the research goals)
 4. **SCHEMA_STANDARDIZATION.md** - JSON formats, display names (if working with data)
 
 ---
@@ -28,6 +32,15 @@
 - `git commit && git push` after every fix
 - Update JOURNAL.md right after pushing
 - Don't batch changes - commit as you go
+
+---
+
+## Communication
+
+**When showing results or finishing tasks:**
+- ALWAYS provide the **full absolute path** to any files created or modified
+- Don't make the user figure out where things are - be explicit
+- Example: "View the result at: `/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/icicle_final_v6.png`"
 
 ---
 
@@ -97,6 +110,7 @@ analysis_results/llm_judge_{type}/
 2. Grep codebase for similar code
 3. Read argparse defaults
 4. If ANY doubt, ASK user first
+5. If a script warns about long duration (e.g., "takes 4-8 hours") or seems inefficient, ASK if there's a better approach
 
 **LLM Judge API calls:**
 - NEVER change `--api-provider` or `--api-model` without asking
