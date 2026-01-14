@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (LN-Lens extraction: 36 supplement images)
+
+**Completed contextual NN extraction for all 9 model combinations:**
+- Extended 100 images → 136 images (added 36 from indices 100-299)
+- Root cause of initial OOMs: launching 7 different LLM checkpoints in parallel exhausted CPU RAM
+- Fix: run jobs sequentially when using different LLMs (canonical `run_all_missing.sh` works because ablations share same OLMo)
+- Fixed nested directory issue in supplement outputs, merged with base results
+- All 9 models verified: 136 images each
+
+**Lesson learned:** When running models with different LLMs, run sequentially (not parallel) to avoid RAM exhaustion from loading multiple ~14GB checkpoints simultaneously.
+
 ### 2026-01-13 (Main paper: interpretation types results)
 
 **Completed interpretation types analysis section (Section 4.X):**
