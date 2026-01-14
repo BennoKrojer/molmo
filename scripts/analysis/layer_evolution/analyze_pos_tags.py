@@ -155,20 +155,26 @@ def load_pos_tag_counts(contextual_nn_dir, static_nn_dir, llm, vision_encoder,
             # Collect all phrases from this visual layer
             all_phrases = []
             for image_result in results_list:
+                # Handle both formats: trained models have chunks[], Qwen2-VL has patches[] directly
                 chunks = image_result.get('chunks', [])
-                for chunk in chunks:
-                    patches = chunk.get('patches', [])
-                    for patch in patches:
-                        neighbors = patch.get('nearest_contextual_neighbors', [])
-                        for neighbor in neighbors:
-                            token_str = neighbor.get('token_str', '').strip()
-                            caption = neighbor.get('caption', '')
-                            
-                            # Expand subword to full word using caption context
-                            if token_str:
-                                full_word = extract_full_word_from_token(caption, token_str)
-                                if full_word:
-                                    all_phrases.append(full_word)
+                if chunks:
+                    # Trained model format: results[].chunks[].patches[]
+                    all_patches = [p for chunk in chunks for p in chunk.get('patches', [])]
+                else:
+                    # Qwen2-VL format: results[].patches[]
+                    all_patches = image_result.get('patches', [])
+
+                for patch in all_patches:
+                    neighbors = patch.get('nearest_contextual_neighbors', [])
+                    for neighbor in neighbors:
+                        token_str = neighbor.get('token_str', '').strip()
+                        caption = neighbor.get('caption', '')
+
+                        # Expand subword to full word using caption context
+                        if token_str:
+                            full_word = extract_full_word_from_token(caption, token_str)
+                            if full_word:
+                                all_phrases.append(full_word)
             
             # Sample phrases
             if len(all_phrases) > sample_size:
@@ -247,6 +253,75 @@ def load_pos_tag_counts(contextual_nn_dir, static_nn_dir, llm, vision_encoder,
             print(f"  WARNING: Static NN directory not found: {static_dir}")
     
     # Convert Counter to dict for consistency
+    return {layer: dict(counter) for layer, counter in data.items()}
+
+
+def analyze_pos_tags_for_qwen2vl(contextual_nn_dir, sample_size=500, nlp=None):
+    """
+    Load and analyze POS tags for Qwen2-VL-7B-Instruct.
+    Qwen2-VL has a different data structure (no chunks level).
+    """
+    if nlp is None:
+        nlp = spacy.load('en_core_web_sm')
+
+    contextual_nn_dir = Path(contextual_nn_dir)
+    data = defaultdict(Counter)
+
+    qwen2vl_dir = contextual_nn_dir / 'qwen2_vl' / 'Qwen_Qwen2-VL-7B-Instruct'
+
+    if not qwen2vl_dir.exists():
+        print(f"  WARNING: Qwen2-VL directory not found: {qwen2vl_dir}")
+        return {}
+
+    print(f"\nLoading Qwen2-VL results from {qwen2vl_dir}...")
+
+    nn_files = sorted(qwen2vl_dir.glob("contextual_neighbors_visual*_allLayers.json"))
+
+    for nn_file in nn_files:
+        match = re.search(r'contextual_neighbors_visual(\d+)_allLayers\.json$', str(nn_file))
+        if not match:
+            continue
+
+        visual_layer = int(match.group(1))
+        print(f"  Loading visual layer {visual_layer}...")
+
+        with open(nn_file, 'r') as f:
+            nn_results = json.load(f)
+
+        results_list = nn_results.get('results', [])
+
+        # Collect all phrases
+        all_phrases = []
+        for image_result in results_list:
+            patches = image_result.get('patches', [])
+            for patch in patches:
+                neighbors = patch.get('nearest_contextual_neighbors', [])
+                for neighbor in neighbors:
+                    token_str = neighbor.get('token_str', '').strip()
+                    caption = neighbor.get('caption', '')
+                    if token_str:
+                        full_word = extract_full_word_from_token(caption, token_str)
+                        if full_word:
+                            all_phrases.append(full_word)
+
+        # Sample phrases
+        if len(all_phrases) > sample_size:
+            sampled_phrases = random.sample(all_phrases, sample_size)
+        else:
+            sampled_phrases = all_phrases
+
+        print(f"    Sampling {len(sampled_phrases)} phrases from {len(all_phrases)} total...")
+
+        # Tag POS
+        for phrase in tqdm(sampled_phrases, desc=f"    Tagging visual layer {visual_layer}", leave=False):
+            doc = nlp(phrase)
+            for token in doc:
+                if not token.is_punct and not token.is_space:
+                    pos_tag = token.pos_
+                    data[visual_layer][pos_tag] += 1
+
+        print(f"    ✓ Visual layer {visual_layer}: {len(sampled_phrases)} phrases tagged")
+
     return {layer: dict(counter) for layer, counter in data.items()}
 
 
@@ -418,23 +493,23 @@ def compute_average_data(all_data_dict):
     return {layer: dict(pos_dict) for layer, pos_dict in avg_data.items()}
 
 
-def create_average_plot(avg_data, output_path, top_n_tags=8):
-    """Create a single plot showing the average across all 9 combinations."""
+def create_average_plot(avg_data, output_path, top_n_tags=8, num_models=9):
+    """Create a single plot showing the average across all model combinations."""
     if not avg_data:
         print("No average data to visualize")
         return
-    
+
     # Create figure
     fig, ax = plt.subplots(figsize=(12, 6))
-    
+
     # Set style
     sns.set_style("whitegrid")
-    
+
     # Plot average
     plot_single_subplot(ax, avg_data, 'average', 'average', show_legend=True, is_combined=False, top_n_tags=top_n_tags)
-    
+
     # Update title
-    ax.set_title('Parts of Speech Across Visual Layers\n(averaged across all 9 model combinations)', 
+    ax.set_title(f'Parts of Speech Across Visual Layers\n(averaged across all {num_models} model combinations)',
                  fontsize=14, fontweight='bold', pad=20)
     
     plt.tight_layout()
@@ -583,7 +658,12 @@ def main():
         default=8,
         help='Number of top POS tags to display in plots (default: 8)'
     )
-    
+    parser.add_argument(
+        '--include-qwen2vl',
+        action='store_true',
+        help='Include Qwen2-VL-7B-Instruct in the average computation'
+    )
+
     args = parser.parse_args()
     
     # Set up paths relative to repository root
@@ -663,12 +743,24 @@ def main():
         print(f"\nCreating combined visualization...")
         create_combined_plot(all_data_dict, output_path, all_llms, all_vision_encoders, top_n_tags=args.top_n_tags)
         
+        # Add Qwen2-VL if requested
+        if args.include_qwen2vl:
+            print(f"\n{'='*80}")
+            print("Loading Qwen2-VL-7B-Instruct data...")
+            print(f"{'='*80}")
+            qwen2vl_data = analyze_pos_tags_for_qwen2vl(args.contextual_nn_dir, sample_size=args.sample_size, nlp=nlp)
+            if qwen2vl_data:
+                all_data_dict[('qwen2vl', 'qwen2vl')] = qwen2vl_data
+                print(f"  ✓ Qwen2-VL data added to average computation")
+
         # Create average plot
         avg_data = compute_average_data(all_data_dict)
         if avg_data:
-            avg_output_path = output_dir / 'pos_tags_average.pdf'
-            print(f"\nCreating average visualization...")
-            create_average_plot(avg_data, avg_output_path, top_n_tags=args.top_n_tags)
+            num_models = len(all_data_dict)
+            suffix = f"_with_qwen2vl" if args.include_qwen2vl else ""
+            avg_output_path = output_dir / f'pos_tags_average{suffix}.pdf'
+            print(f"\nCreating average visualization ({num_models} models)...")
+            create_average_plot(avg_data, avg_output_path, top_n_tags=args.top_n_tags, num_models=num_models)
         
         print(f"\n{'='*80}")
         print(f"Combined plot created successfully!")
