@@ -2,6 +2,10 @@
 """
 Run LLM judge evaluation on the specific patches from the human study.
 This ensures we're evaluating the same instances that humans judged.
+
+Supports two data types:
+- nn: Token-level data (interp_data_nn) with candidates as word list
+- contextual: Contextual data (interp_data_contextual) with candidates as [sentence, token] tuples
 """
 
 import os
@@ -27,6 +31,33 @@ from utils import (
     draw_bbox_on_image,
     resize_and_pad
 )
+# Import word extraction from contextual script (same function used there)
+from run_single_model_with_viz_contextual import extract_full_word_from_token
+
+
+def convert_contextual_candidates_to_words(candidates):
+    """
+    Convert contextual candidates from [sentence, token] tuples to full words.
+    Uses extract_full_word_from_token from run_single_model_with_viz_contextual.py.
+
+    Args:
+        candidates: List of [sentence, token] tuples
+
+    Returns:
+        List of full words extracted from the sentences
+    """
+    words = []
+    for candidate in candidates:
+        if isinstance(candidate, (list, tuple)) and len(candidate) >= 2:
+            sentence, token = candidate[0], candidate[1]
+            word = extract_full_word_from_token(sentence, token)
+            if word:
+                words.append(word)
+        else:
+            # Fallback: if already a string, use as-is
+            if isinstance(candidate, str):
+                words.append(candidate)
+    return words
 
 
 def get_gpt_response(client, image, cropped_image, prompt, api_provider="openai", model="gpt-5"):
@@ -123,10 +154,10 @@ def get_gpt_response(client, image, cropped_image, prompt, api_provider="openai"
 
 
 def evaluate_human_study_instances(data_json_path, api_key, output_dir, use_cropped_region=True,
-                                   skip_if_exists=False, resume=True):
+                                   skip_if_exists=False, resume=True, data_type='nn'):
     """
     Evaluate the specific instances from the human study.
-    
+
     Args:
         data_json_path: Path to human study data.json
         api_key: OpenAI API key
@@ -134,6 +165,7 @@ def evaluate_human_study_instances(data_json_path, api_key, output_dir, use_crop
         use_cropped_region: Whether to include cropped region in prompt
         skip_if_exists: Skip if output file already exists
         resume: Resume from existing partial results
+        data_type: Type of data - 'nn' for token-level or 'contextual' for sentence-level
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -179,10 +211,21 @@ def evaluate_human_study_instances(data_json_path, api_key, output_dir, use_crop
             # Get instance info
             image_url = instance.get('image_url')
             caption = instance.get('caption', '')
-            candidates = instance.get('candidates', [])
+            raw_candidates = instance.get('candidates', [])
             patch_row = instance.get('patch_row')
             patch_col = instance.get('patch_col')
             patch_type = instance.get('patch_type', 'unknown')
+
+            # For contextual data, also get layer info
+            layer = instance.get('layer') if data_type == 'contextual' else None
+
+            # Convert candidates based on data type
+            if data_type == 'contextual':
+                # Contextual: candidates are [sentence, token] tuples -> extract full words
+                candidates = convert_contextual_candidates_to_words(raw_candidates)
+            else:
+                # NN: candidates are already words
+                candidates = raw_candidates
             
             # Load and preprocess image (same as main LLM judge)
             try:
@@ -250,6 +293,10 @@ def evaluate_human_study_instances(data_json_path, api_key, output_dir, use_crop
                 'gpt_response': gpt_response,
                 'caption': caption
             }
+            # Add layer info for contextual data
+            if data_type == 'contextual' and layer is not None:
+                result['layer'] = layer
+                result['raw_candidates'] = raw_candidates  # Keep original [sentence, token] tuples
             results.append(result)
             
             # Save intermediate results every 10 instances
@@ -317,26 +364,29 @@ def main():
                        help='Skip if output file exists')
     parser.add_argument('--resume', action='store_true', default=True,
                        help='Resume from partial results')
-    
+    parser.add_argument('--data-type', type=str, default='nn', choices=['nn', 'contextual'],
+                       help='Type of data: nn (token-level) or contextual (sentence-level with token)')
+
     args = parser.parse_args()
-    
+
     # Resolve paths relative to script directory if not absolute
     script_dir = Path(__file__).parent
     data_json = Path(args.data_json)
     if not data_json.is_absolute():
         data_json = script_dir / data_json
-    
+
     output_dir = Path(args.output_dir)
     if not output_dir.is_absolute():
         output_dir = script_dir / output_dir
-    
+
     evaluate_human_study_instances(
         str(data_json),
         args.api_key,
         str(output_dir),
         use_cropped_region=args.use_cropped_region,
         skip_if_exists=args.skip_if_exists,
-        resume=args.resume
+        resume=args.resume,
+        data_type=args.data_type
     )
 
 

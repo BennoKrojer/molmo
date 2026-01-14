@@ -1,6 +1,10 @@
 #!/bin/bash
 #
-# Run LLM judge evaluation on human study patches
+# Run LLM judge evaluation on human study patches - CONTEXTUAL DATA
+#
+# This script runs the same LLM judge evaluation as run_llm_judge.sh,
+# but on the contextual data (interp_data_contextual) which has
+# sentence+token candidates instead of just tokens.
 #
 
 set -u  # Fail on undefined variables
@@ -20,14 +24,16 @@ if [ ! -f "llm_judge/api_key.txt" ]; then
 fi
 API_KEY=$(cat llm_judge/api_key.txt)
 
-# Configuration - NN (token-level) data
-DATA_JSON="human_correlations/interp_data_nn/data.json"
-OUTPUT_DIR="human_correlations/llm_judge_results"
+# Configuration - CONTEXTUAL VERSION
+DATA_JSON="human_correlations/interp_data_contextual/data.json"
+OUTPUT_DIR="human_correlations/llm_judge_results_contextual"
 USE_CROPPED_REGION=true
 RESUME=true
+DATA_TYPE="contextual"
 
 echo "=========================================="
 echo "LLM Judge Evaluation on Human Study Data"
+echo "DATA TYPE: CONTEXTUAL (sentence+token)"
 echo "=========================================="
 echo "Data file: $DATA_JSON"
 echo "Output directory: $OUTPUT_DIR"
@@ -44,6 +50,7 @@ python3 human_correlations/run_llm_judge_on_human_study.py \
     --data-json "$DATA_JSON" \
     --api-key "$API_KEY" \
     --output-dir "$OUTPUT_DIR" \
+    --data-type "$DATA_TYPE" \
     $([ "$USE_CROPPED_REGION" = true ] && echo "--use-cropped-region") \
     $([ "$RESUME" = true ] && echo "--resume")
 
@@ -60,4 +67,3 @@ fi
 echo "=========================================="
 
 exit $EXIT_CODE
-

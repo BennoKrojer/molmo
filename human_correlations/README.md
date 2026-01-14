@@ -16,44 +16,61 @@ Run the LLM judge on the **exact same patches** that humans evaluated.
 ## Files
 
 ### Scripts
-- `run_llm_judge.sh` - Main script to run LLM judge on human study patches
-- `run_llm_judge_on_human_study.py` - Python script that evaluates each human study instance
+- `run_llm_judge.sh` - Run LLM judge on NN (token-level) human study patches
+- `run_llm_judge_contextual.sh` - Run LLM judge on contextual human study patches
+- `run_llm_judge_on_human_study.py` - Python script that evaluates human study instances (supports both data types)
 - `compute_correlations.py` - Compute correlation metrics between human and LLM judgements
 - `visualize_agreement.py` - Create visualizations showing agreement/disagreement
 
 ### Data
-- `interp_data/data.json` - Human study data with 360 instances (patches + candidates)
-- `interp_data/results/` - Human judgement results from multiple annotators
+- `interp_data_nn/data.json` - NN (token-level) human study data with 360 instances
+- `interp_data_nn/results/` - Human judgement results from multiple annotators
+- `interp_data_contextual/data.json` - Contextual human study data with 360 instances (sentence+token candidates)
 
 ## Usage
 
 ### Step 1: Run LLM Judge on Human Study Patches
 
+**For NN (token-level) data:**
 ```bash
 cd human_correlations
 ./run_llm_judge.sh
 ```
 
-This will:
-- Load the 360 instances from `interp_data/data.json`
+**For Contextual data:**
+```bash
+cd human_correlations
+./run_llm_judge_contextual.sh
+```
+
+Both scripts will:
+- Load 360 instances from the respective data file
 - For each instance:
   - Download the image from the URL
   - Create a bounding box for the patch
-  - Pass the image + 5 candidate tokens to GPT-5
+  - Pass the image + 5 candidate words to GPT-5
   - Get LLM interpretability judgement
-- Save results to `llm_judge_results/human_study_llm_results.json`
-- Supports resume (will continue from where it left off)
+- Save results to `llm_judge_results/` or `llm_judge_results_contextual/`
+- Support resume (will continue from where it left off)
 
-**Note**: This will make ~360 API calls to GPT-5. Estimated cost: ~$10-20
+For contextual data, candidates are `[sentence, token]` tuples. The script extracts the full word containing each token (e.g., `"autom"` → `"automobile"`) before passing to the LLM judge, using the same `extract_full_word_from_token()` function as `llm_judge/run_single_model_with_viz_contextual.py`.
+
+**Note**: Each run makes ~360 API calls to GPT-5. Estimated cost: ~$10-20
 
 ### Step 2: Compute Correlations
 
 Once the LLM judge has evaluated all instances:
 
+**For NN data:**
 ```bash
-cd human_correlations
 python compute_correlations.py \
     --llm-results-file llm_judge_results/human_study_llm_results.json
+```
+
+**For Contextual data:**
+```bash
+python compute_correlations.py \
+    --llm-results-file llm_judge_results_contextual/human_study_llm_results.json
 ```
 
 This will output to `correlation_results.json` by default.
@@ -86,7 +103,7 @@ Sample types:
 
 ## Data Format
 
-### Human Study Data (`interp_data/data.json`)
+### NN Human Study Data (`interp_data_nn/data.json`)
 
 Each instance contains:
 ```json
@@ -103,7 +120,32 @@ Each instance contains:
 }
 ```
 
-### Human Judgements (`interp_data/results/`)
+### Contextual Human Study Data (`interp_data_contextual/data.json`)
+
+Each instance contains:
+```json
+{
+  "id": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch0",
+  "index": 139,
+  "image_url": "https://...",
+  "caption": "...",
+  "candidates": [
+    ["automobile making a left turn", "autom"],
+    ["the car is red", "car"],
+    ...
+  ],
+  "layer": 16,
+  "visual_layer": 0,
+  "original_token_candidates": ["word1", "word2", ...],
+  "patch_row": 2,
+  "patch_col": 14,
+  "model": "..."
+}
+```
+
+The contextual `candidates` are `[sentence, token]` tuples. The token is extracted to a full word (e.g., `"autom"` → `"automobile"`) before evaluation.
+
+### Human Judgements (`interp_data_nn/results/`)
 
 Each file contains judgements from one annotator:
 ```json
