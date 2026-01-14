@@ -262,15 +262,9 @@ def create_sunburst(data, output_path, num_words=5, num_phrases_per_word=2, titl
     ))
 
     fig.update_layout(
-        title=dict(
-            text=title,
-            font=dict(size=18),
-            x=0.5,
-            y=0.98,
-        ),
         width=1000,
         height=1000,
-        margin=dict(t=40, l=0, r=0, b=0),
+        margin=dict(t=10, l=0, r=0, b=0),
         # Note: removed uniformtext to allow progressive font sizes to work
     )
 

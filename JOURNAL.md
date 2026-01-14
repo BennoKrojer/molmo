@@ -17,12 +17,26 @@ A concise log of major changes, results, and git operations.
 
 **Lesson learned:** When running models with different LLMs, run sequentially (not parallel) to avoid RAM exhaustion from loading multiple ~14GB checkpoints simultaneously.
 
+### 2026-01-13 (Sunburst data bug fix)
+
+**Critical bug fixed:** Main sunburst (`sunburst_data.pkl`) was aggregating only 1 model instead of all 10
+- User caught this via sanity check: expected ~9K interpretations, actual was only 1,791
+- Fixed `generate_sunburst_data.py` to properly aggregate all 10 models when no `--model` flag
+- After fix: 16,238 total interpretations (Concrete 65%, Abstract 19%, Global 16%)
+- Regenerated sunburst figure and pushed to Overleaf
+
+**Other refinements:**
+- Removed internal title from sunburst PDF (use LaTeX caption instead)
+- Removed layer drift claims from results paragraph per user feedback
+- Moved main sunburst from appendix to main paper (Fig. 6)
+
+**Git:** Paper pushed to Overleaf (421ee8a)
+
 ### 2026-01-13 (Main paper: interpretation types results)
 
 **Completed interpretation types analysis section (Section 4.X):**
 - Filled in actual percentages: Concrete 65%, Abstract 19%, Global 16%
 - Added vision encoder differences: SigLIP highest global (24-34%), DINOv2 highest concrete (71-76%)
-- Added layer evolution observation: slight shift to abstract/global in late layers
 - Referenced appendix for per-model sunburst breakdowns
 
 **Changed layer filtering to early/late:**
