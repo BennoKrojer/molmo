@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Main paper: interpretation types results)
+
+**Completed interpretation types analysis section (Section 4.X):**
+- Filled in actual percentages: Concrete 65%, Abstract 19%, Global 16%
+- Added vision encoder differences: SigLIP highest global (24-34%), DINOv2 highest concrete (71-76%)
+- Added layer evolution observation: slight shift to abstract/global in late layers
+- Referenced appendix for per-model sunburst breakdowns
+
+**Changed layer filtering to early/late:**
+- Early layers: 0, 1, 2
+- Late layers: 31, 30, 24 (OLMo/LLaMA) or 27, 26, 24 (Qwen2)
+- Regenerated all 30 sunburst plots with new groupings
+- Added 10 subfigure sets to appendix (one per model, 3 variants each)
+
+**Git:** Paper pushed to Overleaf (86e10ca), main repo (f0ee757)
+
 ### 2026-01-13 (Human validation section completed)
 
 **Completed human study validation for both NN and LN-Lens:**
