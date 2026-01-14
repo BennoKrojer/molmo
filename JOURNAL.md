@@ -6,6 +6,30 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-13 (Human validation section completed)
+
+**Completed human study validation for both NN and LN-Lens:**
+- Fixed `compute_correlations.py` to handle contextual candidate format `[phrase, token]`
+- Created `rerun_missing_contextual.py` to fix 6 instances with failed API calls (image 00096)
+- Computed correlations on 300 overlapping instances between NN and LN-Lens
+- Final results:
+  - NN: Cohen's κ = 0.684, accuracy = 85.7%
+  - LN-Lens: Cohen's κ = 0.673, accuracy = 83.7%
+- Updated paper paragraph in `sections/4_experiments.tex` (lines 38-42)
+- Paper commit: 75618c0, main repo commit: 0195e31
+
+### 2026-01-13 (Human study LLM judge for contextual data)
+
+**Added contextual data support to human study LLM judge:**
+- Extended `run_llm_judge_on_human_study.py` with `--data-type` flag (`nn`/`contextual`)
+- Imports `extract_full_word_from_token` from existing contextual script (no code duplication)
+- Converts `[sentence, token]` candidates to full words (e.g., `"autom"` → `"automobile"`)
+- Created `run_llm_judge_contextual.sh` shell script
+- Updated `human_correlations/README.md` with both workflows
+- Fixed paths from `interp_data/` to `interp_data_nn/` and `interp_data_contextual/`
+
+**Next:** Run LLM judge on contextual data and compute human-LLM correlation.
+
 ### 2026-01-13 (Sunburst font sizes + counting method documentation)
 
 **Progressive font sizes in sunburst:**
