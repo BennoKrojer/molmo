@@ -392,22 +392,25 @@ def plot_single_subplot(ax, data, llm, vision_encoder, show_legend=False, is_com
     colors_dict = {tag: colors_list[i] for i, tag in enumerate(top_pos_tags)}
     
     # Plot lines for each POS tag
+    # Use evenly-spaced indices for x-axis to avoid label overlap (e.g., 30 and 31)
+    x_indices = list(range(len(layers)))
+
     lines = []
     for pos_tag in top_pos_tags:
-        line = ax.plot(layers, pos_data[pos_tag], marker='o', label=pos_tag,
+        line = ax.plot(x_indices, pos_data[pos_tag], marker='o', label=pos_tag,
                       color=colors_dict[pos_tag], linewidth=2, markersize=6)
         lines.append(line[0])
-    
+
     # Customize plot
     if not is_combined:
         ax.set_xlabel('Visual Layer', fontsize=12, fontweight='bold')
         ax.set_ylabel('% of Tokens', fontsize=12, fontweight='bold')
-    
+
     # Add subplot title
     ax.set_title(title_text, fontsize=14, fontweight='bold', pad=8)
-    
-    # Set x-axis ticks
-    ax.set_xticks(layers)
+
+    # Set x-axis ticks with actual layer numbers as labels
+    ax.set_xticks(x_indices)
     ax.set_xticklabels([str(l) for l in layers], fontsize=11)
     
     # Set y-axis to start from 0

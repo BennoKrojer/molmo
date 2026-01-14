@@ -333,24 +333,27 @@ def plot_single_subplot(ax, data, llm, vision_encoder, show_legend=False, is_com
         'texture': '#4CAF50'   # Green
     }
     
+    # Use evenly-spaced indices for x-axis to avoid label overlap (e.g., 30 and 31)
+    x_indices = list(range(len(layers)))
+
     # Plot lines
-    line1 = ax.plot(layers, color_pct, marker='o', label='Color words', 
+    line1 = ax.plot(x_indices, color_pct, marker='o', label='Color words',
                     color=colors['color'], linewidth=2.5, markersize=7)
-    line2 = ax.plot(layers, shape_pct, marker='s', label='Shape words',
+    line2 = ax.plot(x_indices, shape_pct, marker='s', label='Shape words',
                     color=colors['shape'], linewidth=2.5, markersize=7)
-    line3 = ax.plot(layers, texture_pct, marker='^', label='Texture words',
+    line3 = ax.plot(x_indices, texture_pct, marker='^', label='Texture words',
                     color=colors['texture'], linewidth=2.5, markersize=7)
-    
+
     # Customize plot - only add labels if not in combined mode
     if not is_combined:
         ax.set_xlabel('Visual Layer', fontsize=12, fontweight='bold')
         ax.set_ylabel('% of NN Words', fontsize=12, fontweight='bold')
-    
+
     # Add subplot title
     ax.set_title(title_text, fontsize=14, fontweight='bold', pad=8)
-    
-    # Set x-axis ticks
-    ax.set_xticks(layers)
+
+    # Set x-axis ticks with actual layer numbers as labels
+    ax.set_xticks(x_indices)
     ax.set_xticklabels([str(l) for l in layers], fontsize=11)
     
     # Set y-axis to start from 0
