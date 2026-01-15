@@ -24,8 +24,44 @@ import matplotlib.patches as mpatches
 from PIL import Image
 import numpy as np
 from pathlib import Path
+import torch
+import torchvision
+from torchvision.transforms.functional import convert_image_dtype
+from torchvision.transforms import InterpolationMode
 
 from olmo.data.pixmo_datasets import PixMoCap
+
+
+def resize_and_pad_image(image, target_size=336):
+    """Same preprocessing as model uses."""
+    if isinstance(image, Image.Image):
+        image = np.array(image)
+
+    height, width = image.shape[:2]
+    scale = min(target_size / height, target_size / width)
+    scaled_height = int(height * scale)
+    scaled_width = int(width * scale)
+
+    img_tensor = torch.permute(torch.from_numpy(image), [2, 0, 1])
+    img_tensor = convert_image_dtype(img_tensor)
+    img_tensor = torchvision.transforms.Resize(
+        [scaled_height, scaled_width], InterpolationMode.BILINEAR, antialias=True
+    )(img_tensor)
+    img_tensor = torch.clip(img_tensor, 0.0, 1.0)
+    resized = torch.permute(img_tensor, [1, 2, 0]).numpy()
+
+    top_pad = (target_size - scaled_height) // 2
+    left_pad = (target_size - scaled_width) // 2
+
+    padded = np.pad(
+        resized,
+        [[top_pad, target_size - scaled_height - top_pad],
+         [left_pad, target_size - scaled_width - left_pad],
+         [0, 0]],
+        constant_values=0
+    )
+
+    return (padded * 255).astype(np.uint8)
 
 
 def main():
@@ -62,44 +98,36 @@ def main():
     example = dataset.get(IMAGE_IDX, np.random)
     img_path = example['image']
     original = Image.open(img_path).convert("RGB")
-    orig_w, orig_h = original.size
+    print(f"Original size: {original.size}")
 
-    print(f"Original size: {orig_w} x {orig_h}")
+    # Apply EXACT preprocessing model uses (resize + pad to 336x336)
+    preprocessed = resize_and_pad_image(original, MODEL_SIZE)
+    print(f"Preprocessed size: {preprocessed.shape}")
 
-    # Calculate model's preprocessing scale (aspect-preserving)
-    scale = min(MODEL_SIZE / orig_h, MODEL_SIZE / orig_w)
-    left_pad = (MODEL_SIZE - int(orig_w * scale)) // 2
+    # Get patch boundaries in 336 space (directly from preprocessed image)
+    y1 = ROW * PATCH_SIZE_MODEL
+    y2 = y1 + PATCH_SIZE_MODEL
+    x1 = COLS[0] * PATCH_SIZE_MODEL
+    x2 = (COLS[-1] + 1) * PATCH_SIZE_MODEL
 
-    # Get patch boundaries in 336 space
-    y1_model = ROW * PATCH_SIZE_MODEL
-    y2_model = y1_model + PATCH_SIZE_MODEL
-    x1_model = COLS[0] * PATCH_SIZE_MODEL
-    x2_model = (COLS[-1] + 1) * PATCH_SIZE_MODEL
+    print(f"Patch coords in 336 space: ({x1}, {y1}) to ({x2}, {y2})")
 
-    # Map to original image coordinates
-    x1_orig = int((x1_model - left_pad) / scale)
-    x2_orig = int((x2_model - left_pad) / scale)
-    y1_orig = int(y1_model / scale)
-    y2_orig = int(y2_model / scale)
-
-    print(f"Original coords: ({x1_orig}, {y1_orig}) to ({x2_orig}, {y2_orig})")
-
-    # Extract from original
-    original_array = np.array(original)
-    strip_orig = original_array[y1_orig:y2_orig, x1_orig:x2_orig]
-    print(f"Original strip: {strip_orig.shape}")
+    # Extract strip directly from preprocessed image (what model sees)
+    strip_orig = preprocessed[y1:y2, x1:x2]
+    print(f"Extracted strip: {strip_orig.shape}")
 
     # Resize to medium resolution (24x24 per patch)
     # Higher than model's 14x14 for readability, but still pixelated
     DISPLAY_PATCH_SIZE = 24
+    num_patches = len(COLS)
     target_h = DISPLAY_PATCH_SIZE
-    target_w = DISPLAY_PATCH_SIZE * 6
+    target_w = DISPLAY_PATCH_SIZE * num_patches
 
     strip_pil = Image.fromarray(strip_orig)
     strip_resized = strip_pil.resize((target_w, target_h), Image.BILINEAR)
     strip_display = np.array(strip_resized)
 
-    print(f"Display strip: {strip_display.shape} ({target_w//6}x{target_h} per patch)")
+    print(f"Display strip: {strip_display.shape} ({DISPLAY_PATCH_SIZE}x{target_h} per patch)")
 
     # Upscale 2x with nearest-neighbor for pixel visibility
     scale_factor = 2
@@ -107,22 +135,22 @@ def main():
     print(f"Final strip: {strip_upscaled.shape}")
 
     # Create figure
-    fig_width = 6
+    fig_width = num_patches
     fig_height = 2.2
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
     strip_bottom = 1.1
     strip_height = 1.0
-    ax.imshow(strip_upscaled, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
+    ax.imshow(strip_upscaled, extent=[0, num_patches, strip_bottom, strip_bottom + strip_height],
               aspect='equal', interpolation='nearest')
 
     # Draw vertical lines between patches
-    for i in range(1, 6):
+    for i in range(1, num_patches):
         ax.plot([i, i], [strip_bottom, strip_bottom + strip_height],
                 color='black', linewidth=1.5)
 
     # Draw outer border
-    rect = mpatches.Rectangle((0, strip_bottom), 6, strip_height,
+    rect = mpatches.Rectangle((0, strip_bottom), num_patches, strip_height,
                                linewidth=2, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
@@ -140,7 +168,7 @@ def main():
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='yellow',
                          edgecolor='none', alpha=0.8))
 
-    ax.set_xlim(-0.1, 6.1)
+    ax.set_xlim(-0.1, num_patches + 0.1)
     ax.set_ylim(0, strip_bottom + strip_height + 0.1)
     ax.axis('off')
 
