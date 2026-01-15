@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Layer evolution annotation set)
+
+**Added:**
+- `scripts/analysis/create_layer_evolution_annotation_set.py` - creates 80 PNGs for manual annotation study
+- Each shows image + red bbox + top-5 LatentLens phrases for layer 0 and layer 16
+- Correct preprocessing per vision encoder (CLIP: padding, SigLIP/DINOv2: no padding, Qwen2-VL: center-crop)
+- Output: `analysis_results/layer_evolution_annotation/`
+
+**Git:** Pushed (ec7e49c)
+
 ### 2026-01-15 (Section 5.5: text-in-image patches figure)
 
 **Added:**
