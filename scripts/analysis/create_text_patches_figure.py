@@ -5,8 +5,8 @@ Create inline figure showing text-in-image interpretation by LatentLens.
 Shows consecutive vision patches from a phone screenshot displaying
 "The Couch Tomato Café" with LatentLens predictions below each patch.
 
-Uses high-res crop from original image for readability, while patch
-boundaries correspond to what the model actually sees (14x14 on 336x336).
+Uses medium resolution (24x24 per patch) - slightly higher than model's 14x14
+for readability while still showing realistic pixelation.
 
 Output: paper/figures/fig_text_patches_inline.pdf
 
@@ -26,12 +26,12 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 def main():
-    # Configuration
+    # Configuration - use 336 grid for coordinates (what model sees)
     IMAGE_IDX = 2  # Phone screenshot with "The Couch Tomato Café"
     ROW = 10
     COLS = list(range(7, 13))  # Columns 7-12
-    TARGET_SIZE = 336
-    PATCH_SIZE = TARGET_SIZE // 24  # 14 pixels
+    MODEL_SIZE = 336
+    PATCH_SIZE_MODEL = MODEL_SIZE // 24  # 14 pixels in model space
 
     # LatentLens predictions (OLMo+CLIP-ViT, Layer 16)
     tokens = ['.the', 'couch', 'acon', 'tomato', 'iro', 'cafe']
@@ -46,40 +46,55 @@ def main():
 
     print(f"Original size: {orig_w} x {orig_h}")
 
-    # Calculate the scaling used in preprocessing (aspect-preserving)
-    scale = min(TARGET_SIZE / orig_h, TARGET_SIZE / orig_w)
-    left_pad = (TARGET_SIZE - int(orig_w * scale)) // 2
-    top_pad = (TARGET_SIZE - int(orig_h * scale)) // 2
+    # Calculate model's preprocessing scale (aspect-preserving)
+    scale = min(MODEL_SIZE / orig_h, MODEL_SIZE / orig_w)
+    left_pad = (MODEL_SIZE - int(orig_w * scale)) // 2
 
-    # Map patch coordinates back to original image
-    y1_proc = ROW * PATCH_SIZE
-    y2_proc = y1_proc + PATCH_SIZE
-    x1_proc = COLS[0] * PATCH_SIZE
-    x2_proc = (COLS[-1] + 1) * PATCH_SIZE
+    # Get patch boundaries in 336 space
+    y1_model = ROW * PATCH_SIZE_MODEL
+    y2_model = y1_model + PATCH_SIZE_MODEL
+    x1_model = COLS[0] * PATCH_SIZE_MODEL
+    x2_model = (COLS[-1] + 1) * PATCH_SIZE_MODEL
 
-    x1_orig = int((x1_proc - left_pad) / scale)
-    x2_orig = int((x2_proc - left_pad) / scale)
-    y1_orig = int((y1_proc - top_pad) / scale)
-    y2_orig = int((y2_proc - top_pad) / scale)
+    # Map to original image coordinates
+    x1_orig = int((x1_model - left_pad) / scale)
+    x2_orig = int((x2_model - left_pad) / scale)
+    y1_orig = int(y1_model / scale)
+    y2_orig = int(y2_model / scale)
 
-    print(f"Original crop: ({x1_orig}, {y1_orig}) to ({x2_orig}, {y2_orig})")
+    print(f"Original coords: ({x1_orig}, {y1_orig}) to ({x2_orig}, {y2_orig})")
 
-    # Extract high-res strip from original
+    # Extract from original
     original_array = np.array(original)
-    strip_highres = original_array[y1_orig:y2_orig, x1_orig:x2_orig]
-    h, w = strip_highres.shape[:2]
-    print(f"Strip: {w}x{h}, aspect ratio: {w/h:.2f}")
+    strip_orig = original_array[y1_orig:y2_orig, x1_orig:x2_orig]
+    print(f"Original strip: {strip_orig.shape}")
 
-    # Create figure with proper aspect ratio for square patches
+    # Resize to medium resolution (24x24 per patch)
+    # Higher than model's 14x14 for readability, but still pixelated
+    DISPLAY_PATCH_SIZE = 24
+    target_h = DISPLAY_PATCH_SIZE
+    target_w = DISPLAY_PATCH_SIZE * 6
+
+    strip_pil = Image.fromarray(strip_orig)
+    strip_resized = strip_pil.resize((target_w, target_h), Image.BILINEAR)
+    strip_display = np.array(strip_resized)
+
+    print(f"Display strip: {strip_display.shape} ({target_w//6}x{target_h} per patch)")
+
+    # Upscale 2x with nearest-neighbor for pixel visibility
+    scale_factor = 2
+    strip_upscaled = np.repeat(np.repeat(strip_display, scale_factor, axis=0), scale_factor, axis=1)
+    print(f"Final strip: {strip_upscaled.shape}")
+
+    # Create figure
     fig_width = 6
     fig_height = 2.2
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
-    # Image strip: each patch is 1x1 in axis coordinates
     strip_bottom = 1.1
-    strip_height = 1.0  # Square patches: 1 unit tall, 1 unit wide each
-    ax.imshow(strip_highres, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
-              aspect='equal', interpolation='lanczos')
+    strip_height = 1.0
+    ax.imshow(strip_upscaled, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
+              aspect='equal', interpolation='nearest')
 
     # Draw vertical lines between patches
     for i in range(1, 6):
