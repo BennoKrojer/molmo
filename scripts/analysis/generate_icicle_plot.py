@@ -113,11 +113,11 @@ def generate_icicle_plot(data, output_path, figsize=FIGSIZE):
         ax.add_patch(rect)
 
         cat_box_px = get_box_width_pixels(ax, cat_box_x, cat_box_x + cat_width - 0.3)
-        cat_text, cat_fs = fit_text(ax, fig, cat, cat_box_px, 11, 8)
+        cat_text, cat_fs = fit_text(ax, fig, cat, cat_box_px, 13, 10)
         ax.text(cat_width/2, row_y + row_height/2 + 3, cat_text,
                 ha='center', va='center', fontsize=cat_fs, fontweight='bold', color='white')
-        ax.text(cat_width/2, row_y + row_height/2 - 4, f"{cat_pct:.0f}%",
-                ha='center', va='center', fontsize=8, color='white')
+        ax.text(cat_width/2, row_y + row_height/2 - 5, f"{cat_pct:.0f}%",
+                ha='center', va='center', fontsize=10, color='white')
 
         # Words
         words_dict = data[cat]['words']
@@ -137,7 +137,7 @@ def generate_icicle_plot(data, output_path, figsize=FIGSIZE):
             r2, g2, b2 = min(255, r+50), min(255, g+50), min(255, b+50)
             word_color = f'#{r2:02x}{g2:02x}{b2:02x}'
 
-            word_box_height = 10  # Taller for shorter figure
+            word_box_height = 7  # Shorter since word+count on same line
             word_y = row_y + row_height - word_box_height - 0.3
 
             rect = FancyBboxPatch((word_box_left, word_y), word_box_right - word_box_left, word_box_height,
@@ -145,11 +145,11 @@ def generate_icicle_plot(data, output_path, figsize=FIGSIZE):
                                   facecolor=word_color, edgecolor='white', linewidth=0.8)
             ax.add_patch(rect)
 
-            word_text, word_fs = fit_text(ax, fig, word, word_box_px, 9, 6)
-            ax.text((word_box_left + word_box_right) / 2, word_y + word_box_height/2 + 1.5,
+            # Word and count on same line
+            word_with_count = f"{word} ({info['count']})"
+            word_text, word_fs = fit_text(ax, fig, word_with_count, word_box_px, 12, 8)
+            ax.text((word_box_left + word_box_right) / 2, word_y + word_box_height/2,
                     word_text, ha='center', va='center', fontsize=word_fs, fontweight='bold', color='#333')
-            ax.text((word_box_left + word_box_right) / 2, word_y + word_box_height/2 - 2.5,
-                    f"({info['count']})", ha='center', va='center', fontsize=6, color='#555')
 
             # Phrases
             phrases = info.get('phrases', {})
@@ -173,7 +173,7 @@ def generate_icicle_plot(data, output_path, figsize=FIGSIZE):
 
                 if k < len(sorted_phrases):
                     phrase = sorted_phrases[k]
-                    phrase_text, phrase_fs = fit_phrase_with_bold(ax, fig, phrase, word, word_box_px, 6.5, 4)
+                    phrase_text, phrase_fs = fit_phrase_with_bold(ax, fig, phrase, word, word_box_px, 7.5, 5)
                     ax.text((word_box_left + word_box_right) / 2, (py + phrase_box_bottom) / 2,
                             phrase_text, ha='center', va='center', fontsize=phrase_fs, color='#444')
 
