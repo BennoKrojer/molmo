@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Table 1 styling improvements)
+
+**Styling changes:**
+- Yellow highlight (`\colorbox{yellow!50}{\textbf{}}`) instead of underline for matched tokens
+- Renamed methods: "Emb." → "Input Emb.", "Logit" → "LogitLens"
+- Consistent with highlighting style used elsewhere in the paper
+
+**Git:** Paper pushed (5abbf96), main repo pushed (6225c01)
+
 ### 2026-01-14 (Table 1 Unicode fix - Korean characters render properly)
 
 **Fixed:** Replaced `$\square$` placeholders in Table 1 with actual Korean characters.
