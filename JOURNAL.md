@@ -6,6 +6,33 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Table 1: diverse model/layer combinations)
+
+**Changed:** Replaced all three examples in Table 1 to show diversity across:
+- Different LLMs: OLMo, LLaMA3, Qwen2
+- Different vision encoders: CLIP-ViT, SigLIP, DINOv2
+- Different layers: 0, 8, 24
+
+**New examples (all from images 0-9 viewable in demo):**
+1. **(a) OLMo+CLIP-ViT, Layer 0, Image 1** - Glass chandelier in wax museum
+   - V-Lens: "big glass chandelier", "white chandelier is", "glass chandelier hanging"
+   - Input Emb: andelier, elegant, carpets
+   - LogitLens: rij, wei, prer
+
+2. **(b) LLaMA3+SigLIP, Layer 8, Image 4** - Skyscrapers in night cityscape
+   - V-Lens: "white building is", "urban view with skyscrapers", "tall brown skyscraper"
+   - Input Emb: Square, Kumar, 87
+   - LogitLens: WithTitle, hausen, ga
+
+3. **(c) Qwen2+DINOv2, Layer 24, Image 8** - Braided hair of young girl
+   - V-Lens: "hair pulled back", "blonde braided hair", "man's hair is braided"
+   - Input Emb: embedding, *</, .Receive
+   - LogitLens: 锦标, jourd, 脱颖
+
+**Files:** `paper/figures/method_comparison_table_v3.tex`
+
+**Git:** Paper pushed (4866aeb), main repo pushed (06210f8)
+
 ### 2026-01-14 (Table 1 styling improvements)
 
 **Styling changes:**
