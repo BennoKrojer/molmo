@@ -267,6 +267,10 @@ def main():
         if table:
             lines.append(table)
 
+    # Add clearpage at the end to flush all table floats before next section
+    lines.append(r"\clearpage")
+    lines.append("")
+
     output = "\n".join(lines)
     OUTPUT_FILE.write_text(output)
     print(f"Generated: {OUTPUT_FILE}")
