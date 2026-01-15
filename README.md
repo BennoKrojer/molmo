@@ -156,7 +156,7 @@ Our main method. Finds nearest neighbors in contextual text embeddings.
 
 The parallel approach (`run_parallel_contextual_nn.sh`) launches 8 independent single-GPU jobs, avoiding FSDP synchronization overhead. Each job uses `scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py` which preloads images to GPU for maximum throughput.
 
-**Output:** `analysis_results/contextual_nearest_neighbors/` (CC) or `analysis_results/contextual_nearest_neighbors_vg/` (VG)
+**Output:** `analysis_results/contextual_nearest_neighbors/` - **Primary dataset, use this one.** Contains all 9 models + `_lite10` versions (demo images 0-9). The `_vg/` variant is deprecated/incomplete.
 
 ---
 
