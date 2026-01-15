@@ -182,8 +182,10 @@ def main():
         x_center = i + 0.5
         ax.annotate('', xy=(x_center, arrow_bottom), xytext=(x_center, arrow_top),
                     arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
+        # Adjust fontsize for longer tokens to prevent overlap
+        fontsize = 11 if len(token) <= 6 else 9
         ax.text(x_center, box_y, token, ha='center', va='center',
-                fontsize=11, fontweight='bold',
+                fontsize=fontsize, fontweight='bold',
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='yellow',
                          edgecolor='none', alpha=0.8))
 
