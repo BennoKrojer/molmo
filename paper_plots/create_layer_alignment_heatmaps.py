@@ -33,9 +33,9 @@ ENC_DISPLAY = {
 VISION_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # OLMo, Llama
 VISION_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen
 
-# LLM embedding layers we compare against
-LLM_LAYERS_DEFAULT = [1, 2, 4, 8, 16, 24, 30, 31]  # OLMo, Llama (32 layers)
-LLM_LAYERS_QWEN = [1, 2, 4, 8, 16, 24, 26, 27]     # Qwen (28 layers)
+# LLM embedding layers we compare against (layer 0 = Input Embedding Matrix)
+LLM_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # OLMo, Llama (32 layers)
+LLM_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen (28 layers)
 
 
 def get_fixed_layers(llm):

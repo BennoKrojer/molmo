@@ -748,8 +748,8 @@ CONTEXTUAL_NN_DIR = RESULTS_DIR / "contextual_nearest_neighbors"
 # Layer configurations per LLM (Qwen has 28 layers, others have 32)
 VISION_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]
 VISION_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]
-LLM_LAYERS_DEFAULT = [1, 2, 4, 8, 16, 24, 30, 31]
-LLM_LAYERS_QWEN = [1, 2, 4, 8, 16, 24, 26, 27]
+LLM_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # layer 0 = Input Embedding Matrix
+LLM_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]
 
 def get_vision_layers(llm):
     return VISION_LAYERS_QWEN if 'qwen' in llm else VISION_LAYERS_DEFAULT
