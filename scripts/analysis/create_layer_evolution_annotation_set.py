@@ -67,23 +67,72 @@ def process_image_for_encoder(image_path, vision_encoder):
     return PILImage.fromarray(processed)
 
 
-def highlight_token_in_caption(caption, token_str):
+def smart_truncate_around_token(caption, token_str, max_len=55):
     """
-    Return caption with token highlighted using brackets.
-    E.g., "the train has the number 465907" + "907" -> "the train has the number 465[907]"
+    Truncate caption while keeping the token visible.
+    Returns (prefix, token, suffix) for separate rendering.
+
+    - Token is always shown in full
+    - Truncates at word boundaries
+    - Adds "..." where truncated
     """
     if not caption or not token_str:
-        return caption or token_str or ""
+        token = token_str.strip() if token_str else ""
+        return ("", token, "")
 
     token_clean = token_str.strip()
-    # Find token in caption (case-insensitive)
     idx = caption.lower().find(token_clean.lower())
-    if idx == -1:
-        # Token not found, just return caption
-        return f"{caption} [{token_clean}]"
 
-    # Insert brackets around the token
-    return f"{caption[:idx]}[{caption[idx:idx+len(token_clean)]}]{caption[idx+len(token_clean):]}"
+    if idx == -1:
+        # Token not found - show caption with token appended
+        if len(caption) > max_len - len(token_clean) - 3:
+            # Truncate caption at word boundary
+            truncated = caption[:max_len - len(token_clean) - 6]
+            last_space = truncated.rfind(' ')
+            if last_space > 10:
+                truncated = truncated[:last_space]
+            return (truncated + "... ", token_clean, "")
+        return (caption + " ", token_clean, "")
+
+    # Extract parts
+    prefix = caption[:idx]
+    token = caption[idx:idx+len(token_clean)]
+    suffix = caption[idx+len(token_clean):]
+
+    total_len = len(prefix) + len(token) + len(suffix)
+
+    if total_len <= max_len:
+        return (prefix, token, suffix)
+
+    # Need to truncate - prioritize keeping context around token
+    available = max_len - len(token) - 6  # Reserve space for "..." on both sides
+
+    if available < 4:
+        # Token itself is very long, just show it
+        return ("", token, "")
+
+    # Split available space, slightly favoring prefix for readability
+    prefix_budget = min(len(prefix), available * 3 // 5)
+    suffix_budget = min(len(suffix), available - prefix_budget)
+    prefix_budget = min(len(prefix), available - suffix_budget)  # Recalc with actual suffix
+
+    # Truncate prefix at word boundary
+    if len(prefix) > prefix_budget:
+        truncated_prefix = prefix[-(prefix_budget):]
+        first_space = truncated_prefix.find(' ')
+        if first_space > 0 and first_space < len(truncated_prefix) - 3:
+            truncated_prefix = truncated_prefix[first_space+1:]
+        prefix = "..." + truncated_prefix
+
+    # Truncate suffix at word boundary
+    if len(suffix) > suffix_budget:
+        truncated_suffix = suffix[:suffix_budget]
+        last_space = truncated_suffix.rfind(' ')
+        if last_space > 3:
+            truncated_suffix = truncated_suffix[:last_space]
+        suffix = truncated_suffix + "..."
+
+    return (prefix, token, suffix)
 
 
 def create_visualization(image_path, patch_row, patch_col,
@@ -144,18 +193,28 @@ def create_visualization(image_path, patch_row, patch_col,
         token_str = neighbor.get('token_str', '')
         caption = neighbor.get('caption', '')
 
-        # Create phrase with highlighted token
-        phrase = highlight_token_in_caption(caption, token_str)
+        # Smart truncation that keeps token visible
+        prefix, token, suffix = smart_truncate_around_token(caption, token_str)
 
-        # Truncate if too long
-        if len(phrase) > 60:
-            phrase = phrase[:57] + "..."
+        # Draw prefix (no highlight)
+        x_pos = text_x + 10
+        if prefix:
+            draw.text((x_pos, text_y), prefix, fill='#444444', font=body_font)
+            prefix_bbox = draw.textbbox((x_pos, text_y), prefix, font=body_font)
+            x_pos = prefix_bbox[2]
 
-        # Yellow highlight background
-        phrase_bbox = draw.textbbox((text_x + 10, text_y), phrase, font=body_font)
-        draw.rectangle([phrase_bbox[0]-3, phrase_bbox[1]-2, phrase_bbox[2]+3, phrase_bbox[3]+2],
-                      fill='#FFFF99')
-        draw.text((text_x + 10, text_y), phrase, fill='black', font=body_font)
+        # Draw token with yellow highlight
+        if token:
+            token_bbox = draw.textbbox((x_pos, text_y), token, font=body_font)
+            draw.rectangle([token_bbox[0]-2, token_bbox[1]-1, token_bbox[2]+2, token_bbox[3]+1],
+                          fill='#FFFF00')
+            draw.text((x_pos, text_y), token, fill='black', font=body_font)
+            x_pos = token_bbox[2]
+
+        # Draw suffix (no highlight)
+        if suffix:
+            draw.text((x_pos, text_y), suffix, fill='#444444', font=body_font)
+
         text_y += 22
 
     text_y += 25
@@ -170,15 +229,28 @@ def create_visualization(image_path, patch_row, patch_col,
         token_str = neighbor.get('token_str', '')
         caption = neighbor.get('caption', '')
 
-        phrase = highlight_token_in_caption(caption, token_str)
+        # Smart truncation that keeps token visible
+        prefix, token, suffix = smart_truncate_around_token(caption, token_str)
 
-        if len(phrase) > 60:
-            phrase = phrase[:57] + "..."
+        # Draw prefix (no highlight)
+        x_pos = text_x + 10
+        if prefix:
+            draw.text((x_pos, text_y), prefix, fill='#444444', font=body_font)
+            prefix_bbox = draw.textbbox((x_pos, text_y), prefix, font=body_font)
+            x_pos = prefix_bbox[2]
 
-        phrase_bbox = draw.textbbox((text_x + 10, text_y), phrase, font=body_font)
-        draw.rectangle([phrase_bbox[0]-3, phrase_bbox[1]-2, phrase_bbox[2]+3, phrase_bbox[3]+2],
-                      fill='#FFFF99')
-        draw.text((text_x + 10, text_y), phrase, fill='black', font=body_font)
+        # Draw token with yellow highlight
+        if token:
+            token_bbox = draw.textbbox((x_pos, text_y), token, font=body_font)
+            draw.rectangle([token_bbox[0]-2, token_bbox[1]-1, token_bbox[2]+2, token_bbox[3]+1],
+                          fill='#FFFF00')
+            draw.text((x_pos, text_y), token, fill='black', font=body_font)
+            x_pos = token_bbox[2]
+
+        # Draw suffix (no highlight)
+        if suffix:
+            draw.text((x_pos, text_y), suffix, fill='#444444', font=body_font)
+
         text_y += 22
 
     vis_img.save(output_path, quality=95)
