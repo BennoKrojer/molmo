@@ -1,0 +1,69 @@
+{
+  "userId": "Oscar Mañas",
+  "sessionId": "mhw514v8kdsjp3z6je",
+  "timestamp": "2025-11-12T15:11:19.049Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00153_patch0",
+      "selectedWords": [
+        {
+          "word": "posing pretty : pop artist dazzled in a strapless gown which she wore with sheer beaded gloves while she wore her blonde locks slicked back",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:07:47.518Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00153_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:07:56.086Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:08:14.266Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:10:05.360Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch4",
+      "selectedWords": [
+        {
+          "word": "the cat lips are smiling",
+          "relation": "global"
+        },
+        {
+          "word": "the mouth is smiling",
+          "relation": "global"
+        },
+        {
+          "word": "this guy is joking around",
+          "relation": "global"
+        },
+        {
+          "word": "the man and woman smiling",
+          "relation": "global"
+        },
+        {
+          "word": "a cup on the gravel ground beneath miserable man",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:11:13.291Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:11:18.500Z"
+    }
+  ]
+}

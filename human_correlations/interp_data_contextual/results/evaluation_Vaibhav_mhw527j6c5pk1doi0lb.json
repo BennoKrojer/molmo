@@ -1,0 +1,129 @@
+{
+  "userId": "Vaibhav",
+  "sessionId": "mhw527j6c5pk1doi0lb",
+  "timestamp": "2025-11-12T15:12:08.724Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch0",
+      "selectedWords": [
+        {
+          "word": "a couple cheers on and watches a tv with a green screen in a cozy living room , then celebrates",
+          "relation": "abstract"
+        },
+        {
+          "word": "a black chair in a room",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:08:23.160Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00084_patch1",
+      "selectedWords": [
+        {
+          "word": "some food in bright plastic packages",
+          "relation": "concrete"
+        },
+        {
+          "word": "a cardboard box full of packaged snacks",
+          "relation": "concrete"
+        },
+        {
+          "word": "a few rows of packaged blueberries",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:09:04.631Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00084_patch2",
+      "selectedWords": [
+        {
+          "word": "the word tacos on the black chalkboard sign.",
+          "relation": "concrete"
+        },
+        {
+          "word": "man stuffing his fave with tacos",
+          "relation": "concrete"
+        },
+        {
+          "word": "white food truck selling tacos",
+          "relation": "concrete"
+        },
+        {
+          "word": "oranges beside the tacos",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:11:18.597Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch3",
+      "selectedWords": [
+        {
+          "word": "a person holding a chocolate filled donut",
+          "relation": "concrete"
+        },
+        {
+          "word": "digitally composite image of merry christmas and a cup of hot chocolate with marshmallows and candy",
+          "relation": "concrete"
+        },
+        {
+          "word": "a bowl with edamame peas",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:11:33.959Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch4",
+      "selectedWords": [
+        {
+          "word": "a yellow dessert plate on a counter",
+          "relation": "concrete"
+        },
+        {
+          "word": "crumbled white napkin on counter",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman sitting at a restaurant",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:11:50.312Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00084_patch5",
+      "selectedWords": [
+        {
+          "word": "white straws are clustered together",
+          "relation": "concrete"
+        },
+        {
+          "word": "three dogs in the foreground",
+          "relation": "concrete"
+        },
+        {
+          "word": "plates are arranged on the wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "several raisins clustered together",
+          "relation": "concrete"
+        },
+        {
+          "word": "four oranges clustered together",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:12:08.610Z"
+    }
+  ]
+}

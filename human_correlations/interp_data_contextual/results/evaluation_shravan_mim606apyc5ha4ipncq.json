@@ -1,0 +1,64 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim606apyc5ha4ipncq",
+  "timestamp": "2025-11-30T20:20:33.989Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00031_patch0",
+      "selectedWords": [
+        {
+          "word": "faded green and yellow leaves in front of a stick like plant with yellow/green fruit",
+          "relation": "global"
+        },
+        {
+          "word": "rocks in front of green bushes",
+          "relation": "global"
+        },
+        {
+          "word": "thorn on a stick like plant with yellow/green fruit",
+          "relation": "global"
+        },
+        {
+          "word": "flowers in vase have bloomed",
+          "relation": "concrete"
+        },
+        {
+          "word": "a parked blue/green bike",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:19:53.033Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:19:54.890Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:20:05.706Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:20:08.265Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00031_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:20:32.153Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00031_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:20:33.889Z"
+    }
+  ]
+}

@@ -268,7 +268,8 @@ def compute_interpretability_correlation(matched_data):
         model_key = item['model_key']
         human_judgements = item['human_judgements']
         llm_judgement = item['llm_judgement']
-        candidates = set(item['candidates'])
+        # Handle both NN format (strings) and contextual format ([phrase, token] pairs)
+        candidates = set(c[0] if isinstance(c, list) else c for c in item['candidates'])
         
         # LLM interpretability: binary (1 if interpretable, 0 if not)
         llm_interpretable = 1 if llm_judgement['is_interpretable'] else 0

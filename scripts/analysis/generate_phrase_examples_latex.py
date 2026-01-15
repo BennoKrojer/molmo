@@ -254,12 +254,12 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
 % Images should be in figures/phrase_examples/
 
 \newcommand{\phraseexample}[5]{%
-  % #1: full image, #2: crop image, #3: LN-Lens phrase, #4: Random phrase, #5: model info
+  % #1: full image, #2: crop image, #3: LatentLens phrase, #4: Random phrase, #5: model info
   \begin{minipage}[t]{0.47\textwidth}
     \raggedright
     \includegraphics[height=3.2cm]{#1}\hspace{0.2em}%
     \includegraphics[height=2.0cm]{#2}\\[0.3em]
-    {\footnotesize\textbf{LN-Lens:} #3}\\[0.1em]
+    {\footnotesize\textbf{LatentLens:} #3}\\[0.1em]
     {\footnotesize\textbf{Random phrase, same token:} #4}\\[0.1em]
     {\scriptsize\textit{#5}}
   \end{minipage}%
@@ -335,7 +335,7 @@ def generate_latex_table(examples: list, image_dir: str) -> str:
             lines.append(r"\caption{")
             lines.append(r"    \textbf{Phrase annotation examples (" + example_range + r").}")
             lines.append(r"    Each panel shows a vision token's patch (red box) preprocessed as the vision encoder sees it.")
-            lines.append(r"    \textbf{LN-Lens}: Top contextual nearest neighbor phrase from \vlens.")
+            lines.append(r"    \textbf{LatentLens}: Top contextual nearest neighbor phrase from \vlens.")
             lines.append(r"    \textbf{Random}: A random VG phrase containing the same token.")
             lines.append(r"}")
             lines.append(r"\label{fig:phrase_examples}")

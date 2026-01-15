@@ -1,0 +1,82 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim8bmfvc51cfdbqu2i",
+  "timestamp": "2025-11-30T21:25:27.649Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00260_patch0",
+      "selectedWords": [
+        {
+          "word": "white michigan shirt",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:24:29.823Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00260_patch1",
+      "selectedWords": [
+        {
+          "word": "small intricate bench @ mid-left",
+          "relation": "abstract"
+        },
+        {
+          "word": "olive green car w/ ? taillight visible, mid-left",
+          "relation": "abstract"
+        },
+        {
+          "word": "someone whose last name is 'williams' &  telephone number ending in '2047' on an old fashioned swing sign, @ mid-left",
+          "relation": "abstract"
+        },
+        {
+          "word": "the long shadow of an unseen object, at mid-left",
+          "relation": "abstract"
+        },
+        {
+          "word": "a great big white ring, w/ tinges of black, about sheep, mid-left's, eye",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:24:50.684Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00260_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:24:57.204Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00260_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:25:11.747Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00260_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:25:13.411Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00260_patch5",
+      "selectedWords": [
+        {
+          "word": "fluffy white tail of the llama",
+          "relation": "concrete"
+        },
+        {
+          "word": "the plate is color white",
+          "relation": "concrete"
+        },
+        {
+          "word": "a large white table umbrella",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:25:27.259Z"
+    }
+  ]
+}

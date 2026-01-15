@@ -1,0 +1,84 @@
+{
+  "userId": "Marius",
+  "sessionId": "mhxkitx4tapo0zsh95",
+  "timestamp": "2025-11-13T15:12:44.659Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch0",
+      "selectedWords": [
+        {
+          "word": "wooden ladder-back chair",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:11:04.553Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00001_patch1",
+      "selectedWords": [
+        {
+          "word": "two surfers are posing",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:11:19.871Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch2",
+      "selectedWords": [
+        {
+          "word": "dark sign with a chef sitting on a star.",
+          "relation": "abstract"
+        },
+        {
+          "word": "people sitting under a shade tent.",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:12:02.458Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00001_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T15:12:13.337Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00001_patch4",
+      "selectedWords": [
+        {
+          "word": "a necklace with a blue gem",
+          "relation": "global"
+        },
+        {
+          "word": "a gold brooch with a blue gem",
+          "relation": "global"
+        },
+        {
+          "word": "increasingly is the site of theatrical productions , as well as tours and special events .",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:12:30.153Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00001_patch5",
+      "selectedWords": [
+        {
+          "word": "woman is wearing a long flowing skirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "painting of woman in long flowing dress",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:12:44.536Z"
+    }
+  ]
+}

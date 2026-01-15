@@ -1,0 +1,20 @@
+Mon Jan 12 12:23:47 AM EST 2026: Running: 6 processes. Progress: S0:22% S1:22% S2:22% S3:22% S4: S5:22% 
+Mon Jan 12 12:28:47 AM EST 2026: Running: 6 processes. Progress: S0:27% S1:26% S2:26% S3:26% S4:26% S5:26% 
+Mon Jan 12 12:33:47 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2: S3: S4: S5: 
+Mon Jan 12 12:38:47 AM EST 2026: Running: 6 processes. Progress: S0: S1:35% S2: S3: S4:35% S5:35% 
+Mon Jan 12 12:43:47 AM EST 2026: Running: 6 processes. Progress: S0: S1:40% S2: S3: S4:40% S5: 
+Mon Jan 12 12:48:47 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2: S3: S4: S5: 
+Mon Jan 12 12:53:47 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2:49% S3: S4:49% S5:49% 
+Mon Jan 12 12:58:47 AM EST 2026: Running: 6 processes. Progress: S0:55% S1: S2: S3: S4:54% S5: 
+Mon Jan 12 01:03:48 AM EST 2026: Running: 6 processes. Progress: S0: S1:59% S2: S3: S4: S5:59% 
+Mon Jan 12 01:08:48 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2:64% S3: S4: S5:64% 
+Mon Jan 12 01:13:48 AM EST 2026: Running: 6 processes. Progress: S0:70% S1:69% S2: S3:69% S4: S5:69% 
+Mon Jan 12 01:18:48 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2: S3: S4: S5: 
+Mon Jan 12 01:23:48 AM EST 2026: Running: 6 processes. Progress: S0:80% S1: S2: S3: S4:79% S5: 
+Mon Jan 12 01:28:48 AM EST 2026: Running: 6 processes. Progress: S0: S1:84% S2: S3:84% S4: S5: 
+Mon Jan 12 01:33:48 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2:89% S3: S4: S5: 
+Mon Jan 12 01:38:48 AM EST 2026: Running: 6 processes. Progress: S0:95% S1: S2:93% S3: S4: S5: 
+Mon Jan 12 01:43:48 AM EST 2026: Running: 6 processes. Progress: S0: S1: S2:98% S3: S4: S5: 
+Mon Jan 12 01:48:48 AM EST 2026: Extraction complete! All processes finished.
+Mon Jan 12 01:48:48 AM EST 2026: 0/6 shards completed successfully
+Mon Jan 12 01:48:48 AM EST 2026: Some shards may have failed. Check logs.

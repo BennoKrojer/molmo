@@ -1,0 +1,70 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim85sxpceru8fthc8f",
+  "timestamp": "2025-11-30T21:20:56.123Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00080_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:18:00.204Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00080_patch1",
+      "selectedWords": [
+        {
+          "word": "1837 on the clock.",
+          "relation": "global"
+        },
+        {
+          "word": "1831 written on the sign",
+          "relation": "global"
+        },
+        {
+          "word": "1839 in grey text",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:18:22.387Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00080_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:18:59.754Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00080_patch3",
+      "selectedWords": [
+        {
+          "word": "oieysfdhgs xudgfds udfdhguydfb ulhefdjhudsef jsdsiu buigsufuyasusa",
+          "relation": "global"
+        },
+        {
+          "word": "black writing that says \"express\"",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:19:29.031Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00080_patch4",
+      "selectedWords": [
+        {
+          "word": "white sign with blue zig-zag design",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:20:34.709Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00080_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:20:55.741Z"
+    }
+  ]
+}

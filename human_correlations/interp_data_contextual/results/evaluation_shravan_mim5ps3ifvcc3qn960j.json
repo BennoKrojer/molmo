@@ -1,0 +1,86 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5ps3ifvcc3qn960j",
+  "timestamp": "2025-11-30T20:12:29.023Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00033_patch0",
+      "selectedWords": [
+        {
+          "word": "a black helmet on head",
+          "relation": "concrete"
+        },
+        {
+          "word": "black and white cloak",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:11:55.381Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00033_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:11:57.293Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00033_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:12:03.366Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00033_patch3",
+      "selectedWords": [
+        {
+          "word": "horses in a painting",
+          "relation": "global"
+        },
+        {
+          "word": "the sun is up in this picture.",
+          "relation": "global"
+        },
+        {
+          "word": "the hanger in the painting",
+          "relation": "global"
+        },
+        {
+          "word": "the cow is visible in this photo",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:12:15.638Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00033_patch4",
+      "selectedWords": [
+        {
+          "word": "the brown bag the man in the white and black striped shirt is carrying.",
+          "relation": "concrete"
+        },
+        {
+          "word": "serving of fries on a white plate",
+          "relation": "concrete"
+        },
+        {
+          "word": "a cup with a white handle",
+          "relation": "concrete"
+        },
+        {
+          "word": "person in a white dress",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:12:27.173Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00033_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:12:28.925Z"
+    }
+  ]
+}

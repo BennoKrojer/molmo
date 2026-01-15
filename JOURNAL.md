@@ -1,4 +1,4 @@
-# V-Lens Development Journal
+# LatentLens Development Journal
 
 A concise log of major changes, results, and git operations.
 
@@ -13,21 +13,21 @@ A concise log of major changes, results, and git operations.
 - Different vision encoders: CLIP-ViT, SigLIP, DINOv2
 - Different layers: 0, 8, 24
 
-**Key criteria:** Selected examples where baselines **clearly fail** (code fragments, gibberish, single characters) while V-Lens provides interpretable phrases.
+**Key criteria:** Selected examples where baselines **clearly fail** (code fragments, gibberish, single characters) while LatentLens provides interpretable phrases.
 
 **Final examples (all from images 0-9 viewable in demo):**
 1. **(a) Qwen2+CLIP-ViT, Layer 0, Image 1** - Person in striped clothing (wax museum)
-   - V-Lens: "white t-shirt under a", "red striped glass", "zebra standing in front"
+   - LatentLens: "white t-shirt under a", "red striped glass", "zebra standing in front"
    - Input Emb: .tree, .ml, )" ← code fragments
    - LogitLens: Según, 配方, andalone ← mixed gibberish
 
 2. **(b) LLaMA3+SigLIP, Layer 8, Image 8** - Auburn hair of young girl
-   - V-Lens: "the girl has auburn", "a boy with dirty", "woman with auburn curly"
+   - LatentLens: "the girl has auburn", "a boy with dirty", "woman with auburn curly"
    - Input Emb: x, iado, u ← single characters
    - LogitLens: улю, tan, โย ← foreign chars
 
 3. **(c) OLMo+DINOv2, Layer 24, Image 3** - Bottles on shelf in store
-   - V-Lens: "bottle on table with", "brown bottle with yellow", "two water bottles"
+   - LatentLens: "bottle on table with", "brown bottle with yellow", "two water bottles"
    - Input Emb: \n, Abbey, ... ← whitespace/random
    - LogitLens: led, ​​, ly ← gibberish
 
@@ -150,18 +150,18 @@ A concise log of major changes, results, and git operations.
 
 ### 2026-01-14 (Human study limitation: visual_layer=0 only)
 
-**Documented known limitation:** The LN-Lens human study (`interp_data_contextual/`) used only `visual_layer=0` due to an early limitation in the data generation pipeline.
+**Documented known limitation:** The LatentLens human study (`interp_data_contextual/`) used only `visual_layer=0` due to an early limitation in the data generation pipeline.
 
-- Human study shows ~49% interpretability (LN-Lens) vs ~35% (Static NN)
+- Human study shows ~49% interpretability (LatentLens) vs ~35% (Static NN)
 - Paper figure (`fig1_unified_interpretability.pdf`) uses best visual layer per model → ~70% interpretability
 - This explains the discrepancy: human validation was done on the least favorable visual layer
-- **Implication:** Human study numbers are a conservative lower bound for LN-Lens interpretability
+- **Implication:** Human study numbers are a conservative lower bound for LatentLens interpretability
 
 **Updated READMEs** to clarify this limitation:
 - `human_correlations/CONTEXTUAL_STUDY_README.md`
 - `human_correlations/human_correlations/SIMILARITY_DATA_README.md`
 
-### 2026-01-13 (LN-Lens extraction: 36 supplement images)
+### 2026-01-13 (LatentLens extraction: 36 supplement images)
 
 **Completed contextual NN extraction for all 9 model combinations:**
 - Extended 100 images → 136 images (added 36 from indices 100-299)
@@ -204,13 +204,13 @@ A concise log of major changes, results, and git operations.
 
 ### 2026-01-13 (Human validation section completed)
 
-**Completed human study validation for both NN and LN-Lens:**
+**Completed human study validation for both NN and LatentLens:**
 - Fixed `compute_correlations.py` to handle contextual candidate format `[phrase, token]`
 - Created `rerun_missing_contextual.py` to fix 6 instances with failed API calls (image 00096)
-- Computed correlations on 300 overlapping instances between NN and LN-Lens
+- Computed correlations on 300 overlapping instances between NN and LatentLens
 - Final results:
   - NN: Cohen's κ = 0.684, accuracy = 85.7%
-  - LN-Lens: Cohen's κ = 0.673, accuracy = 83.7%
+  - LatentLens: Cohen's κ = 0.673, accuracy = 83.7%
 - Updated paper paragraph in `sections/4_experiments.tex` (lines 38-42)
 - Paper commit: 75618c0, main repo commit: 0195e31
 
@@ -407,9 +407,9 @@ A concise log of major changes, results, and git operations.
 
 **Git:** Pushed CLAUDE.md changes (b874200), website updated (da652b5)
 
-### 2026-01-10 (Fix: LN-Lens figure data - ablations exclusion)
+### 2026-01-10 (Fix: LatentLens figure data - ablations exclusion)
 
-**Root cause identified:** The glob pattern `**/results_*.json` in `create_lineplot_unified.py` was picking up files from the `ablations/` subdirectory in `llm_judge_contextual_nn/`. This caused incorrect data to be loaded for the main LN-Lens figure (e.g., layer 16 showed 42% instead of 70% for OLMo+ViT).
+**Root cause identified:** The glob pattern `**/results_*.json` in `create_lineplot_unified.py` was picking up files from the `ablations/` subdirectory in `llm_judge_contextual_nn/`. This caused incorrect data to be loaded for the main LatentLens figure (e.g., layer 16 showed 42% instead of 70% for OLMo+ViT).
 
 **Fix:** Added filter to exclude `/ablations/` paths in all three loading functions:
 - `load_nn_results()`
@@ -423,8 +423,8 @@ A concise log of major changes, results, and git operations.
 ### 2026-01-10 (Terminology Standardization for ICML)
 
 **Comprehensive terminology update across codebase:**
-- "Static NN" / "Static V-Lens" → "Input Embedding Matrix" or "Input Emb."
-- "Contextual NN" / "Contextual V-Lens" → "LN-Lens"
+- "Static NN" / "Static LatentLens" → "Input Embedding Matrix" or "Input Emb."
+- "Contextual NN" / "Contextual LatentLens" → "LatentLens"
 
 **Files updated:**
 
@@ -455,7 +455,7 @@ A concise log of major changes, results, and git operations.
 
 **Updated main results figure (fig1_unified_interpretability):**
 - Shared y-axis label (only on leftmost plot)
-- New titles: "(a) Input Embedding Matrix", "(b) Output Embedding Matrix (LogitLens)", "(c) LN-Lens (Ours)"
+- New titles: "(a) Input Embedding Matrix", "(b) Output Embedding Matrix (LogitLens)", "(c) LatentLens (Ours)"
 - Order: baselines first, our method last
 - Shared legend at bottom
 
@@ -528,7 +528,7 @@ This confirms Qwen2-VL's LLM is finetuned, not frozen.
 **Key findings for Qwen2-VL:**
 - Layer alignment: Input vision tokens align most to mid-layer (layer 4) contextual embeddings
 - Token drift: Similarity drops from 0.96 (layer 1) to 0.10 (layer 27) - more drift than frozen LLMs
-- Interpretability: LN-Lens (60-73%) >> LogitLens (max 53%) >> Static NN (9-26%)
+- Interpretability: LatentLens (60-73%) >> LogitLens (max 53%) >> Static NN (9-26%)
 
 **Git:**
 - Pushed to `final` branch and paper submodule
@@ -538,7 +538,7 @@ This confirms Qwen2-VL's LLM is finetuned, not frozen.
 **Added Qwen2-VL subsection to paper (section 4.5):**
 - New figure `figures/fig_qwen2vl.pdf`: 3-panel plot showing Static NN, LogitLens, Contextual interpretability
 - Results consistent with main paper methodology (100 patches, same LLM judge)
-- Key findings: LN-Lens works well (60-73%) even on finetuned LLMs, Static NN very low (9-26%)
+- Key findings: LatentLens works well (60-73%) even on finetuned LLMs, Static NN very low (9-26%)
 - Added cross-reference from section 4.3 (layer evolution discussion)
 - Added `wang2024qwen2vl` citation to bibliography
 
@@ -672,7 +672,7 @@ Plots use 100% identical logic to standalone scripts for reproducibility.
 - Added patchscopes scanning in `scan_analysis_results()`
 - Added patchscopes loading in `load_all_analysis_data()`
 - Updated CSS: 4-column grid, purple color for patchscopes
-- Updated HTML column order: **LN-Lens, Logit Lens, Embedding Matrix, Patchscopes**
+- Updated HTML column order: **LatentLens, Logit Lens, Embedding Matrix, Patchscopes**
 - Added JavaScript rendering for patchscopes descriptions
 
 **Files modified**:
@@ -794,7 +794,7 @@ Per-model breakdown (for appendix):
 
 All values from `data.json`. Baseline = OLMo-7B + ViT-L/14.
 
-| Model Variant | NN Overlap (all/high-sim) | Static NN L0 | LN-Lens L0 | Caption Score |
+| Model Variant | NN Overlap (all/high-sim) | Static NN L0 | LatentLens L0 | Caption Score |
 |---------------|---------------------------|--------------|------------|---------------|
 | **Baseline** | --- | 55.0% | 71.0% | 6.60 |
 | Different seed (seed10) | 13.6 / 45.4 | 52.7% | 68.3% | 6.68 |
@@ -813,7 +813,7 @@ All values from `data.json`. Baseline = OLMo-7B + ViT-L/14.
 
 Off-the-shelf Qwen2-VL-7B-Instruct (pretrained, not our training):
 
-| Layer | Static NN | LogitLens | LN-Lens |
+| Layer | Static NN | LogitLens | LatentLens |
 |-------|-----------|-----------|---------|
 | 0 | 26% | 12% | 63% |
 | 1 | 24% | 13% | 63% |
@@ -822,7 +822,7 @@ Off-the-shelf Qwen2-VL-7B-Instruct (pretrained, not our training):
 | 26 | 9% | 41% | 73% |
 | 27 | 14% | 53% | 60% |
 
-Key insight: Even off-the-shelf models show high LN-Lens interpretability (63%+ at L0).
+Key insight: Even off-the-shelf models show high LatentLens interpretability (63%+ at L0).
 
 ---
 
@@ -891,12 +891,12 @@ Return a single JSON object with fields:
 | OLMo-7B | 55% | 42% | 42% |
 | LLaMA3-8B | 35% | 23% | 20% |
 | Qwen2-7B | 18% | 5% | 7% |
-| **LN-Lens (ours)** |
+| **LatentLens (ours)** |
 | OLMo-7B | 71% | 63% | 84% |
 | LLaMA3-8B | 82% | 63% | 85% |
 | Qwen2-7B | 79% | 66% | 80% |
 
-Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input layer!
+Key finding: LatentLens shows 2-10x higher interpretability than Static NN at input layer!
 
 ---
 
@@ -971,16 +971,16 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
 - **Added `bennokrojer.github.io`** as git submodule at `./website`
 - **Synced** updated `unified_viewer_lite/` (with Layer 0 fix) to `website/vlm_interp_demo/`
 - **Demo live at**: https://bennokrojer.github.io/vlm_interp_demo/
-- **Git (website)**: `20f42af` - Update VLM interp demo with Layer 0 LN-Lens fix
+- **Git (website)**: `20f42af` - Update VLM interp demo with Layer 0 LatentLens fix
 - **Git (molmo)**: `6e7f370` - Add website as submodule for hosting VLM interp demo
 
-### 2026-01-05 (FIX: Missing Layer 0 LN-Lens data in main model viewers)
-- **USER REPORT**: "main 3x3 models are missing the layer 0 LN-Lens results"
+### 2026-01-05 (FIX: Missing Layer 0 LatentLens data in main model viewers)
+- **USER REPORT**: "main 3x3 models are missing the layer 0 LatentLens results"
   - Qwen2-VL and ablations showed Layer 0, but main 9 models did not
 - **ROOT CAUSE** in `create_unified_viewer.py` (`load_all_analysis_data()`):
   - Code only loaded ONE visual_layer file (visual_layer=0)
   - But stored results under **contextual layer** keys (1, 2, 4, 8...) instead of **visual layer** key (0)
-  - When layer dropdown showed "Layer 0", no LN-Lens data existed at that key!
+  - When layer dropdown showed "Layer 0", no LatentLens data existed at that key!
   - In contrast, `generate_ablation_viewers.py` correctly stored under visual layer keys
 - **FIX**: Load ALL visual layer files, each stored under its visual layer key
   - Now loads: `{0: data, 1: data, 2: data, 4: data, 8: data, 16: data, 24: data, 30: data, 31: data}`
@@ -991,7 +991,7 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - `extract_patches_from_data()`, `get_grid_dimensions()`: Shared patch handling
   - `process_*_patch()`: Process patches into unified format
 - **REGENERATED**: `unified_viewer_lite/` for all 9 main models with fix
-- **Git**: `0379443` - Fix missing layer 0 LN-Lens data in main model viewers
+- **Git**: `0379443` - Fix missing layer 0 LatentLens data in main model viewers
 - **Git**: `589cf2a` - Add shared data loading functions to viewer_lib.py
 
 ### 2026-01-05 (Comprehensive ablation table for paper)
@@ -999,15 +999,15 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - Captioning score: `eval_captioning_gpt-judge.py` → LLM judge mean (GPT-4o, 1-10 scale)
   - NN Overlap: `scripts/analysis/ablations_comparison.py` → Top-5 NN overlap with baseline
   - Static NN L0: `llm_judge_nearest_neighbors/ablations/` → accuracy field
-  - LN-Lens L0: `llm_judge_contextual_nn/ablations/` → computed from results list
+  - LatentLens L0: `llm_judge_contextual_nn/ablations/` → computed from results list
   - Task Accuracy: `captions/*/generated_captions.json` → position matching
 - **Seed mapping confirmed**: seed10 matches paper (52.7% L0 interp), not seed11 (59.7%)
 - **TopBottom accuracy** slight discrepancy: computed 75.67%/86.67% vs paper 76.33%/87.33% (2/300 images)
 - **New comprehensive table** in paper with 6 columns:
-  - NN Overlap, Static NN L0, LN-Lens L0 (new!), Caption Score, Task Acc (new!)
+  - NN Overlap, Static NN L0, LatentLens L0 (new!), Caption Score, Task Acc (new!)
   - Added ViT layer 6/10 ablations
   - Width calculation: ~383pt < 468pt (ICML full page width)
-- **Git paper**: `23f9cbe` - Update ablation table: add LN-Lens L0, ViT layers
+- **Git paper**: `23f9cbe` - Update ablation table: add LatentLens L0, ViT layers
 - **Git molmo**: `b59d46d` - Update paper submodule
 
 ### 2026-01-05 (TopBottom ablation LLM judge evaluations)
@@ -1035,7 +1035,7 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
 ### 2026-01-04 (Qwen2-VL and Ablation Plotting)
 - **Generated plots** for Qwen2-VL (off-the-shelf model):
   - Unified plot: `paper_figures_output/qwen2vl/qwen2vl_unified.pdf`
-  - Individual plots for NN, LogitLens, Contextual V-Lens
+  - Individual plots for NN, LogitLens, Contextual LatentLens
   - All 9 layers (0, 1, 2, 4, 8, 16, 24, 26, 27) extracted successfully
 - **Generated ablation plots**:
   - Mega plots comparing all ablations vs baseline (NN, Contextual)
@@ -1154,7 +1154,7 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
 - **REFACTORED VIEWER GENERATION** to fix lack of modularity
   - **Problem**: Two separate scripts (`create_unified_viewer.py`, `generate_ablation_viewers.py`) had duplicated logic
   - **Impact**: Any fix to one had to be manually replicated to the other → error-prone, caused bugs
-  - **Example**: LN-Lens badge fix applied to main viewer but not ablations → bug slipped through
+  - **Example**: LatentLens badge fix applied to main viewer but not ablations → bug slipped through
 - **THE REFACTOR - Created `scripts/analysis/viewer_lib.py`**:
   - Extracted shared functions: `pil_image_to_base64`, `create_preprocessor`, `escape_for_html`, `patch_idx_to_row_col`
   - Both scripts now import from single source of truth
@@ -1176,8 +1176,8 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - Now creates preprocessor per model and applies correct preprocessing (ViT=padding, SigLIP/DINOv2=resize)
 - **Git**: Committed preprocessing fix (commit 17d9a6f)
 
-### 2026-01-04 (CRITICAL FIX: LN-Lens Contextual Layer Badge Bug + Strict Validation)
-- **FIXED CRITICAL BUG**: LN-Lens showing sparse/missing data and no layer badges
+### 2026-01-04 (CRITICAL FIX: LatentLens Contextual Layer Badge Bug + Strict Validation)
+- **FIXED CRITICAL BUG**: LatentLens showing sparse/missing data and no layer badges
   - **Root cause**: Line 910 in `create_unified_viewer.py` was filtering contextual neighbors by layer
   - **The bug**: `nearest_contextual = [n for n in all_neighbors if n.get("contextual_layer") == layer]`
   - **Why it broke**: Layer dropdown selects VISUAL layer (0, 1, 2...), not contextual layer
@@ -1187,13 +1187,13 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - Removed the filter on line 910 that destroyed the badge functionality
   - Now shows all top-5 neighbors with `contextual_layer` field preserved for badge display
   - Each neighbor's badge shows which contextual layer it came from
-- **KEY ARCHITECTURE INSIGHT**: LN-Lens has TWO separate layer concepts:
+- **KEY ARCHITECTURE INSIGHT**: LatentLens has TWO separate layer concepts:
   1. **Visual layer** (dropdown): Which visual representation to analyze (layer 0, 1, 2...)
   2. **Contextual layer** (badges): Which LLM layer the contextual neighbor came from (L1, L2, L8...)
 - **FIXED QWEN2-VL MISSING CONTEXTUAL DATA**:
   - **Root cause**: Wrong path in `viewer_models.json` - said `ablations/...` but should be `qwen2_vl/...`
   - Fixed contextual path: `qwen2_vl/Qwen_Qwen2-VL-7B-Instruct`
-  - Regenerated Qwen2-VL viewer - now has all 3 analysis types (NN, LogitLens, LN-Lens)
+  - Regenerated Qwen2-VL viewer - now has all 3 analysis types (NN, LogitLens, LatentLens)
   - File size went from 3.3MB → 7.0MB (contextual data added)
 - **ADDED STRICT VALIDATION** to prevent partial data issues:
   - **Changed `add_models_to_viewer.py`**: Now requires ALL analysis types have data (no partial allowed!)
@@ -1207,9 +1207,9 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
 - **Updated CLAUDE.md**: Added "VALIDATION BEFORE EXECUTION" section + Qwen2-VL special case warning
 - **Git**: Will commit all fixes to `origin/final`
 
-### 2026-01-03 (Viewer Investigation: LN-Lens Data Sparse But Working) ⚠️ INCORRECT ANALYSIS
+### 2026-01-03 (Viewer Investigation: LatentLens Data Sparse But Working) ⚠️ INCORRECT ANALYSIS
 - **NOTE**: This entry documents a MISUNDERSTANDING - the sparse data was actually a BUG, not expected behavior
-- **What happened**: LN-Lens appeared to show sparse data per layer in viewer
+- **What happened**: LatentLens appeared to show sparse data per layer in viewer
 - **Incorrect conclusion**: Thought this was expected because top-5 neighbors concentrate in 1-2 layers
 - **Actual problem**: Line 910 was filtering contextual neighbors, breaking the badge display (fixed 2026-01-04)
 - **Deleted all old viewer directories** (5 variants: _lite, _lite_final, _lite_new, _lite_old, _lite_qwen2vl_test)
@@ -1307,7 +1307,7 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - Created migration plan with 4 phases
   - Inventoried all scripts (active vs legacy)
 - **FIXED** `create_unified_viewer.py` for allLayers format:
-  - LN-Lens now uses `contextual_nearest_neighbors/` folder (removed `_vg` dependency)
+  - LatentLens now uses `contextual_nearest_neighbors/` folder (removed `_vg` dependency)
   - Added support for new allLayers file format (one file per visual layer, contains all contextual layers)
   - Filters neighbors by `contextual_layer` during processing
   - Adds `contextual_layer` field to output for layer badge display
@@ -1315,8 +1315,8 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
   - Embedding Matrix (Molmo): `nearest_neighbors` key
   - Embedding Matrix (Qwen2-VL): `top_neighbors` key (different!)
   - LogitLens: `top_predictions` key
-  - LN-Lens: `nearest_contextual_neighbors` key
-- **Git push**: d026e35 "Add schema standardization docs + fix LN-Lens allLayers format loading"
+  - LatentLens: `nearest_contextual_neighbors` key
+- **Git push**: d026e35 "Add schema standardization docs + fix LatentLens allLayers format loading"
 
 ---
 
@@ -1325,7 +1325,7 @@ Key finding: LN-Lens shows 2-10x higher interpretability than Static NN at input
 ### 2024-12-31 (Phase 1 Standardization)
 - **RENAMED DISPLAY NAMES** in viewer for paper consistency:
   - "Nearest Neighbors (NN)" → "Embedding Matrix"
-  - "Contextual NN" → "LN-Lens"
+  - "Contextual NN" → "LatentLens"
   - LogitLens unchanged
   - Updated `create_unified_viewer.py` (column headers, stats labels, comments)
   - Fixed indentation error in main loop (line 1902)

@@ -1,0 +1,79 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwehf8445hkx7wnuop",
+  "timestamp": "2025-11-12T19:35:55.084Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:33:40.802Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00001_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:33:52.671Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch2",
+      "selectedWords": [
+        {
+          "word": "dark sign with a chef sitting on a star.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:34:05.911Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00001_patch3",
+      "selectedWords": [
+        {
+          "word": "colorful and vibrant food",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:34:17.603Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00001_patch4",
+      "selectedWords": [
+        {
+          "word": "a gold brooch with a blue gem",
+          "relation": "global"
+        },
+        {
+          "word": "a necklace with a blue gem",
+          "relation": "global"
+        },
+        {
+          "word": "a large faux gem",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:34:38.617Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00001_patch5",
+      "selectedWords": [
+        {
+          "word": "woman is wearing a long flowing skirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "painting of woman in long flowing dress",
+          "relation": "concrete"
+        },
+        {
+          "word": "long sleeve drapey black top",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:35:54.964Z"
+    }
+  ]
+}

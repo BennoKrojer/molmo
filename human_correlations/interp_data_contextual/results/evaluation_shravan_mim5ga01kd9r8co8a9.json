@@ -1,0 +1,99 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5ga01kd9r8co8a9",
+  "timestamp": "2025-11-30T20:05:05.668Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00136_patch0",
+      "selectedWords": [
+        {
+          "word": "small piece of cucumber on a plate next to a small tomato.",
+          "relation": "concrete"
+        },
+        {
+          "word": "bowl of fresh mixed green salad with lettuce leafy greens and tomato served outdoors in summer as an accompaniment to a barbecue",
+          "relation": "concrete"
+        },
+        {
+          "word": "sandwich is filled with tomato souce",
+          "relation": "concrete"
+        },
+        {
+          "word": "sandwich with tomatoes and onions",
+          "relation": "concrete"
+        },
+        {
+          "word": "a piece of tomato in the salad.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:03:11.091Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00136_patch1",
+      "selectedWords": [
+        {
+          "word": "fresh cilantro",
+          "relation": "concrete"
+        },
+        {
+          "word": "knife covered with diced onions",
+          "relation": "concrete"
+        },
+        {
+          "word": "sliced carrots and diced onions in a blue pan",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:03:48.962Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00136_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:03:52.434Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00136_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:04:05.010Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00136_patch4",
+      "selectedWords": [
+        {
+          "word": "eggs and toast on white plate with pancake",
+          "relation": "concrete"
+        },
+        {
+          "word": "two sandwiches on wheat bread.",
+          "relation": "global"
+        },
+        {
+          "word": "lemon wedge in front of bread",
+          "relation": "global"
+        },
+        {
+          "word": "sesame seeds topping a bruschetta",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:04:45.441Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00136_patch5",
+      "selectedWords": [
+        {
+          "word": "the recipes from the cookbook are irresistible and not even that bad for you",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:05:05.569Z"
+    }
+  ]
+}

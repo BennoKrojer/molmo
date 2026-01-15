@@ -1,0 +1,86 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwereoc7dsqako0go3",
+  "timestamp": "2025-11-12T19:43:40.931Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00136_patch0",
+      "selectedWords": [
+        {
+          "word": "small piece of cucumber on a plate next to a small tomato.",
+          "relation": "concrete"
+        },
+        {
+          "word": "bowl of fresh mixed green salad with lettuce leafy greens and tomato served outdoors in summer as an accompaniment to a barbecue",
+          "relation": "concrete"
+        },
+        {
+          "word": "sandwich is filled with tomato souce",
+          "relation": "concrete"
+        },
+        {
+          "word": "sandwich with tomatoes and onions",
+          "relation": "concrete"
+        },
+        {
+          "word": "a piece of tomato in the salad.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:42:33.003Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00136_patch1",
+      "selectedWords": [
+        {
+          "word": "knife covered with diced onions",
+          "relation": "global"
+        },
+        {
+          "word": "handle of toothbrush is green, white and purple",
+          "relation": "global"
+        },
+        {
+          "word": "white bus with red and purple stripes",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:42:59.633Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00136_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:43:04.373Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00136_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:43:11.785Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00136_patch4",
+      "selectedWords": [
+        {
+          "word": "two sandwiches on wheat bread.",
+          "relation": "global"
+        },
+        {
+          "word": "lemon wedge in front of bread",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:43:34.504Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00136_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:43:40.812Z"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "userId": "Marius",
+  "sessionId": "mhxko6vudt3hw4vnfgr",
+  "timestamp": "2025-11-13T15:16:54.715Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00100_patch0",
+      "selectedWords": [
+        {
+          "word": "two people sitting on brown couch",
+          "relation": "concrete"
+        },
+        {
+          "word": "two women sitting on a floral sofa.",
+          "relation": "concrete"
+        },
+        {
+          "word": "one man is sleeping in couch.",
+          "relation": "concrete"
+        },
+        {
+          "word": "two cats laying on a couch",
+          "relation": "concrete"
+        },
+        {
+          "word": "wooden futon frame with black futon",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:15:48.750Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00100_patch1",
+      "selectedWords": [
+        {
+          "word": "there is a chandelier above the grand piano",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:15:57.203Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00100_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T15:16:09.101Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00100_patch3",
+      "selectedWords": [
+        {
+          "word": "a dip in the swirling water",
+          "relation": "abstract"
+        },
+        {
+          "word": "upright ring of bright swirling colors",
+          "relation": "abstract"
+        },
+        {
+          "word": "small blob of a kite among white swirling clouds",
+          "relation": "abstract"
+        },
+        {
+          "word": "kite tail of swirling colored ribbons",
+          "relation": "abstract"
+        },
+        {
+          "word": "swirling and splashing water swirling about.",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:16:24.087Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch4",
+      "selectedWords": [
+        {
+          "word": "a white plate with flowery edges",
+          "relation": "abstract"
+        },
+        {
+          "word": "white tank top with blue edging around neckline",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:16:35.570Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch5",
+      "selectedWords": [
+        {
+          "word": "two mirrors with black framing hanging on a wall",
+          "relation": "abstract"
+        },
+        {
+          "word": "? in white, on a sign, enclosed in a white-bordered blue circle",
+          "relation": "abstract"
+        },
+        {
+          "word": "green shutter on right with decorative scrolls",
+          "relation": "concrete"
+        },
+        {
+          "word": "clock with decorative white scrolling around it",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:16:54.618Z"
+    }
+  ]
+}

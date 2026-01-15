@@ -1,0 +1,48 @@
+{
+  "userId": "Oscar Mañas",
+  "sessionId": "mhw4u8z0qojuonsm8c",
+  "timestamp": "2025-11-12T15:05:57.793Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:00:43.988Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:02:16.609Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:02:22.912Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00139_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:02:29.442Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00139_patch4",
+      "selectedWords": [
+        {
+          "word": "pots of paints on the floor",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:05:54.421Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:05:57.227Z"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgvhf6gtqp7rcqmo9",
+  "timestamp": "2025-11-13T13:30:36.528Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00293_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:30:03.797Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00293_patch1",
+      "selectedWords": [
+        {
+          "word": "man in plaid shirt, jeans and gray hat",
+          "relation": "concrete"
+        },
+        {
+          "word": "boy is wearing black jeans",
+          "relation": "concrete"
+        },
+        {
+          "word": "person has black slacks",
+          "relation": "concrete"
+        },
+        {
+          "word": "man has grey slacks on",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:30:16.423Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00293_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:30:18.165Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00293_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:30:19.784Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00293_patch4",
+      "selectedWords": [
+        {
+          "word": "a female member of the press with blonde hair holding a microphone and recorder",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:30:33.823Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00293_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:30:36.402Z"
+    }
+  ]
+}

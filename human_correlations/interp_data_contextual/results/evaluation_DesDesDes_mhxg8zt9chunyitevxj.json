@@ -1,0 +1,88 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxg8zt9chunyitevxj",
+  "timestamp": "2025-11-13T13:13:07.320Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00187_patch0",
+      "selectedWords": [
+        {
+          "word": "seamless pattern of tiny people : pedestrians in the street , a diverse collection of small hand drawn men and women walking through the city",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:12:28.135Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00187_patch1",
+      "selectedWords": [
+        {
+          "word": "further to the back are white goats with black or dark faces",
+          "relation": "concrete"
+        },
+        {
+          "word": "astonished, admiring look on a person's face",
+          "relation": "concrete"
+        },
+        {
+          "word": "we can see two faces of this clock tower",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:12:36.852Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch2",
+      "selectedWords": [
+        {
+          "word": "a pair of red satin high heels with gold heels",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:12:47.629Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch3",
+      "selectedWords": [
+        {
+          "word": "fog is obscuring boats and trees in the distance.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:12:58.182Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00187_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:12:59.599Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00187_patch5",
+      "selectedWords": [
+        {
+          "word": "\"justice for oscar\" graffiti on wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "the pants the person on the mural is wearing.",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue and green graffiti on side of train",
+          "relation": "concrete"
+        },
+        {
+          "word": "yellow and black graffiti on the ramp",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:13:07.149Z"
+    }
+  ]
+}

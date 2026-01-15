@@ -1,0 +1,78 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5dfo26xakr12c8y8",
+  "timestamp": "2025-11-30T20:02:53.049Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch0",
+      "selectedWords": [
+        {
+          "word": "name tag is white with red & blue decor/info",
+          "relation": "concrete"
+        },
+        {
+          "word": "stack of papers with highlighted information",
+          "relation": "concrete"
+        },
+        {
+          "word": "slice of pizza topped with greens and egg",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue pole with notices posted on it",
+          "relation": "concrete"
+        },
+        {
+          "word": "black traffic light showing green light",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:01:21.724Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch1",
+      "selectedWords": [
+        {
+          "word": "two women looking at a smartphone",
+          "relation": "concrete"
+        },
+        {
+          "word": "an old smartphone",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:01:37.100Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00216_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:02:04.379Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:02:14.051Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:02:33.187Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00216_patch5",
+      "selectedWords": [
+        {
+          "word": "yellow sign with black, red and green writing",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:02:52.946Z"
+    }
+  ]
+}

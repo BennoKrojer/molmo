@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py", line 35, in <module>
+    from olmo.data import build_mm_preprocessor
+ImportError: cannot import name 'build_mm_preprocessor' from 'olmo.data' (/home/nlp/users/bkroje/vl_embedding_spaces/env/lib/python3.10/site-packages/olmo/data/__init__.py)

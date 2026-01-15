@@ -1,0 +1,98 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5scyuiqu2qx5xhfd",
+  "timestamp": "2025-12-06T10:36:38.814Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00119_patch3",
+      "selectedWords": [
+        {
+          "word": "red bell peppers with green tops",
+          "relation": "concrete"
+        },
+        {
+          "word": "the zucchini is green.",
+          "relation": "concrete"
+        },
+        {
+          "word": "thorn on a stick like plant with yellow/green fruit",
+          "relation": "concrete"
+        },
+        {
+          "word": "the bamboo is green and brown",
+          "relation": "concrete"
+        },
+        {
+          "word": "the fence has green posts.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:36:06.232Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00119_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:36:08.051Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00119_patch5",
+      "selectedWords": [
+        {
+          "word": "indentation on the tablecloth",
+          "relation": "concrete"
+        },
+        {
+          "word": "the writing on the table cloth is black.",
+          "relation": "concrete"
+        },
+        {
+          "word": "the stack of napkins are white",
+          "relation": "concrete"
+        },
+        {
+          "word": "striped pattern on a tablecloth",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:36:17.208Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00119_patch6",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:36:19.790Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00119_patch7",
+      "selectedWords": [
+        {
+          "word": "long brown ovals of sweet potatos",
+          "relation": "concrete"
+        },
+        {
+          "word": "pair of black skis with yellow ovals on the bottom",
+          "relation": "concrete"
+        },
+        {
+          "word": "beige sofa with brown half circles.",
+          "relation": "concrete"
+        },
+        {
+          "word": "top of building with three dark ovals",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:36:34.048Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00119_patch8",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:36:38.694Z"
+    }
+  ]
+}

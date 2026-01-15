@@ -1,0 +1,61 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5czkxpxcsd77x94f",
+  "timestamp": "2025-12-06T10:24:41.672Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00291_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:05.996Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00291_patch1",
+      "selectedWords": [
+        {
+          "word": "a person wearing armor",
+          "relation": "concrete"
+        },
+        {
+          "word": "they are dressed in armor",
+          "relation": "concrete"
+        },
+        {
+          "word": "an older man in armor",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:24:16.884Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00291_patch2",
+      "selectedWords": [
+        {
+          "word": "a single person wearing blue-purple in the close distance, behind the zebu",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:24:25.583Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00291_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:36.254Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00291_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:39.337Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00291_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:41.505Z"
+    }
+  ]
+}

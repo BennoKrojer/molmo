@@ -35,6 +35,25 @@
 
 ---
 
+## ⚠️ MINDSET: NO SHORTCUTS ⚠️
+
+**Never settle for easy fixes or quick workarounds. Aim for perfection.**
+
+- If something doesn't work (e.g., Unicode characters not rendering), **exhaust all options** before falling back to placeholders or workarounds
+- Always ask: "Is there a proper solution?" before accepting a hack
+- Academic rigor means doing things RIGHT, not just doing things FAST
+- Be skeptical of your own first approach—question whether it could be better
+- Don't wait for the user to push back—proactively pursue excellence
+
+**Examples of what NOT to do:**
+- Unicode doesn't render? → Don't immediately replace with `[Korean]`—try XeLaTeX, fontspec, font fallbacks first
+- Data looks wrong? → Don't patch the display—investigate the source
+- Something is hard? → Don't simplify the requirement—solve the actual problem
+
+**What went wrong (2026-01-14):** When Unicode characters failed to render, immediately fell back to `[Korean]`, `[RU]` placeholders instead of trying XeLaTeX with proper font support. The proper solution (XeLaTeX + DejaVu + Baekmuk fallback) took 2 minutes once actually attempted.
+
+---
+
 ## Communication
 
 **When showing results or finishing tasks:**

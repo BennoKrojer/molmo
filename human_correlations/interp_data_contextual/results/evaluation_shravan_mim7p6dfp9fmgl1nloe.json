@@ -1,0 +1,124 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim7p6dfp9fmgl1nloe",
+  "timestamp": "2025-11-30T21:08:00.362Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:06:47.965Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00234_patch1",
+      "selectedWords": [
+        {
+          "word": "blue tablecloth with fish printed on it",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:06:57.219Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00234_patch2",
+      "selectedWords": [
+        {
+          "word": "mcdonalds container of chicken nuggets",
+          "relation": "concrete"
+        },
+        {
+          "word": "a platter of chicken wings and vegetables",
+          "relation": "concrete"
+        },
+        {
+          "word": "crispy fried poultry leg",
+          "relation": "concrete"
+        },
+        {
+          "word": "a pile of minced garlic",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white plate with blue trim full of onions",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:07:12.757Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch3",
+      "selectedWords": [
+        {
+          "word": "two uncooked hamburger patties",
+          "relation": "concrete"
+        },
+        {
+          "word": "cooked hamburger patties in aluminium pan",
+          "relation": "concrete"
+        },
+        {
+          "word": "four raw hamburger patties.",
+          "relation": "concrete"
+        },
+        {
+          "word": "hot dog on left is overly charred",
+          "relation": "concrete"
+        },
+        {
+          "word": "cheese is melted and charred",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:07:35.360Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00234_patch4",
+      "selectedWords": [
+        {
+          "word": "orange nose of toy",
+          "relation": "concrete"
+        },
+        {
+          "word": "orange and white barrel with yellow light on top",
+          "relation": "concrete"
+        },
+        {
+          "word": "black legs to a pair of pants",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:07:52.203Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00234_patch5",
+      "selectedWords": [
+        {
+          "word": "red, white, and blue protest sign",
+          "relation": "concrete"
+        },
+        {
+          "word": "white with blue label shopping bag",
+          "relation": "concrete"
+        },
+        {
+          "word": "large white and blue bus with black window trim",
+          "relation": "concrete"
+        },
+        {
+          "word": "person with blue jacket",
+          "relation": "concrete"
+        },
+        {
+          "word": "man surfing with blue pants",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:08:00.002Z"
+    }
+  ]
+}

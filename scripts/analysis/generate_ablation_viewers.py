@@ -419,7 +419,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
                     <div class="stat-label">layers</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">LN-Lens</div>
+                    <div class="stat-label">LatentLens</div>
                     <div class="stat-value">{len(ctx_layers)}</div>
                     <div class="stat-label">layers</div>
                 </div>

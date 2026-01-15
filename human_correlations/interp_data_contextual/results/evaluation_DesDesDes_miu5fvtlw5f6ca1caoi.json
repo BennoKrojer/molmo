@@ -1,0 +1,94 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5fvtlw5f6ca1caoi",
+  "timestamp": "2025-12-06T10:26:56.708Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00078_patch0",
+      "selectedWords": [
+        {
+          "word": "man wearing a sweater and khaki pants",
+          "relation": "concrete"
+        },
+        {
+          "word": "a woman wearing a beige sweater",
+          "relation": "concrete"
+        },
+        {
+          "word": "the woman is wearing a dark grey sweater.",
+          "relation": "concrete"
+        },
+        {
+          "word": "the man in the blue sweater",
+          "relation": "concrete"
+        },
+        {
+          "word": "a boy in a purple and white sweater sits",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:26:21.545Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00078_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:23.843Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00078_patch2",
+      "selectedWords": [
+        {
+          "word": "there are four pillows on the bed",
+          "relation": "concrete"
+        },
+        {
+          "word": "brown and gold throw pillow",
+          "relation": "concrete"
+        },
+        {
+          "word": "pair of large red sofa pillows",
+          "relation": "concrete"
+        },
+        {
+          "word": "a beautiful view of pillows",
+          "relation": "concrete"
+        },
+        {
+          "word": "stack of four rectangular white pillows on bed",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:26:33.425Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00078_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:37.776Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00078_patch4",
+      "selectedWords": [
+        {
+          "word": "there is a black lamp post",
+          "relation": "concrete"
+        },
+        {
+          "word": "gold print on a black shirt",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:26:52.172Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00078_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:56.601Z"
+    }
+  ]
+}

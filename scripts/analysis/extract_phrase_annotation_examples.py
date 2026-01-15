@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Extract interpretable V-Lens examples for phrase-level annotation.
+Extract interpretable LatentLens examples for phrase-level annotation.
 
 This script:
 1. Reads LLM judge results and filters for examples where TOP-1 word is interpretable
@@ -452,12 +452,12 @@ def create_annotation_image(full_image, crop, sentence, token, model_info, outpu
             start_y += 18
         return start_y + 5
 
-    # Draw V-Lens phrase (top-1 contextual NN match with highlighted token)
+    # Draw LatentLens phrase (top-1 contextual NN match with highlighted token)
     if token_pos is not None:
         vlens_highlighted = highlight_by_token_position(sentence, token_pos, llm, expected_token=token)
     else:
         vlens_highlighted = highlight_token_in_sentence(sentence, token)
-    text_y = draw_highlighted_text(vlens_highlighted, text_y, "V-Lens top phrase:", 'darkgreen', pre_highlighted=True)
+    text_y = draw_highlighted_text(vlens_highlighted, text_y, "LatentLens top phrase:", 'darkgreen', pre_highlighted=True)
 
     # Draw comparison phrase if available (use token position for correct highlighting)
     if comparison_phrase:

@@ -1,0 +1,78 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwfhqotkr1b0ee16a",
+  "timestamp": "2025-11-12T20:04:09.555Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00064_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:03:08.273Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch1",
+      "selectedWords": [
+        {
+          "word": "man's right hand reaching for the frisbee",
+          "relation": "abstract"
+        },
+        {
+          "word": "arm of man reaching to catch frisbee",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:03:32.408Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00064_patch2",
+      "selectedWords": [
+        {
+          "word": "a tall off white building.",
+          "relation": "concrete"
+        },
+        {
+          "word": "two desserts with plastic utensils",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman holding a yellow wand",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:03:49.157Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00064_patch3",
+      "selectedWords": [
+        {
+          "word": "a brown/black house",
+          "relation": "concrete"
+        },
+        {
+          "word": "a brown/black/pink/black striped shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "pitcher & batter helmets are similar, almost a green-black, & plastic",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:04:00.131Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00064_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:04:05.920Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:04:09.437Z"
+    }
+  ]
+}

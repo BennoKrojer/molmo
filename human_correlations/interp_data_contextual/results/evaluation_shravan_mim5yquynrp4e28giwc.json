@@ -1,0 +1,141 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5yquynrp4e28giwc",
+  "timestamp": "2025-11-30T20:19:27.330Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00096_patch0",
+      "selectedWords": [
+        {
+          "word": "two small animal skulls",
+          "relation": "concrete"
+        },
+        {
+          "word": "a man in middle of bucnhes of banana",
+          "relation": "concrete"
+        },
+        {
+          "word": "a drawing of a skull",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:18:14.138Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00096_patch1",
+      "selectedWords": [
+        {
+          "word": "a white skull head on the back of a leather jacket",
+          "relation": "concrete"
+        },
+        {
+          "word": "partially obscured orange skull and bones",
+          "relation": "concrete"
+        },
+        {
+          "word": "this is a skull and crossbones",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:18:26.618Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch2",
+      "selectedWords": [
+        {
+          "word": "a very blue looking body of water",
+          "relation": "concrete"
+        },
+        {
+          "word": "the glowing eyes of the orange cat",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:18:46.131Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch3",
+      "selectedWords": [
+        {
+          "word": "a white and gray mouse next to a computer",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue and gray door on the white train car",
+          "relation": "concrete"
+        },
+        {
+          "word": "light gray tile on wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "the water is white and gray",
+          "relation": "concrete"
+        },
+        {
+          "word": "a plaque displayed on a cement slab",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:19:06.778Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00096_patch4",
+      "selectedWords": [
+        {
+          "word": "the girl has is wearing a white graphic shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "the front tire of the white truck.",
+          "relation": "concrete"
+        },
+        {
+          "word": "man wearing brown sweater with white collar",
+          "relation": "concrete"
+        },
+        {
+          "word": "man in black shirt with white single stripe down arm of shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "a pair of white shorts with red stripes",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:19:17.514Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00096_patch5",
+      "selectedWords": [
+        {
+          "word": "a drawing of a skull",
+          "relation": "concrete"
+        },
+        {
+          "word": "black and red graffiti of skulls, anarchy signs, etc.",
+          "relation": "concrete"
+        },
+        {
+          "word": "platform for display of bones",
+          "relation": "concrete"
+        },
+        {
+          "word": "a happy looking skull",
+          "relation": "concrete"
+        },
+        {
+          "word": "an ipad with a drawing of a skull on the locked screen",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:19:27.226Z"
+    }
+  ]
+}

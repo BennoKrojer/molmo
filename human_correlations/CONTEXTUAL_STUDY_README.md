@@ -79,7 +79,7 @@ The output format is similar to the token-level study, with additions:
 
 New fields:
 - **`layer`**: The LLM layer used for this instance (randomly selected)
-- **`visual_layer`**: The visual layer (always 0 for now)
+- **`visual_layer`**: The visual layer (0 = vision backbone output, higher = after N LLM transformer layers)
 - **`sentence_candidates`**: Same as `candidates` - sentences with `**highlighted**` tokens
 - **`token_candidates`**: The original token-level candidates (for reference)
 

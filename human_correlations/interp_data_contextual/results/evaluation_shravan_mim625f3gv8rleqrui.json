@@ -1,0 +1,90 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim625f3gv8rleqrui",
+  "timestamp": "2025-11-30T20:22:06.169Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00032_patch0",
+      "selectedWords": [
+        {
+          "word": "small brown table with two chairs",
+          "relation": "concrete"
+        },
+        {
+          "word": "there is a black chair that",
+          "relation": "concrete"
+        },
+        {
+          "word": "two brown wicker baskets with orange and red fruit",
+          "relation": "abstract"
+        },
+        {
+          "word": "kittens laying in wicker basket",
+          "relation": "abstract"
+        },
+        {
+          "word": "torn wicker on side of basket",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:21:19.417Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00032_patch1",
+      "selectedWords": [
+        {
+          "word": "the table is reddish brown",
+          "relation": "concrete"
+        },
+        {
+          "word": "the limb is reddish brown.",
+          "relation": "concrete"
+        },
+        {
+          "word": "table is a reddish-brown",
+          "relation": "concrete"
+        },
+        {
+          "word": "ground is reddish brown colored",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:21:29.992Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00032_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:21:37.544Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00032_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:21:42.528Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00032_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:21:43.992Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00032_patch5",
+      "selectedWords": [
+        {
+          "word": "a bird with a white and brown chest",
+          "relation": "concrete"
+        },
+        {
+          "word": "the mixed palette of concrete , wood , marble , glass and mirrors was chosen for practical reasons ; the different elements could be sourced locally and require minimal maintenance",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:22:06.063Z"
+    }
+  ]
+}

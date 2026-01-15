@@ -1127,11 +1127,11 @@ def main():
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     sns.set_style("whitegrid")
     
-    # Order: Input Embedding Matrix, Output Embedding Matrix (LogitLens), LN-Lens (ours last)
+    # Order: Input Embedding Matrix, Output Embedding Matrix (LogitLens), LatentLens (ours last)
     configs = [
         (axes[0], nn_data, '(a) Input Embedding Matrix'),
         (axes[1], logitlens_data, '(b) Output Embedding Matrix (LogitLens)'),
-        (axes[2], contextual_data, '(c) LN-Lens (Ours)'),
+        (axes[2], contextual_data, '(c) LatentLens (Ours)'),
     ]
 
     handles = {}

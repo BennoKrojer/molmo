@@ -1,0 +1,69 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhweuf2veyv210uq9qu",
+  "timestamp": "2025-11-12T19:46:01.430Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch0",
+      "selectedWords": [
+        {
+          "word": "red and white buildings",
+          "relation": "global"
+        },
+        {
+          "word": "two women wearing white outfits",
+          "relation": "concrete"
+        },
+        {
+          "word": "young man jumping with other man wearing identical outfits",
+          "relation": "concrete"
+        },
+        {
+          "word": "the vase is white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:44:23.865Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:44:40.523Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch2",
+      "selectedWords": [
+        {
+          "word": "black metal framed tower",
+          "relation": "global"
+        },
+        {
+          "word": "silver van near tower.",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:45:43.619Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00284_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:45:52.316Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00284_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:45:56.802Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00284_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:46:01.303Z"
+    }
+  ]
+}

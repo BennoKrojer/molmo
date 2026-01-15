@@ -1,0 +1,987 @@
+Generating 30 sunburst data files and plots...
+
+[1/30] Processing: olmo-7b_vit-l-14-336 - all
+  Generating data...
+Model filter: olmo-7b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing olmo-7b_vit-l-14-336 layer 16...
+  Loaded NN data for olmo-7b_vit-l-14-336 (layer 0)
+Processing olmo-7b_vit-l-14-336 layer 31...
+Processing olmo-7b_vit-l-14-336 layer 4...
+Processing olmo-7b_vit-l-14-336 layer 2...
+Processing olmo-7b_vit-l-14-336 layer 1...
+Processing olmo-7b_vit-l-14-336 layer 30...
+Processing olmo-7b_vit-l-14-336 layer 0...
+Processing olmo-7b_vit-l-14-336 layer 8...
+Processing olmo-7b_vit-l-14-336 layer 24...
+
+Extracting captions from 1 cached models...
+  olmo-7b_vit-l-14-336: extracted captions for 407 words
+
+Counting phrase context occurrences...
+
+Concrete: 1262 total, 320 unique words
+  Top 5 words: ['off-white', 'backgrounds', 'red', 'beak', 'icons']
+  'off-white' top phrases: []
+
+Abstract: 406 total, 158 unique words
+  Top 5 words: ['foreground', 'forefront', 'background', 'advertisement', 'scenery']
+  'foreground' top phrases: [('...dogs in the *foreground*', 667), ('...is in the *foreground*', 637), ('...kid in the *foreground*', 430)]
+
+Global: 123 total, 78 unique words
+  Top 5 words: ['background', 'sofa', 'seated', 'buildings', 'persons']
+  'background' top phrases: [('...bus in the *background*', 389), ('a *background*', 229), ('...wall in the *background*', 223)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_vit-l-14-336.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_vit-l-14-336.pdf
+  Done: sunburst_interpretation_types_olmo-7b_vit-l-14-336.pdf
+
+[2/30] Processing: olmo-7b_vit-l-14-336 - first
+  Generating data...
+Model filter: olmo-7b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing olmo-7b_vit-l-14-336 layer 0...
+  Loaded NN data for olmo-7b_vit-l-14-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_vit-l-14-336: extracted captions for 125 words
+
+Counting phrase context occurrences...
+
+Concrete: 151 total, 96 unique words
+  Top 5 words: ['backgrounds', 'red', 'pink', 'off-white', 'only']
+  'backgrounds' top phrases: [('...tan and green *backgrounds*', 203), ('...frames around blue *backgrounds*', 170), ('...blue and white *backgrounds*', 167)]
+
+Abstract: 47 total, 31 unique words
+  Top 5 words: ['foreground', 'background', 'right', 'displayed', 'protruding']
+  'foreground' top phrases: [('...dogs in the *foreground*', 667), ('...is in the *foreground*', 637), ('...kid in the *foreground*', 430)]
+
+Global: 12 total, 10 unique words
+  Top 5 words: ['background', 'buildings', 'trees', 'seated', 'white']
+  'background' top phrases: [('...bus in the *background*', 389), ('a *background*', 229), ('...wall in the *background*', 223)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_vit-l-14-336_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_vit-l-14-336_layer0.pdf
+  Done: sunburst_interpretation_types_olmo-7b_vit-l-14-336_layer0.pdf
+
+[3/30] Processing: olmo-7b_vit-l-14-336 - last
+  Generating data...
+Model filter: olmo-7b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing olmo-7b_vit-l-14-336 layer 31...
+  Loaded NN data for olmo-7b_vit-l-14-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_vit-l-14-336: extracted captions for 89 words
+
+Counting phrase context occurrences...
+
+Concrete: 99 total, 78 unique words
+  Top 5 words: ['backdrop', 'mahogany', 'beak', 'bathtub', 'looping']
+  'backdrop' top phrases: [('...animals, with blurry *backdrop*', 277), ('a black *backdrop*', 78), ('a white *backdrop*', 47)]
+
+Abstract: 31 total, 28 unique words
+  Top 5 words: ['half-visible', 'reading', 'background', 'labeled', 'reads']
+  'half-visible' top phrases: []
+
+Global: 23 total, 19 unique words
+  Top 5 words: ['persons', 'tongs', 'spatulas', 'lttering', 'text']
+  'persons' top phrases: [('a *persons*', 10), ('part of a *persons*', 3), ('...that reads disabled *persons*', 3)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_vit-l-14-336_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_vit-l-14-336_layerLast.pdf
+  Done: sunburst_interpretation_types_olmo-7b_vit-l-14-336_layerLast.pdf
+
+[4/30] Processing: olmo-7b_siglip - all
+  Generating data...
+Model filter: olmo-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing olmo-7b_siglip layer 30...
+  Loaded NN data for olmo-7b_siglip (layer 0)
+Processing olmo-7b_siglip layer 2...
+Processing olmo-7b_siglip layer 31...
+Processing olmo-7b_siglip layer 1...
+Processing olmo-7b_siglip layer 4...
+Processing olmo-7b_siglip layer 8...
+Processing olmo-7b_siglip layer 16...
+Processing olmo-7b_siglip layer 0...
+Processing olmo-7b_siglip layer 24...
+
+Extracting captions from 1 cached models...
+  olmo-7b_siglip: extracted captions for 407 words
+
+Counting phrase context occurrences...
+
+Concrete: 789 total, 271 unique words
+  Top 5 words: ['doorway', 'chocolate', 'packaging', 'black', 'brown']
+  'doorway' top phrases: [('*doorway*', 181), ('dark *doorway*', 95), ('an arched *doorway*', 34)]
+
+Abstract: 277 total, 129 unique words
+  Top 5 words: ['measure', 'foreground', 'donation', 'grouped', 'arranged']
+  'measure' top phrases: [('...a red tape *measure*', 81), ('the yellow tape *measure*', 13), ('a tape *measure*', 5)]
+
+Global: 342 total, 157 unique words
+  Top 5 words: ['arrows', 'pointing', 'stock', 'circle', 'foreground']
+  'arrows' top phrases: [('...with four direction *arrows*', 34), ('white buttons with *arrows*', 30), ('two black directional *arrows*', 24)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_siglip.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_siglip.pdf
+  Done: sunburst_interpretation_types_olmo-7b_siglip.pdf
+
+[5/30] Processing: olmo-7b_siglip - first
+  Generating data...
+Model filter: olmo-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing olmo-7b_siglip layer 0...
+  Loaded NN data for olmo-7b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_siglip: extracted captions for 125 words
+
+Counting phrase context occurrences...
+
+Concrete: 89 total, 64 unique words
+  Top 5 words: ['fries', 'embellishments', 'black', 'packaging', 'brown']
+  'fries' top phrases: [('...white bowl with *fries*', 206), ('...white plate of *fries*', 200), ('...plate of french *fries*', 184)]
+
+Abstract: 39 total, 35 unique words
+  Top 5 words: ['exchange', 'arranged', 'results', 'listings', 'listing']
+  'exchange' top phrases: [('...sign stating " *exchange*', 13), ('...sign saying " *exchange*', 9), ('...sign says " *exchange*', 9)]
+
+Global: 37 total, 36 unique words
+  Top 5 words: ['button', 'queen', 'royalty', 'multicolored', 'stock']
+  'button' top phrases: [('round blue select *button*', 188), ('green and yellow *button*', 109), ('the ok *button*', 100)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_siglip_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_siglip_layer0.pdf
+  Done: sunburst_interpretation_types_olmo-7b_siglip_layer0.pdf
+
+[6/30] Processing: olmo-7b_siglip - last
+  Generating data...
+Model filter: olmo-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing olmo-7b_siglip layer 31...
+  Loaded NN data for olmo-7b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_siglip: extracted captions for 67 words
+
+Counting phrase context occurrences...
+
+Concrete: 64 total, 49 unique words
+  Top 5 words: ['angels', 'chocolate', 'façade', 'fries', 'leaves—many']
+  'angels' top phrases: [('...wall paper has *angels*', 14), ('man wearing *angels*', 3), ('*angels*', 2)]
+
+Abstract: 18 total, 15 unique words
+  Top 5 words: ['aligned', 'foreground', 'perforated', 'doodling', 'undecipherable']
+  'aligned' top phrases: [('...and red batteries *aligned*', 3), ('...up of visually *aligned*', 1), ('luggage carts *aligned*', 1)]
+
+Global: 31 total, 28 unique words
+  Top 5 words: ['pointing', 'script', '"red', 'tress', 'pizzeria']
+  'pointing' top phrases: [('...just metal things *pointing*', 40), ('...sign with arrows *pointing*', 23), ('...with an arrow *pointing*', 20)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_siglip_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_siglip_layerLast.pdf
+  Done: sunburst_interpretation_types_olmo-7b_siglip_layerLast.pdf
+
+[7/30] Processing: olmo-7b_dinov2-large-336 - all
+  Generating data...
+Model filter: olmo-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing olmo-7b_dinov2-large-336 layer 4...
+  Loaded NN data for olmo-7b_dinov2-large-336 (layer 0)
+Processing olmo-7b_dinov2-large-336 layer 2...
+Processing olmo-7b_dinov2-large-336 layer 8...
+Processing olmo-7b_dinov2-large-336 layer 24...
+Processing olmo-7b_dinov2-large-336 layer 31...
+Processing olmo-7b_dinov2-large-336 layer 30...
+Processing olmo-7b_dinov2-large-336 layer 1...
+Processing olmo-7b_dinov2-large-336 layer 0...
+Processing olmo-7b_dinov2-large-336 layer 16...
+
+Extracting captions from 1 cached models...
+  olmo-7b_dinov2-large-336: extracted captions for 469 words
+
+Counting phrase context occurrences...
+
+Concrete: 1333 total, 348 unique words
+  Top 5 words: ['clippings', 'writings', 'broth', 'snowy', 'paragraph']
+  'clippings' top phrases: [('...full of lawn *clippings*', 78), ('there are lawn *clippings*', 62), ('newspaper *clippings*', 46)]
+
+Abstract: 369 total, 150 unique words
+  Top 5 words: ['background', 'foreground', 'half-visible', 'scenic', 'scenery']
+  'background' top phrases: [('...bus in the *background*', 365), ('...building in the *background*', 349), ('the *background*', 324)]
+
+Global: 169 total, 91 unique words
+  Top 5 words: ['guitars', 'instruments', 'instrument', 'trees', 'gabled']
+  'guitars' top phrases: [('...two men playing *guitars*', 13), ('teenagers with toy *guitars*', 10), ('...with pictures of *guitars*', 3)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_dinov2-large-336.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_dinov2-large-336.pdf
+  Done: sunburst_interpretation_types_olmo-7b_dinov2-large-336.pdf
+
+[8/30] Processing: olmo-7b_dinov2-large-336 - first
+  Generating data...
+Model filter: olmo-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing olmo-7b_dinov2-large-336 layer 0...
+  Loaded NN data for olmo-7b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_dinov2-large-336: extracted captions for 161 words
+
+Counting phrase context occurrences...
+
+Concrete: 173 total, 121 unique words
+  Top 5 words: ['writings', 'embellishments', 'instrument', 'snowy', 'reflections']
+  'writings' top phrases: [('...board with white *writings*', 908), ('...signboard with white *writings*', 863), ('...sign with white *writings*', 604)]
+
+Abstract: 45 total, 35 unique words
+  Top 5 words: ['background', 'scenic', 'lush', 'half-visible', 'scenery']
+  'background' top phrases: [('...bus in the *background*', 365), ('...building in the *background*', 349), ('the *background*', 324)]
+
+Global: 25 total, 20 unique words
+  Top 5 words: ['borders', 'trees', 'foreground', 'hearts', 'heart']
+  'borders' top phrases: [('...board with wooden *borders*', 494), ('...and thin green *borders*', 301), ('...cloth with orange *borders*', 149)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_dinov2-large-336_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_dinov2-large-336_layer0.pdf
+  Done: sunburst_interpretation_types_olmo-7b_dinov2-large-336_layer0.pdf
+
+[9/30] Processing: olmo-7b_dinov2-large-336 - last
+  Generating data...
+Model filter: olmo-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing olmo-7b_dinov2-large-336 layer 31...
+  Loaded NN data for olmo-7b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  olmo-7b_dinov2-large-336: extracted captions for 65 words
+
+Counting phrase context occurrences...
+
+Concrete: 74 total, 51 unique words
+  Top 5 words: ['clippings', 'façade', 'orange', 'countertop', 'drizzle']
+  'clippings' top phrases: [('...full of lawn *clippings*', 78), ('there are lawn *clippings*', 62), ('newspaper *clippings*', 46)]
+
+Abstract: 22 total, 21 unique words
+  Top 5 words: ['background', 'screenshot', 'intricate', 'tousled', 'music']
+  'background' top phrases: [('...bus in the *background*', 365), ('...building in the *background*', 349), ('the *background*', 324)]
+
+Global: 18 total, 14 unique words
+  Top 5 words: ['red/yellow', 'pinstripes', 'faucets', 'dark-blue', 'badge']
+  'red/yellow' top phrases: []
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_olmo-7b_dinov2-large-336_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_olmo-7b_dinov2-large-336_layerLast.pdf
+  Done: sunburst_interpretation_types_olmo-7b_dinov2-large-336_layerLast.pdf
+
+[10/30] Processing: llama3-8b_vit-l-14-336 - all
+  Generating data...
+Model filter: llama3-8b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing llama3-8b_vit-l-14-336 layer 30...
+  Loaded NN data for llama3-8b_vit-l-14-336 (layer 0)
+Processing llama3-8b_vit-l-14-336 layer 31...
+Processing llama3-8b_vit-l-14-336 layer 24...
+Processing llama3-8b_vit-l-14-336 layer 4...
+Processing llama3-8b_vit-l-14-336 layer 16...
+Processing llama3-8b_vit-l-14-336 layer 2...
+Processing llama3-8b_vit-l-14-336 layer 1...
+Processing llama3-8b_vit-l-14-336 layer 8...
+Processing llama3-8b_vit-l-14-336 layer 0...
+
+Extracting captions from 1 cached models...
+  llama3-8b_vit-l-14-336: extracted captions for 421 words
+
+Counting phrase context occurrences...
+
+Concrete: 1326 total, 304 unique words
+  Top 5 words: ['white', 'wooden', 'grey', 'full', 'backdrop']
+  'white' top phrases: [('horizon composed of, *white*', 20151), ('...featuring roman numerals, *white*', 19283), ('...banknotes on a *white*', 14314)]
+
+Abstract: 451 total, 172 unique words
+  Top 5 words: ['background', 'foreground', 'left', 'backdrop', 'wooded']
+  'background' top phrases: [('...a white isolated *background*', 14314), ('...theme seamless pattern *background*', 399), ('...oranges in the *background*', 353)]
+
+Global: 170 total, 64 unique words
+  Top 5 words: ['left', 'trees', 'busts', 'tree', 'skyscrapers']
+  'left' top phrases: [('...angled towards its *left*', 945), ('...prominently featured behind *left*', 406), ('...window in upper- *left*', 148)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_vit-l-14-336.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_vit-l-14-336.pdf
+  Done: sunburst_interpretation_types_llama3-8b_vit-l-14-336.pdf
+
+[11/30] Processing: llama3-8b_vit-l-14-336 - first
+  Generating data...
+Model filter: llama3-8b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing llama3-8b_vit-l-14-336 layer 0...
+  Loaded NN data for llama3-8b_vit-l-14-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_vit-l-14-336: extracted captions for 160 words
+
+Counting phrase context occurrences...
+
+Concrete: 170 total, 113 unique words
+  Top 5 words: ['backdrop', 'icons', 'coat', 'truck', 'yellow']
+  'backdrop' top phrases: [('...with a snowy *backdrop*', 524), ('...vehicle, against indistinct *backdrop*', 183), ('...duck against blue *backdrop*', 174)]
+
+Abstract: 56 total, 44 unique words
+  Top 5 words: ['left', 'backdrop', 'background', 'foreground', 'mid-right']
+  'left' top phrases: [('...angled towards its *left*', 945), ('...prominently featured behind *left*', 406), ('...window in upper- *left*', 148)]
+
+Global: 19 total, 15 unique words
+  Top 5 words: ['trees', 'tree', 'wooden', 'wood', 'clustered']
+  'trees' top phrases: [('...grouping of evergreen *trees*', 524), ('...covered in small *trees*', 429), ('...completely obscured by *trees*', 195)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_vit-l-14-336_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_vit-l-14-336_layer0.pdf
+  Done: sunburst_interpretation_types_llama3-8b_vit-l-14-336_layer0.pdf
+
+[12/30] Processing: llama3-8b_vit-l-14-336 - last
+  Generating data...
+Model filter: llama3-8b_vit-l-14-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing llama3-8b_vit-l-14-336 layer 31...
+  Loaded NN data for llama3-8b_vit-l-14-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_vit-l-14-336: extracted captions for 100 words
+
+Counting phrase context occurrences...
+
+Concrete: 95 total, 78 unique words
+  Top 5 words: ['grey', 'ad', 'ears', 'fried', 'phone']
+  'grey' top phrases: [('*grey*', 454), ('a *grey*', 430), ('overcast *grey*', 228)]
+
+Abstract: 44 total, 40 unique words
+  Top 5 words: ['gathered', 'vista', 'assembled', 'historic', 'displayed']
+  'gathered' top phrases: [('white draperies *gathered*', 8), ('...builders and associates *gathered*', 4), ('group of people *gathered*', 3)]
+
+Global: 11 total, 9 unique words
+  Top 5 words: ['seated', 'busts', 'adverts', 'dually', 'smilling']
+  'seated' top phrases: [('woman *seated*', 18), ('*seated*', 16), ('a woman is *seated*', 13)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_vit-l-14-336_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_vit-l-14-336_layerLast.pdf
+  Done: sunburst_interpretation_types_llama3-8b_vit-l-14-336_layerLast.pdf
+
+[13/30] Processing: llama3-8b_siglip - all
+  Generating data...
+Model filter: llama3-8b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing llama3-8b_siglip layer 2...
+  Loaded NN data for llama3-8b_siglip (layer 0)
+Processing llama3-8b_siglip layer 1...
+Processing llama3-8b_siglip layer 31...
+Processing llama3-8b_siglip layer 24...
+Processing llama3-8b_siglip layer 30...
+Processing llama3-8b_siglip layer 4...
+Processing llama3-8b_siglip layer 0...
+Processing llama3-8b_siglip layer 16...
+Processing llama3-8b_siglip layer 8...
+
+Extracting captions from 1 cached models...
+  llama3-8b_siglip: extracted captions for 189 words
+
+Counting phrase context occurrences...
+
+Concrete: 706 total, 109 unique words
+  Top 5 words: ['black', 'chocolate', 'fries', 'blazer', 'pancake']
+  'black' top phrases: [('*black*', 5504), ('...is painted red, *black*', 4804), ('a *black*', 2716)]
+
+Abstract: 211 total, 45 unique words
+  Top 5 words: ['currencies', 'app', 'drama', 'page', 'software']
+  'currencies' top phrases: [('...background of international *currencies*', 20), ('...with symbols of *currencies*', 10), ('...money of different *currencies*', 7)]
+
+Global: 397 total, 84 unique words
+  Top 5 words: ['building', 'meme', 'robes', 'palace', 'circle']
+  'building' top phrases: [('...brick wall of *building*', 766), ('*building*', 338), ('...in front of *building*', 271)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_siglip.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_siglip.pdf
+  Done: sunburst_interpretation_types_llama3-8b_siglip.pdf
+
+[14/30] Processing: llama3-8b_siglip - first
+  Generating data...
+Model filter: llama3-8b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing llama3-8b_siglip layer 0...
+  Loaded NN data for llama3-8b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_siglip: extracted captions for 111 words
+
+Counting phrase context occurrences...
+
+Concrete: 88 total, 66 unique words
+  Top 5 words: ['black', 'grey', 'chocolate', 'is', 'striped']
+  'black' top phrases: [('*black*', 5504), ('...is painted red, *black*', 4804), ('a *black*', 2716)]
+
+Abstract: 27 total, 18 unique words
+  Top 5 words: ['beauty', 'address', 'currencies', 'page', 'adress']
+  'beauty' top phrases: [('...easily for their *beauty*', 248), ("...of nature 's *beauty*", 53), ('*beauty*', 30)]
+
+Global: 51 total, 33 unique words
+  Top 5 words: ['palace', 'mid-air', 'jeans', 'clouds', 'cumulus']
+  'palace' top phrases: [('...and chateau or *palace*', 87), ('...room in a *palace*', 51), ('...picture of buckingham *palace*', 42)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_siglip_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_siglip_layer0.pdf
+  Done: sunburst_interpretation_types_llama3-8b_siglip_layer0.pdf
+
+[15/30] Processing: llama3-8b_siglip - last
+  Generating data...
+Model filter: llama3-8b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing llama3-8b_siglip layer 31...
+  Loaded NN data for llama3-8b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_siglip: extracted captions for 101 words
+
+Counting phrase context occurrences...
+
+Concrete: 77 total, 53 unique words
+  Top 5 words: ['fries', 'blazer', 'black', 'pancake', 'chocolate']
+  'fries' top phrases: [('...of seasoned french *fries*', 265), ('heap of oily *fries*', 203), ('...hand retrieving french *fries*', 127)]
+
+Abstract: 25 total, 23 unique words
+  Top 5 words: ['page', 'software', 'romanesque', 'drama', 'filth,']
+  'page' top phrases: [('a search *page*', 271), ('...a google search *page*', 101), ('...printing a front *page*', 43)]
+
+Global: 41 total, 34 unique words
+  Top 5 words: ['label', 'animal', 'white', 'meme', 'robes']
+  'label' top phrases: [('...in 1985 ( *label*', 402), ('...white and red *label*', 214), ('...green and blue *label*', 144)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_siglip_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_siglip_layerLast.pdf
+  Done: sunburst_interpretation_types_llama3-8b_siglip_layerLast.pdf
+
+[16/30] Processing: llama3-8b_dinov2-large-336 - all
+  Generating data...
+Model filter: llama3-8b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing llama3-8b_dinov2-large-336 layer 2...
+  Loaded NN data for llama3-8b_dinov2-large-336 (layer 0)
+Processing llama3-8b_dinov2-large-336 layer 24...
+Processing llama3-8b_dinov2-large-336 layer 8...
+Processing llama3-8b_dinov2-large-336 layer 1...
+Processing llama3-8b_dinov2-large-336 layer 0...
+Processing llama3-8b_dinov2-large-336 layer 16...
+Processing llama3-8b_dinov2-large-336 layer 4...
+Processing llama3-8b_dinov2-large-336 layer 31...
+Processing llama3-8b_dinov2-large-336 layer 30...
+
+Extracting captions from 1 cached models...
+  llama3-8b_dinov2-large-336: extracted captions for 203 words
+
+Counting phrase context occurrences...
+
+Concrete: 1489 total, 166 unique words
+  Top 5 words: ['text', 'burgundy', 'egg', 'clouds', 'sandals']
+  'text' top phrases: [('...sticker with yellow *text*', 1135), ('...complements the original *text*', 1125), ('...found in the *text*', 473)]
+
+Abstract: 385 total, 61 unique words
+  Top 5 words: ['profile', 'backdrop', 'arboreal', 'luscious', 'behind']
+  'profile' top phrases: [('...of rooster in *profile*', 143), ('...bird head in *profile*', 98), ('*profile*', 90)]
+
+Global: 166 total, 41 unique words
+  Top 5 words: ['clothing', 'smartphones', 'laptops', 'toolbar', 'skull']
+  'clothing' top phrases: [('...dressed in dark *clothing*', 39), ('...woman dressed in *clothing*', 19), ('...with colorful traditional *clothing*', 9)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_dinov2-large-336.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_dinov2-large-336.pdf
+  Done: sunburst_interpretation_types_llama3-8b_dinov2-large-336.pdf
+
+[17/30] Processing: llama3-8b_dinov2-large-336 - first
+  Generating data...
+Model filter: llama3-8b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing llama3-8b_dinov2-large-336 layer 0...
+  Loaded NN data for llama3-8b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_dinov2-large-336: extracted captions for 164 words
+
+Counting phrase context occurrences...
+
+Concrete: 173 total, 132 unique words
+  Top 5 words: ['text', 'drizzle', 'skyscraper', 'burgundy', 'blonde']
+  'text' top phrases: [('...sticker with yellow *text*', 1135), ('...complements the original *text*', 1125), ('...found in the *text*', 473)]
+
+Abstract: 39 total, 28 unique words
+  Top 5 words: ['profile', 'arboreal', 'luscious', 'backdrop', 'behind']
+  'profile' top phrases: [('...of rooster in *profile*', 143), ('...bird head in *profile*', 98), ('*profile*', 90)]
+
+Global: 17 total, 16 unique words
+  Top 5 words: ['clothing', 'rings', 'shrimp', 'depiction', 'cyan']
+  'clothing' top phrases: [('...dressed in dark *clothing*', 39), ('...woman dressed in *clothing*', 19), ('...with colorful traditional *clothing*', 9)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_dinov2-large-336_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_dinov2-large-336_layer0.pdf
+  Done: sunburst_interpretation_types_llama3-8b_dinov2-large-336_layer0.pdf
+
+[18/30] Processing: llama3-8b_dinov2-large-336 - last
+  Generating data...
+Model filter: llama3-8b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing llama3-8b_dinov2-large-336 layer 31...
+  Loaded NN data for llama3-8b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  llama3-8b_dinov2-large-336: extracted captions for 166 words
+
+Counting phrase context occurrences...
+
+Concrete: 166 total, 129 unique words
+  Top 5 words: ['text', 'stucco', 'crown', 'clouds', 'paragraph']
+  'text' top phrases: [('...sticker with yellow *text*', 1135), ('...complements the original *text*', 1125), ('...found in the *text*', 473)]
+
+Abstract: 40 total, 33 unique words
+  Top 5 words: ['profile', 'luscious', 'arboreal', 'backdrop', 'behind']
+  'profile' top phrases: [('...of rooster in *profile*', 143), ('...bird head in *profile*', 98), ('*profile*', 90)]
+
+Global: 12 total, 12 unique words
+  Top 5 words: ['images', 'shrimp', 'paragraphs', 'cyan', 'nametag']
+  'images' top phrases: [('old *images*', 237), ('powerful *images*', 195), ('three *images*', 95)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_llama3-8b_dinov2-large-336_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_llama3-8b_dinov2-large-336_layerLast.pdf
+  Done: sunburst_interpretation_types_llama3-8b_dinov2-large-336_layerLast.pdf
+
+[19/30] Processing: qwen2-7b_vit-l-14-336_seed10 - all
+  Generating data...
+Model filter: qwen2-7b_vit-l-14-336_seed10 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing qwen2-7b_vit-l-14-336_seed10 layer 24...
+  Loaded NN data for qwen2-7b_vit-l-14-336_seed10 (layer 0)
+Processing qwen2-7b_vit-l-14-336_seed10 layer 1...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 4...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 0...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 27...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 16...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 2...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 26...
+Processing qwen2-7b_vit-l-14-336_seed10 layer 8...
+
+Extracting captions from 1 cached models...
+  qwen2-7b_vit-l-14-336_seed10: extracted captions for 277 words
+
+Counting phrase context occurrences...
+
+Concrete: 810 total, 212 unique words
+  Top 5 words: ['gray', 'orange', 'albums', 'grass', 'scissors']
+  'gray' top phrases: [('*gray*', 920), ('a *gray*', 410), ('...beans on a *gray*', 387)]
+
+Abstract: 193 total, 112 unique words
+  Top 5 words: ['lush', 'resting', 'meal', 'sharp', 'abundance']
+  'lush' top phrases: [('...of hills with *lush*', 196), ('...very grassy and *lush*', 54), ('*lush*', 53)]
+
+Global: 192 total, 89 unique words
+  Top 5 words: ['door.', 'the', 'helicopters', 'eye', 'mein']
+  'door.' top phrases: []
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_vit-l-14-336_seed10.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10.pdf
+
+[20/30] Processing: qwen2-7b_vit-l-14-336_seed10 - first
+  Generating data...
+Model filter: qwen2-7b_vit-l-14-336_seed10 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing qwen2-7b_vit-l-14-336_seed10 layer 0...
+  Loaded NN data for qwen2-7b_vit-l-14-336_seed10 (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_vit-l-14-336_seed10: extracted captions for 76 words
+
+Counting phrase context occurrences...
+
+Concrete: 105 total, 52 unique words
+  Top 5 words: ['orange', 'albums', 'windows', 'vegetation', 'cake']
+  'orange' top phrases: [('*orange*', 327), ('...is wearing an *orange*', 251), ('bright *orange*', 245)]
+
+Abstract: 17 total, 16 unique words
+  Top 5 words: ['resting', 'servings', 'focus', 'screen', 'sleeping']
+  'resting' top phrases: [('...a cat is *resting*', 22), ('...white paper plate *resting*', 13), ('dog mouth *resting*', 5)]
+
+Global: 19 total, 12 unique words
+  Top 5 words: ['door.', 'helicopters', 'skyline', 'boats', 'wall\\']
+  'door.' top phrases: []
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_vit-l-14-336_seed10_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10_layer0.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10_layer0.pdf
+
+[21/30] Processing: qwen2-7b_vit-l-14-336_seed10 - last
+  Generating data...
+Model filter: qwen2-7b_vit-l-14-336_seed10 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing qwen2-7b_vit-l-14-336_seed10 layer 27...
+  Loaded NN data for qwen2-7b_vit-l-14-336_seed10 (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_vit-l-14-336_seed10: extracted captions for 58 words
+
+Counting phrase context occurrences...
+
+Concrete: 78 total, 52 unique words
+  Top 5 words: ['/black', 'gray', 'lush', 'albums', 'fluffy']
+  '/black' top phrases: []
+
+Abstract: 22 total, 17 unique words
+  Top 5 words: ['topped', 'dense', 'commenting', 'rise', 'overcast']
+  'topped' top phrases: [('glass *topped*', 82), ('yellow rice is *topped*', 23), ('a pizza *topped*', 20)]
+
+Global: 18 total, 14 unique words
+  Top 5 words: ['helicopter', '/black', 'recessed', 'the', 'amber']
+  'helicopter' top phrases: [('a *helicopter*', 8), ('*helicopter*', 7), ('...blade on the *helicopter*', 2)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_vit-l-14-336_seed10_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10_layerLast.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_vit-l-14-336_seed10_layerLast.pdf
+
+[22/30] Processing: qwen2-7b_siglip - all
+  Generating data...
+Model filter: qwen2-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing qwen2-7b_siglip layer 26...
+  Loaded NN data for qwen2-7b_siglip (layer 0)
+Processing qwen2-7b_siglip layer 2...
+Processing qwen2-7b_siglip layer 0...
+Processing qwen2-7b_siglip layer 1...
+Processing qwen2-7b_siglip layer 16...
+Processing qwen2-7b_siglip layer 24...
+Processing qwen2-7b_siglip layer 4...
+Processing qwen2-7b_siglip layer 27...
+Processing qwen2-7b_siglip layer 8...
+
+Extracting captions from 1 cached models...
+  qwen2-7b_siglip: extracted captions for 199 words
+
+Counting phrase context occurrences...
+
+Concrete: 731 total, 102 unique words
+  Top 5 words: ['black', 'drizzle', 'flannel', 'tunic', 'know']
+  'black' top phrases: [('*black*', 11530), ('...nut chunk: the *black*', 3580), ('a *black*', 3119)]
+
+Abstract: 236 total, 60 unique words
+  Top 5 words: ['nature', 'portrait', 'disorganized', 'anime', 'scene']
+  'nature' top phrases: [('this is a *nature*', 155), ('...view, with minimal *nature*', 9), ('...be found in *nature*', 8)]
+
+Global: 503 total, 86 unique words
+  Top 5 words: ['google', 'screenshot', 'red', 'sketch', 'tomatoes']
+  'google' top phrases: [('...display shows a *google*', 262), ('icon standing for *google*', 154), ('part of a *google*', 130)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_siglip.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_siglip.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_siglip.pdf
+
+[23/30] Processing: qwen2-7b_siglip - first
+  Generating data...
+Model filter: qwen2-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing qwen2-7b_siglip layer 0...
+  Loaded NN data for qwen2-7b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_siglip: extracted captions for 127 words
+
+Counting phrase context occurrences...
+
+Concrete: 83 total, 64 unique words
+  Top 5 words: ['black', 'drizzle', 'know', 'plastic', 'blues']
+  'black' top phrases: [('*black*', 11530), ('...nut chunk: the *black*', 3580), ('a *black*', 3119)]
+
+Abstract: 27 total, 23 unique words
+  Top 5 words: ['scene', 'supermarket', 'nature', 'hazy', 'smoky']
+  'scene' top phrases: [('...is an outdoors *scene*', 450), ('a *scene*', 251), ('outside *scene*', 222)]
+
+Global: 50 total, 48 unique words
+  Top 5 words: ['screenshot', 'tomatoes', 'city', 'plaza', 'town']
+  'screenshot' top phrases: [('blurry *screenshot*', 403)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_siglip_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_siglip_layer0.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_siglip_layer0.pdf
+
+[24/30] Processing: qwen2-7b_siglip - last
+  Generating data...
+Model filter: qwen2-7b_siglip -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing qwen2-7b_siglip layer 27...
+  Loaded NN data for qwen2-7b_siglip (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_siglip: extracted captions for 134 words
+
+Counting phrase context occurrences...
+
+Concrete: 77 total, 63 unique words
+  Top 5 words: ['drizzle', 'black', 'blues', 'browns', 'know']
+  'drizzle' top phrases: [('...donut with chocolate *drizzle*', 87), ('...icing and chocolate *drizzle*', 37), ('...doughnuts with chocolate *drizzle*', 32)]
+
+Abstract: 40 total, 33 unique words
+  Top 5 words: ['nature', 'scene', 'disorganized', 'supermarket', 'hazy']
+  'nature' top phrases: [('this is a *nature*', 155), ('...view, with minimal *nature*', 9), ('...be found in *nature*', 8)]
+
+Global: 52 total, 44 unique words
+  Top 5 words: ['google', 'all', 'workout', 'screenshot', 'tomatoes']
+  'google' top phrases: [('...display shows a *google*', 262), ('icon standing for *google*', 154), ('part of a *google*', 130)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_siglip_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_siglip_layerLast.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_siglip_layerLast.pdf
+
+[25/30] Processing: qwen2-7b_dinov2-large-336 - all
+  Generating data...
+Model filter: qwen2-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing qwen2-7b_dinov2-large-336 layer 1...
+  Loaded NN data for qwen2-7b_dinov2-large-336 (layer 0)
+Processing qwen2-7b_dinov2-large-336 layer 16...
+Processing qwen2-7b_dinov2-large-336 layer 26...
+Processing qwen2-7b_dinov2-large-336 layer 0...
+Processing qwen2-7b_dinov2-large-336 layer 8...
+Processing qwen2-7b_dinov2-large-336 layer 4...
+Processing qwen2-7b_dinov2-large-336 layer 24...
+Processing qwen2-7b_dinov2-large-336 layer 27...
+Processing qwen2-7b_dinov2-large-336 layer 2...
+
+Extracting captions from 1 cached models...
+  qwen2-7b_dinov2-large-336: extracted captions for 338 words
+
+Counting phrase context occurrences...
+
+Concrete: 1295 total, 274 unique words
+  Top 5 words: ['white', 'brown', 'black', 'gray', 'blue']
+  'white' top phrases: [('*white*', 15243), ('a *white*', 2972), ('black and *white*', 2511)]
+
+Abstract: 310 total, 110 unique words
+  Top 5 words: ['expression', 'screen', 'plain', 'darkness', 'mowed']
+  'expression' top phrases: [('...a thoughtful solemn *expression*', 131), ('facial *expression*', 80), ('...an extremely serious *expression*', 50)]
+
+Global: 223 total, 78 unique words
+  Top 5 words: ['brown', 'black', 'turf', 'windows', 'fields']
+  'brown' top phrases: [('*brown*', 5317), ('men riding *brown*', 1163), ('...in front of *brown*', 882)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_dinov2-large-336.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_dinov2-large-336.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_dinov2-large-336.pdf
+
+[26/30] Processing: qwen2-7b_dinov2-large-336 - first
+  Generating data...
+Model filter: qwen2-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing qwen2-7b_dinov2-large-336 layer 0...
+  Loaded NN data for qwen2-7b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_dinov2-large-336: extracted captions for 131 words
+
+Counting phrase context occurrences...
+
+Concrete: 154 total, 102 unique words
+  Top 5 words: ['brown', 'white', 'gray', 'black', 'bacon']
+  'brown' top phrases: [('*brown*', 5317), ('men riding *brown*', 1163), ('...in front of *brown*', 882)]
+
+Abstract: 35 total, 29 unique words
+  Top 5 words: ['backward', 'screen', 'right', 'expression', 'darkness']
+  'backward' top phrases: [('spotted giraffe looking *backward*', 49), ('...the ground looking *backward*', 35), ('...sign that leans *backward*', 28)]
+
+Global: 25 total, 16 unique words
+  Top 5 words: ['brown', 'turf', 'blues', 'windows', 'black']
+  'brown' top phrases: [('*brown*', 5317), ('men riding *brown*', 1163), ('...in front of *brown*', 882)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_dinov2-large-336_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_dinov2-large-336_layer0.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_dinov2-large-336_layer0.pdf
+
+[27/30] Processing: qwen2-7b_dinov2-large-336 - last
+  Generating data...
+Model filter: qwen2-7b_dinov2-large-336 -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing qwen2-7b_dinov2-large-336 layer 27...
+  Loaded NN data for qwen2-7b_dinov2-large-336 (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2-7b_dinov2-large-336: extracted captions for 121 words
+
+Counting phrase context occurrences...
+
+Concrete: 146 total, 95 unique words
+  Top 5 words: ['yellow-green', 'blonde', 'shutters', 'blue-gray', 'brown']
+  'yellow-green' top phrases: []
+
+Abstract: 37 total, 30 unique words
+  Top 5 words: ['lush', 'section', 'second-floor', 'modern', 'nutritious']
+  'lush' top phrases: [('*lush*', 322), ('hills with *lush*', 42), ('...of earth amid *lush*', 14)]
+
+Global: 23 total, 18 unique words
+  Top 5 words: ['fries', 'glass', 'multipaned', 'text', 'helicopters']
+  'fries' top phrases: [('...of golden, shoestring *fries*', 99), ('plate of *fries*', 90), ('...fork in the *fries*', 85)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2-7b_dinov2-large-336_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2-7b_dinov2-large-336_layerLast.pdf
+  Done: sunburst_interpretation_types_qwen2-7b_dinov2-large-336_layerLast.pdf
+
+[28/30] Processing: qwen2vl - all
+  Generating data...
+Including 9 Qwen2-VL directories
+Model filter: qwen2vl -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: all
+Processing qwen2vl layer 4...
+  Loaded NN data for qwen2vl (layer 0)
+Processing qwen2vl layer 27...
+Processing qwen2vl layer 8...
+Processing qwen2vl layer 1...
+Processing qwen2vl layer 0...
+Processing qwen2vl layer 26...
+Processing qwen2vl layer 24...
+Processing qwen2vl layer 16...
+Processing qwen2vl layer 2...
+
+Extracting captions from 1 cached models...
+  qwen2vl: extracted captions for 333 words
+
+Counting phrase context occurrences...
+
+Concrete: 876 total, 220 unique words
+  Top 5 words: ['black', 'chairs', 'brown.', 'river', 'graffiti']
+  'black' top phrases: [('*black*', 6616), ('a *black*', 2706), ('...a zebra with *black*', 851)]
+
+Abstract: 251 total, 119 unique words
+  Top 5 words: ['night', 'standing', 'laughing', 'color.', 'pointing']
+  'night' top phrases: [('...it in the *night*', 170), ('...clock on the *night*', 43), ('...sign says "when *night*', 19)]
+
+Global: 247 total, 91 unique words
+  Top 5 words: ['rug', 'crochet', 'columns', 'bean', 'beans']
+  'rug' top phrases: [('the weird *rug*', 36), ('a *rug*', 33), ('...used for hanging *rug*', 26)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2vl.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2vl.pdf
+  Done: sunburst_interpretation_types_qwen2vl.pdf
+
+[29/30] Processing: qwen2vl - first
+  Generating data...
+Including 9 Qwen2-VL directories
+Model filter: qwen2vl -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: first
+Processing qwen2vl layer 0...
+  Loaded NN data for qwen2vl (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2vl: extracted captions for 90 words
+
+Counting phrase context occurrences...
+
+Concrete: 95 total, 59 unique words
+  Top 5 words: ['twelve', 'shadows', '@', 'leaves', 'black']
+  'twelve' top phrases: [('it is *twelve*', 55), ('...at time of *twelve*', 48), ('a train pulling *twelve*', 26)]
+
+Abstract: 33 total, 25 unique words
+  Top 5 words: ['stepping', 'stepped', 'laughng', 'tv', 'televison']
+  'stepping' top phrases: [('skier side *stepping*', 7), ('a woman *stepping*', 4), ('a man *stepping*', 4)]
+
+Global: 27 total, 17 unique words
+  Top 5 words: ['bean', 'app', 'helicopters', 'beans', 'tv']
+  'bean' top phrases: [('salad and *bean*', 22), ('fritata has a *bean*', 16), ('this is a *bean*', 5)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2vl_layer0.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2vl_layer0.pdf
+  Done: sunburst_interpretation_types_qwen2vl_layer0.pdf
+
+[30/30] Processing: qwen2vl - last
+  Generating data...
+Including 9 Qwen2-VL directories
+Model filter: qwen2vl -> 9 directories
+Found 9 LLM judge result directories
+Layer filter: last
+Processing qwen2vl layer 27...
+  Loaded NN data for qwen2vl (layer 0)
+
+Extracting captions from 1 cached models...
+  qwen2vl: extracted captions for 78 words
+
+Counting phrase context occurrences...
+
+Concrete: 68 total, 56 unique words
+  Top 5 words: ['cream', 'barcode', 'leafed', 'graffiti', 'length']
+  'cream' top phrases: [('...delicious looking ice *cream*', 118), ('...bite of ice *cream*', 82), ('...next to ice *cream*', 78)]
+
+Abstract: 35 total, 26 unique words
+  Top 5 words: ['background\\\\\\\\', 'laughing', 'meeting', '_art', 'eraser']
+  'background\\\\' top phrases: []
+
+Global: 25 total, 18 unique words
+  Top 5 words: ['crochet', 'rug', 'rugs', 'little', 'songbird']
+  'crochet' top phrases: [('...yarn and a *crochet*', 23), ('*crochet*', 22), ('...blue and white *crochet*', 21)]
+
+Saved sunburst data to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_data_qwen2vl_layerLast.pkl
+  Generating plot...
+Saved sunburst to /home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/sunburst_interpretation_types_qwen2vl_layerLast.pdf
+  Done: sunburst_interpretation_types_qwen2vl_layerLast.pdf
+
+All 30 sunbursts generated!
+Output directory: analysis_results/layer_evolution/

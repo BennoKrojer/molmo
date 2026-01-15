@@ -1,0 +1,79 @@
+==========================================
+LLM Judge - Topbottom Ablations
+==========================================
+Log dir: logs/topbottom_llm_judge_20260112_133953
+Layers: 0 1 2 4 8 16 24 30 31
+Images: 100
+
+Started:
+  Frozen: PID 2044525 (log: logs/topbottom_llm_judge_20260112_133953/frozen.log)
+  Unfrozen: PID 2044526 (log: logs/topbottom_llm_judge_20260112_133953/unfrozen.log)
+
+Waiting for completion...
+[13:39:53] Starting topbottom_olmo-7b_vit-l-14-336_unfreeze-llm
+[13:39:53] Starting topbottom_olmo-7b_vit-l-14-336
+[13:39:53] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 0...
+[13:39:53] Running topbottom_olmo-7b_vit-l-14-336 layer 0...
+[14:15:20] ✓ topbottom_olmo-7b_vit-l-14-336 layer 0 done
+[14:15:20] Running topbottom_olmo-7b_vit-l-14-336 layer 1...
+[14:16:06] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 0 done
+[14:16:06] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 1...
+[14:34:44] ✓ topbottom_olmo-7b_vit-l-14-336 layer 1 done
+[14:34:44] Running topbottom_olmo-7b_vit-l-14-336 layer 2...
+[14:35:55] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 1 done
+[14:35:55] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 2...
+[14:54:30] ✓ topbottom_olmo-7b_vit-l-14-336 layer 2 done
+[14:54:30] Running topbottom_olmo-7b_vit-l-14-336 layer 4...
+[14:54:45] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 2 done
+[14:54:45] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 4...
+[15:14:39] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 4 done
+[15:14:39] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 8...
+[15:14:41] ✓ topbottom_olmo-7b_vit-l-14-336 layer 4 done
+[15:14:41] Running topbottom_olmo-7b_vit-l-14-336 layer 8...
+[15:34:45] ✓ topbottom_olmo-7b_vit-l-14-336 layer 8 done
+[15:34:45] Running topbottom_olmo-7b_vit-l-14-336 layer 16...
+[15:34:59] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 8 done
+[15:34:59] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 16...
+[15:52:28] ✓ topbottom_olmo-7b_vit-l-14-336 layer 16 done
+[15:52:28] Running topbottom_olmo-7b_vit-l-14-336 layer 24...
+[15:55:11] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 16 done
+[15:55:11] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 24...
+[16:13:54] ✓ topbottom_olmo-7b_vit-l-14-336 layer 24 done
+[16:13:54] Running topbottom_olmo-7b_vit-l-14-336 layer 30...
+[16:15:11] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 24 done
+[16:15:11] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 30...
+[16:38:01] ✓ topbottom_olmo-7b_vit-l-14-336 layer 30 done
+[16:38:01] Running topbottom_olmo-7b_vit-l-14-336 layer 31...
+[16:38:59] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 30 done
+[16:38:59] Running topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 31...
+[16:56:12] ✓ topbottom_olmo-7b_vit-l-14-336 layer 31 done
+[16:56:12] Completed topbottom_olmo-7b_vit-l-14-336 (all layers)
+Frozen completed with exit code: 0
+[16:57:19] ✓ topbottom_olmo-7b_vit-l-14-336_unfreeze-llm layer 31 done
+[16:57:19] Completed topbottom_olmo-7b_vit-l-14-336_unfreeze-llm (all layers)
+Unfrozen completed with exit code: 0
+
+==========================================
+COMPLETE
+==========================================
+Results:
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 13:39 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual0_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:34 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual16_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:15 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual1_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:52 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual24_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:34 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual2_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 16:14 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual30_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 16:38 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual31_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:54 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual4_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:14 llm_judge_topbottom_olmo-7b_vit-l-14-336_contextual8_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 13:39 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual0_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:35 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual16_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:14 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual1_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:54 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual24_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:35 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual2_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 16:13 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual30_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 16:39 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual31_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 14:54 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual4_gpt5_cropped
+drwxr-xr-x  3 bkroje nogroup  4096 Jan 12 15:14 llm_judge_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_contextual8_gpt5_cropped
+
+Total topbottom directories: 18

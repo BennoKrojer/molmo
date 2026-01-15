@@ -1,0 +1,61 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwfmr2smcx276edzok",
+  "timestamp": "2025-11-12T20:08:03.342Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch0",
+      "selectedWords": [
+        {
+          "word": "a blue and black box with two antennas.",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:07:07.073Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch1",
+      "selectedWords": [
+        {
+          "word": "white plate with gold filigree",
+          "relation": "abstract"
+        },
+        {
+          "word": "man wearing red outfit with black and gold stripes.",
+          "relation": "abstract"
+        },
+        {
+          "word": "back of a red and gold train toy",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:07:28.924Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:07:39.030Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:07:46.121Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00007_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:07:47.835Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00007_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:08:03.220Z"
+    }
+  ]
+}

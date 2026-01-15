@@ -1,0 +1,94 @@
+{
+  "userId": "Marius",
+  "sessionId": "mhxkmg54b1vz1hsz339",
+  "timestamp": "2025-11-13T15:15:33.399Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00023_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T15:14:38.304Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00023_patch1",
+      "selectedWords": [
+        {
+          "word": "yellow letters on a black sign",
+          "relation": "global"
+        },
+        {
+          "word": "tall bald man wearing a black tie",
+          "relation": "global"
+        },
+        {
+          "word": "white presentation board with black and white markings",
+          "relation": "global"
+        },
+        {
+          "word": "three white outlets with black plugs",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:14:51.535Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T15:14:53.624Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00023_patch3",
+      "selectedWords": [
+        {
+          "word": "the trees are lush, green and leafy",
+          "relation": "concrete"
+        },
+        {
+          "word": "light green leafy plant in the foreground",
+          "relation": "concrete"
+        },
+        {
+          "word": "green salad leafs in bowl",
+          "relation": "concrete"
+        },
+        {
+          "word": "large green leaved trees",
+          "relation": "concrete"
+        },
+        {
+          "word": "tall green leafy tree behind elephants",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:15:07.453Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00023_patch4",
+      "selectedWords": [
+        {
+          "word": "tall weedy plant with long spikey leaves",
+          "relation": "concrete"
+        },
+        {
+          "word": "sculpture made of silvery spikes",
+          "relation": "abstract"
+        },
+        {
+          "word": "red blossom with thin spikes",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T15:15:25.803Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T15:15:33.304Z"
+    }
+  ]
+}

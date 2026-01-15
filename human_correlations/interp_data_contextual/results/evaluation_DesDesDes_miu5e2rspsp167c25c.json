@@ -1,0 +1,53 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5e2rspsp167c25c",
+  "timestamp": "2025-12-06T10:25:32.513Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00167_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:51.247Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00167_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:24:53.080Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00167_patch2",
+      "selectedWords": [
+        {
+          "word": "the shrimps are white and orange",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:25:03.448Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00167_patch3",
+      "selectedWords": [
+        {
+          "word": "the butterfly has curly green antennas",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:25:23.048Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00167_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:25:24.963Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00167_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:25:32.296Z"
+    }
+  ]
+}

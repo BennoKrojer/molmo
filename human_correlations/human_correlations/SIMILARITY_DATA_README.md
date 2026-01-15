@@ -1,14 +1,20 @@
-# LN-Lens Similarity Data for Human Study
+# LatentLens Similarity Data for Human Study
 
-## File: `human_study_similarities_contextual.json`
+## Files
 
-This file contains cosine similarities between vision tokens and their top-5 nearest neighbor candidates from the LN-Lens (contextual nearest neighbors) analysis.
+### `human_study_similarities_all_visual_layers.json` (Recommended)
+
+Contains cosine similarities across **all visual layers** (0, 1, 2, 4, 8, 16, 24, 30, 31 for OLMo/LLaMA; 0, 1, 2, 4, 8, 16, 24, 26, 27 for Qwen2). This is the comprehensive version.
+
+### `human_study_similarities_contextual.json` (Legacy)
+
+Contains similarities for **visual_layer=0 only**. This matches what was used in the original human study (which used visual_layer=0 due to an early limitation in the data generation pipeline).
 
 ## Data Structure
 
 ```json
 {
-  "description": "Cosine similarities for human-annotated instances (LN-Lens/contextual)",
+  "description": "Cosine similarities for human-annotated instances (LatentLens/contextual)",
   "total_instances": 360,
   "instances": [
     {
@@ -18,7 +24,7 @@ This file contains cosine similarities between vision tokens and their top-5 nea
       "patch_row": 2,
       "patch_col": 14,
       "layer": 2,              // LLM layer used for contextual embeddings
-      "visual_layer": 0,       // Vision backbone layer (always 0)
+      "visual_layer": 0,       // Vision layer (0=backbone output, higher=after N LLM layers)
       "image_url": "https://...",
       "caption": "Image description...",
       "neighbors": [

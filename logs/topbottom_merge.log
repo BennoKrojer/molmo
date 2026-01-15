@@ -1,0 +1,34 @@
+======================================================================
+MERGING TOPBOTTOM SHARDS
+======================================================================
+Found 6 shard directories
+
+Merging 8 layers with 8 workers...
+Merging:   0%|          | 0/8 [00:00<?, ?it/s]Merging:  12%|█▎        | 1/8 [47:50<5:34:53, 2870.48s/it]Merging:  25%|██▌       | 2/8 [49:41<2:04:42, 1247.16s/it]Merging:  38%|███▊      | 3/8 [49:41<56:29, 677.83s/it]   Merging:  50%|█████     | 4/8 [49:44<27:26, 411.52s/it]Merging:  62%|██████▎   | 5/8 [50:13<13:40, 273.34s/it]Merging:  88%|████████▊ | 7/8 [50:13<02:14, 134.76s/it]Merging: 100%|██████████| 8/8 [50:15<00:00, 99.29s/it] Merging: 100%|██████████| 8/8 [50:15<00:00, 376.90s/it]
+  Layer 16: 26862 tokens, 306962 embeddings
+  Layer 2: 26862 tokens, 306962 embeddings
+  Layer 30: 26862 tokens, 306962 embeddings
+  Layer 4: 26862 tokens, 306962 embeddings
+  Layer 1: 26862 tokens, 306962 embeddings
+  Layer 31: 26862 tokens, 306962 embeddings
+  Layer 24: 26862 tokens, 306962 embeddings
+  Layer 8: 26862 tokens, 306962 embeddings
+
+✓ Merge complete! Output: molmo_data/contextual_llm_embeddings_vg/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm
+
+======================================================================
+SANITY CHECK: Comparing to OLMo
+======================================================================
+Layer 1: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 2: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 4: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 8: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 16: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 24: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 30: 26862 tokens, 306962 embeddings ✓ matches OLMo
+Layer 31: 26862 tokens, 306962 embeddings ✓ matches OLMo
+
+✓ ALL SANITY CHECKS PASSED!
+  - Same token sets as OLMo
+  - Same embedding counts per layer
+  - Only the embedding VALUES differ (as expected for finetuned LLM)

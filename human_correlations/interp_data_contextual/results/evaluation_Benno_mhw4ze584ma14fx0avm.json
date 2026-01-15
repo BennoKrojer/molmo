@@ -1,0 +1,137 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhw4ze584ma14fx0avm",
+  "timestamp": "2025-11-12T15:09:57.887Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch0",
+      "selectedWords": [
+        {
+          "word": "a black chair in a room",
+          "relation": "global"
+        },
+        {
+          "word": "a couple cheers on and watches a tv with a green screen in a cozy living room , then celebrates",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:59:44.784Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00084_patch1",
+      "selectedWords": [
+        {
+          "word": "a few rows of packaged blueberries",
+          "relation": "global"
+        },
+        {
+          "word": "some food in bright plastic packages",
+          "relation": "global"
+        },
+        {
+          "word": "black bowl holding packaged food",
+          "relation": "global"
+        },
+        {
+          "word": "a cardboard box full of packaged snacks",
+          "relation": "global"
+        },
+        {
+          "word": "a plastic lid filled with packaged items.",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:02:32.774Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00084_patch2",
+      "selectedWords": [
+        {
+          "word": "two slices of pizza with red sauce, ground sausage, and generous topping of cheese",
+          "relation": "concrete"
+        },
+        {
+          "word": "oranges beside the tacos",
+          "relation": "concrete"
+        },
+        {
+          "word": "white food truck selling tacos",
+          "relation": "concrete"
+        },
+        {
+          "word": "the word tacos on the black chalkboard sign.",
+          "relation": "concrete"
+        },
+        {
+          "word": "man stuffing his fave with tacos",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:03:05.556Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch3",
+      "selectedWords": [
+        {
+          "word": "a person holding a chocolate filled donut",
+          "relation": "abstract"
+        },
+        {
+          "word": "a bowl with edamame peas",
+          "relation": "abstract"
+        },
+        {
+          "word": "digitally composite image of merry christmas and a cup of hot chocolate with marshmallows and candy",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:05:53.564Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch4",
+      "selectedWords": [
+        {
+          "word": "a yellow dessert plate on a counter",
+          "relation": "global"
+        },
+        {
+          "word": "woman sitting at a restaurant",
+          "relation": "abstract"
+        },
+        {
+          "word": "crumbled white napkin on counter",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:06:19.332Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00084_patch5",
+      "selectedWords": [
+        {
+          "word": "white straws are clustered together",
+          "relation": "concrete"
+        },
+        {
+          "word": "plates are arranged on the wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "several raisins clustered together",
+          "relation": "abstract"
+        },
+        {
+          "word": "four oranges clustered together",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:09:57.211Z"
+    }
+  ]
+}

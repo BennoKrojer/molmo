@@ -1,0 +1,95 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgavun0kunnvqyzqur",
+  "timestamp": "2025-11-13T13:14:35.476Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00258_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:13:54.003Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00258_patch1",
+      "selectedWords": [
+        {
+          "word": "man and woman walking together holding hands",
+          "relation": "concrete"
+        },
+        {
+          "word": "a tall black handrail",
+          "relation": "concrete"
+        },
+        {
+          "word": "two small hands holding some food.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a guy standing with hands on hips and khaki pants",
+          "relation": "concrete"
+        },
+        {
+          "word": "the man is wearing gloves on his hands",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:14:03.319Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00258_patch2",
+      "selectedWords": [
+        {
+          "word": "glass sitting on a white napkin",
+          "relation": "global"
+        },
+        {
+          "word": "the basket is covered with tissue paper.",
+          "relation": "global"
+        },
+        {
+          "word": "food on white tissue paper",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:14:14.006Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00258_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:14:20.622Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00258_patch4",
+      "selectedWords": [
+        {
+          "word": "hill in the distance that is hazy blue/grey color.",
+          "relation": "concrete"
+        },
+        {
+          "word": "small window on grey building",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:14:26.932Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00258_patch5",
+      "selectedWords": [
+        {
+          "word": "red bib with food spilled on it",
+          "relation": "concrete"
+        },
+        {
+          "word": "some crumbs on the knife",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:14:35.327Z"
+    }
+  ]
+}

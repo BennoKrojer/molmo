@@ -1,0 +1,91 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim66k5sexoyydov1ec",
+  "timestamp": "2025-11-30T20:25:31.897Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch0",
+      "selectedWords": [
+        {
+          "word": "the woman has cleavage",
+          "relation": "concrete"
+        },
+        {
+          "word": "lady has some cleavage",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman in black shirt showing cleavage",
+          "relation": "concrete"
+        },
+        {
+          "word": "a woman looking down at her hand",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:23:37.336Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00218_patch1",
+      "selectedWords": [
+        {
+          "word": "the beautifully patterned torso & upper legs of a longhorn whose head is hidden",
+          "relation": "concrete"
+        },
+        {
+          "word": "arms wrapped around the dog's torso",
+          "relation": "concrete"
+        },
+        {
+          "word": "the torso of a young boy",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:24:02.758Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00218_patch2",
+      "selectedWords": [
+        {
+          "word": "close view of person and vehicle, against indistinct backdrop.",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:24:32.246Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00218_patch3",
+      "selectedWords": [
+        {
+          "word": "a dark brown wooden bureau",
+          "relation": "concrete"
+        },
+        {
+          "word": "three doors visible on the wood cabinet.",
+          "relation": "concrete"
+        },
+        {
+          "word": "in the guest bedroom , layers of pillows on the bed , along with an antique chair , wooden chests in different styles and vibrantly colored artwork add texture .",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:25:22.014Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00218_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:25:24.135Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:25:31.792Z"
+    }
+  ]
+}

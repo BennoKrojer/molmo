@@ -1,0 +1,74 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5ojvxxvdmpnoy6i",
+  "timestamp": "2025-11-30T20:11:31.729Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00109_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:09:51.688Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch1",
+      "selectedWords": [
+        {
+          "word": "white letters with red shading.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:10:16.646Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00109_patch2",
+      "selectedWords": [
+        {
+          "word": "hull of beached yellow-and-red boat",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman walking in long orange-red dress on.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a skies with black and orange",
+          "relation": "concrete"
+        },
+        {
+          "word": "the desk filled with electronics",
+          "relation": "concrete"
+        },
+        {
+          "word": "loops formed by black and grey wires of electronics",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:10:27.646Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00109_patch3",
+      "selectedWords": [
+        {
+          "word": "white letters that say helmutschwarzer(c)",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:10:55.286Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:11:12.869Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:11:31.629Z"
+    }
+  ]
+}

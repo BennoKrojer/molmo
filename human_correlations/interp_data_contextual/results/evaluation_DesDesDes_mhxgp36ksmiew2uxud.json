@@ -1,0 +1,56 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgp36ksmiew2uxud",
+  "timestamp": "2025-11-13T13:25:38.163Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00094_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:25:11.983Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00094_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:16.199Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00094_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:20.248Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00094_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:23.166Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00094_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:25.558Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00094_patch5",
+      "selectedWords": [
+        {
+          "word": "a guy holding his nike sports bag in his left hand",
+          "relation": "global"
+        },
+        {
+          "word": "white shorts with black nike swoosh of tennis player",
+          "relation": "global"
+        },
+        {
+          "word": "white tshirt with adidas logo",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:25:38.012Z"
+    }
+  ]
+}

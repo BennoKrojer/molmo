@@ -164,7 +164,7 @@ python scripts/analysis/precompute_contextual_caches.py \
 
 2. **Layer Evolution Analysis**: Analyze how vision tokens evolve across layers
 
-3. **Interpretability**: Check if vision tokens are interpretable using V-Lens methods
+3. **Interpretability**: Check if vision tokens are interpretable using LatentLens methods
 
 ## Notes
 

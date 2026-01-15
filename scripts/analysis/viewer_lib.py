@@ -370,7 +370,7 @@ def process_logit_patch(patch: Dict, grid_size: int) -> Dict:
 
 def process_contextual_patch(patch: Dict, grid_size: int) -> Dict:
     """
-    Process a single contextual (LN-Lens) patch into unified format.
+    Process a single contextual (LatentLens) patch into unified format.
     """
     patch_idx = patch.get("patch_idx", -1)
     row = patch.get("patch_row", patch_idx // grid_size)

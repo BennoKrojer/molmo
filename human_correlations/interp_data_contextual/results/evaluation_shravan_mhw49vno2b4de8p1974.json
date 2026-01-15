@@ -1,0 +1,91 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhw49vno2b4de8p1974",
+  "timestamp": "2025-11-12T14:50:06.964Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00153_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:47:25.882Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00153_patch1",
+      "selectedWords": [
+        {
+          "word": "older man, central mid-ground, wears pink shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "flash orange outfit is covered in a degree of filth, or at least grungy grime, & its zipper is outlined in bright red. there are no pets in this picture.",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:48:07.217Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T14:48:16.565Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch3",
+      "selectedWords": [
+        {
+          "word": "wheels of a four wheeler",
+          "relation": "global"
+        },
+        {
+          "word": "black truck holding a four wheeler",
+          "relation": "concrete"
+        },
+        {
+          "word": "white cap with wide brim",
+          "relation": "concrete"
+        },
+        {
+          "word": "the weather looks sunnyred flowers on the umbrealla",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:24.868Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch4",
+      "selectedWords": [
+        {
+          "word": "the cat lips are smiling",
+          "relation": "global"
+        },
+        {
+          "word": "the mouth is smiling",
+          "relation": "global"
+        },
+        {
+          "word": "this guy is joking around",
+          "relation": "abstract"
+        },
+        {
+          "word": "the man and woman smiling",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:45.215Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch5",
+      "selectedWords": [
+        {
+          "word": "indoor cat has green, likely heart-shape tag",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:50:06.852Z"
+    }
+  ]
+}

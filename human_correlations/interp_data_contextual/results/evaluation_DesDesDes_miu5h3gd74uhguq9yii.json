@@ -1,0 +1,65 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5h3gd74uhguq9yii",
+  "timestamp": "2025-12-06T10:27:53.360Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00039_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:27:20.016Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00039_patch1",
+      "selectedWords": [
+        {
+          "word": "man talking to the woman across the table from him",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:27:26.668Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00039_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:27:28.194Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00039_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:27:29.781Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00039_patch4",
+      "selectedWords": [
+        {
+          "word": "woman's head with long blonde hair",
+          "relation": "global"
+        },
+        {
+          "word": "part of a woman's black hair",
+          "relation": "global"
+        },
+        {
+          "word": "woman on right with long blonde hair.",
+          "relation": "global"
+        },
+        {
+          "word": "black hair with some grey streaks",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:27:41.283Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00039_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:27:53.149Z"
+    }
+  ]
+}

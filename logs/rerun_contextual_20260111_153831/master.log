@@ -1,0 +1,46 @@
+[2026-01-11 15:38:31] Starting rerun of all contextual LLM judge evaluations
+[2026-01-11 15:38:31] This fixes the bug where visual0_allLayers.json was used for ALL layers
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] ========== PHASE 1: Main Models (9 × 9 = 81 runs) ==========
+[2026-01-11 15:38:31] DRY-RUN: Would run llm_judge/run_all_parallel_contextual.sh
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] ========== PHASE 2: Ablations (9 × 9 = 81 runs) ==========
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336
+[2026-01-11 15:38:31] DRY-RUN: Would process train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] ========== PHASE 3: Qwen2-VL (9 layers) ==========
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 0
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 1
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 2
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 4
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 8
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 16
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 24
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 26
+[2026-01-11 15:38:31] DRY-RUN: Would run Qwen2-VL layer 27
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] ==========================================
+[2026-01-11 15:38:31] RERUN COMPLETE
+[2026-01-11 15:38:31] ==========================================
+[2026-01-11 15:38:31] Log directory: logs/rerun_contextual_20260111_153831
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] Expected results:
+[2026-01-11 15:38:31]   Main: 81 (9 models × 9 layers)
+[2026-01-11 15:38:31]   Ablations: 81 (9 variants × 9 layers)
+[2026-01-11 15:38:31]   Qwen2-VL: 9 (9 layers)
+[2026-01-11 15:38:31]   Total: 171
+[2026-01-11 15:38:31] 
+[2026-01-11 15:38:31] Next steps:
+[2026-01-11 15:38:31] 1. Check for failures: grep -i 'failed\|error' logs/rerun_contextual_20260111_153831/*.log
+[2026-01-11 15:38:31] 2. Count results:
+[2026-01-11 15:38:31]    ls analysis_results/llm_judge_contextual_nn/*.json 2>/dev/null | wc -l
+[2026-01-11 15:38:31]    ls analysis_results/llm_judge_contextual_nn/ablations/ | wc -l
+[2026-01-11 15:38:31] 3. Regenerate plots with updated data
+[2026-01-11 15:38:31] ==========================================

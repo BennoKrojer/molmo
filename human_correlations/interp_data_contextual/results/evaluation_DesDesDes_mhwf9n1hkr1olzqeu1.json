@@ -1,0 +1,94 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwf9n1hkr1olzqeu1",
+  "timestamp": "2025-11-12T19:57:51.585Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00054_patch0",
+      "selectedWords": [
+        {
+          "word": "the top of the ramp is off-white.",
+          "relation": "concrete"
+        },
+        {
+          "word": "the wall is off-white",
+          "relation": "concrete"
+        },
+        {
+          "word": "cat's white furry belly",
+          "relation": "concrete"
+        },
+        {
+          "word": "the cat on the left is beige",
+          "relation": "concrete"
+        },
+        {
+          "word": "skate ramp is off-white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:55:37.911Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00054_patch1",
+      "selectedWords": [
+        {
+          "word": "black nose and mouth on bear",
+          "relation": "concrete"
+        },
+        {
+          "word": "a snowman with a mouth",
+          "relation": "concrete"
+        },
+        {
+          "word": "large giraffe plays it open: open-eyed, open-mouthed & hungry, awaits snackfood",
+          "relation": "concrete"
+        },
+        {
+          "word": "the zebra has a black nose and mouth.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:56:02.050Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:56:12.070Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:56:17.555Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch4",
+      "selectedWords": [
+        {
+          "word": "blue sky behind tall deep-green trees",
+          "relation": "concrete"
+        },
+        {
+          "word": "sun light shining through the tree branches",
+          "relation": "global"
+        },
+        {
+          "word": "a girl is riding a moped on an alley with trees",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:57:41.772Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00054_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:57:51.461Z"
+    }
+  ]
+}

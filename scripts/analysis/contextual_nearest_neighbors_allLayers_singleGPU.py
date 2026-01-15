@@ -59,13 +59,14 @@ def patch_idx_to_row_col(patch_idx, patches_per_chunk):
     return row, col
 
 
-def preload_images(dataset, preprocessor, prompt, num_images, device):
+def preload_images(dataset, preprocessor, prompt, image_indices, device):
     """Preload and preprocess all images directly to GPU. No RAM→GPU transfer during processing."""
     cached_data = []
-    
-    for img_idx in range(num_images):
-        if img_idx % 10 == 0:
-            print(f"    {img_idx}/{num_images}...", flush=True)
+    num_images = len(image_indices)
+
+    for i, img_idx in enumerate(image_indices):
+        if i % 10 == 0:
+            print(f"    {i}/{num_images} (image {img_idx})...", flush=True)
         example_data = dataset.get(img_idx, np.random)
         
         caption_text = ""
@@ -87,15 +88,15 @@ def preload_images(dataset, preprocessor, prompt, num_images, device):
     return cached_data
 
 
-def extract_visual_features_from_cache(model, cached_batch, use_n_token_only, visual_layers, device):
+def extract_visual_features_from_cache(model, cached_batch, use_n_token_only, visual_layers, device, precision_dtype=torch.float16):
     """
     Extract features from pre-cached batch (already on GPU, no transfer needed).
     Returns: dict[visual_layer] -> features [num_patches, hidden_dim], and metadata
     """
     features_by_layer = {}
-    
+
     with torch.inference_mode():
-        with torch.autocast("cuda", enabled=True, dtype=torch.float16):
+        with torch.autocast("cuda", enabled=True, dtype=precision_dtype):
             # Tensors already on GPU from preload!
             images = cached_batch['images'].unsqueeze(0)
             image_masks = cached_batch['image_masks'].unsqueeze(0) if cached_batch['image_masks'] is not None else None
@@ -175,10 +176,19 @@ def main():
     parser.add_argument("--contextual-dir", type=str, required=True)
     parser.add_argument("--visual-layer", type=str, default="24")
     parser.add_argument("--num-images", type=int, default=100)
+    parser.add_argument("--image-indices", type=str, default=None,
+                       help="Comma-separated list of specific image indices to process (e.g., '100,102,108'). If provided, --num-images is ignored.")
     parser.add_argument("--split", type=str, default="validation")
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--output-dir", type=str, default="analysis_results/contextual_nearest_neighbors")
+    parser.add_argument("--use-bf16", action="store_true", help="Use bfloat16 instead of float16 (for models with extreme norms)")
     args = parser.parse_args()
+
+    # Parse image indices if provided
+    if args.image_indices:
+        image_indices = [int(i.strip()) for i in args.image_indices.split(",")]
+    else:
+        image_indices = list(range(args.num_images))
     
     device = torch.device("cuda")
     visual_layers = [int(l.strip()) for l in args.visual_layer.split(",")]
@@ -191,8 +201,9 @@ def main():
     print(f"Contextual dir: {args.contextual_dir}")
     print(f"Visual layers: {visual_layers}")
     print(f"Contextual layers: {ctx_layers}")
-    print(f"Images: {args.num_images}")
-    print(f"Total forward passes: {len(ctx_layers)} caches × {args.num_images} images = {len(ctx_layers) * args.num_images}")
+    num_images = len(image_indices)
+    print(f"Images: {num_images}" + (f" (indices: {image_indices[:5]}...)" if len(image_indices) > 5 else f" (indices: {image_indices})"))
+    print(f"Total forward passes: {len(ctx_layers)} caches × {num_images} images = {len(ctx_layers) * num_images}")
     print()
     
     # ===== LOAD MODEL =====
@@ -218,8 +229,12 @@ def main():
     del weights
     gc.collect()
     
-    print(f"  Moving to GPU (fp16)...")
-    model = model.half().cuda().eval()
+    if args.use_bf16:
+        print(f"  Moving to GPU (bf16)...")
+        model = model.to(dtype=torch.bfloat16).cuda().eval()
+    else:
+        print(f"  Moving to GPU (fp16)...")
+        model = model.half().cuda().eval()
     torch.cuda.empty_cache()
     
     print(f"✓ Model loaded in {time.time() - load_start:.1f}s")
@@ -240,11 +255,11 @@ def main():
     print("=" * 70)
     preload_start = time.time()
     
-    print(f"  Loading {args.num_images} images directly to GPU...", flush=True)
-    cached_images = preload_images(dataset, preprocessor, prompt, args.num_images, device)
-    
+    print(f"  Loading {num_images} images directly to GPU...", flush=True)
+    cached_images = preload_images(dataset, preprocessor, prompt, image_indices, device)
+
     preload_time = time.time() - preload_start
-    print(f"✓ Images preloaded in {preload_time:.1f}s ({args.num_images/preload_time:.1f} img/s)")
+    print(f"✓ Images preloaded in {preload_time:.1f}s ({num_images/preload_time:.1f} img/s)")
     print()
     
     # Output setup
@@ -253,7 +268,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # ===== STORAGE FOR CANDIDATES =====
-    candidates = {vl: {img: {} for img in range(args.num_images)} for vl in visual_layers}
+    candidates = {vl: {img: {} for img in image_indices} for vl in visual_layers}
     shape_info = None
     ctx_metadata_cache = {}
     
@@ -278,18 +293,19 @@ def main():
         print(f"done ({time.time() - cache_start:.1f}s, {embeddings.shape[0]} embeddings on GPU)")
         
         # Process all images (FROM RAM - NO DISK I/O!)
-        print(f"  Processing {args.num_images} images (from GPU)...")
+        print(f"  Processing {num_images} images (from GPU)...")
         img_start = time.time()
-        
-        for img_idx in range(args.num_images):
-            if img_idx % 5 == 0 or img_idx == args.num_images - 1:
+
+        for i, img_idx in enumerate(image_indices):
+            if i % 5 == 0 or i == num_images - 1:
                 elapsed = time.time() - img_start
-                rate = (img_idx + 1) / elapsed if elapsed > 0 else 0
-                print(f"    Image {img_idx + 1}/{args.num_images} ({rate:.1f} img/s)", flush=True)
+                rate = (i + 1) / elapsed if elapsed > 0 else 0
+                print(f"    Image {i + 1}/{num_images} (idx={img_idx}) ({rate:.1f} img/s)", flush=True)
             
             # Forward pass (no disk I/O - using cached data!)
+            precision_dtype = torch.bfloat16 if args.use_bf16 else torch.float16
             features_by_layer, meta = extract_visual_features_from_cache(
-                model, cached_images[img_idx], use_n_token_only, visual_layers, device
+                model, cached_images[i], use_n_token_only, visual_layers, device, precision_dtype
             )
             
             if shape_info is None:
@@ -306,7 +322,7 @@ def main():
             del features_by_layer
         
         img_time = time.time() - img_start
-        print(f"  ✓ Done: {args.num_images} images in {img_time:.1f}s ({args.num_images/img_time:.1f} img/s)")
+        print(f"  ✓ Done: {num_images} images in {img_time:.1f}s ({num_images/img_time:.1f} img/s)")
         
         # Unload cache from GPU
         del embeddings, embeddings_norm
@@ -331,9 +347,9 @@ def main():
     
     all_results = {vl: [] for vl in visual_layers}
     
-    for img_idx in range(args.num_images):
-        if img_idx % 20 == 0:
-            print(f"  Image {img_idx + 1}/{args.num_images}...", flush=True)
+    for i, img_idx in enumerate(image_indices):
+        if i % 20 == 0:
+            print(f"  Image {i + 1}/{num_images} (idx={img_idx})...", flush=True)
         
         for vl in visual_layers:
             all_vals = torch.stack([candidates[vl][img_idx][cl][0] for cl in ctx_layers])
@@ -388,7 +404,7 @@ def main():
             
             all_results[vl].append({
                 "image_idx": img_idx,
-                "ground_truth_caption": cached_images[img_idx]['caption'],
+                "ground_truth_caption": cached_images[i]['caption'],
                 "feature_shape": [1, num_chunks, patches_per_chunk, hidden_dim],
                 "llm_layer_used": vl,
                 "chunks": chunks_results
@@ -414,7 +430,8 @@ def main():
             'visual_layer': vl,
             'contextual_layers_used': ctx_layers,
             'split': args.split,
-            'num_images': args.num_images,
+            'num_images': num_images,
+            'image_indices': image_indices,
             'top_k': args.top_k,
             'processing_time_seconds': total_time,
             'results': all_results[vl]

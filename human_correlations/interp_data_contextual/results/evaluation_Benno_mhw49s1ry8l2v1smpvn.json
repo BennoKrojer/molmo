@@ -1,0 +1,60 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhw49s1ry8l2v1smpvn",
+  "timestamp": "2025-11-12T14:50:02.303Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:16.193Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:28.761Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:31.409Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00139_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:49:33.575Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00139_patch4",
+      "selectedWords": [
+        {
+          "word": "three blue lidded pens",
+          "relation": "concrete"
+        },
+        {
+          "word": "two green pens",
+          "relation": "global"
+        },
+        {
+          "word": "pots of paints on the floor",
+          "relation": "abstract"
+        },
+        {
+          "word": "black and gray bag holding writing instruments",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:50:00.907Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T14:50:02.175Z"
+    }
+  ]
+}

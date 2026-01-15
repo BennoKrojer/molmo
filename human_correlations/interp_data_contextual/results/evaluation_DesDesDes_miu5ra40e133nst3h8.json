@@ -1,0 +1,86 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5ra40e133nst3h8",
+  "timestamp": "2025-12-06T10:35:48.544Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00208_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:34:34.198Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00208_patch1",
+      "selectedWords": [
+        {
+          "word": "the cardinal's beak is a red-orange.",
+          "relation": "concrete"
+        },
+        {
+          "word": "sheep with orangey-red and teal markings",
+          "relation": "concrete"
+        },
+        {
+          "word": "birthday cake with thick yellow-orange icing.",
+          "relation": "concrete"
+        },
+        {
+          "word": "christ's cross represented as large orange-red+white capital t",
+          "relation": "concrete"
+        },
+        {
+          "word": "the bright round reddish light on the train",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:34:43.996Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00208_patch2",
+      "selectedWords": [
+        {
+          "word": "the legs of the smaller dog",
+          "relation": "global"
+        },
+        {
+          "word": "the legs of the sheep in front",
+          "relation": "global"
+        },
+        {
+          "word": "the legs of a grown person",
+          "relation": "global"
+        },
+        {
+          "word": "the legs of the art easel next to the wooden table.",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:35:03.489Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00208_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:35:26.480Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00208_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:35:32.382Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00208_patch5",
+      "selectedWords": [
+        {
+          "word": "stack of blue containers to the right of the food",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:35:48.336Z"
+    }
+  ]
+}

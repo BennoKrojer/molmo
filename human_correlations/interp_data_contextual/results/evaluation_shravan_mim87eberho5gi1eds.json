@@ -1,0 +1,128 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim87eberho5gi1eds",
+  "timestamp": "2025-11-30T21:22:10.494Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00258_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:21:00.708Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00258_patch1",
+      "selectedWords": [
+        {
+          "word": "a tall black handrail",
+          "relation": "concrete"
+        },
+        {
+          "word": "man and woman walking together holding hands",
+          "relation": "concrete"
+        },
+        {
+          "word": "two small hands holding some food.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a guy standing with hands on hips and khaki pants",
+          "relation": "concrete"
+        },
+        {
+          "word": "the man is wearing gloves on his hands",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:21:09.372Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00258_patch2",
+      "selectedWords": [
+        {
+          "word": "food on white tissue paper",
+          "relation": "concrete"
+        },
+        {
+          "word": "the basket is covered with tissue paper.",
+          "relation": "concrete"
+        },
+        {
+          "word": "glass sitting on a white napkin",
+          "relation": "concrete"
+        },
+        {
+          "word": "clear folded plastic wrap",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:21:26.380Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00258_patch3",
+      "selectedWords": [
+        {
+          "word": "lady getting her lunch in a cafeteria",
+          "relation": "global"
+        },
+        {
+          "word": "boy sitting in a chair in the classroom",
+          "relation": "global"
+        },
+        {
+          "word": "desk with green chair in a classroom",
+          "relation": "global"
+        },
+        {
+          "word": "tan paint in between the walls on the dining hall",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:21:46.227Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00258_patch4",
+      "selectedWords": [
+        {
+          "word": "hill in the distance that is hazy blue/grey color.",
+          "relation": "concrete"
+        },
+        {
+          "word": "small window on grey building",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:21:58.843Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00258_patch5",
+      "selectedWords": [
+        {
+          "word": "woman's shirt has blue stains",
+          "relation": "concrete"
+        },
+        {
+          "word": "red bib with food spilled on it",
+          "relation": "concrete"
+        },
+        {
+          "word": "white plate with grease spots",
+          "relation": "concrete"
+        },
+        {
+          "word": "some crumbs on the knife",
+          "relation": "concrete"
+        },
+        {
+          "word": "a man wearing a dirty t-shirt",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:22:10.106Z"
+    }
+  ]
+}

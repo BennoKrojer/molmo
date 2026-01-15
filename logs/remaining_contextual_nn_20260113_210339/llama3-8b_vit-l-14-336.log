@@ -1,0 +1,12 @@
+usage: contextual_nearest_neighbors_allLayers_singleGPU.py [-h] --ckpt-path
+                                                           CKPT_PATH
+                                                           --contextual-dir
+                                                           CONTEXTUAL_DIR
+                                                           [--visual-layer VISUAL_LAYER]
+                                                           [--num-images NUM_IMAGES]
+                                                           [--image-indices IMAGE_INDICES]
+                                                           [--split SPLIT]
+                                                           [--top-k TOP_K]
+                                                           [--output-dir OUTPUT_DIR]
+                                                           [--use-bf16]
+contextual_nearest_neighbors_allLayers_singleGPU.py: error: unrecognized arguments: --visual-layers 0,1,2,4,8,16,24,30,31
