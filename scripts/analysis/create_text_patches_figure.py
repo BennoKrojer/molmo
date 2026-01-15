@@ -48,12 +48,8 @@ def main():
 
     # Calculate the scaling used in preprocessing (aspect-preserving)
     scale = min(TARGET_SIZE / orig_h, TARGET_SIZE / orig_w)
-    scaled_w = int(orig_w * scale)
-    scaled_h = int(orig_h * scale)
-    left_pad = (TARGET_SIZE - scaled_w) // 2
-    top_pad = (TARGET_SIZE - scaled_h) // 2
-
-    print(f"Scale: {scale:.4f}, Scaled: {scaled_w}x{scaled_h}, Pad: left={left_pad}, top={top_pad}")
+    left_pad = (TARGET_SIZE - int(orig_w * scale)) // 2
+    top_pad = (TARGET_SIZE - int(orig_h * scale)) // 2
 
     # Map patch coordinates back to original image
     y1_proc = ROW * PATCH_SIZE
@@ -61,7 +57,6 @@ def main():
     x1_proc = COLS[0] * PATCH_SIZE
     x2_proc = (COLS[-1] + 1) * PATCH_SIZE
 
-    # Remove padding offset and map to original coordinates
     x1_orig = int((x1_proc - left_pad) / scale)
     x2_orig = int((x2_proc - left_pad) / scale)
     y1_orig = int((y1_proc - top_pad) / scale)
@@ -72,19 +67,24 @@ def main():
     # Extract high-res strip from original
     original_array = np.array(original)
     strip_highres = original_array[y1_orig:y2_orig, x1_orig:x2_orig]
-    print(f"High-res strip shape: {strip_highres.shape}")
+    h, w = strip_highres.shape[:2]
+    print(f"Strip: {w}x{h}, aspect ratio: {w/h:.2f}")
 
-    # Create figure
-    fig, ax = plt.subplots(figsize=(6, 1.8))
+    # Create figure with proper aspect ratio for square patches
+    fig_width = 6
+    fig_height = 2.2
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
-    strip_height = 0.40
-    strip_bottom = 0.52
+    # Image strip: each patch is 1x1 in axis coordinates
+    strip_bottom = 1.1
+    strip_height = 1.0  # Square patches: 1 unit tall, 1 unit wide each
     ax.imshow(strip_highres, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
-              aspect='auto', interpolation='lanczos')
+              aspect='equal', interpolation='lanczos')
 
     # Draw vertical lines between patches
     for i in range(1, 6):
-        ax.axvline(x=i, ymin=0.50, ymax=0.90, color='black', linewidth=1.5, clip_on=False)
+        ax.plot([i, i], [strip_bottom, strip_bottom + strip_height],
+                color='black', linewidth=1.5)
 
     # Draw outer border
     rect = mpatches.Rectangle((0, strip_bottom), 6, strip_height,
@@ -92,9 +92,9 @@ def main():
     ax.add_patch(rect)
 
     # Draw arrows and yellow boxes
-    arrow_top = strip_bottom - 0.02
-    arrow_bottom = 0.30
-    box_y = 0.08
+    arrow_top = strip_bottom - 0.05
+    arrow_bottom = 0.55
+    box_y = 0.2
 
     for i, token in enumerate(tokens):
         x_center = i + 0.5
@@ -106,7 +106,7 @@ def main():
                          edgecolor='none', alpha=0.8))
 
     ax.set_xlim(-0.1, 6.1)
-    ax.set_ylim(-0.05, 1.0)
+    ax.set_ylim(0, strip_bottom + strip_height + 0.1)
     ax.axis('off')
 
     plt.tight_layout()
