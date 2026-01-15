@@ -5,6 +5,9 @@ Create inline figure showing text-in-image interpretation by LatentLens.
 Shows consecutive vision patches from a phone screenshot displaying
 "The Couch Tomato Café" with LatentLens predictions below each patch.
 
+Uses high-res crop from original image for readability, while patch
+boundaries correspond to what the model actually sees (14x14 on 336x336).
+
 Output: paper/figures/fig_text_patches_inline.pdf
 
 Usage:
@@ -19,7 +22,6 @@ from PIL import Image
 import numpy as np
 from pathlib import Path
 
-from olmo.data.model_preprocessor import resize_and_pad
 from olmo.data.pixmo_datasets import PixMoCap
 
 
@@ -34,68 +36,75 @@ def main():
     # LatentLens predictions (OLMo+CLIP-ViT, Layer 16)
     tokens = ['.the', 'couch', 'acon', 'tomato', 'iro', 'cafe']
 
-    # Load and preprocess image using EXACT same preprocessing as model
+    # Load original image
     print("Loading PixMoCap dataset...")
     dataset = PixMoCap(split='validation', mode='captions')
     example = dataset.get(IMAGE_IDX, np.random)
     img_path = example['image']
-    image = np.array(Image.open(img_path).convert("RGB"))
+    original = Image.open(img_path).convert("RGB")
+    orig_w, orig_h = original.size
 
-    print(f"Original image shape: {image.shape}")
+    print(f"Original size: {orig_w} x {orig_h}")
 
-    # Apply aspect-preserving resize + center padding
-    processed, mask = resize_and_pad(image, (TARGET_SIZE, TARGET_SIZE))
-    processed_uint8 = (processed * 255).astype(np.uint8)
+    # Calculate the scaling used in preprocessing (aspect-preserving)
+    scale = min(TARGET_SIZE / orig_h, TARGET_SIZE / orig_w)
+    scaled_w = int(orig_w * scale)
+    scaled_h = int(orig_h * scale)
+    left_pad = (TARGET_SIZE - scaled_w) // 2
+    top_pad = (TARGET_SIZE - scaled_h) // 2
 
-    print(f"Processed image shape: {processed_uint8.shape}")
+    print(f"Scale: {scale:.4f}, Scaled: {scaled_w}x{scaled_h}, Pad: left={left_pad}, top={top_pad}")
 
-    # Extract the strip of patches
-    y1 = ROW * PATCH_SIZE
-    y2 = y1 + PATCH_SIZE
-    x1 = COLS[0] * PATCH_SIZE
-    x2 = (COLS[-1] + 1) * PATCH_SIZE
-    strip = processed_uint8[y1:y2, x1:x2]
+    # Map patch coordinates back to original image
+    y1_proc = ROW * PATCH_SIZE
+    y2_proc = y1_proc + PATCH_SIZE
+    x1_proc = COLS[0] * PATCH_SIZE
+    x2_proc = (COLS[-1] + 1) * PATCH_SIZE
 
-    print(f"Strip shape: {strip.shape}")
+    # Remove padding offset and map to original coordinates
+    x1_orig = int((x1_proc - left_pad) / scale)
+    x2_orig = int((x2_proc - left_pad) / scale)
+    y1_orig = int((y1_proc - top_pad) / scale)
+    y2_orig = int((y2_proc - top_pad) / scale)
+
+    print(f"Original crop: ({x1_orig}, {y1_orig}) to ({x2_orig}, {y2_orig})")
+
+    # Extract high-res strip from original
+    original_array = np.array(original)
+    strip_highres = original_array[y1_orig:y2_orig, x1_orig:x2_orig]
+    print(f"High-res strip shape: {strip_highres.shape}")
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(5, 1.8))
+    fig, ax = plt.subplots(figsize=(6, 1.8))
 
-    # Show the strip at the top
-    strip_height = 0.35
-    strip_bottom = 0.55
-    ax.imshow(strip, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
-              aspect='auto', interpolation='nearest')
+    strip_height = 0.40
+    strip_bottom = 0.52
+    ax.imshow(strip_highres, extent=[0, 6, strip_bottom, strip_bottom + strip_height],
+              aspect='auto', interpolation='lanczos')
 
-    # Draw vertical lines between patches (internal borders)
+    # Draw vertical lines between patches
     for i in range(1, 6):
-        ax.axvline(x=i, ymin=0.52, ymax=0.88, color='black', linewidth=1.5,
-                   clip_on=False)
+        ax.axvline(x=i, ymin=0.50, ymax=0.90, color='black', linewidth=1.5, clip_on=False)
 
     # Draw outer border
     rect = mpatches.Rectangle((0, strip_bottom), 6, strip_height,
                                linewidth=2, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
-    # Draw arrows and yellow boxes with tokens
+    # Draw arrows and yellow boxes
     arrow_top = strip_bottom - 0.02
-    arrow_bottom = 0.32
+    arrow_bottom = 0.30
     box_y = 0.08
 
     for i, token in enumerate(tokens):
         x_center = i + 0.5
-
-        # Arrow from patch to token
         ax.annotate('', xy=(x_center, arrow_bottom), xytext=(x_center, arrow_top),
                     arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
-
-        # Yellow box with token
         ax.text(x_center, box_y, token, ha='center', va='center',
-                fontsize=10, fontweight='bold',
+                fontsize=11, fontweight='bold',
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='yellow',
-                         edgecolor='none', alpha=0.7))
+                         edgecolor='none', alpha=0.8))
 
-    # Clean up axes
     ax.set_xlim(-0.1, 6.1)
     ax.set_ylim(-0.05, 1.0)
     ax.axis('off')
