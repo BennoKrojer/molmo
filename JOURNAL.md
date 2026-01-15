@@ -6,6 +6,18 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (CLAUDE.md: add MANDATORY FIRST STEPS + NEVER GUESS SILENTLY)
+
+**Changed:**
+- Upgraded file-reading checklist to mandatory warning format (prevents skipping README.md)
+- Added new rule: NEVER GUESS SILENTLY - when encountering ambiguity, STOP and ASK
+- Strengthened Meta-Rule with proactive documentation improvement guidance
+- Clarified in README.md that `contextual_nearest_neighbors/` is primary dataset (not `_vg/`)
+
+**Root cause:** Agent picked wrong directory (`_vg`) because docs listed both without guidance. Now explicit.
+
+**Git:** Pushed (f35caf6)
+
 ### 2026-01-15 (Rename \vlens macro to \lens + colorbox spacing)
 
 **Changed:**
