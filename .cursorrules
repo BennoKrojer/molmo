@@ -118,6 +118,63 @@ analysis_results/llm_judge_{type}/
 
 ---
 
+## Reproducibility (CRITICAL)
+
+**NEVER run Python code inline via Bash heredocs.** This breaks reproducibility.
+
+❌ **WRONG:**
+```bash
+python3 << 'EOF'
+import matplotlib.pyplot as plt
+# ... 50 lines of plotting code ...
+plt.savefig('output.pdf')
+EOF
+```
+
+✅ **CORRECT:**
+```bash
+# 1. Write the script to a file FIRST
+# 2. Then run it
+python scripts/analysis/generate_my_plot.py
+# 3. Commit the script to git
+```
+
+**A PreToolUse hook will BLOCK inline Python >10 lines.** If blocked:
+1. Save code to `scripts/analysis/<descriptive_name>.py`
+2. Run from the saved file
+3. Commit immediately
+
+**What went wrong (2026-01-14):** Icicle plot code was run inline, never saved. When dimensions needed changing, code had to be recovered from conversation transcript.
+
+---
+
+## Figure Replacement Checklist
+
+When replacing or renaming a figure, **ALWAYS complete this checklist:**
+
+1. ☐ Update the figure file itself
+2. ☐ Update `\includegraphics` path if filename changed
+3. ☐ **Grep for old label/name:** `grep -rn "old_name" paper/sections/`
+4. ☐ Update ALL `\Cref{}` and `\ref{}` references
+5. ☐ Update caption if content changed
+6. ☐ Check appendix references too
+
+**What went wrong (2026-01-14):** Sunburst replaced with icicle, but text still referenced `\Cref{fig:sunburst}` causing broken references.
+
+---
+
+## Meta-Rule: Continuous Improvement
+
+**When a preventable issue occurs:**
+1. Identify the root cause
+2. Propose a new rule or hook to prevent recurrence
+3. Add to CLAUDE.md or `.claude/hooks/`
+4. Commit the improvement
+
+This file should evolve based on lessons learned. Don't just apologize—create processes that prevent future issues.
+
+---
+
 ## Version Control
 
 **Git workflow:**
