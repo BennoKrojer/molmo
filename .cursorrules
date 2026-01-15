@@ -118,33 +118,24 @@ analysis_results/llm_judge_{type}/
 
 ---
 
-## Reproducibility (CRITICAL)
+## Reproducibility
 
-**NEVER run Python code inline via Bash heredocs.** This breaks reproducibility.
+**Save scripts when output matters. Inline is fine for exploration.**
 
-❌ **WRONG:**
-```bash
-python3 << 'EOF'
-import matplotlib.pyplot as plt
-# ... 50 lines of plotting code ...
-plt.savefig('output.pdf')
-EOF
-```
+**Must save to `scripts/analysis/` when:**
+- Output goes to `paper/figures/` or `paper/*.tex`
+- Creates data files used by other scripts
+- Generates anything that might need regeneration
 
-✅ **CORRECT:**
-```bash
-# 1. Write the script to a file FIRST
-# 2. Then run it
-python scripts/analysis/generate_my_plot.py
-# 3. Commit the script to git
-```
+**Inline is fine when:**
+- Debugging/exploration
+- Quick data inspection
+- One-off checks that won't be needed again
+- Temporary analysis
 
-**A PreToolUse hook will BLOCK inline Python >10 lines.** If blocked:
-1. Save code to `scripts/analysis/<descriptive_name>.py`
-2. Run from the saved file
-3. Commit immediately
+**A PreToolUse hook will WARN (not block) when inline code saves to paper paths.**
 
-**What went wrong (2026-01-14):** Icicle plot code was run inline, never saved. When dimensions needed changing, code had to be recovered from conversation transcript.
+**What went wrong (2026-01-14):** Icicle plot code was run inline, never saved. When dimensions needed changing, code had to be recovered from conversation transcript. The issue: it produced `paper/figures/` output but had no saved script.
 
 ---
 
