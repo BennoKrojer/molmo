@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Section 5.5: text-in-image patches figure)
+
+**Added:**
+- `scripts/analysis/create_text_patches_figure.py` - generates inline figure
+- `paper/figures/fig_text_patches_inline.pdf` - shows "The Couch Tomato Café" patches with LatentLens predictions
+- Uses correct preprocessing (`resize_and_pad`) matching model pipeline
+
+**Also:** Extended CLAUDE.md Rule 1 to cover data processing (find/reuse existing preprocessing code)
+
+**Git:** Script (2acf67c), paper figure (b197ac7), submodule (11ddbbb)
+
 ### 2026-01-15 (CLAUDE.md: add MANDATORY FIRST STEPS + NEVER GUESS SILENTLY)
 
 **Changed:**
