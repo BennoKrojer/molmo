@@ -216,14 +216,23 @@ This file should evolve based on lessons learned. Don't just apologize—create 
 - Check `git status` and file sizes before pushing (no files >100MB)
 - Update JOURNAL.md immediately after pushing
 
-**Paper repo (Overleaf sync):**
+**Paper repo (Overleaf sync) - STRICT WORKFLOW:**
+
+⚠️ **Before ANY paper edit, ASK:** "Are you currently editing on Overleaf?" If yes, wait or coordinate.
+
 ```bash
 cd paper
-git pull          # ALWAYS pull first!
+git fetch --all                    # Check for Overleaf branches
+git pull                           # Pull latest
 # make changes
+git pull                           # Pull AGAIN before pushing (catch concurrent edits!)
 git add -A && git commit -m "msg" && git push
 cd .. && git add paper && git commit -m "Update paper submodule" && git push
 ```
+
+**If merge conflict:** Resolve carefully, keeping BOTH your changes and Overleaf's edits.
+
+**What went wrong (2026-01-15):** Pushed paper changes without checking if user was on Overleaf. Resulted in merge conflict that had to be resolved manually.
 
 **JOURNAL.md:**
 - Update after every significant change
