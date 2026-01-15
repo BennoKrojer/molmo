@@ -25,6 +25,7 @@
 - **ALWAYS edit existing code, NEVER rewrite from scratch**
 - Find the exact file/function, make surgical changes with Edit tool
 - If you're about to write 50+ lines of new code doing something similar to existing code, STOP
+- **This applies to data processing too:** find and reuse existing preprocessing code (e.g., `resize_and_pad`), don't write your own `img.resize()`
 
 ### 2. VALIDATE DATA BEFORE PLOTTING
 - Never trust glob patterns - they can pick up wrong files (e.g., ablations)
