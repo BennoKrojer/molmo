@@ -6,22 +6,26 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-14 (Appendix tables - professional redesign)
+### 2026-01-14 (Appendix tables v4 - cleaner 3-column design)
 
-**Changed:** Redesigned interpretation type tables for professional appearance.
-- **Layout:** Combined all/early/late into single table per model (10 tables vs 30)
-- **Width:** Full page width with 6-column layout
-- **Content:** Top 8 words per category with 2 phrase examples each
-- **Headers:** Clean grouping with `\cmidrule` for "All Layers" vs "Early vs Late"
-- **Spacing:** `\addlinespace` between category sections
-- **Font:** Consistent `\footnotesize` throughout
-- **Pages:** Reduced from 54 to 37 pages
+**Changed:** Final redesign of interpretation type tables with simpler, more readable layout.
+- **Layout:** Clean 3-column design: Category | Word (count) | Example Phrases
+- **Content:** Top 10 words per category with 3 phrase examples each
+- **Layer shift:** Always shown in category header (e.g., "Concrete (70%) (69%→71%)")
+- **Filtering:** Removed corrupted entries (e.g., `leaves---many`, `"red`)
+- **Phrases:** Only words with valid phrase examples included
+
+**Improvements over v3:**
+- Simpler 3-column vs complex 6-column layout
+- Consistent layer shift display (arrows always shown)
+- More examples (3 phrases instead of 2)
+- Cleaner visual presentation for readers
 
 **Files:**
 - `paper/figures/interpretation_type_tables.tex`
-- `scripts/analysis/generate_interpretation_tables_v3.py`
+- `scripts/analysis/generate_interpretation_tables_v4.py`
 
-**Git:** Paper pushed (a2b32c9), main repo pushed (2ef712b)
+**Git:** Paper pushed (b975e05), main repo pushed (5f5d3aa)
 
 ### 2026-01-14 (Icicle plot replaces sunburst)
 
