@@ -8,14 +8,17 @@ Shows consecutive vision patches from a phone screenshot displaying
 Uses medium resolution (24x24 per patch) - slightly higher than model's 14x14
 for readability while still showing realistic pixelation.
 
-Output: paper/figures/fig_text_patches_inline.pdf
+Output: paper/figures/fig_text_patches_inline.pdf (CLIP)
+        paper/figures/fig_text_patches_inline_dino.pdf (DINOv2)
 
 Usage:
-    python scripts/analysis/create_text_patches_figure.py
+    python scripts/analysis/create_text_patches_figure.py           # CLIP (default)
+    python scripts/analysis/create_text_patches_figure.py --dino    # DINOv2
 """
 import sys
 sys.path.insert(0, '.')
 
+import argparse
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from PIL import Image
@@ -26,15 +29,32 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dino', action='store_true', help='Generate DINOv2 version')
+    args = parser.parse_args()
+
     # Configuration - use 336 grid for coordinates (what model sees)
     IMAGE_IDX = 2  # Phone screenshot with "The Couch Tomato Café"
     ROW = 10
-    COLS = list(range(7, 13))  # Columns 7-12
     MODEL_SIZE = 336
     PATCH_SIZE_MODEL = MODEL_SIZE // 24  # 14 pixels in model space
 
-    # LatentLens predictions (OLMo+CLIP-ViT, Layer 16)
-    tokens = ['.the', 'couch', 'acon', 'tomato', 'iro', 'cafe']
+    # LatentLens predictions
+    if args.dino:
+        # OLMo+DINOv2, Layer 16 - generic interpretations (cols 6-11)
+        # Note: col 5 is in padding area, so we use 6-11 instead
+        COLS = list(range(6, 12))  # Columns 6-11
+        tokens = ['describing', 'messages', 'letter', 'screenshot', 'letter', 'captions']
+        output_suffix = '_dino'
+        model_name = 'OLMo+DINOv2'
+    else:
+        # OLMo+CLIP-ViT, Layer 16 - text-specific interpretations (cols 7-12)
+        COLS = list(range(7, 13))  # Columns 7-12
+        tokens = ['.the', 'couch', 'acon', 'tomato', 'iro', 'cafe']
+        output_suffix = ''
+        model_name = 'OLMo+CLIP-ViT'
+
+    print(f"Generating figure for {model_name}")
 
     # Load original image
     print("Loading PixMoCap dataset...")
@@ -130,8 +150,8 @@ def main():
     output_dir = Path('paper/figures')
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_pdf = output_dir / 'fig_text_patches_inline.pdf'
-    output_png = output_dir / 'fig_text_patches_inline.png'
+    output_pdf = output_dir / f'fig_text_patches_inline{output_suffix}.pdf'
+    output_png = output_dir / f'fig_text_patches_inline{output_suffix}.png'
 
     plt.savefig(output_pdf, bbox_inches='tight', dpi=300)
     plt.savefig(output_png, bbox_inches='tight', dpi=300)
