@@ -27,13 +27,25 @@ A concise log of major changes, results, and git operations.
 
 **Git:** Paper pushed (b975e05), main repo pushed (5f5d3aa)
 
-### 2026-01-14 (Icicle plot replaces sunburst)
+### 2026-01-14 (Icicle plot - full width + reproducibility fix)
+
+**Changed:** Made icicle plot full paper width and saved script for reproducibility.
+- **Dimensions:** 16×5 inches (3.2:1 ratio) vs old 7.2×4.5 (1.6:1)
+- **LaTeX:** Changed `figure` to `figure*` for two-column width
+- **Script:** `scripts/analysis/generate_icicle_plot.py` (was missing - code was run inline previously without saving)
+
+**Files:**
+- `scripts/analysis/generate_icicle_plot.py` (NEW)
+- `paper/figures/fig_icicle_interpretation_types.pdf`
+
+**Git:** Paper pushed (83212e2), main repo pushed (c5e066b)
+
+### 2026-01-14 (Icicle plot replaces sunburst - original)
 
 **Changed:** Replaced sunburst visualization with icicle plot for interpretation types figure.
 - Icicle layout: 3 category rows × 6 words × 5 phrases each
 - Proper text measurement to guarantee text fits within boxes
 - Target word shown in **bold** using mathtext
-- File: `analysis_results/layer_evolution/icicle_final.pdf`
 
 **Git:** Paper pushed (131bd48), main repo pushed (93ceab3)
 
