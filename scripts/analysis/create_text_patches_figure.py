@@ -32,8 +32,8 @@ from torchvision.transforms import InterpolationMode
 from olmo.data.pixmo_datasets import PixMoCap
 
 
-def resize_and_pad_image(image, target_size=336):
-    """Same preprocessing as model uses."""
+def resize_and_pad_clip(image, target_size=336):
+    """CLIP preprocessing: aspect-preserving resize with black padding."""
     if isinstance(image, Image.Image):
         image = np.array(image)
 
@@ -64,6 +64,22 @@ def resize_and_pad_image(image, target_size=336):
     return (padded * 255).astype(np.uint8)
 
 
+def resize_dino(image, target_size=336):
+    """DINOv2 preprocessing: simple resize to square (no padding, no aspect preservation)."""
+    if isinstance(image, Image.Image):
+        image = np.array(image)
+
+    img_tensor = torch.permute(torch.from_numpy(image), [2, 0, 1])
+    img_tensor = convert_image_dtype(img_tensor)
+    img_tensor = torchvision.transforms.Resize(
+        [target_size, target_size], InterpolationMode.BICUBIC, antialias=True
+    )(img_tensor)
+    img_tensor = torch.clip(img_tensor, 0.0, 1.0)
+    resized = torch.permute(img_tensor, [1, 2, 0]).numpy()
+
+    return (resized * 255).astype(np.uint8)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dino', action='store_true', help='Generate DINOv2 version')
@@ -77,18 +93,21 @@ def main():
 
     # LatentLens predictions
     if args.dino:
-        # OLMo+DINOv2, Layer 16 - generic interpretations (cols 6-11)
-        # Note: col 5 is in padding area, so we use 6-11 instead
-        COLS = list(range(6, 12))  # Columns 6-11
-        tokens = ['describing', 'messages', 'letter', 'screenshot', 'letter', 'captions']
+        # OLMo+DINOv2, Layer 16 - generic interpretations (cols 5-10)
+        # DINOv2 uses simple resize (no padding), so all cols are valid
+        COLS = list(range(5, 11))  # Columns 5-10
+        tokens = ['letter', 'describing', 'messages', 'letter', 'screenshot', 'letter']
         output_suffix = '_dino'
         model_name = 'OLMo+DINOv2'
+        preprocess_fn = resize_dino
     else:
         # OLMo+CLIP-ViT, Layer 16 - text-specific interpretations (cols 7-12)
+        # CLIP uses aspect-preserving resize with padding
         COLS = list(range(7, 13))  # Columns 7-12
         tokens = ['.the', 'couch', 'acon', 'tomato', 'iro', 'cafe']
         output_suffix = ''
         model_name = 'OLMo+CLIP-ViT'
+        preprocess_fn = resize_and_pad_clip
 
     print(f"Generating figure for {model_name}")
 
@@ -100,8 +119,8 @@ def main():
     original = Image.open(img_path).convert("RGB")
     print(f"Original size: {original.size}")
 
-    # Apply EXACT preprocessing model uses (resize + pad to 336x336)
-    preprocessed = resize_and_pad_image(original, MODEL_SIZE)
+    # Apply EXACT preprocessing model uses
+    preprocessed = preprocess_fn(original, MODEL_SIZE)
     print(f"Preprocessed size: {preprocessed.shape}")
 
     # Get patch boundaries in 336 space (directly from preprocessed image)
