@@ -13,25 +13,27 @@ A concise log of major changes, results, and git operations.
 - Different vision encoders: CLIP-ViT, SigLIP, DINOv2
 - Different layers: 0, 8, 24
 
-**New examples (all from images 0-9 viewable in demo):**
-1. **(a) Qwen2+CLIP-ViT, Layer 0, Image 9** - Stacked serving bowls
-   - V-Lens: "stack of serving bowls", "two identical bowls", "two black bowls"
-   - Input Emb: bowls, 珠, 깝
-   - LogitLens: 若要, eks, \n
+**Key criteria:** Selected examples where baselines **clearly fail** (code fragments, gibberish, single characters) while V-Lens provides interpretable phrases.
 
-2. **(b) LLaMA3+SigLIP, Layer 8, Image 4** - Skyscrapers in night cityscape
-   - V-Lens: "white building is", "urban view with skyscrapers", "tall brown skyscraper"
-   - Input Emb: Square, Kumar, 87
-   - LogitLens: WithTitle, hausen, ga
+**Final examples (all from images 0-9 viewable in demo):**
+1. **(a) Qwen2+CLIP-ViT, Layer 0, Image 1** - Person in striped clothing (wax museum)
+   - V-Lens: "white t-shirt under a", "red striped glass", "zebra standing in front"
+   - Input Emb: .tree, .ml, )" ← code fragments
+   - LogitLens: Según, 配方, andalone ← mixed gibberish
 
-3. **(c) OLMo+DINOv2, Layer 24, Image 8** - Brunette hair of young girl
-   - V-Lens: "woman with long brunette", "woman with shoulder length", "wet short brunette"
-   - Input Emb: hair, Hair, blonde
-   - LogitLens: 者, tingham, Stall
+2. **(b) LLaMA3+SigLIP, Layer 8, Image 8** - Auburn hair of young girl
+   - V-Lens: "the girl has auburn", "a boy with dirty", "woman with auburn curly"
+   - Input Emb: x, iado, u ← single characters
+   - LogitLens: улю, tan, โย ← foreign chars
+
+3. **(c) OLMo+DINOv2, Layer 24, Image 3** - Bottles on shelf in store
+   - V-Lens: "bottle on table with", "brown bottle with yellow", "two water bottles"
+   - Input Emb: \n, Abbey, ... ← whitespace/random
+   - LogitLens: led, ​​, ly ← gibberish
 
 **Files:** `paper/figures/method_comparison_table_v3.tex`
 
-**Git:** Paper pushed (7ac3461), main repo pushed (405d47b)
+**Git:** Paper pushed (c7b3621), main repo pushed (301e0fc)
 
 ### 2026-01-14 (Table 1 styling improvements)
 
