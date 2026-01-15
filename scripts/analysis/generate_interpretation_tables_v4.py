@@ -200,7 +200,7 @@ def generate_model_table(model_key, model_display, label_key, late_layers):
     # Clean column structure: Type | Word (Count) | Example Phrases
     lines.append(r"\begin{tabular}{@{} p{2.2cm} p{2.0cm} p{11.5cm} @{}}")
     lines.append(r"\toprule")
-    lines.append(r"\textbf{Category} & \textbf{Word (n)} & \textbf{Example Visual Genome Phrases} \\")
+    lines.append(r"\textbf{Category} & \textbf{Word (n)} & \textbf{Top Visual Genome Phrases} \\")
     lines.append(r"\midrule")
 
     for cat_idx, cat_name in enumerate(['Concrete', 'Abstract', 'Global']):
@@ -243,7 +243,7 @@ def generate_model_table(model_key, model_display, label_key, late_layers):
 
     # Caption with layer info
     lines.append(f"\\caption{{\\textbf{{{model_display}}} interpretation type breakdown. "
-                 f"Top {NUM_WORDS} words per category with occurrence counts and example phrases from Visual Genome. "
+                 f"Top {NUM_WORDS} words per category with occurrence counts and most frequent Visual Genome phrases. "
                  f"Percentages in parentheses show early$\\rightarrow$late layer shift (layers 0-2 vs {late_layers}).}}")
     lines.append(f"\\label{{tab:interp_{label_key}}}")
     lines.append(r"\end{table*}")
