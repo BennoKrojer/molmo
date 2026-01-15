@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Rename \vlens macro to \lens + colorbox spacing)
+
+**Changed:**
+- Renamed LaTeX macro from `\vlens` to `\lens` throughout paper (macros.tex, all sections)
+- Added `\;` thin spaces between colorboxes in Table 1 so baseline tags don't touch
+- All baseline tokens now have colored background tags (red for Input Emb., blue for LogitLens)
+
+**Git:** Paper pushed (b5adf3b), main repo pushed (2dc33fb)
+
 ### 2026-01-15 (Table 1: diverse model/layer combinations)
 
 **Changed:** Replaced all three examples in Table 1 to show diversity across:
