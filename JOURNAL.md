@@ -6,6 +6,27 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Layer alignment heatmaps: add LLM layer 0)
+
+**Changed:** Added LLM layer 0 (Input Embedding Matrix) to alignment heatmaps.
+- Previously: LLM layers started at 1 (LatentLens only)
+- Now: Layer 0 included by merging static NN + contextual NN, sorting by similarity
+
+**Method:** For each patch, merge 5 static NNs (layer 0) + 5 contextual NNs (layers 1+), sort by similarity, take top-5, count layer distribution.
+
+**Results:** Layer 0 gets 0-8% depending on model:
+- Llama3-8B: 0% (never wins)
+- OLMo-7B: 2-4% at vision layer 0
+- Qwen2-7B: 1-4% across layers
+- Qwen2-VL: 7.8% at vision layer 0
+
+**Files:**
+- `paper_plots/compute_merged_layer_alignment.py` (new)
+- `paper_plots/create_layer_alignment_heatmaps.py` (added layer 0)
+- `paper_plots/data.json` (updated layer_alignment)
+
+**Git:** Main repo pushed (91b17f7), paper already pushed to Overleaf
+
 ### 2026-01-14 (Appendix tables v4 - cleaner 3-column design)
 
 **Changed:** Final redesign of interpretation type tables with simpler, more readable layout.
