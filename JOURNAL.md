@@ -6,6 +6,25 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-14 (Table 1 Unicode fix - Korean characters render properly)
+
+**Fixed:** Replaced `$\square$` placeholders in Table 1 with actual Korean characters.
+
+**Solution for pdfLaTeX (Overleaf compatible):**
+- Added `\usepackage[utf8]{inputenc}` and `\usepackage[T2A]{fontenc}` for Cyrillic
+- Added `\usepackage{CJKutf8}` for Korean/Japanese/Chinese
+- Created `\ko{}` macro for inline Korean: `\newcommand{\ko}[1]{\begin{CJK}{UTF8}{mj}#1\end{CJK}}`
+
+**Changes to Table 1:**
+- Example (a): `tower, □, XII` → `tower, 도, XII`
+- Example (c): `□, Appliances, appliances` → `디, Appliances, appliances`
+
+**Files:**
+- `paper/icml2026_main.tex` (added Unicode packages)
+- `paper/figures/method_comparison_table_v3.tex` (replaced placeholders)
+
+**Git:** Paper pushed (a059657), main repo pushed (76f8368)
+
 ### 2026-01-14 (Layer alignment heatmaps: add LLM layer 0)
 
 **Changed:** Added LLM layer 0 (Input Embedding Matrix) to alignment heatmaps.
