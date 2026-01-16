@@ -142,11 +142,11 @@ def create_visualization(image_path, patch_row, patch_col,
     # Load and process image with correct preprocessing for this encoder
     processed_image = process_image_for_encoder(image_path, vision_encoder)
 
-    # Calculate bbox directly - patch (row, col) with 0-indexed grid
-    # row=0 is top, col=0 is left
+    # Calculate bbox - apply -1 offset to match actual patch positions
+    # (data convention has +1 offset from visual grid)
     patch_size = 512 / 24  # ~21.33 pixels per patch in 512x512 display
-    left = patch_col * patch_size
-    top = patch_row * patch_size
+    left = max(0, patch_col - 1) * patch_size
+    top = max(0, patch_row - 1) * patch_size
     right = left + patch_size
     bottom = top + patch_size
 
