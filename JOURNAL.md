@@ -6,15 +6,30 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Patch visualization bug fix + documentation)
+
+**Bug fixed:** Bounding boxes were misaligned because grid_size was hardcoded to 24, but SigLIP uses 27×27.
+
+**Root cause:** Different vision encoders have different grid sizes:
+- CLIP/DINOv2: 24×24 (576 patches)
+- SigLIP: 27×27 (729 patches)
+
+**Fix:** Read `patches_per_chunk` from data, calculate `grid_size = sqrt()`.
+
+**Documentation:** Added "PATCH VISUALIZATION GOTCHAS" section to CLAUDE.md with grid size table and code examples.
+
+**Git:** Pushed (ca16d36)
+
 ### 2026-01-15 (Layer evolution annotation set)
 
 **Added:**
 - `scripts/analysis/create_layer_evolution_annotation_set.py` - creates 80 PNGs for manual annotation study
 - Each shows image + red bbox + top-5 LatentLens phrases for layer 0 and layer 16
-- Correct preprocessing per vision encoder (CLIP: padding, SigLIP/DINOv2: no padding, Qwen2-VL: center-crop)
+- Uses model's actual preprocessor via `create_preprocessor()` from viewer_lib.py
+- Reads grid_size from data (not hardcoded)
 - Output: `analysis_results/layer_evolution_annotation/`
 
-**Git:** Pushed (ec7e49c)
+**Git:** Pushed (0bb2f7e)
 
 ### 2026-01-15 (Section 5.5: text-in-image patches figure)
 
