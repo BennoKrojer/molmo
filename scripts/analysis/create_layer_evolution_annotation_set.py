@@ -21,48 +21,40 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
-from llm_judge.utils import (
-    load_image,
-    resize_and_pad,
-)
-from olmo.data.model_preprocessor import siglip_resize_and_pad, dino_resize_and_pad
+from llm_judge.utils import load_image
 from olmo.data.pixmo_datasets import PixMoCap
 
+# Import viewer_lib preprocessing to match demo exactly
+sys.path.insert(0, str(Path(__file__).parent))
+from viewer_lib import create_preprocessor
 
-def process_image_for_encoder(image_path, vision_encoder):
+
+def process_image_with_preprocessor(image_path, preprocessor):
     """
-    Process image with the correct preprocessing for the vision encoder.
-
-    - CLIP (vit-l-14-336): aspect-preserving resize with black padding
-    - SigLIP: simple resize to square (no padding)
-    - DINOv2: simple resize to square (no padding)
-    - Qwen2-VL: center-crop (handled separately)
-
-    Returns PIL Image at 512x512 for visualization.
+    Process image using the model's actual preprocessor (same as demo).
+    Returns PIL Image at 512x512.
     """
-    image = load_image(image_path)
+    image_array = load_image(image_path)
 
-    if vision_encoder == 'vit-l-14-336':
-        # CLIP: aspect-preserving resize with black padding
-        processed, image_mask = resize_and_pad(image, (512, 512), normalize=False)
-        processed = (processed * 255).astype(np.uint8)
-    elif vision_encoder == 'siglip':
-        # SigLIP: simple resize to square (no padding)
-        processed, image_mask = siglip_resize_and_pad(image, (512, 512))
-        processed = (processed * 255).astype(np.uint8)
-    elif vision_encoder == 'dinov2-large-336':
-        # DINOv2: simple resize to square (no padding)
-        processed, image_mask = dino_resize_and_pad(image, (512, 512))
-        processed = (processed * 255).astype(np.uint8)
-    else:
-        # Qwen2-VL or unknown: use center-crop (import canonical preprocessing)
-        from PIL import Image as PILImage
-        from scripts.analysis.qwen2_vl.preprocessing import preprocess_image_qwen2vl
-        pil_img = PILImage.fromarray(image)
-        return preprocess_image_qwen2vl(pil_img, target_size=512, force_square=True)
+    # Use same preprocessing as demo
+    processed_image, img_mask = preprocessor.mm_preprocessor.resize_image(
+        image_array,
+        (512, 512),
+        is_training=False,
+        rng=np.random
+    )
 
-    from PIL import Image as PILImage
-    return PILImage.fromarray(processed)
+    # Convert back to PIL image (processed_image is in [0,1] range)
+    processed_image = (processed_image * 255).astype(np.uint8)
+    return Image.fromarray(processed_image)
+
+
+def process_image_qwen2vl(image_path):
+    """Process image for Qwen2-VL (no trained checkpoint, uses center-crop)."""
+    from scripts.analysis.qwen2_vl.preprocessing import preprocess_image_qwen2vl
+    image_array = load_image(image_path)
+    pil_img = Image.fromarray(image_array)
+    return preprocess_image_qwen2vl(pil_img, target_size=512, force_square=True)
 
 
 def smart_truncate_around_token(caption, token_str, max_len=55):
@@ -136,17 +128,19 @@ def smart_truncate_around_token(caption, token_str, max_len=55):
 def create_visualization(image_path, patch_row, patch_col,
                          neighbors_layer0, neighbors_layer16,
                          interp_layer0, interp_layer16,
-                         output_path, model_name, vision_encoder):
+                         output_path, model_name, preprocessor=None, is_qwen2vl=False):
     """Create visualization with image, red bbox, and LatentLens phrases for both layers."""
 
-    # Load and process image with correct preprocessing for this encoder
-    processed_image = process_image_for_encoder(image_path, vision_encoder)
+    # Load and process image using same preprocessing as demo
+    if is_qwen2vl:
+        processed_image = process_image_qwen2vl(image_path)
+    else:
+        processed_image = process_image_with_preprocessor(image_path, preprocessor)
 
-    # Calculate bbox - apply -1 offset to match actual patch positions
-    # (data convention has +1 offset from visual grid)
+    # Calculate bbox - direct formula matching demo
     patch_size = 512 / 24  # ~21.33 pixels per patch in 512x512 display
-    left = max(0, patch_col - 1) * patch_size
-    top = max(0, patch_row - 1) * patch_size
+    left = patch_col * patch_size
+    top = patch_row * patch_size
     right = left + patch_size
     bottom = top + patch_size
 
@@ -311,40 +305,52 @@ def main():
     print("Loading PixMoCap dataset...")
     dataset = PixMoCap(split='validation', mode="captions")
 
-    # Define models: (llm, encoder, llm_judge_template, contextual_nn_template)
+    # Define models: (llm, encoder, llm_judge_template, nn_dir, checkpoint_name)
+    # nn_dir: path in analysis_results/contextual_nearest_neighbors/
+    # checkpoint_name: name for create_preprocessor (without step suffix)
     models = [
         # 9 trained models
         ('olmo-7b', 'vit-l-14-336',
          'llm_judge_olmo-7b_vit-l-14-336_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336'),
         ('olmo-7b', 'siglip',
          'llm_judge_olmo-7b_siglip_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_siglip'),
         ('olmo-7b', 'dinov2-large-336',
          'llm_judge_olmo-7b_dinov2-large-336_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336'),
         ('llama3-8b', 'vit-l-14-336',
          'llm_judge_llama3-8b_vit-l-14-336_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336'),
         ('llama3-8b', 'siglip',
          'llm_judge_llama3-8b_siglip_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_siglip'),
         ('llama3-8b', 'dinov2-large-336',
          'llm_judge_llama3-8b_dinov2-large-336_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336'),
         ('qwen2-7b', 'vit-l-14-336',
          'llm_judge_qwen2-7b_vit-l-14-336_seed10_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10'),
         ('qwen2-7b', 'siglip',
          'llm_judge_qwen2-7b_siglip_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded'),
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip'),
         ('qwen2-7b', 'dinov2-large-336',
          'llm_judge_qwen2-7b_dinov2-large-336_contextual{layer}_gpt5_cropped',
-         'train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded'),
-        # Qwen2-VL (off-the-shelf)
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded',
+         'train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336'),
+        # Qwen2-VL (off-the-shelf) - no checkpoint needed
         ('qwen2vl', None,
          'qwen2-vl/llm_judge_qwen2vl_contextual{layer}_gpt5_cropped',
-         'qwen2_vl/Qwen_Qwen2-VL-7B-Instruct'),
+         'qwen2_vl/Qwen_Qwen2-VL-7B-Instruct',
+         None),
     ]
 
     llm_judge_base = Path('analysis_results/llm_judge_contextual_nn')
@@ -352,9 +358,20 @@ def main():
 
     total_created = 0
 
-    for llm, encoder, judge_template, nn_dir in models:
+    for llm, encoder, judge_template, nn_dir, checkpoint_name in models:
         model_name = f"{llm}+{encoder}" if encoder else llm
+        is_qwen2vl = (llm == 'qwen2vl')
         print(f"\nProcessing {model_name}...")
+
+        # Create preprocessor (same as demo uses)
+        preprocessor = None
+        if not is_qwen2vl and checkpoint_name:
+            try:
+                preprocessor = create_preprocessor(checkpoint_name)
+                print(f"  Created preprocessor from checkpoint")
+            except Exception as e:
+                print(f"  Warning: Could not create preprocessor: {e}")
+                continue
 
         # Load LLM judge results for interpretability labels
         judge_dir0 = llm_judge_base / judge_template.format(layer=0)
@@ -447,7 +464,8 @@ def main():
                 interp_layer16=sample['interp16'],
                 output_path=output_file,
                 model_name=model_name,
-                vision_encoder=encoder,
+                preprocessor=preprocessor,
+                is_qwen2vl=is_qwen2vl,
             )
 
             if success:
