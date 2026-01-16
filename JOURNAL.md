@@ -6,6 +6,31 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-16 (Ablations table: LatentLens overlap metrics)
+
+**New script:** `scripts/analysis/contextual_nn_overlap.py`
+- Computes Jaccard overlap between original and ablation LatentLens NNs
+- Reports both subword-level (token match) and phrase-level (full caption match)
+- Supports filtering by high-similarity patches (cos > 0.1)
+- Run with `--run-all --visual-layer 0` for batch processing all ablations
+
+**Computed metrics (Layer 0, OLMo+CLIP baseline):**
+| Ablation | Subword (all/high) | Phrase (all/high) |
+|----------|-------------------|-------------------|
+| seed10 | 22.0 / 28.6 | 16.1 / 18.9 |
+| linear | 13.4 / 22.7 | 8.6 / 14.3 |
+| first-sentence | 10.2 / 18.6 | 5.9 / 10.6 |
+| unfreeze | 14.0 / 24.1 | 7.9 / 13.2 |
+| topbottom | 0.2 / 0.3 | 0.1 / 0.1 |
+
+**Paper updates (Section 5.5/ablations):**
+- Replaced 5-column table with 3-column (LatentLens Interp., Subword Overlap, Phrase Overlap)
+- Removed Input Emb. column (now LatentLens only)
+- Moved captioning scores and task accuracy to text
+- Updated all text paragraphs with new computed values
+
+**Git:** Paper pushed (004338d), main repo pushed (adfdda4)
+
 ### 2026-01-16 (Captioning metric: DCScore citation + inline table)
 
 **Paper updates:**
