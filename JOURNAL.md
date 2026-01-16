@@ -6,6 +6,25 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Qwen2-VL captioning upper bound)
+
+**Added:** Qwen2-VL-7B-Instruct captioning evaluation as upper bound reference.
+
+**New script:** `scripts/analysis/qwen2_vl/generate_captions.py`
+- Generates captions from off-the-shelf Qwen2-VL-7B-Instruct
+- 300 validation images (same as trained models)
+- Image resolution constrained to max 512x512 to avoid OOM
+
+**Results:** Qwen2-VL achieves **8.5/10** (median 9.0) vs our models' avg 6.0/10.
+
+**Paper updates:**
+- Section 4: Added Qwen2-VL reference as upper bound
+- Appendix: Added "Upper bound comparison" paragraph
+
+**Data:** `analysis_results/captions/Qwen_Qwen2-VL-7B-Instruct/`
+
+**Git:** Paper pushed (87685d3), main repo pushed (299c3ea)
+
 ### 2026-01-15 (Captioning quality evaluation in paper)
 
 **Added:** Filled in @Claude tasks in Section 4 (Experiments):
