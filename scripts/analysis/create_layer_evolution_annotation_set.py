@@ -128,7 +128,8 @@ def smart_truncate_around_token(caption, token_str, max_len=55):
 def create_visualization(image_path, patch_row, patch_col,
                          neighbors_layer0, neighbors_layer16,
                          interp_layer0, interp_layer16,
-                         output_path, model_name, preprocessor=None, is_qwen2vl=False):
+                         output_path, model_name, preprocessor=None, is_qwen2vl=False,
+                         grid_size=24):
     """Create visualization with image, red bbox, and LatentLens phrases for both layers."""
 
     # Load and process image using same preprocessing as demo
@@ -137,8 +138,9 @@ def create_visualization(image_path, patch_row, patch_col,
     else:
         processed_image = process_image_with_preprocessor(image_path, preprocessor)
 
-    # Calculate bbox - direct formula matching demo
-    patch_size = 512 / 24  # ~21.33 pixels per patch in 512x512 display
+    # Calculate bbox using actual grid size (varies by encoder!)
+    # CLIP/DINOv2: 24x24, SigLIP: 27x27, Qwen2-VL: varies
+    patch_size = 512 / grid_size
     left = patch_col * patch_size
     top = patch_row * patch_size
     right = left + patch_size
@@ -412,6 +414,18 @@ def main():
             print(f"  Missing contextual NN files, skipping")
             continue
 
+        # Get grid_size from data (same way demo does it)
+        grid_size = 24  # default
+        with open(nn_file0) as f:
+            nn_data = json.load(f)
+        results = nn_data.get('results', [])
+        if results:
+            chunks = results[0].get('chunks', [])
+            if chunks and chunks[0].get('patches'):
+                patches_per_chunk = len(chunks[0]['patches'])
+                grid_size = int(patches_per_chunk ** 0.5)
+        print(f"  Grid size: {grid_size}x{grid_size}")
+
         # Find patches interpretable at either layer
         candidates = []
         common_keys = set(judge0_idx.keys()) & set(judge16_idx.keys()) & set(nn0_idx.keys()) & set(nn16_idx.keys())
@@ -466,6 +480,7 @@ def main():
                 model_name=model_name,
                 preprocessor=preprocessor,
                 is_qwen2vl=is_qwen2vl,
+                grid_size=grid_size,
             )
 
             if success:
