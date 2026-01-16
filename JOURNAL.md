@@ -6,30 +6,32 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-16 (Ablations table: LatentLens overlap metrics)
+### 2026-01-16 (Ablations table: LatentLens overlap metrics, all-layers average)
 
 **New script:** `scripts/analysis/contextual_nn_overlap.py`
 - Computes Jaccard overlap between original and ablation LatentLens NNs
 - Reports both subword-level (token match) and phrase-level (full caption match)
 - Supports filtering by high-similarity patches (cos > 0.1)
-- Run with `--run-all --visual-layer 0` for batch processing all ablations
+- Run with `--run-all --visual-layer N` for batch processing all ablations
 
-**Computed metrics (Layer 0, OLMo+CLIP baseline):**
-| Ablation | Subword (all/high) | Phrase (all/high) |
-|----------|-------------------|-------------------|
-| seed10 | 22.0 / 28.6 | 16.1 / 18.9 |
-| linear | 13.4 / 22.7 | 8.6 / 14.3 |
-| first-sentence | 10.2 / 18.6 | 5.9 / 10.6 |
-| unfreeze | 14.0 / 24.1 | 7.9 / 13.2 |
-| topbottom | 0.2 / 0.3 | 0.1 / 0.1 |
+**Final metrics (averaged across all visual layers 0,1,2,4,8,16,24,30,31):**
+| Ablation | Δ Interp. | Token (all/high) | Phrase (all/high) |
+|----------|-----------|------------------|-------------------|
+| seed10 | +1.3% | 32.8 / 34.4 | 27.8 / 29.1 |
+| linear | +0.8% | 27.4 / 29.0 | 24.6 / 25.9 |
+| first-sentence | -1.6% | 22.0 / 23.4 | 18.2 / 19.4 |
+| unfreeze | +6.4% | 23.0 / 24.3 | 17.6 / 18.6 |
+| topbottom | -33.2% | 0.2 / 0.2 | 0.1 / 0.1 |
+| topbottom-unfreeze | -29.2% | 0.4 / 0.4 | 0.1 / 0.1 |
+
+Baseline interpretability: 71.3%
 
 **Paper updates (Section 5.5/ablations):**
-- Replaced 5-column table with 3-column (LatentLens Interp., Subword Overlap, Phrase Overlap)
-- Removed Input Emb. column (now LatentLens only)
-- Moved captioning scores and task accuracy to text
-- Updated all text paragraphs with new computed values
+- Table: single ICML column, shows Δ Interp., Token Overlap, Phrase Overlap
+- Text paragraphs updated with all-layers-averaged values
+- Interpretability shown as delta from baseline
 
-**Git:** Paper pushed (004338d), main repo pushed (adfdda4)
+**Git:** Paper pushed (031e378), main repo pushed (3f00dde)
 
 ### 2026-01-16 (Captioning metric: DCScore citation + inline table)
 
