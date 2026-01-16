@@ -22,8 +22,6 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
 from llm_judge.utils import (
-    calculate_square_bbox_from_patch,
-    draw_bbox_on_image,
     load_image,
     resize_and_pad,
 )
@@ -144,12 +142,27 @@ def create_visualization(image_path, patch_row, patch_col,
     # Load and process image with correct preprocessing for this encoder
     processed_image = process_image_for_encoder(image_path, vision_encoder)
 
-    # Calculate bbox for single patch (1x1) - matches demo exactly
+    # Calculate bbox directly - patch (row, col) with 0-indexed grid
+    # row=0 is top, col=0 is left
     patch_size = 512 / 24  # ~21.33 pixels per patch in 512x512 display
-    bbox = calculate_square_bbox_from_patch(patch_row, patch_col, patch_size=patch_size, size=1)
+    left = patch_col * patch_size
+    top = patch_row * patch_size
+    right = left + patch_size
+    bottom = top + patch_size
 
-    # Draw bbox
-    image_with_bbox = draw_bbox_on_image(processed_image, bbox, outline_color="red", width=3, fill_alpha=40)
+    # Draw bbox directly (no llm_judge utility)
+    image_with_bbox = processed_image.copy()
+    draw = ImageDraw.Draw(image_with_bbox)
+    # Semi-transparent red fill
+    overlay = Image.new('RGBA', image_with_bbox.size, (0, 0, 0, 0))
+    overlay_draw = ImageDraw.Draw(overlay)
+    overlay_draw.rectangle([left, top, right, bottom], fill=(255, 0, 0, 40))
+    image_with_bbox = image_with_bbox.convert('RGBA')
+    image_with_bbox = Image.alpha_composite(image_with_bbox, overlay)
+    image_with_bbox = image_with_bbox.convert('RGB')
+    # Red outline
+    draw = ImageDraw.Draw(image_with_bbox)
+    draw.rectangle([left, top, right, bottom], outline='red', width=3)
 
     # Create figure layout - wider for phrases
     img_w, img_h = 512, 512
