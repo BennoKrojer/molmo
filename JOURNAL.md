@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-16 (Captioning metric: DCScore citation + inline table)
+
+**Paper updates:**
+- Section 4: Added inline table with all 10 captioning scores (9 models + Qwen2-VL upper bound)
+- Changed citation from `zheng2023judging` to `ye2025painting` (DCScore)
+- Appendix: Added detailed rubric description (4 criteria: faithfulness, detail accuracy, hallucinations, completeness)
+- Appendix: Added full breakdown table with all 10 models
+
+**Git:** Paper pushed (12e0634), main repo pushed (94dc8cf)
+
 ### 2026-01-15 (Qwen2-VL captioning upper bound)
 
 **Added:** Qwen2-VL-7B-Instruct captioning evaluation as upper bound reference.
