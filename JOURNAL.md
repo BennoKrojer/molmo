@@ -17,21 +17,21 @@ A concise log of major changes, results, and git operations.
 **Final metrics (averaged across all visual layers 0,1,2,4,8,16,24,30,31):**
 | Ablation | Δ Interp. | Token (all/high) | Phrase (all/high) |
 |----------|-----------|------------------|-------------------|
-| seed10 | +1.3% | 32.8 / 34.4 | 27.8 / 29.1 |
-| linear | +0.8% | 27.4 / 29.0 | 24.6 / 25.9 |
-| first-sentence | -1.6% | 22.0 / 23.4 | 18.2 / 19.4 |
-| unfreeze | +6.4% | 23.0 / 24.3 | 17.6 / 18.6 |
-| topbottom | -33.2% | 0.2 / 0.2 | 0.1 / 0.1 |
-| topbottom-unfreeze | -29.2% | 0.4 / 0.4 | 0.1 / 0.1 |
+| seed10 | +1.3% | 2.5 / 2.6 | 2.2 / 2.3 |
+| linear | +0.8% | 2.1 / 2.2 | 2.0 / 2.1 |
+| first-sentence | -1.6% | 1.8 / 1.9 | 1.5 / 1.6 |
+| unfreeze | +6.4% | 1.9 / 2.0 | 1.5 / 1.6 |
+| topbottom | -33.2% | 0.0 / 0.0 | 0.0 / 0.0 |
+| topbottom-unfreeze | -29.2% | 0.0 / 0.0 | 0.0 / 0.0 |
 
-Baseline interpretability: 71.3%
+Baseline interpretability: 71.3%. Overlap = avg matching neighbors out of 5.
 
 **Paper updates (Section 5.5/ablations):**
 - Table: single ICML column, shows Δ Interp., Token Overlap, Phrase Overlap
-- Text paragraphs updated with all-layers-averaged values
-- Interpretability shown as delta from baseline
+- Changed overlap from Jaccard % to intuitive "X/5" format
+- Fixed "caps" → "captions"
 
-**Git:** Paper pushed (031e378), main repo pushed (3f00dde)
+**Git:** Paper pushed (23274ba), main repo pushed (f13e44b)
 
 ### 2026-01-16 (Captioning metric: DCScore citation + inline table)
 
