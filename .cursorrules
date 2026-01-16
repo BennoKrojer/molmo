@@ -256,6 +256,43 @@ cd .. && git add paper && git commit -m "Update paper submodule" && git push
 
 ---
 
+## ⚠️ PATCH VISUALIZATION GOTCHAS ⚠️
+
+**What went wrong (2026-01-15):** Agent hardcoded `grid_size=24` when drawing patch bounding boxes. But SigLIP uses 27×27 grid, causing ~17px offset per patch. Took hours to debug because the offset looked "close enough" semantically.
+
+**Grid sizes vary by vision encoder:**
+| Encoder | Grid | Patches |
+|---------|------|---------|
+| CLIP (ViT-L/14) | 24×24 | 576 |
+| DINOv2 | 24×24 | 576 |
+| SigLIP | 27×27 | 729 |
+| Qwen2-VL | varies | varies |
+
+**NEVER hardcode grid_size. Always read from data:**
+```python
+# WRONG:
+patch_size = 512 / 24  # Assumes 24x24!
+
+# CORRECT - read from data:
+patches_per_chunk = len(chunks[0]['patches'])
+grid_size = int(patches_per_chunk ** 0.5)
+patch_size = 512 / grid_size
+```
+
+**Use existing utilities in `scripts/analysis/viewer_lib.py`:**
+- `get_grid_dimensions(image_data)` → returns (grid_rows, grid_cols, patches_per_chunk)
+- `create_preprocessor(checkpoint_name)` → model's actual preprocessor
+- `patch_idx_to_row_col(patch_idx, patches_per_chunk)` → convert index to row/col
+
+**For image preprocessing, always use the model's preprocessor:**
+```python
+from viewer_lib import create_preprocessor
+preprocessor = create_preprocessor(checkpoint_name)
+processed, _ = preprocessor.mm_preprocessor.resize_image(image_array, (512, 512), ...)
+```
+
+---
+
 ## Quick Reference
 
 **Regenerate demo viewer:**
