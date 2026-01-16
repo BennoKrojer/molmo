@@ -6,6 +6,24 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-15 (Captioning quality evaluation in paper)
+
+**Added:** Filled in @Claude tasks in Section 4 (Experiments):
+- Named the captioning metric: LLM-as-judge with GPT-4o (0-10 scale, 300 images)
+- Added citation: `\citep{zheng2023judging}` for MT-Bench/Chatbot Arena paper
+- Summarized results in main text: avg 6.0, CLIP/SigLIP ~6.8, DINOv2 ~4.4
+
+**New appendix section:** `\Cref{app:captioning}` with:
+- Heatmap figure (`fig:captioning_heatmap`) showing all 9 model scores
+- Key observations (DINOv2 underperforms but interpretability unaffected)
+- Sample captions from 3 representative models
+
+**Moved:** Inline captioning figure from Section 6 → appendix reference
+
+**Data source:** `analysis_results/captioning_evaluation/` (GPT-4o judge results)
+
+**Git:** Paper pushed (3d650bf), main repo pushed (52fa405)
+
 ### 2026-01-15 (Patch visualization bug fix + documentation)
 
 **Bug fixed:** Bounding boxes were misaligned because grid_size was hardcoded to 24, but SigLIP uses 27×27.
