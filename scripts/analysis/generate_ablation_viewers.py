@@ -550,6 +550,7 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
         "logitlens": {},
         "contextual_vg": {},  # Must match JS template key (contextual_vg)
         "contextual_cc": {},  # Must match JS template key (contextual_cc)
+        "patchscopes": {},  # Required by JS template even if empty
     }
     
     # Process NN data - handles both Format A (chunks/patches) and Format B (patches directly)
