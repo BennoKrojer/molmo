@@ -6,6 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-17 (TopBottom ablation viewer fix)
+
+**Bug:** TopBottom ablation demo grid wasn't rendering at all.
+
+**Root cause:** `generate_ablation_viewers.py` didn't include `"patchscopes": {}` in `unified_patch_data`, but the JS template expected it. Accessing `allData.patchscopes[layerKey]` threw "Cannot read property of undefined".
+
+**Fix:** Added `"patchscopes": {}` to unified_patch_data in generate_ablation_viewers.py.
+
+**Prevention:** Added validation to `validate_viewer_output()`:
+1. Checks allData contains all required keys (nn, logitlens, contextual_vg, contextual_cc, patchscopes)
+2. Validates JS syntax with Node.js if available
+
+**Lesson:** When JS template evolves (e.g., adds Patchscopes columns), data generators must be updated to match expected structure.
+
 ### 2026-01-17 (Figure 1 design variations)
 
 **Added:** 10 design variations of Figure 1 for user selection.
