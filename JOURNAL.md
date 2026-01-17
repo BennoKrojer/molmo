@@ -6,6 +6,32 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-17 (Figure 1 design variations)
+
+**Added:** 10 design variations of Figure 1 for user selection.
+
+**Image:** Italian Piazza (Fontana di Santa Maria in Trastevere) - validation image 0
+**Patch:** (11,20) on orange building, Layer 16
+**Results:**
+- LatentLens: "building with balconies", "skyscraper with balconies", "tall building"
+- LogitLens: "hal", "apartment", "restr" (nonsense)
+
+**Variations:**
+- v1: Horizontal layout, stacked results
+- v2: Vertical layout, side-by-side results
+- v3: Zoom inset showing cropped patch
+- v4: With Vision Encoder box
+- v5: Compact single-row
+- v6: Table format with booktabs
+- v7: Blue/Orange color scheme
+- v8: Minimalist design
+- v9: Layer progression (0→8→16)
+- v10: Speech bubble style
+
+**Files:** `paper/figures/figure1_v{1-10}.tex`, `figure1_piazza*.jpg`, `figure1_patch_crop.jpg`
+
+**Git:** Paper pushed (a48c77e), main repo pushed (c67720a)
+
 ### 2026-01-17 (Ablations section TODOs completed)
 
 **Paper updates (Section 5.5/ablations):**
