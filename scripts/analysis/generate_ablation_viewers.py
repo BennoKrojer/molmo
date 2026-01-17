@@ -287,7 +287,44 @@ def validate_viewer_output(html_path: Path, expected_nn_layers: int, expected_lo
     if expected_ctx_layers > 0:
         if '"contextual_neighbors": []' in content:
             errors.append("Contextual data has empty contextual_neighbors arrays!")
-    
+
+    # CRITICAL: Check that allData contains all required keys for JS template
+    # Missing keys cause "Cannot read property of undefined" errors and break the grid
+    required_alldata_keys = ["nn", "logitlens", "contextual_vg", "contextual_cc", "patchscopes"]
+    for key in required_alldata_keys:
+        # Check for the key as a top-level entry in allData (format: "key": {)
+        if f'"{key}": {{' not in content:
+            errors.append(f"allData missing required key '{key}' - JS template will break!")
+
+    # Validate JS syntax with Node.js if available
+    import subprocess
+    import shutil
+    if shutil.which("node"):
+        # Extract script content and validate syntax
+        import re
+        script_match = re.search(r'<script>([\s\S]*?)</script>', content)
+        if script_match:
+            script = script_match.group(1)
+            # Write to temp file and check syntax
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
+                f.write(script)
+                temp_path = f.name
+            try:
+                result = subprocess.run(
+                    ['node', '--check', temp_path],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode != 0:
+                    errors.append(f"JS syntax error: {result.stderr.strip()}")
+            except subprocess.TimeoutExpired:
+                pass  # Ignore timeout
+            except Exception as e:
+                pass  # Ignore other errors, validation is best-effort
+            finally:
+                import os
+                os.unlink(temp_path)
+
     if errors:
         log.error(f"  ❌ VALIDATION FAILED for {html_path.name}:")
         for err in errors:
