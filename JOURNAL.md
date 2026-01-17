@@ -6,6 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-17 (Ablations section TODOs completed)
+
+**Paper updates (Section 5.5/ablations):**
+- Fixed typos: "the same the same" → "the same", "irregardless" → "regardless"
+- Completed sentence about captioning necessity for interpretable vision tokens
+- Added examples of generic tokens from TopBottom task (upper, background, outside, distance, nearby)
+- Added Finding 7 box summarizing ablation insights:
+  - Interpretability robust to seed, connector depth, caption detail
+  - Unfreezing LLM improves interpretability
+  - Spatial task drastically reduces interpretability (-30%)
+
+**Git:** Paper pushed (4a3ff69), main repo updated
+
 ### 2026-01-16 (Ablations table: LatentLens overlap metrics, all-layers average)
 
 **New script:** `scripts/analysis/contextual_nn_overlap.py`
