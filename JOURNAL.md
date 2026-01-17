@@ -32,18 +32,28 @@ A concise log of major changes, results, and git operations.
 
 **Git:** Paper pushed (a48c77e), main repo pushed (c67720a)
 
-### 2026-01-17 (Ablations section TODOs completed)
+### 2026-01-17 (Demo refresh + Ablations TODOs)
 
-**Paper updates (Section 5.5/ablations):**
-- Fixed typos: "the same the same" → "the same", "irregardless" → "regardless"
-- Completed sentence about captioning necessity for interpretable vision tokens
-- Added examples of generic tokens from TopBottom task (upper, background, outside, distance, nearby)
-- Added Finding 7 box summarizing ablation insights:
-  - Interpretability robust to seed, connector depth, caption detail
-  - Unfreezing LLM improves interpretability
-  - Spatial task drastically reduces interpretability (-30%)
+**Demo regenerated with latest data:**
+- Used `--lite-suffix _lite10` for fast regeneration (~3 min vs 5+ min)
+- Synced to website: https://bennokrojer.github.io/vlm_interp_demo/
+- Note: TopBottom ablation NN data still corrupted (Dec 31 bug), contextual NN data valid
 
-**Git:** Paper pushed (4a3ff69), main repo updated
+**Investigation: TopBottom ablation NaN issue**
+- NN (Embedding Matrix) data for layers > 0 shows NaN similarities and garbage tokens (`"`, `!`, `#`)
+- Root cause: Dec 31 generation bug, only layer 0 has valid data
+- Contextual NN data is valid - LLM judge used this correctly
+- Confirmed +1 offset in LLM judge is documented behavior (3x3 bbox center), not a bug
+
+**Paper updates (experiments.tex):**
+- Finding 6 (line 575): Phrase context provides better interpretations (64% vs word alone, 58% vs random corpus)
+- Finding 7 (line 370): Ablations summary - robustness to seed/connector/captions, language-based training essential
+- TopBottom examples (line 348): Generic positional terms (upper, background, outside, distance, nearby)
+
+**Git:**
+- Website pushed (50e4854)
+- Paper pushed (e8ea3ef)
+- Main repo pushed (b4d81aa)
 
 ### 2026-01-16 (Ablations table: LatentLens overlap metrics, all-layers average)
 
