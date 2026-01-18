@@ -6,6 +6,23 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-18 (HuggingFace data upload)
+
+**Task:** Upload all contextual nearest neighbor JSONs to HuggingFace for co-authors.
+
+**Data:** 9 models × 9 layers = 81 files, ~14GB total
+- Models: OLMo/Llama3/Qwen2 × CLIP/SigLIP/DINOv2
+- Layers: [0, 1, 2, 4, 8, 16, 24, 30, 31]
+
+**Scripts:**
+- `upload_all_layers.py` - Uploads all 81 files
+- `download_layer16_jsons.py` - Flexible download with `--all`, `--layer`, `--layers` options
+- `DOWNLOAD_LAYER16_DATA.md` - Instructions for co-authors
+
+**Repo:** https://huggingface.co/BennoKrojer/vl_embedding_spaces
+
+**Git:** 26a90b0
+
 ### 2026-01-17 (TopBottom ablation viewer fix)
 
 **Bug:** TopBottom ablation demo grid wasn't rendering at all.
