@@ -6,6 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-23 (Paper experiments/analysis section TODOs)
+
+**Filled in TODOs:**
+- Line 42 (4_experiments.tex): Connector description → "gated MLP with SwiGLU activation"
+- Added `shazeer2020glu` citation to literature.bib
+- Analysis section (5_analysis.tex): Replaced [NOUNS], [COLORS], [OCR], [LAYER-STUFF] placeholders
+  - POS: nouns 45%, proper nouns 15%, verbs 12%, adj 5%
+  - Colors: ~5% of NNs, shape/texture <1%
+  - OCR: inline CLIP figure, DINOv2 has 1.4× lower vocab diversity
+  - Layers: colors drop 7%→4%, few other consistent trends
+
+**Git:** Paper c363e53, Main repo 17568aa
+
 ### 2026-01-18 (HuggingFace data upload)
 
 **Task:** Upload all contextual nearest neighbor JSONs to HuggingFace for co-authors.
