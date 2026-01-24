@@ -6,6 +6,23 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-24 (Data validation fixes)
+
+**Issue discovered:** `paper_figures_standalone.py` had 63 wrong hardcoded values. The CONTEXTUAL layer 0 values were actually EmbeddingLens (nn) values, not LatentLens values. Agent initially read from this stale script instead of canonical `data.json`.
+
+**Fixes:**
+1. Deleted `paper_figures_standalone.py` (stale hardcoded data, functionality exists in `create_lineplot_unified.py`)
+2. Updated `paper_plots/README.md` to remove references and add warning against hardcoded data
+3. Updated `CLAUDE.md` Rule 2: "For paper numbers: ALWAYS use `paper_plots/data.json`"
+4. Copied updated `fig1_unified_interpretability.pdf` to paper/figures/ (was from Jan 11, newer version from Jan 14)
+
+**Correct numbers (from data.json):**
+- LatentLens: 72% average (49%-86% range)
+- EmbeddingLens: 30% average
+- LogitLens: 23% average (45% at late layers)
+
+**Git:** Main b51381a, e61f0dd. Paper 48fd23e.
+
 ### 2026-01-23 (Paper experiments/analysis section TODOs)
 
 **Filled in TODOs:**
