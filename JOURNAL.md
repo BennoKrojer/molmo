@@ -6,19 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-24 (Dynamic Corpus Generation appendix)
+### 2026-01-24 (Phrase context quantification + Dynamic corpus appendix)
 
-**Added:** New appendix section documenting dynamic phrase generation experiment.
+**Moved to appendix (app:phrase_examples):**
+- Phrase context quantification study details (was inline in analysis section)
+- 64% context helps, 28% neutral, 8% misleading
+- Main text now references appendix for details
 
-**Results:**
-- 85% (17/20) of vision tokens showed improved cosine similarity with dynamically generated phrases
+**Added new appendix section (app:dynamic_corpus):**
+- Dynamic phrase generation experiment documentation
+- 85% (17/20) showed improved similarity with evolved phrases
 - Average improvement: +0.017 cosine similarity
-- Token mobility: 35% had non-top-1 tokens rise to best match after evolution
+- Token mobility: 35% had non-top-1 tokens rise to best match
 - Method: 6 rounds × 20 variations evolutionary search with GPT-4o
 
-**Key insight:** Fixed corpus limitation of 20 sentences/token may underrepresent some tokens due to suboptimal context.
-
-**Git:** Paper 00b4f75, Main d0e0401
+**Git:** Paper 156f107, Main da14604
 
 ---
 
