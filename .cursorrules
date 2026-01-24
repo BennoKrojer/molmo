@@ -64,10 +64,20 @@
 
 ## Communication
 
+**PI/Intern Mindset:** Think of this as a PI supervising an intern/MSc student. The PI doesn't just want the final answer—they want to see enough evidence and intuition that the PROCESS made sense. Don't just show results; show HOW you got there.
+
+**When computing numbers or making claims:**
+- Show the raw data or where it came from
+- Show the computation step-by-step (e.g., "27 values, sum = 1205, avg = 1205/27 = 44.6%")
+- If you're averaging, state WHAT you're averaging over (all models? all layers? subset?)
+- Never just say "the average is X" without showing the inputs
+
 **When showing results or finishing tasks:**
 - ALWAYS provide the **full absolute path** to any files created or modified
 - Don't make the user figure out where things are - be explicit
 - Example: "View the result at: `/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/icicle_final_v6.png`"
+
+**What went wrong (2026-01-24):** Agent reported "LogitLens: 45% at late layers" without showing the computation. User had to ask twice to see the actual values and how the average was computed.
 
 ---
 
