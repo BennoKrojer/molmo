@@ -31,6 +31,10 @@
 - Never trust glob patterns - they can pick up wrong files (e.g., ablations)
 - Check `paper_data_manifest.json` for expected values
 - If a number looks different than expected, investigate before proceeding
+- **For paper numbers:** ALWAYS use `paper_plots/data.json` - this is the SINGLE SOURCE OF TRUTH
+- NEVER use hardcoded data from .py scripts - they may be stale
+
+**What went wrong (2026-01-24):** Agent read hardcoded data from `paper_figures_standalone.py` instead of canonical `data.json`, despite README clearly stating "data.json is the single source of truth". The hardcoded data had 63 wrong values. Wasted 30 minutes before discovering the discrepancy.
 
 ### 3. COMMIT AND DOCUMENT IMMEDIATELY
 - `git commit && git push` after every fix
