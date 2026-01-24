@@ -6,6 +6,22 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-24 (Dynamic Corpus Generation appendix)
+
+**Added:** New appendix section documenting dynamic phrase generation experiment.
+
+**Results:**
+- 85% (17/20) of vision tokens showed improved cosine similarity with dynamically generated phrases
+- Average improvement: +0.017 cosine similarity
+- Token mobility: 35% had non-top-1 tokens rise to best match after evolution
+- Method: 6 rounds × 20 variations evolutionary search with GPT-4o
+
+**Key insight:** Fixed corpus limitation of 20 sentences/token may underrepresent some tokens due to suboptimal context.
+
+**Git:** Paper 00b4f75, Main d0e0401
+
+---
+
 ### 2026-01-24 (Data validation fixes)
 
 **Issue discovered:** `paper_figures_standalone.py` had 63 wrong hardcoded values. The CONTEXTUAL layer 0 values were actually EmbeddingLens (nn) values, not LatentLens values. Agent initially read from this stale script instead of canonical `data.json`.
