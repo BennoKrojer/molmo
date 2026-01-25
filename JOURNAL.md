@@ -6,7 +6,14 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-24 (Phrase context quantification + Dynamic corpus appendix)
+### 2026-01-24 (Phrase context quantification + Dynamic corpus appendix + Figure)
+
+**Added inline figure to analysis section:**
+- Building context comparison showing 3 levels:
+  - Evolved: "grand arched beige building" (sim: 0.46)
+  - Corpus best: "a white and black peaked building..." (sim: 0.42)
+  - Worst context: "observation deck on top of a building." (sim: 0.31)
+- Figure at: `paper/figures/inline_examples/building_context_crop.pdf`
 
 **Moved to appendix (app:phrase_examples):**
 - Phrase context quantification study details (was inline in analysis section)
@@ -20,7 +27,7 @@ A concise log of major changes, results, and git operations.
 - Token mobility: 35% had non-top-1 tokens rise to best match
 - Method: 6 rounds × 20 variations evolutionary search with GPT-4o
 
-**Git:** Paper 156f107, Main da14604
+**Git:** Paper 36a6232, Main f6aa7d2
 
 ---
 
