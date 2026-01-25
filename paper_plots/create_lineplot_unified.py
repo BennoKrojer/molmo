@@ -509,11 +509,11 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                 if label not in handles_dict:
                     handles_dict[label] = line
         
-        # Customize subplot
-        ax.set_xlabel(config['xlabel'], fontsize=12)
+        # Customize subplot - consistent with Qwen2VL figure
+        ax.set_xlabel(config['xlabel'], fontsize=14, fontweight='bold')
         if config.get('show_ylabel', False):
-            ax.set_ylabel('% of interpretable vision tokens', fontsize=11)
-        ax.set_title(config['title'], fontsize=13, fontweight='bold', pad=8)
+            ax.set_ylabel('% of interpretable visual tokens', fontsize=12, fontweight='bold')
+        ax.set_title(config['title'], fontsize=14, fontweight='bold', pad=8)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
 
@@ -522,8 +522,8 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         # Show all expected layers as ticks
         ax.set_xticks(all_expected_layers)
         ax.set_xticklabels([str(t) for t in all_expected_layers])
-        ax.tick_params(axis='x', labelsize=8)
-        ax.tick_params(axis='y', labelsize=9)
+        ax.tick_params(axis='x', labelsize=10)
+        ax.tick_params(axis='y', labelsize=10)
     
     # Create single shared legend on the right side
     # Get handles and labels in the desired order
@@ -539,18 +539,19 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                 ordered_labels.append(label)
 
     # Add legend on the right side with all 9 models in a single column
+    # Position legend just outside the rightmost subplot
     fig.legend(ordered_handles, ordered_labels,
               loc='center left',
-              bbox_to_anchor=(1.0, 0.5),
+              bbox_to_anchor=(0.88, 0.5),
               ncol=1,
               fontsize=10,
               framealpha=0.9,
               handlelength=2.0,
-              handletextpad=0.8)
+              handletextpad=0.5)
 
-    # Adjust layout - leave space on right for legend
+    # Adjust layout - leave space on right for legend (tighter)
     plt.tight_layout()
-    plt.subplots_adjust(right=0.82, wspace=0.15)
+    plt.subplots_adjust(right=0.87, wspace=0.18)
     
     # Save figure
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -675,7 +676,7 @@ def create_baselines_lineplot(nn_data, logitlens_data, output_path):
                     handles_dict[label] = line
 
         ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
-        ax.set_ylabel('Interpretable Tokens %\n(via automated judge)', fontsize=14, fontweight='bold')
+        ax.set_ylabel('% of interpretable visual tokens', fontsize=14, fontweight='bold')
         ax.set_title(config['title'], fontsize=18, fontweight='bold', pad=15)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
@@ -807,7 +808,7 @@ def create_lnlens_lineplot(contextual_data, output_path):
                     handles_dict[label] = line
     
     ax.set_xlabel('Layer', fontsize=16, fontweight='bold')
-    ax.set_ylabel('Interpretable Tokens %\n(via automated judge)', fontsize=14, fontweight='bold')
+    ax.set_ylabel('% of interpretable visual tokens', fontsize=14, fontweight='bold')
     ax.set_title('LN-Lens', fontsize=18, fontweight='bold', pad=15)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)

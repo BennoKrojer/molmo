@@ -44,9 +44,9 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
             ax.plot(layers, values, marker=marker, color=color, linewidth=2.5,
                    markersize=10, label=label)
 
-    ax.set_xlabel('Layer', fontsize=16, fontweight='bold')
-    ax.set_ylabel('% of interpretable vision tokens', fontsize=14, fontweight='bold')
-    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=18, fontweight='bold', pad=12)
+    ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
+    ax.set_ylabel('% of interpretable visual tokens', fontsize=12, fontweight='bold')
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=14, fontweight='bold', pad=12)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)
     ax.tick_params(labelsize=14)
