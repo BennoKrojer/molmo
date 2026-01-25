@@ -519,9 +519,11 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
 
         # Set x-axis to show only expected layers (where we have data)
         ax.set_xlim(min(all_expected_layers) - 0.5, max(all_expected_layers) + 0.5)
-        # Show all expected layers as ticks
-        ax.set_xticks(all_expected_layers)
-        ax.set_xticklabels([str(t) for t in all_expected_layers])
+        # Use clean tick spacing: show key layers without crowding
+        # Full range is 0-31, show: 0, 8, 16, 24, 31 (evenly spaced + endpoint)
+        clean_ticks = [0, 8, 16, 24, 31]
+        ax.set_xticks(clean_ticks)
+        ax.set_xticklabels([str(t) for t in clean_ticks])
         ax.tick_params(axis='x', labelsize=10)
         ax.tick_params(axis='y', labelsize=10)
     
