@@ -447,14 +447,14 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         {
             'ax': axes[1],
             'data': logitlens_data,
-            'title': 'b) Output Embedding Matrix (LogitLens)',
+            'title': 'b) Unembedding Matrix (LogitLens)',
             'xlabel': 'Layer',
             'show_ylabel': False
         },
         {
             'ax': axes[2],
             'data': contextual_data,
-            'title': 'c) LN-Lens',
+            'title': 'c) LatentLens (Ours)',
             'xlabel': 'Layer',
             'show_ylabel': False
         }
@@ -525,7 +525,7 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         ax.tick_params(axis='x', labelsize=8)
         ax.tick_params(axis='y', labelsize=9)
     
-    # Create single shared legend at the bottom
+    # Create single shared legend on the right side
     # Get handles and labels in the desired order
     ordered_handles = []
     ordered_labels = []
@@ -537,21 +537,20 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
             if label in handles_dict:
                 ordered_handles.append(handles_dict[label])
                 ordered_labels.append(label)
-    
-    # Add legend below the plots - positioned lower to avoid overlap with x-axis
+
+    # Add legend on the right side with all 9 models in a single column
     fig.legend(ordered_handles, ordered_labels,
-              loc='lower center',
-              bbox_to_anchor=(0.5, -0.12),
-              ncol=3,
+              loc='center left',
+              bbox_to_anchor=(1.0, 0.5),
+              ncol=1,
               fontsize=10,
               framealpha=0.9,
-              columnspacing=1.5,
               handlelength=2.0,
               handletextpad=0.8)
 
-    # Adjust layout with tight spacing between subplots
+    # Adjust layout - leave space on right for legend
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.22, wspace=0.15)
+    plt.subplots_adjust(right=0.82, wspace=0.15)
     
     # Save figure
     plt.savefig(output_path, dpi=300, bbox_inches='tight')

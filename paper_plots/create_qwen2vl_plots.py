@@ -33,8 +33,8 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
     # Method configs with correct naming (matching main paper figures)
     methods = [
         (nn_data, 'Input Embedding Matrix', 'tab:blue', 'o'),
-        (logitlens_data, 'Output Embedding Matrix (LogitLens)', 'tab:orange', 's'),
-        (contextual_data, 'LN-Lens', 'tab:green', '^')
+        (logitlens_data, 'Unembedding Matrix (LogitLens)', 'tab:orange', 's'),
+        (contextual_data, 'LatentLens (Ours)', 'tab:green', '^')
     ]
 
     for data, label, color, marker in methods:
@@ -44,12 +44,12 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
             ax.plot(layers, values, marker=marker, color=color, linewidth=2.5,
                    markersize=10, label=label)
 
-    ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
-    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=16, fontweight='bold', pad=12)
+    ax.set_xlabel('Layer', fontsize=16, fontweight='bold')
+    ax.set_ylabel('% of interpretable vision tokens', fontsize=14, fontweight='bold')
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=18, fontweight='bold', pad=12)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)
-    ax.tick_params(labelsize=12)
+    ax.tick_params(labelsize=14)
 
     # Combine all layers to set proper x limits
     all_layers = set()
@@ -60,7 +60,7 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
         ax.set_xlim(min(all_layers) - 0.5, max(all_layers) + 0.5)
 
     # Legend for the three methods (not the model)
-    ax.legend(fontsize=12, framealpha=0.95, loc='best')
+    ax.legend(fontsize=14, framealpha=0.95, loc='best')
 
     plt.tight_layout()
     return fig
@@ -72,8 +72,8 @@ def create_individual_plots(nn_data, logitlens_data, contextual_data):
 
     methods = {
         'nn': ('Input Embedding Matrix', nn_data, 'tab:blue'),
-        'logitlens': ('LogitLens', logitlens_data, 'tab:orange'),
-        'contextual': ('LN-Lens', contextual_data, 'tab:green')
+        'logitlens': ('Unembedding Matrix (LogitLens)', logitlens_data, 'tab:orange'),
+        'contextual': ('LatentLens (Ours)', contextual_data, 'tab:green')
     }
 
     for method_key, (method_name, data, color) in methods.items():
