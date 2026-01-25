@@ -27,7 +27,8 @@ def load_data():
 
 def create_unified_plot(nn_data, logitlens_data, contextual_data):
     """Create single lineplot with all three methods as separate lines."""
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Match main plot subplot proportions (~5.5x4 per subplot)
+    fig, ax = plt.subplots(figsize=(6, 4))
     sns.set_style("whitegrid")
 
     # Method configs with correct naming (matching main paper figures)
@@ -42,14 +43,16 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
             layers = sorted(data.keys())
             values = [data[l] for l in layers]
             ax.plot(layers, values, marker=marker, color=color, linewidth=2.5,
-                   markersize=10, label=label)
+                   markersize=8, label=label)
 
+    # Match main plot font sizes exactly
     ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
     ax.set_ylabel('% of interpretable visual tokens', fontsize=12, fontweight='bold')
-    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=14, fontweight='bold', pad=12)
+    ax.set_title('Qwen2-VL-7B-Instruct', fontsize=14, fontweight='bold', pad=8)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)
-    ax.tick_params(labelsize=14)
+    ax.tick_params(axis='x', labelsize=10)
+    ax.tick_params(axis='y', labelsize=10)
 
     # Combine all layers to set proper x limits
     all_layers = set()
@@ -59,8 +62,8 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
     if all_layers:
         ax.set_xlim(min(all_layers) - 0.5, max(all_layers) + 0.5)
 
-    # Legend for the three methods (not the model)
-    ax.legend(fontsize=14, framealpha=0.95, loc='best')
+    # Legend matching main plot style
+    ax.legend(fontsize=10, framealpha=0.9, loc='best')
 
     plt.tight_layout()
     return fig
