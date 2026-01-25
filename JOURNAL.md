@@ -6,6 +6,25 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-25 (Appendix restructuring with clickable index)
+
+**Added beautiful clickable Appendix Overview index:**
+- 15 sections (A-O) with hyperlinks and 1-sentence descriptions
+- Sections organized in logical reading order
+
+**Fixed references and labels:**
+- Swapped Ablations (C) and L2 Norms (D) for better flow
+- Fixed broken `sec:qwen2vl` → `sec:appendix:qwen`
+- Renamed "Additional details for patching" → "Patching" (app:patching)
+- Cleaned up section titles, added missing labels
+- Fixed typo: "desing" → "Design"
+
+**Files updated:** paper/sections/appendix.tex
+
+**Git:** Main d06f1ab, Paper 744e11a
+
+---
+
 ### 2026-01-25 (Figure styling fixes and terminology consistency)
 
 **Updated main figure (fig1_unified_interpretability.pdf):**
