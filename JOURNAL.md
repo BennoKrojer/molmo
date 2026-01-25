@@ -6,6 +6,23 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-25 (Figure naming and legend layout)
+
+**Updated main figure (fig1_unified_interpretability.pdf):**
+- Renamed "Output Embedding Matrix (LogitLens)" → "Unembedding Matrix (LogitLens)"
+- Renamed "LN-Lens" → "LatentLens (Ours)"
+- Moved legend to right side with 9 lines (single column) - eliminates white space below subplots
+
+**Updated Qwen2VL figure (fig_qwen2vl.pdf):**
+- Same method name changes as main figure
+- Increased font sizes to match main figure (xlabel 16, ylabel 14, title 18, legend 14, ticks 14)
+
+**Files updated:** create_lineplot_unified.py, create_qwen2vl_plots.py, paper_figures.ipynb
+
+**Git:** Main f225ee5 + 351304a, Paper 8696f33
+
+---
+
 ### 2026-01-25 (Notebook completeness update)
 
 **Updated `paper_plots/paper_figures.ipynb` to ensure all paper figures are covered:**
