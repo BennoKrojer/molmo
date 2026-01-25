@@ -6,6 +6,34 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-25 (Notebook completeness update)
+
+**Updated `paper_plots/paper_figures.ipynb` to ensure all paper figures are covered:**
+
+- Added OUTPUT_DIR definition as cell 0 (fixes variable order issue)
+- Added Layer Evolution Plot Generation cell with status checks
+- Added Sync Layer Evolution outputs to paper/figures/ cell
+- Added Qwen2VL Layer Evolution info cell
+- Added Final Sync All Outputs cell for comprehensive paper/figures/ sync
+- Total cells: 58 (was 53)
+
+**Complete figure coverage verified:**
+- Main interpretability plots (fig1_unified, baselines, lnlens)
+- Token similarity, layer alignment heatmaps
+- Similarity histograms
+- Layer evolution (interpretation types, pos_tags, visual_attributes)
+- Qwen2VL plots (unified, layer alignment, token similarity)
+- L2 norm plots (individual and combined)
+
+**Data verification:** Confirmed data.json values match expected:
+- LatentLens: 72.0% average (49%-86% range)
+- EmbeddingLens: 29.8% average
+- LogitLens: 22.8% average
+
+**Git:** Main bfd657c
+
+---
+
 ### 2026-01-24 (Phrase context quantification + Dynamic corpus appendix + Figure)
 
 **Added inline figure to analysis section:**
