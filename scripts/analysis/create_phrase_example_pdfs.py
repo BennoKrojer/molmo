@@ -46,8 +46,8 @@ def preprocess_image(image, vision_encoder, patch_row, patch_col):
 
         resized = image.resize((new_w, new_h), Image.Resampling.BILINEAR)
 
-        # Create padded square with light gray background
-        padded = Image.new('RGB', (target_size, target_size), (240, 240, 240))
+        # Create padded square with black background (consistent with paper)
+        padded = Image.new('RGB', (target_size, target_size), (0, 0, 0))
         offset_x = (target_size - new_w) // 2
         offset_y = (target_size - new_h) // 2
         padded.paste(resized, (offset_x, offset_y))
