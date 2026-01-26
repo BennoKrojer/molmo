@@ -6,6 +6,18 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-26 (Fix missing appendix reference in analysis section)
+
+**Fixed TODO in analysis section (5_analysis.tex):**
+- Resolved `\marius{...}` comment asking to add appendix reference
+- Added reference to `app:finegrained_analysis` and interactive demo after Fig 3 (qualitative examples)
+
+**Files updated:** paper/sections/5_analysis.tex
+
+**Git:** Paper ff97a08
+
+---
+
 ### 2026-01-25 (Appendix restructuring with clickable index)
 
 **Added beautiful clickable Appendix Overview index:**
