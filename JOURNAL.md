@@ -6,27 +6,28 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-26 (Non-cherry-picked method comparison appendix)
+### 2026-01-26 (Non-cherry-picked method comparison appendix v2)
 
 **Added new appendix Section P: Random Method Comparison**
 - 20 random examples across 5 layers (0, 8, 16, 24, final)
-- Each example compares EmbeddingLens, LogitLens, and LatentLens
+- Each example compares EmbeddingLens, LogitLens, and LatentLens (top-3 for all)
 - Random model selection from 10 models (seed 42 for reproducibility)
-- 5 figures showing 2x2 grids per layer
+- 5 figures using PNG images + LaTeX tables (single-column friendly)
 
-**New script:** `scripts/analysis/create_random_method_comparison_examples.py`
-- Uses original images (not preprocessed) for cleaner display
-- Bbox with white outline for visibility on dark backgrounds
-- Larger fonts (7.5-10pt), compact layout filling space
-- Clean token display with [CJK] placeholder for non-ASCII
-- Saves metadata to `analysis_results/random_method_comparison/metadata.json`
+**New script:** `scripts/analysis/create_random_method_comparison_v2.py`
+- Uses exact preprocessing from `create_phrase_example_pdfs.py` (VISION_CONFIGS)
+- Gray padding (240,240,240) for CLIP, squash for SigLIP/DINOv2
+- Yellow highlighting: `\colorbox{yellow!50}{\textbf{word}}` for LatentLens
+- Colored tags: `\mtag{red!20}{token}` for EmbeddingLens, `\mtag{blue!20}{token}` for LogitLens
+- Generates PNG images + `random_comparison_content.tex` for `\input{}`
 
-**Files updated:**
-- `scripts/analysis/create_random_method_comparison_examples.py` (new)
-- `paper/sections/appendix.tex` (add Section P + index entry)
-- `paper/figures/random_method_comparison/` (20 PDFs)
+**Files:**
+- `scripts/analysis/create_random_method_comparison_v2.py` (new, proper implementation)
+- `paper/sections/appendix.tex` (Section P with `\input{}`)
+- `paper/figures/random_method_comparison/*.png` (20 images)
+- `paper/figures/random_method_comparison/random_comparison_content.tex`
 
-**Git:** Main e540427, Paper d4e362a
+**Git:** Main 61acf60, Paper 0a9e01d
 
 ---
 
