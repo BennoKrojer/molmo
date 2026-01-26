@@ -6,6 +6,14 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-26 (Section 5 intro polish)
+
+**Paper edit:** Replaced placeholder `@claude` text in Section 5 (Qualitative Results) with polished intro paragraph previewing ContextualLens vs LogitLens comparison and contextual phrase benefits.
+
+**Git:** Paper 4d71226, Main f19d53e
+
+---
+
 ### 2026-01-26 (Non-cherry-picked method comparison appendix v2)
 
 **Added new appendix Section P: Random Method Comparison**
