@@ -6,6 +6,28 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-26 (Non-cherry-picked method comparison appendix)
+
+**Added new appendix Section P: Random Method Comparison**
+- 20 random examples across 5 layers (0, 8, 16, 24, final)
+- Each example compares EmbeddingLens, LogitLens, and LatentLens
+- Random model selection from 10 models (seed 42 for reproducibility)
+- 5 figures showing 2x2 grids per layer
+
+**New script:** `scripts/analysis/create_random_method_comparison_examples.py`
+- Reuses bbox drawing from `extract_phrase_annotation_examples.py`
+- Reuses image preprocessing from `create_phrase_example_pdfs.py`
+- Saves metadata to `analysis_results/random_method_comparison/metadata.json`
+
+**Files updated:**
+- `scripts/analysis/create_random_method_comparison_examples.py` (new)
+- `paper/sections/appendix.tex` (add Section P + index entry)
+- `paper/figures/random_method_comparison/` (20 PDFs)
+
+**Git:** Main 8659c5e, Paper b561b31
+
+---
+
 ### 2026-01-26 (Fix missing appendix reference in analysis section)
 
 **Fixed TODO in analysis section (5_analysis.tex):**
