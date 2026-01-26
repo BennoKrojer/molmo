@@ -258,66 +258,75 @@ VISION_CONFIGS = {
 }
 
 
-def preprocess_and_draw_bbox(image: Image.Image, model: ModelConfig,
-                             patch_row: int, patch_col: int) -> np.ndarray:
+def draw_bbox_on_original(image: Image.Image, model: ModelConfig,
+                          patch_row: int, patch_col: int) -> np.ndarray:
     """
-    Preprocess image as vision encoder sees it and draw red bbox on patch.
-    Adapted from create_phrase_example_pdfs.py lines 29-88.
+    Draw bbox on ORIGINAL image (not preprocessed) for cleaner display.
+    Maps patch coordinates from grid to original image dimensions.
     """
     config = VISION_CONFIGS.get(model.vision_encoder, VISION_CONFIGS['vit-l-14-336'])
-    target_size = config['size']
-    method = config['method']
     grid_size = config['grid']
+    method = config['method']
 
     img_w, img_h = image.size
 
+    # Make a copy to draw on
+    display_img = image.copy()
+
     if method == 'resize_pad':
-        # CLIP: resize to fit, pad to square (preserves aspect ratio)
+        # CLIP: patches correspond to padded square, need to map back
+        # The model sees a padded square - find where original image sits
+        target_size = config['size']
         scale = min(target_size / img_w, target_size / img_h)
         new_w = int(img_w * scale)
         new_h = int(img_h * scale)
-
-        resized = image.resize((new_w, new_h), Image.Resampling.BILINEAR)
-
-        # Create padded square with light gray background
-        padded = Image.new('RGB', (target_size, target_size), (240, 240, 240))
         offset_x = (target_size - new_w) // 2
         offset_y = (target_size - new_h) // 2
-        padded.paste(resized, (offset_x, offset_y))
 
-        # Adjust patch coordinates for padding
-        cell_orig_w = img_w / grid_size
-        cell_orig_h = img_h / grid_size
-        cell_new = target_size / grid_size
+        # Patch coords in padded space
+        cell_size = target_size / grid_size
+        patch_x = patch_col * cell_size
+        patch_y = patch_row * cell_size
 
-        patch_x_orig = patch_col * cell_orig_w
-        patch_y_orig = patch_row * cell_orig_h
-        patch_x_new = patch_x_orig * scale + offset_x
-        patch_y_new = patch_y_orig * scale + offset_y
+        # Map back to original image coords
+        x1_orig = (patch_x - offset_x) / scale
+        y1_orig = (patch_y - offset_y) / scale
+        x2_orig = ((patch_col + 1) * cell_size - offset_x) / scale
+        y2_orig = ((patch_row + 1) * cell_size - offset_y) / scale
 
-        new_patch_col = patch_x_new / cell_new
-        new_patch_row = patch_y_new / cell_new
+        # Clamp to image bounds and ensure valid rectangle
+        x1 = max(0, int(x1_orig))
+        y1 = max(0, int(y1_orig))
+        x2 = min(img_w, int(x2_orig))
+        y2 = min(img_h, int(y2_orig))
 
-        processed = padded
-    else:  # squash
-        # SigLIP/DINOv2/Qwen2-VL: direct squash to square
-        processed = image.resize((target_size, target_size), Image.Resampling.BILINEAR)
-        new_patch_col = patch_col
-        new_patch_row = patch_row
+        # Ensure valid rectangle (x2 > x1, y2 > y1)
+        if x2 <= x1:
+            x2 = min(img_w, x1 + 20)
+        if y2 <= y1:
+            y2 = min(img_h, y1 + 20)
+    else:
+        # Squash: direct mapping
+        cell_w = img_w / grid_size
+        cell_h = img_h / grid_size
+        x1 = int(patch_col * cell_w)
+        y1 = int(patch_row * cell_h)
+        x2 = int((patch_col + 1) * cell_w)
+        y2 = int((patch_row + 1) * cell_h)
 
-    # Draw bbox (adapted from extract_phrase_annotation_examples.py lines 182-199)
-    draw = ImageDraw.Draw(processed)
-    cell_size = target_size / grid_size
-    x1 = int(new_patch_col * cell_size)
-    y1 = int(new_patch_row * cell_size)
-    x2 = int((new_patch_col + 1) * cell_size)
-    y2 = int((new_patch_row + 1) * cell_size)
+    # Draw bbox with white outline for contrast, then red
+    draw = ImageDraw.Draw(display_img)
+    thickness = max(4, min(img_w, img_h) // 60)
 
-    # Draw thick red rectangle (3 pixels)
-    for i in range(3):
-        draw.rectangle([x1-i, y1-i, x2+i, y2+i], outline='red')
+    # White outline (outer)
+    for i in range(thickness + 2, thickness + 5):
+        draw.rectangle([x1-i, y1-i, x2+i, y2+i], outline='#FFFFFF')
 
-    return np.array(processed)
+    # Red rectangle (inner)
+    for i in range(thickness):
+        draw.rectangle([x1-i, y1-i, x2+i, y2+i], outline='#FF0000')
+
+    return np.array(display_img)
 
 
 # ============================================================================
@@ -343,99 +352,96 @@ def highlight_token_in_phrase(phrase: str, token: str) -> str:
     return phrase[:start] + "**" + phrase[start:end] + "**" + phrase[end:]
 
 
+def clean_token(token: str) -> str:
+    """Clean token for display - replace non-printable chars."""
+    if not token:
+        return "[?]"
+    token = token.strip()
+    # Check if token has non-ASCII or control characters
+    has_cjk = False
+    cleaned = []
+    for c in token:
+        if ord(c) < 32:  # Control characters
+            continue
+        elif ord(c) > 127:  # Non-ASCII
+            # Keep common accented chars, mark CJK/special
+            if ord(c) < 0x3000:  # Likely accented Latin
+                cleaned.append(c)
+            else:
+                has_cjk = True
+        else:
+            cleaned.append(c)
+    result = ''.join(cleaned).strip()
+    if not result:
+        return "[CJK]" if has_cjk else "[?]"
+    if has_cjk and len(result) < 3:
+        result = result + "[+]"  # Indicate there was more
+    return result
+
+
 def create_example_pdf(image_array: np.ndarray, model: ModelConfig, layer: int,
                        embedding_lens: List, logit_lens: List, latent_lens: List,
                        output_path: Path, example_num: int):
     """
-    Create a PDF for one example showing image + top-3 from all three methods.
-
-    Layout:
-    +-------------------------------------------+
-    | Model + Layer title                        |
-    |                                           |
-    |        [Image with red bbox]              |
-    |                                           |
-    | LatentLens (ours):                        |
-    |   1. "phrase with **word**"               |
-    |   2. "another **phrase**"                 |
-    |   3. "third **example**"                  |
-    |                                           |
-    | EmbeddingLens:  tok1  tok2  tok3          |
-    | LogitLens:      tok1  tok2  tok3          |
-    +-------------------------------------------+
+    Create a compact PDF for one example showing image + top-3 from all three methods.
+    Optimized for 2x2 grid display in paper appendix.
     """
-    fig = plt.figure(figsize=(3.2, 4.0), facecolor='white')
+    # Compact figure - will be displayed at ~4.5cm height in 2x2 grid
+    fig = plt.figure(figsize=(2.8, 3.2), facecolor='white')
 
-    # Title
-    title = f"{model.display_name}, Layer {layer}"
-    fig.text(0.5, 0.97, title, fontsize=9, fontweight='bold', ha='center', va='top',
-             fontfamily='sans-serif')
+    # Title - compact, bold
+    title = f"{model.display_name}, L{layer}"
+    fig.text(0.5, 0.97, title, fontsize=10, fontweight='bold', ha='center', va='top')
 
-    # Image
-    ax_img = fig.add_axes([0.08, 0.52, 0.84, 0.42])
+    # Image - takes up ~55% of figure height
+    ax_img = fig.add_axes([0.04, 0.42, 0.92, 0.52])
     ax_img.imshow(image_array)
     ax_img.axis('off')
 
-    # Text area
-    ax_txt = fig.add_axes([0.05, 0.02, 0.90, 0.48])
+    # Text area - compact, fills remaining space
+    ax_txt = fig.add_axes([0.04, 0.02, 0.92, 0.38])
     ax_txt.axis('off')
     ax_txt.set_xlim(0, 1)
     ax_txt.set_ylim(0, 1)
 
-    y = 0.95
+    y = 0.98
 
-    # LatentLens (ours) - show phrases with highlighted tokens
-    ax_txt.text(0, y, "LatentLens (ours):", fontsize=7, fontweight='bold',
-                color='#2E7D32', transform=ax_txt.transAxes, va='top')
-    y -= 0.08
+    # LatentLens (ours) - show top phrase only (most informative)
+    ax_txt.text(0, y, "LatentLens:", fontsize=8, fontweight='bold',
+                color='#2E7D32', va='top')
+    y -= 0.18
 
-    for i, item in enumerate(latent_lens[:3]):
-        if len(item) >= 3:
-            token, sim, caption = item[0], item[1], item[2]
-            # Truncate caption if too long and highlight token
-            if len(caption) > 45:
-                caption = caption[:42] + "..."
-            highlighted = highlight_token_in_phrase(caption, token)
-            # Replace **word** with just the word (we'll draw it bold)
-            display_text = f"{i+1}. \"{caption}\""
-            ax_txt.text(0.02, y, display_text, fontsize=5.5, style='italic',
-                       transform=ax_txt.transAxes, va='top', fontfamily='serif',
-                       wrap=True)
-        else:
-            ax_txt.text(0.02, y, f"{i+1}. (no data)", fontsize=5.5,
-                       transform=ax_txt.transAxes, va='top', color='gray')
-        y -= 0.10
+    if latent_lens and len(latent_lens[0]) >= 3:
+        caption = latent_lens[0][2]
+        # Smarter truncation - keep full words
+        if len(caption) > 38:
+            words = caption[:38].rsplit(' ', 1)
+            caption = words[0] + "..." if len(words) > 1 else caption[:35] + "..."
+        ax_txt.text(0.02, y, f'"{caption}"', fontsize=7.5, style='italic', va='top')
+    y -= 0.22
 
-    y -= 0.02
+    # EmbeddingLens - clean tokens
+    tokens_emb = [clean_token(t[0]) if t else '?' for t in embedding_lens[:3]]
+    # Truncate long tokens
+    tokens_emb = [t[:12] + '..' if len(t) > 14 else t for t in tokens_emb]
+    ax_txt.text(0, y, "EmbeddingLens:", fontsize=8, fontweight='bold',
+                color='#C62828', va='top')
+    y -= 0.18
+    ax_txt.text(0.02, y, "  ".join(tokens_emb), fontsize=7.5,
+                va='top', fontfamily='monospace')
+    y -= 0.22
 
-    # EmbeddingLens - just tokens
-    tokens_emb = [t[0].strip() if t else '?' for t in embedding_lens[:3]]
-    tokens_emb_str = "  ".join([f"'{t}'" if t else '?' for t in tokens_emb])
-    ax_txt.text(0, y, "EmbeddingLens:", fontsize=6, fontweight='bold',
-                color='#C62828', transform=ax_txt.transAxes, va='top')
-    ax_txt.text(0.28, y, tokens_emb_str, fontsize=5.5,
-                transform=ax_txt.transAxes, va='top', fontfamily='monospace')
-    y -= 0.10
-
-    # LogitLens - just tokens
-    tokens_logit = [t[0].strip() if t else '?' for t in logit_lens[:3]]
-    tokens_logit_str = "  ".join([f"'{t}'" if t else '?' for t in tokens_logit])
-    ax_txt.text(0, y, "LogitLens:", fontsize=6, fontweight='bold',
-                color='#1565C0', transform=ax_txt.transAxes, va='top')
-    ax_txt.text(0.28, y, tokens_logit_str, fontsize=5.5,
-                transform=ax_txt.transAxes, va='top', fontfamily='monospace')
-
-    # Border
-    border = mpatches.FancyBboxPatch(
-        (0.01, 0.01), 0.98, 0.98,
-        boxstyle="round,pad=0.01,rounding_size=0.02",
-        facecolor='none', edgecolor='#CCCCCC',
-        linewidth=0.5, transform=fig.transFigure
-    )
-    fig.patches.append(border)
+    # LogitLens - clean tokens
+    tokens_logit = [clean_token(t[0]) if t else '?' for t in logit_lens[:3]]
+    tokens_logit = [t[:12] + '..' if len(t) > 14 else t for t in tokens_logit]
+    ax_txt.text(0, y, "LogitLens:", fontsize=8, fontweight='bold',
+                color='#1565C0', va='top')
+    y -= 0.18
+    ax_txt.text(0.02, y, "  ".join(tokens_logit), fontsize=7.5,
+                va='top', fontfamily='monospace')
 
     plt.savefig(output_path, format='pdf', dpi=200, facecolor='white',
-                bbox_inches='tight', pad_inches=0.02)
+                bbox_inches='tight', pad_inches=0.01)
     plt.close(fig)
 
 
@@ -535,7 +541,7 @@ def main():
                 continue
 
             image = Image.open(image_path).convert('RGB')
-            img_array = preprocess_and_draw_bbox(image, model, patch_row, patch_col)
+            img_array = draw_bbox_on_original(image, model, patch_row, patch_col)
 
             # Create PDF - use "final" for consistency across models with different layer counts
             layer_str = str(layer) if layer_key != 'final' else "final"
