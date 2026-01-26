@@ -15,8 +15,10 @@ A concise log of major changes, results, and git operations.
 - 5 figures showing 2x2 grids per layer
 
 **New script:** `scripts/analysis/create_random_method_comparison_examples.py`
-- Reuses bbox drawing from `extract_phrase_annotation_examples.py`
-- Reuses image preprocessing from `create_phrase_example_pdfs.py`
+- Uses original images (not preprocessed) for cleaner display
+- Bbox with white outline for visibility on dark backgrounds
+- Larger fonts (7.5-10pt), compact layout filling space
+- Clean token display with [CJK] placeholder for non-ASCII
 - Saves metadata to `analysis_results/random_method_comparison/metadata.json`
 
 **Files updated:**
@@ -24,7 +26,7 @@ A concise log of major changes, results, and git operations.
 - `paper/sections/appendix.tex` (add Section P + index entry)
 - `paper/figures/random_method_comparison/` (20 PDFs)
 
-**Git:** Main 8659c5e, Paper b561b31
+**Git:** Main e540427, Paper d4e362a
 
 ---
 
