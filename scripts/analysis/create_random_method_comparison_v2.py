@@ -591,18 +591,21 @@ def main():
                     latex_content.append(r"")
 
                     # LatentLens - top 3 with yellow highlight
+                    # All results left-aligned for consistency
+                    latex_content.append(r"\begin{flushleft}")
+
+                    # LatentLens - top 3 phrases with yellow highlighting
                     latex_content.append(r"{\scriptsize \textcolor{green!50!black}{\textbf{LatentLens:}}}")
                     latex_content.append(r"\vspace{0.1em}")
                     latex_content.append(r"")
-                    latex_content.append(r"\begin{flushleft}")
                     latex_content.append(r"\scriptsize")
                     for i, item in enumerate(ex['ctx_results'][:3]):
                         if len(item) >= 3:
                             token, sim, caption = item[0], item[1], item[2]
                             formatted = format_latentlens_phrase(token, caption)
-                            latex_content.append(f"({i+1}) {formatted}" + (r"\\" if i < 2 else ""))
-                    latex_content.append(r"\end{flushleft}")
+                            latex_content.append(f"({i+1}) {formatted}" + r"\\")
                     latex_content.append(r"")
+                    latex_content.append(r"\vspace{0.3em}")
 
                     # EmbeddingLens - top 3 with red tags
                     emb_tokens = [format_token_for_latex(t[0], 'red!20') for t in ex['emb_results'][:3]]
@@ -614,6 +617,8 @@ def main():
                     # LogitLens - top 3 with blue tags
                     logit_tokens = [format_token_for_latex(t[0], 'blue!20') for t in ex['logit_results'][:3]]
                     latex_content.append(r"{\scriptsize \textcolor{blue!70!black}{\textbf{LogitLens:}} " + r"\tagsp".join(logit_tokens) + r"}")
+
+                    latex_content.append(r"\end{flushleft}")
 
                 if col == 0 and idx + 1 < len(layer_examples):
                     latex_content.append(r"\end{minipage}")
