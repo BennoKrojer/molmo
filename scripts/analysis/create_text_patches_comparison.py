@@ -62,19 +62,17 @@ def resize_and_pad_clip(image, target_size=336):
 
 def create_version_a(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir):
     """
-    Version A: Compact v2 style with BIG labels very close to rows.
-    - Large bold labels right next to the token rows
-    - Yellow for LatentLens, Pink for LogitLens
+    Version A: Paper-ready with large fonts, no overlapping boxes.
     """
-    fig_width = num_patches + 1.8
-    fig_height = 2.6
+    fig_width = num_patches + 3.2
+    fig_height = 4.2
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
-    label_x = -0.15  # Very close to tokens
+    label_x = -0.15
     patch_start_x = 0
 
-    strip_bottom = 1.6
-    strip_height = 0.85
+    strip_bottom = 2.75
+    strip_height = 1.1
 
     # Draw image strip
     ax.imshow(strip_upscaled, extent=[patch_start_x, patch_start_x + num_patches,
@@ -85,54 +83,54 @@ def create_version_a(strip_upscaled, latentlens_tokens, logitlens_top3, num_patc
     for i in range(1, num_patches):
         ax.plot([patch_start_x + i, patch_start_x + i],
                 [strip_bottom, strip_bottom + strip_height],
-                color='black', linewidth=1.2)
+                color='black', linewidth=1.8)
 
     # Draw outer border
     rect = mpatches.Rectangle((patch_start_x, strip_bottom), num_patches, strip_height,
-                               linewidth=1.5, edgecolor='black', facecolor='none')
+                               linewidth=2.5, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
     # Row 1: LatentLens (yellow) - Layer 16
-    latentlens_y = 1.05
-    arrow_top = strip_bottom - 0.03
-    arrow_bottom = latentlens_y + 0.18
+    latentlens_y = 1.85
+    arrow_top = strip_bottom - 0.04
+    arrow_bottom = latentlens_y + 0.35
 
-    # BIG label very close
-    ax.text(label_x, latentlens_y, 'LatentLens:', ha='right', va='center',
-            fontsize=12, fontweight='bold')
+    # Bigger row titles: 18pt
+    ax.text(label_x, latentlens_y + 0.18, 'LatentLens:', ha='right', va='center',
+            fontsize=18, fontweight='bold')
+    ax.text(label_x, latentlens_y - 0.18, '(L16)', ha='right', va='center',
+            fontsize=15, fontweight='normal', color='#555555')
 
     for i, token in enumerate(latentlens_tokens):
         x_center = patch_start_x + i + 0.5
         ax.annotate('', xy=(x_center, arrow_bottom), xytext=(x_center, arrow_top),
-                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.0))
-        fontsize = 9 if len(token) <= 6 else 7
+                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.5))
+        fontsize = 18 if len(token) <= 6 else 14
         ax.text(x_center, latentlens_y, token, ha='center', va='center',
                 fontsize=fontsize, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#FFEB3B',
-                         edgecolor='#FBC02D', linewidth=0.5, alpha=0.95))
+                bbox=dict(boxstyle='round,pad=0.24', facecolor='#FFEB3B',
+                         edgecolor='#FBC02D', linewidth=1.0, alpha=0.95))
 
-    # Row 2: LogitLens top-2 inline (pink)
-    logitlens_y = 0.4
-    arrow_top2 = latentlens_y - 0.18
-    arrow_bottom2 = logitlens_y + 0.18
+    # Row 2: LogitLens top-2 + "..." in ONE BOX
+    logitlens_y = 0.68
 
-    # BIG label very close
-    ax.text(label_x, logitlens_y, 'LogitLens:', ha='right', va='center',
-            fontsize=12, fontweight='bold')
+    # Bigger row titles: 18pt
+    ax.text(label_x, logitlens_y + 0.22, 'LogitLens:', ha='right', va='center',
+            fontsize=18, fontweight='bold')
+    ax.text(label_x, logitlens_y - 0.22, '(L30)', ha='right', va='center',
+            fontsize=15, fontweight='normal', color='#555555')
 
     for i, top3 in enumerate(logitlens_top3):
         x_center = patch_start_x + i + 0.5
-        ax.annotate('', xy=(x_center, arrow_bottom2), xytext=(x_center, arrow_top2),
-                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.0))
-        combined = '/'.join(top3[:2])
-        fontsize = 7 if len(combined) <= 12 else 6
+        combined = f"{top3[0]}\n{top3[1]}\n..."
+        fontsize = 14 if max(len(top3[0]), len(top3[1])) <= 6 else 11
         ax.text(x_center, logitlens_y, combined, ha='center', va='center',
-                fontsize=fontsize, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#FFCDD2',
-                         edgecolor='#EF9A9A', linewidth=0.5, alpha=0.95))
+                fontsize=fontsize, fontweight='bold', linespacing=0.95,
+                bbox=dict(boxstyle='round,pad=0.28', facecolor='#87CEEB',
+                         edgecolor='#5DADE2', linewidth=1.0, alpha=0.95))
 
-    ax.set_xlim(label_x - 1.1, patch_start_x + num_patches + 0.15)
-    ax.set_ylim(0.05, strip_bottom + strip_height + 0.12)
+    ax.set_xlim(label_x - 1.8, patch_start_x + num_patches + 0.20)
+    ax.set_ylim(0.05, strip_bottom + strip_height + 0.18)
     ax.axis('off')
 
     plt.tight_layout()
@@ -148,18 +146,17 @@ def create_version_a(strip_upscaled, latentlens_tokens, logitlens_top3, num_patc
 
 def create_version_b(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir):
     """
-    Version B: Big labels with layer info in parentheses.
-    - Yellow for LatentLens, Blue for LogitLens
+    Version B: Paper-ready, largest option.
     """
-    fig_width = num_patches + 2.2
-    fig_height = 2.6
+    fig_width = num_patches + 3.2
+    fig_height = 4.5
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
     label_x = -0.15
     patch_start_x = 0
 
-    strip_bottom = 1.6
-    strip_height = 0.85
+    strip_bottom = 2.9
+    strip_height = 1.2
 
     # Draw image strip
     ax.imshow(strip_upscaled, extent=[patch_start_x, patch_start_x + num_patches,
@@ -170,54 +167,52 @@ def create_version_b(strip_upscaled, latentlens_tokens, logitlens_top3, num_patc
     for i in range(1, num_patches):
         ax.plot([patch_start_x + i, patch_start_x + i],
                 [strip_bottom, strip_bottom + strip_height],
-                color='black', linewidth=1.2)
+                color='black', linewidth=2.0)
 
     # Draw outer border
     rect = mpatches.Rectangle((patch_start_x, strip_bottom), num_patches, strip_height,
-                               linewidth=1.5, edgecolor='black', facecolor='none')
+                               linewidth=2.8, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
     # Row 1: LatentLens (yellow) - Layer 16
-    latentlens_y = 1.05
-    arrow_top = strip_bottom - 0.03
-    arrow_bottom = latentlens_y + 0.18
+    latentlens_y = 1.95
+    arrow_top = strip_bottom - 0.05
+    arrow_bottom = latentlens_y + 0.38
 
-    # Big label with layer info
-    ax.text(label_x, latentlens_y, 'LatentLens (L16):', ha='right', va='center',
-            fontsize=11, fontweight='bold')
+    ax.text(label_x, latentlens_y + 0.20, 'LatentLens:', ha='right', va='center',
+            fontsize=17, fontweight='bold')
+    ax.text(label_x, latentlens_y - 0.20, '(L16)', ha='right', va='center',
+            fontsize=15, fontweight='normal', color='#555555')
 
     for i, token in enumerate(latentlens_tokens):
         x_center = patch_start_x + i + 0.5
         ax.annotate('', xy=(x_center, arrow_bottom), xytext=(x_center, arrow_top),
-                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.0))
-        fontsize = 9 if len(token) <= 6 else 7
+                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.6))
+        fontsize = 22 if len(token) <= 6 else 17
         ax.text(x_center, latentlens_y, token, ha='center', va='center',
                 fontsize=fontsize, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#FFEB3B',
-                         edgecolor='#FBC02D', linewidth=0.5, alpha=0.95))
+                bbox=dict(boxstyle='round,pad=0.26', facecolor='#FFEB3B',
+                         edgecolor='#FBC02D', linewidth=1.1, alpha=0.95))
 
-    # Row 2: LogitLens top-2 inline (light blue)
-    logitlens_y = 0.4
-    arrow_top2 = latentlens_y - 0.18
-    arrow_bottom2 = logitlens_y + 0.18
+    # Row 2: LogitLens top-2 + "..." in ONE BOX
+    logitlens_y = 0.75
 
-    # Big label with layer info
-    ax.text(label_x, logitlens_y, 'LogitLens (L30):', ha='right', va='center',
-            fontsize=11, fontweight='bold')
+    ax.text(label_x, logitlens_y + 0.24, 'LogitLens:', ha='right', va='center',
+            fontsize=17, fontweight='bold')
+    ax.text(label_x, logitlens_y - 0.24, '(L30)', ha='right', va='center',
+            fontsize=15, fontweight='normal', color='#555555')
 
     for i, top3 in enumerate(logitlens_top3):
         x_center = patch_start_x + i + 0.5
-        ax.annotate('', xy=(x_center, arrow_bottom2), xytext=(x_center, arrow_top2),
-                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.0))
-        combined = '/'.join(top3[:2])
-        fontsize = 7 if len(combined) <= 12 else 6
+        combined = f"{top3[0]}\n{top3[1]}\n..."
+        fontsize = 18 if max(len(top3[0]), len(top3[1])) <= 6 else 14
         ax.text(x_center, logitlens_y, combined, ha='center', va='center',
-                fontsize=fontsize, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#87CEEB',
-                         edgecolor='#5DADE2', linewidth=0.5, alpha=0.95))
+                fontsize=fontsize, fontweight='bold', linespacing=0.95,
+                bbox=dict(boxstyle='round,pad=0.32', facecolor='#87CEEB',
+                         edgecolor='#5DADE2', linewidth=1.1, alpha=0.95))
 
-    ax.set_xlim(label_x - 1.6, patch_start_x + num_patches + 0.15)
-    ax.set_ylim(0.05, strip_bottom + strip_height + 0.12)
+    ax.set_xlim(label_x - 1.7, patch_start_x + num_patches + 0.25)
+    ax.set_ylim(0.05, strip_bottom + strip_height + 0.20)
     ax.axis('off')
 
     plt.tight_layout()
@@ -233,19 +228,19 @@ def create_version_b(strip_upscaled, latentlens_tokens, logitlens_top3, num_patc
 
 def create_version_c(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir):
     """
-    Version C: Color-matched labels, very tight layout.
-    - Gold label + yellow boxes for LatentLens
-    - Teal label + teal boxes for LogitLens
+    Version C: Paper-ready sizing. At column width (~3.5"), fonts will be ~8-10pt.
+    - Source tokens: 20-22pt -> ~8-9pt printed
+    - Source labels: 16pt -> ~6-7pt printed
     """
-    fig_width = num_patches + 2.0
-    fig_height = 2.6
+    fig_width = num_patches + 3.0
+    fig_height = 4.2
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
     label_x = -0.15
     patch_start_x = 0
 
-    strip_bottom = 1.6
-    strip_height = 0.85
+    strip_bottom = 2.7
+    strip_height = 1.1
 
     # Draw image strip
     ax.imshow(strip_upscaled, extent=[patch_start_x, patch_start_x + num_patches,
@@ -256,54 +251,55 @@ def create_version_c(strip_upscaled, latentlens_tokens, logitlens_top3, num_patc
     for i in range(1, num_patches):
         ax.plot([patch_start_x + i, patch_start_x + i],
                 [strip_bottom, strip_bottom + strip_height],
-                color='black', linewidth=1.2)
+                color='black', linewidth=1.8)
 
     # Draw outer border
     rect = mpatches.Rectangle((patch_start_x, strip_bottom), num_patches, strip_height,
-                               linewidth=1.5, edgecolor='black', facecolor='none')
+                               linewidth=2.5, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
-    # Row 1: LatentLens (gold/amber) - Layer 16
-    latentlens_y = 1.05
-    arrow_top = strip_bottom - 0.03
-    arrow_bottom = latentlens_y + 0.18
+    # Row 1: LatentLens (yellow) - Layer 16
+    latentlens_y = 1.85
+    arrow_top = strip_bottom - 0.05
+    arrow_bottom = latentlens_y + 0.35
 
-    # Big colored label
-    ax.text(label_x, latentlens_y, 'LatentLens:', ha='right', va='center',
-            fontsize=12, fontweight='bold', color='#B8860B')
+    # Labels: 16pt source -> ~7pt printed
+    ax.text(label_x, latentlens_y + 0.18, 'LatentLens:', ha='right', va='center',
+            fontsize=16, fontweight='bold')
+    ax.text(label_x, latentlens_y - 0.18, '(L16)', ha='right', va='center',
+            fontsize=14, fontweight='normal', color='#555555')
 
     for i, token in enumerate(latentlens_tokens):
         x_center = patch_start_x + i + 0.5
         ax.annotate('', xy=(x_center, arrow_bottom), xytext=(x_center, arrow_top),
-                    arrowprops=dict(arrowstyle='->', color='#B8860B', lw=1.0))
-        fontsize = 9 if len(token) <= 6 else 7
+                    arrowprops=dict(arrowstyle='->', color='#555555', lw=1.5))
+        # Tokens: 20pt source -> ~8pt printed
+        fontsize = 20 if len(token) <= 6 else 16
         ax.text(x_center, latentlens_y, token, ha='center', va='center',
-                fontsize=fontsize, fontweight='bold', color='#5D4E00',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#FFD54F',
-                         edgecolor='#B8860B', linewidth=0.8, alpha=0.95))
+                fontsize=fontsize, fontweight='bold',
+                bbox=dict(boxstyle='round,pad=0.25', facecolor='#FFEB3B',
+                         edgecolor='#FBC02D', linewidth=1.0, alpha=0.95))
 
-    # Row 2: LogitLens top-2 inline (teal)
-    logitlens_y = 0.4
-    arrow_top2 = latentlens_y - 0.18
-    arrow_bottom2 = logitlens_y + 0.18
+    # Row 2: LogitLens top-2 + "..." in ONE BOX
+    logitlens_y = 0.7
 
-    # Big colored label
-    ax.text(label_x, logitlens_y, 'LogitLens:', ha='right', va='center',
-            fontsize=12, fontweight='bold', color='#00796B')
+    ax.text(label_x, logitlens_y + 0.22, 'LogitLens:', ha='right', va='center',
+            fontsize=16, fontweight='bold')
+    ax.text(label_x, logitlens_y - 0.22, '(L30)', ha='right', va='center',
+            fontsize=14, fontweight='normal', color='#555555')
 
     for i, top3 in enumerate(logitlens_top3):
         x_center = patch_start_x + i + 0.5
-        ax.annotate('', xy=(x_center, arrow_bottom2), xytext=(x_center, arrow_top2),
-                    arrowprops=dict(arrowstyle='->', color='#00796B', lw=1.0))
-        combined = '/'.join(top3[:2])
-        fontsize = 7 if len(combined) <= 12 else 6
+        # Top 2 predictions + "..." in one box
+        combined = f"{top3[0]}\n{top3[1]}\n..."
+        fontsize = 16 if max(len(top3[0]), len(top3[1])) <= 6 else 13
         ax.text(x_center, logitlens_y, combined, ha='center', va='center',
-                fontsize=fontsize, fontweight='bold', color='#004D40',
-                bbox=dict(boxstyle='round,pad=0.15', facecolor='#80CBC4',
-                         edgecolor='#00796B', linewidth=0.8, alpha=0.95))
+                fontsize=fontsize, fontweight='bold', linespacing=0.95,
+                bbox=dict(boxstyle='round,pad=0.30', facecolor='#87CEEB',
+                         edgecolor='#5DADE2', linewidth=1.0, alpha=0.95))
 
-    ax.set_xlim(label_x - 1.15, patch_start_x + num_patches + 0.15)
-    ax.set_ylim(0.05, strip_bottom + strip_height + 0.12)
+    ax.set_xlim(label_x - 1.6, patch_start_x + num_patches + 0.22)
+    ax.set_ylim(0.05, strip_bottom + strip_height + 0.18)
     ax.axis('off')
 
     plt.tight_layout()
@@ -389,16 +385,16 @@ def main():
     output_dir = Path('paper/figures')
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create all three versions
-    print("\n=== Creating Version A (Standard two-row, top-3 stacked) ===")
+    # Create three paper-ready versions with appropriate sizing
+    print("\n=== Creating Version 1 (tokens 18pt, labels 15pt) ===")
     pdf_a, png_a = create_version_a(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir)
     print(f"  {pdf_a.absolute()}")
 
-    print("\n=== Creating Version B (Compact, top-2 inline) ===")
+    print("\n=== Creating Version 2 (tokens 22pt, labels 17pt) ===")
     pdf_b, png_b = create_version_b(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir)
     print(f"  {pdf_b.absolute()}")
 
-    print("\n=== Creating Version C (Color-coded, top-3 stacked) ===")
+    print("\n=== Creating Version 3 (tokens 20pt, labels 16pt) ===")
     pdf_c, png_c = create_version_c(strip_upscaled, latentlens_tokens, logitlens_top3, num_patches, output_dir)
     print(f"  {pdf_c.absolute()}")
 
