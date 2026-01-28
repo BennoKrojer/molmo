@@ -540,7 +540,7 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
             <h3>Available Analyses</h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-label">LatentLens</div>
+                    <div class="stat-label">LatentLens (Ours)</div>
                     <div class="stat-value">{len(ctx_vg_layers)}</div>
                     <div class="stat-label">Layers: {", ".join(map(str, ctx_vg_layers)) if ctx_vg_layers else "None"}</div>
                 </div>
@@ -1093,17 +1093,6 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
         .breadcrumb a:hover {{
             text-decoration: underline;
         }}
-        .ground-truth {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }}
-        .ground-truth strong {{
-            font-size: 16px;
-        }}
         .controls {{
             display: flex;
             gap: 20px;
@@ -1380,12 +1369,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
             <h1>Image {image_idx:04d}</h1>
             <p style="color: #666; margin: 0;">{display_name}</p>
         </div>
-        
-        <div class="ground-truth">
-            <strong>Ground Truth Caption:</strong><br>
-            <span style="font-size: 15px; margin-top: 8px; display: block;">{escape_for_html(ground_truth)}</span>
-        </div>
-        
+
         <div class="controls">
             <div class="control-group">
                 <label class="control-label" for="layer">Layer:</label>
