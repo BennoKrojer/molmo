@@ -502,7 +502,7 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
         if config.get('show_ylabel', False):
             ax.set_ylabel('% of interpretable tokens', fontsize=14, fontweight='bold')
-        ax.set_title(config['title'], fontsize=16, fontweight='bold', pad=10)
+        ax.set_title(config['title'], fontsize=20, fontweight='bold', pad=12)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
 
