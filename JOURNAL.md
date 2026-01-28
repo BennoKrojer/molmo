@@ -6,6 +6,14 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-27 (Appendix Qwen2-VL section)
+
+**Appendix Section F (Qwen2-VL):** Replaced TODO/fixme with verified training details from paper (3-stage, 1.4T tokens, unfrozen).
+
+**Git:** Paper 3c4b4d9, Main 4440424
+
+---
+
 ### 2026-01-27 (Appendix Layer Alignment text + fix refs)
 
 **Appendix Section E (Layer Alignment Details):**
