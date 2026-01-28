@@ -6,6 +6,31 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-28 (Demo polish for paper submission)
+
+**Interactive demo polished for paper submission:**
+
+1. **Clickable area fix:** Image buttons now have the entire card clickable (moved padding to `<a>` tag with `display: block`)
+
+2. **Emoji removal:** Removed all emojis from UI for clean professional design
+
+3. **Method names updated:** Consistent with paper terminology:
+   - "Embedding Matrix" → "EmbeddingLens"
+   - "Logit Lens" → "LogitLens"
+   - "LatentLens" → "LatentLens (Ours)"
+
+4. **Description updated:** Main page now matches paper abstract
+
+5. **Anonymity verified:** No author-identifying info in demo
+
+**Zip files created:**
+- `demo_full.zip` (316MB) - all 9 models + 10 ablations
+- `demo_main_models.zip` (186MB) - 9 main models only
+
+**Git:** Main e4dbdfb, Website pending
+
+---
+
 ### 2026-01-28 (Pre-submission audit - ICML final)
 
 **Comprehensive paper audit performed. Critical fixes:**
