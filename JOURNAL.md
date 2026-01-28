@@ -23,11 +23,15 @@ A concise log of major changes, results, and git operations.
 
 5. **Anonymity verified:** No author-identifying info in demo
 
+6. **Method order consistency:** LatentLens (Ours) always listed first
+
+7. **Removed ground truth caption:** Was always "No caption available"
+
 **Zip files created:**
 - `demo_full.zip` (316MB) - all 9 models + 10 ablations
 - `demo_main_models.zip` (186MB) - 9 main models only
 
-**Git:** Main e4dbdfb, Website pending
+**Git:** Main b9bcf1e, Website 352fdee
 
 ---
 
