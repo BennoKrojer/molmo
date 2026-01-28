@@ -33,8 +33,8 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
 
     # Method configs with correct naming (matching main paper figures)
     methods = [
-        (nn_data, 'Input Embedding Matrix', 'tab:blue', 'o'),
-        (logitlens_data, 'Unembedding Matrix (LogitLens)', 'tab:orange', 's'),
+        (nn_data, 'EmbeddingLens', 'tab:blue', 'o'),
+        (logitlens_data, 'LogitLens', 'tab:orange', 's'),
         (contextual_data, 'LatentLens (Ours)', 'tab:green', '^')
     ]
 
@@ -74,8 +74,8 @@ def create_individual_plots(nn_data, logitlens_data, contextual_data):
     figs = {}
 
     methods = {
-        'nn': ('Input Embedding Matrix', nn_data, 'tab:blue'),
-        'logitlens': ('Unembedding Matrix (LogitLens)', logitlens_data, 'tab:orange'),
+        'nn': ('EmbeddingLens', nn_data, 'tab:blue'),
+        'logitlens': ('LogitLens', logitlens_data, 'tab:orange'),
         'contextual': ('LatentLens (Ours)', contextual_data, 'tab:green')
     }
 
