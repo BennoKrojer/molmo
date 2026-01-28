@@ -11,36 +11,37 @@ A concise log of major changes, results, and git operations.
 **Comprehensive paper audit performed. Critical fixes:**
 
 1. **LaTeX compilation fixed:**
-   - Replaced Unicode characters (Vietnamese `tối`, Thai `อำนา`, Hindi `स`) with ASCII placeholders in `random_comparison_content.tex`
+   - Vietnamese/Spanish: use LaTeX accent commands (`t\'{\^o}i`, `Seg\'un`, `r\`{a}`)
+   - Thai/Hindi: kept as `[TH]`/`[HI]` placeholders (require special fonts)
 
 2. **Bibliography:**
-   - Removed duplicate entry `bolya2025perception` (lines 1007-1014)
+   - Removed duplicate entry `bolya2025perception`
 
 3. **Spelling errors fixed:**
-   - `irregardless` → `regardless` (appendix.tex:143)
-   - `the same the same` → `the same` (appendix.tex:143)
-   - `morever` → `moreover` (appendix.tex:205)
-   - `which which` → `which` (2_background.tex:14)
-   - `a the advantage` → `the advantage` (5_analysis.tex:23)
+   - `irregardless` → `regardless`, `the same the same` → `the same`
+   - `morever` → `moreover`, `which which` → `which`
+   - `a the advantage` → `the advantage`
 
-4. **Impact Statement rewritten:**
-   - Replaced rough notes with polished 2-paragraph statement
-   - Added limitations discussion (storage overhead, corpus constraints, noun bias)
+4. **Appendix critical reading - additional fixes:**
+   - "contextual embedding was built and storage" → "embeddings were built and stored"
+   - "Visual have higher" → "Visual tokens have higher"
+   - "to which extent" → "to what extent"
+   - "Olmo" → "OLMo" (capitalization)
+   - "to be visual processing model" → "to be a visual processing model"
+   - "Result are" → "Results are"
+   - "level of interpretable" → "level of interpretability"
+   - "with its initial embedding" → "with their initial embeddings"
+   - "as before and : 100" → "as before: 100" (typo)
+   - "lots of back and forth" → "iterative prompt refinement"
+   - "notice that" → "find that"
 
-5. **Behind The Scenes section:**
-   - Removed rough bracket notes, wrote clean prose
+5. **Impact Statement:** Rewritten with limitations (storage, corpus constraints, noun bias)
 
-6. **Anonymization:**
-   - Removed commented code links containing author name (icml2026_main.tex:195)
+6. **Anonymization:** Removed commented author-identifying links
 
-7. **Active \fixme{} resolved:**
-   - `\fixme{code/demot footnote}` → proper footnote for blind review
-   - `\fixme{axes labels}` in experiments → removed
+7. **Active \fixme{} resolved:** footnote for code/demo, axes labels removed
 
-8. **Grammar fixed:**
-   - Conclusion sentence about "cognition how" → "how visual and linguistic representations interface"
-
-**Paper compiles cleanly (37 pages). No undefined references or citations.**
+**Git:** Paper 8af329e, Main 70ed724
 
 ---
 
