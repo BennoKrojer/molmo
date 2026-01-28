@@ -417,10 +417,8 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
             background-color: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 8px;
-            padding: 15px;
             text-align: center;
             transition: all 0.3s ease;
-            cursor: pointer;
         }}
         .image-card:hover {{
             background-color: #f3e5f5;
@@ -428,7 +426,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
             transform: translateY(-4px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }}
-        .image-card a {{ text-decoration: none; color: #9c27b0; font-weight: 500; }}
+        .image-card a {{ display: block; padding: 15px; text-decoration: none; color: #9c27b0; font-weight: 500; }}
     </style>
 </head>
 <body>
@@ -438,7 +436,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
         </div>
         
         <div class="header">
-            <h1>🔬 {display_name}</h1>
+            <h1>{display_name}</h1>
             <p style="color: #666;">Ablation Study</p>
         </div>
         
@@ -446,7 +444,7 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
             <h3>Available Analyses</h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-label">Input Emb.</div>
+                    <div class="stat-label">EmbeddingLens</div>
                     <div class="stat-value">{len(nn_layers)}</div>
                     <div class="stat-label">layers</div>
                 </div>
