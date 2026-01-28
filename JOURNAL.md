@@ -6,6 +6,21 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-28 (Figure polish session)
+
+**Main figure (`fig1_unified_interpretability.pdf`) styling updates:**
+- Titles renamed: "EmbeddingLens", "LogitLens", "LatentLens (Ours)"
+- Encoder names: "CLIP-ViT", "DINOv2" (shorter, consistent)
+- Y-axis: "% of interpretable tokens" (removed "visual")
+- Fonts increased: title 20pt, xlabel 16pt, ylabel 14pt, ticks 13pt, legend 12pt
+- Colors: kept grouped scheme (Blues=OLMo, Greens=LLaMA, Reds=Qwen)
+
+**Bug fix:** Commented out broken `\hyperref[sec:patching]` in appendix index (section was already commented out).
+
+**Git:** Paper c441a21, Main c87c529
+
+---
+
 ### 2026-01-28 (Appendix finalization session)
 
 **Appendix index fix:** Replaced hardcoded letters (A-P) with `\ref*{label}` for auto-numbering. Letters now update automatically when sections are added/removed.
