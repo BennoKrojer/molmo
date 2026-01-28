@@ -6,6 +6,62 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-28 (Pre-submission audit - ICML final)
+
+**Comprehensive paper audit performed. Critical fixes:**
+
+1. **LaTeX compilation fixed:**
+   - Replaced Unicode characters (Vietnamese `tối`, Thai `อำนา`, Hindi `स`) with ASCII placeholders in `random_comparison_content.tex`
+
+2. **Bibliography:**
+   - Removed duplicate entry `bolya2025perception` (lines 1007-1014)
+
+3. **Spelling errors fixed:**
+   - `irregardless` → `regardless` (appendix.tex:143)
+   - `the same the same` → `the same` (appendix.tex:143)
+   - `morever` → `moreover` (appendix.tex:205)
+   - `which which` → `which` (2_background.tex:14)
+   - `a the advantage` → `the advantage` (5_analysis.tex:23)
+
+4. **Impact Statement rewritten:**
+   - Replaced rough notes with polished 2-paragraph statement
+   - Added limitations discussion (storage overhead, corpus constraints, noun bias)
+
+5. **Behind The Scenes section:**
+   - Removed rough bracket notes, wrote clean prose
+
+6. **Anonymization:**
+   - Removed commented code links containing author name (icml2026_main.tex:195)
+
+7. **Active \fixme{} resolved:**
+   - `\fixme{code/demot footnote}` → proper footnote for blind review
+   - `\fixme{axes labels}` in experiments → removed
+
+8. **Grammar fixed:**
+   - Conclusion sentence about "cognition how" → "how visual and linguistic representations interface"
+
+**Paper compiles cleanly (37 pages). No undefined references or citations.**
+
+---
+
+### 2026-01-28 (Conclusion polish session)
+
+**Restructured conclusion into 4 focused paragraphs:**
+- Para 1: Core finding (visual tokens interpretable across layers, challenges prior work)
+- Para 2: "Under the hood" explanation with Mid-Layer Leap named explicitly
+- Para 3: Broader cognitive significance (Harnad, PRH citations)
+- Para 4: Future work (moved open question here, LatentLens extensions to soft prompts/speech)
+
+**Fixes:**
+- "Our findings...Our findings" repetition → "These results also"
+- "alignment...alignment" → "this requires...mapping"
+- Des's flagged sentence clarified
+- Hyphenated "long-standing", "surface-level"
+
+**Git:** Paper 0853d51, Main 4159322
+
+---
+
 ### 2026-01-28 (Figure polish session - ICML final)
 
 **Main figure (`fig1_unified_interpretability.pdf`) styling updates:**
