@@ -6,6 +6,20 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-27 (Appendix Layer Alignment text + fix refs)
+
+**Appendix Section E (Layer Alignment Details):**
+- Added explanatory paragraphs connecting token drift figure to Mid-Layer Leap phenomenon
+- Explains why visual tokens at layer 0 align to later-layer text representations
+
+**Fixed broken references in main paper (4_experiments.tex line 300):**
+- `\Cref{todo}` → `\Cref{sec:appendix:layer_alignment,app:outliers}`
+- `\citep{TODO}` → `\citep{timkey-van-schijndel-2021-bark}`
+
+**Git:** Paper cada2e8, Main 39a194c
+
+---
+
 ### 2026-01-26 (Section 5 intro polish)
 
 **Paper edit:** Replaced placeholder `@claude` text in Section 5 (Qualitative Results) with polished intro paragraph previewing ContextualLens vs LogitLens comparison and contextual phrase benefits.
