@@ -41,11 +41,11 @@ LLM_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen (28 layers)
 # FONT SIZES - Adjust these to change all text sizes
 # =============================================================================
 FONT_SUPTITLE = 24          # Overall figure title
-FONT_SUBPLOT_TITLE = 18     # Individual subplot titles (e.g., "OLMo-7B + CLIP")
-FONT_AXIS_LABEL = 20        # "Vision Layer", "LLM Layer"
-FONT_TICK_LABEL = 13        # Numbers on axes
+FONT_SUBPLOT_TITLE = 22     # Individual subplot titles (e.g., "OLMo-7B + CLIP")
+FONT_AXIS_LABEL = 18        # "Vision Layer", "LLM Layer"
+FONT_TICK_LABEL = 14        # Numbers on axes
 FONT_COLORBAR_LABEL = 20    # "Proportion of Top-5 NNs"
-FONT_COLORBAR_TICK = 15     # Numbers on colorbar
+FONT_COLORBAR_TICK = 16     # Numbers on colorbar
 
 
 def get_fixed_layers(llm):
@@ -178,27 +178,27 @@ def create_combined_3x3_heatmap(all_counts, output_path):
             # Y-axis labels (ticks at cell centers, only leftmost column shows labels)
             ax.set_yticks([i + 0.5 for i in range(n_vision)])
             if col == 0:
-                ax.set_yticklabels([str(vl) for vl in vision_layers], fontsize=FONT_TICK_LABEL)
-                ax.set_ylabel('Vision Layer', fontsize=FONT_AXIS_LABEL, fontweight='bold')
+                ax.set_yticklabels([str(vl) for vl in vision_layers], fontsize=FONT_TICK_LABEL, fontweight='normal')
+                ax.set_ylabel('Vision Layer', fontsize=FONT_AXIS_LABEL)
             else:
                 ax.set_yticklabels([])
 
             # X-axis labels - show on ALL subplots since LLM layers differ per model
             ax.set_xticks([i + 0.5 for i in range(n_llm)])
-            ax.set_xticklabels([str(ll) for ll in llm_layers], fontsize=FONT_TICK_LABEL)
+            ax.set_xticklabels([str(ll) for ll in llm_layers], fontsize=FONT_TICK_LABEL, fontweight='normal')
             if row == 2:
-                ax.set_xlabel('LLM Layer', fontsize=FONT_AXIS_LABEL, fontweight='bold')
+                ax.set_xlabel('LLM Layer', fontsize=FONT_AXIS_LABEL)
     
     # Single colorbar for all
-    # Adjust spacing: more vertical space, lower top to accommodate suptitle, more bottom space for x-labels
-    fig.subplots_adjust(right=0.88, hspace=0.35, wspace=0.15, top=0.88, bottom=0.08)
+    # Adjust spacing: more vertical space, more bottom space for x-labels
+    fig.subplots_adjust(right=0.88, hspace=0.35, wspace=0.15, top=0.95, bottom=0.08)
     cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
     cbar = fig.colorbar(images[0], cax=cbar_ax)
-    cbar.set_label('Proportion of Top-5 NNs', fontsize=FONT_COLORBAR_LABEL, fontweight='bold')
+    cbar.set_label('Proportion of Top-5 NNs', fontsize=FONT_COLORBAR_LABEL)
     cbar.ax.tick_params(labelsize=FONT_COLORBAR_TICK)
 
-    fig.suptitle('Vision Token → LLM Layer Alignment', fontsize=FONT_SUPTITLE, fontweight='bold', y=0.95)
-    
+    # Suptitle removed - caption in LaTeX instead
+
     # Save
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.savefig(output_path.with_suffix('.pdf'), dpi=300, bbox_inches='tight')
