@@ -46,8 +46,8 @@ def create_unified_plot(nn_data, logitlens_data, contextual_data):
                    markersize=8, label=label)
 
     # Match main plot font sizes exactly
-    ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-    ax.set_ylabel('% of interpretable visual tokens', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Layer', fontsize=14)
+    ax.set_ylabel('% of interpretable visual tokens', fontsize=12)
     ax.set_title('Qwen2-VL-7B-Instruct', fontsize=14, fontweight='bold', pad=8)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)
@@ -91,8 +91,8 @@ def create_individual_plots(nn_data, logitlens_data, contextual_data):
         ax.plot(layers, values, marker='o', color=color, linewidth=3,
                markersize=12, label='Qwen2-VL-7B-Instruct')
 
-        ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Layer', fontsize=14)
+        ax.set_ylabel('Interpretability %', fontsize=14)
         ax.set_title(f'Qwen2-VL: {method_name}', fontsize=16, fontweight='bold', pad=12)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)

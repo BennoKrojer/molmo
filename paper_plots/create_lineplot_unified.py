@@ -499,9 +499,9 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                     handles_dict[label] = line
         
         # Customize subplot - larger fonts for print
-        ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
+        ax.set_xlabel(config['xlabel'], fontsize=16)
         if config.get('show_ylabel', False):
-            ax.set_ylabel('% of interpretable tokens', fontsize=14, fontweight='bold')
+            ax.set_ylabel('% of interpretable tokens', fontsize=14)
         ax.set_title(config['title'], fontsize=20, fontweight='bold', pad=12)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
@@ -666,8 +666,8 @@ def create_baselines_lineplot(nn_data, logitlens_data, output_path):
                 if label not in handles_dict:
                     handles_dict[label] = line
 
-        ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
-        ax.set_ylabel('% of interpretable visual tokens', fontsize=14, fontweight='bold')
+        ax.set_xlabel(config['xlabel'], fontsize=16)
+        ax.set_ylabel('% of interpretable visual tokens', fontsize=14)
         ax.set_title(config['title'], fontsize=18, fontweight='bold', pad=15)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
@@ -798,8 +798,8 @@ def create_lnlens_lineplot(contextual_data, output_path):
                 if label not in handles_dict:
                     handles_dict[label] = line
     
-    ax.set_xlabel('Layer', fontsize=16, fontweight='bold')
-    ax.set_ylabel('% of interpretable visual tokens', fontsize=14, fontweight='bold')
+    ax.set_xlabel('Layer', fontsize=16)
+    ax.set_ylabel('% of interpretable visual tokens', fontsize=14)
     ax.set_title('LN-Lens', fontsize=18, fontweight='bold', pad=15)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 100)

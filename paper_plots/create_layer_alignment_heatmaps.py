@@ -42,7 +42,7 @@ LLM_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen (28 layers)
 # =============================================================================
 FONT_SUPTITLE = 24          # Overall figure title
 FONT_SUBPLOT_TITLE = 22     # Individual subplot titles (e.g., "OLMo-7B + CLIP")
-FONT_AXIS_LABEL = 18        # "Vision Layer", "LLM Layer"
+FONT_AXIS_LABEL = 18        # "Layer of Vis. Tokens", "Layer of NNs"
 FONT_TICK_LABEL = 14        # Numbers on axes
 FONT_COLORBAR_LABEL = 20    # "Proportion of Top-5 NNs"
 FONT_COLORBAR_TICK = 16     # Numbers on colorbar
@@ -89,10 +89,10 @@ def create_single_heatmap(counts, llm, encoder, output_path):
     im = ax.pcolormesh(matrix, cmap='viridis', vmin=0, vmax=1.0,
                        edgecolors='black', linewidth=0.5)
     ax.set_aspect('auto')
-    
+
     # Labels
-    ax.set_xlabel('LLM Layer', fontsize=18)
-    ax.set_ylabel('Vision Layer', fontsize=18)
+    ax.set_xlabel('Layer of NNs', fontsize=18)
+    ax.set_ylabel('Visual Token Layer', fontsize=18)
     ax.set_title(f'{LLM_DISPLAY.get(llm, llm)} + {ENC_DISPLAY.get(encoder, encoder)}',
                  fontsize=20, fontweight='bold', pad=15)
     
@@ -179,7 +179,7 @@ def create_combined_3x3_heatmap(all_counts, output_path):
             ax.set_yticks([i + 0.5 for i in range(n_vision)])
             if col == 0:
                 ax.set_yticklabels([str(vl) for vl in vision_layers], fontsize=FONT_TICK_LABEL, fontweight='normal')
-                ax.set_ylabel('Vision Layer', fontsize=FONT_AXIS_LABEL)
+                ax.set_ylabel('Visual Token Layer', fontsize=FONT_AXIS_LABEL)
             else:
                 ax.set_yticklabels([])
 
@@ -187,7 +187,7 @@ def create_combined_3x3_heatmap(all_counts, output_path):
             ax.set_xticks([i + 0.5 for i in range(n_llm)])
             ax.set_xticklabels([str(ll) for ll in llm_layers], fontsize=FONT_TICK_LABEL, fontweight='normal')
             if row == 2:
-                ax.set_xlabel('LLM Layer', fontsize=FONT_AXIS_LABEL)
+                ax.set_xlabel('Layer of NNs', fontsize=FONT_AXIS_LABEL)
     
     # Single colorbar for all
     # Adjust spacing: more vertical space, more bottom space for x-labels
@@ -234,8 +234,8 @@ def create_qwen2vl_heatmap(counts, output_path):
     ax.set_aspect('auto')
 
     # Labels
-    ax.set_xlabel('LLM Layer', fontsize=18)
-    ax.set_ylabel('Vision Layer', fontsize=18)
+    ax.set_xlabel('Layer of NNs', fontsize=18)
+    ax.set_ylabel('Layer of Vis. Tokens', fontsize=18)
     ax.set_title('Qwen2-VL-7B-Instruct', fontsize=20, fontweight='bold', pad=15)
 
     # Y-axis: vision layers (ticks at cell centers: 0.5, 1.5, ...)
