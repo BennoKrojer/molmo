@@ -6,6 +6,16 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-28 (Appendix finalization session)
+
+**Appendix index fix:** Replaced hardcoded letters (A-P) with `\ref*{label}` for auto-numbering. Letters now update automatically when sections are added/removed.
+
+**Fine-grained Analysis section (J):** Added intro paragraph explaining what the section covers, why it matters (supports intro claims about 65% concrete, 45% nouns), and previewing the 3 analyses.
+
+**Git:** Paper a04651d, Main 9c4180f
+
+---
+
 ### 2026-01-27 (Appendix Qwen2-VL section)
 
 **Appendix Section F (Qwen2-VL):** Replaced TODO/fixme with verified training details from paper (3-stage, 1.4T tokens, unfrozen).
