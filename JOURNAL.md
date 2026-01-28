@@ -6,7 +6,7 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
-### 2026-01-28 (Figure polish session)
+### 2026-01-28 (Figure polish session - ICML final)
 
 **Main figure (`fig1_unified_interpretability.pdf`) styling updates:**
 - Titles renamed: "EmbeddingLens", "LogitLens", "LatentLens (Ours)"
@@ -15,9 +15,17 @@ A concise log of major changes, results, and git operations.
 - Fonts increased: title 20pt, xlabel 16pt, ylabel 14pt, ticks 13pt, legend 12pt
 - Colors: kept grouped scheme (Blues=OLMo, Greens=LLaMA, Reds=Qwen)
 
+**Layer alignment heatmaps (`layers_heatmap_combined_3x3.pdf`) styling:**
+- Font sizes extracted to variables at top of script for easy adjustment
+- Removed overall suptitle (caption in LaTeX instead)
+- Axis labels not bold, increased font sizes
+
+**Qwen2-VL figure (`fig_qwen2vl.pdf`) legend update:**
+- Legend labels: "EmbeddingLens", "LogitLens", "LatentLens (Ours)" (matching main figure)
+
 **Bug fix:** Commented out broken `\hyperref[sec:patching]` in appendix index (section was already commented out).
 
-**Git:** Paper c441a21, Main c87c529
+**Git:** Paper 5e73cee, Main b38b96b
 
 ---
 
