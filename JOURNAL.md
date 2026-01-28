@@ -10,9 +10,19 @@ A concise log of major changes, results, and git operations.
 
 **Appendix index fix:** Replaced hardcoded letters (A-P) with `\ref*{label}` for auto-numbering. Letters now update automatically when sections are added/removed.
 
-**Fine-grained Analysis section (J):** Added intro paragraph explaining what the section covers, why it matters (supports intro claims about 65% concrete, 45% nouns), and previewing the 3 analyses.
+**Fine-grained Analysis section:** Added intro paragraph explaining what the section covers, why it matters (supports intro claims about 65% concrete, 45% nouns), and previewing the 3 analyses.
 
-**Git:** Paper a04651d, Main 9c4180f
+**mtag macro fix:** Defined `\mtag` and `\tagsp` in preamble for colored method tags. Fixed the Fixme that was wrapping baseline color descriptions.
+
+**Sample captions figure:** Created proper figure with:
+- Extracted validation image (Piazza S. Maria in Trastevere, Rome)
+- Full captions from 3 models: OLMo+CLIP (8/10), Qwen2+SigLIP (8/10), LLaMA3+DINOv2 (7/10)
+- Side-by-side layout with image left, captions right
+- Caption explains per-image vs average DCScores
+
+**All active Fixmes resolved** - remaining ones are in commented-out sections.
+
+**Git:** Paper d97fd0d, Main 7d044cc
 
 ---
 
