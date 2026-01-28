@@ -1603,7 +1603,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 patchInfo.innerHTML = `<strong>Patch (${{row}}, ${{col}}) - Index ${{patchIdx}} | Layer ${{currentLayer}}</strong>${{interpBadgeHTML}}`;
             }}
             
-            // Update NN column
+            // Update EmbeddingLens column
             const nnResults = document.getElementById('nnResults');
             if (nnData && nnData.neighbors && nnData.neighbors.length > 0) {{
                 let html = '';
@@ -1618,7 +1618,7 @@ def create_unified_html_content(image_idx: int, image_base64: str, ground_truth:
                 nnResults.innerHTML = '<div class="no-data">No data for layer ${{currentLayer}}</div>';
             }}
             
-            // Update Logit Lens column
+            // Update LogitLens column
             const logitResults = document.getElementById('logitResults');
             if (logitData && logitData.predictions && logitData.predictions.length > 0) {{
                 let html = '';
