@@ -1,0 +1,48 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsg33ys3o8u1pwrd",
+  "timestamp": "2025-10-30T18:59:05.079Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00156_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:58:37.768Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00156_patch4",
+      "selectedWords": [
+        {
+          "word": "ac",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:58:49.352Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00156_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:58:59.535Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00156_patch6",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:03.119Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00156_patch7",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:05.602Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00156_patch8",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:09.886Z"
+    }
+  ]
+}

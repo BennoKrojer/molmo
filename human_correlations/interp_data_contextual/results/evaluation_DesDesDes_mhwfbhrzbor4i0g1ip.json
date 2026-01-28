@@ -1,0 +1,129 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwfbhrzbor4i0g1ip",
+  "timestamp": "2025-11-12T19:59:18.066Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00096_patch0",
+      "selectedWords": [
+        {
+          "word": "two small animal skulls",
+          "relation": "concrete"
+        },
+        {
+          "word": "a drawing of a skull",
+          "relation": "concrete"
+        },
+        {
+          "word": "the roof is covered with gray shingles in various stages of decay.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:58:10.807Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00096_patch1",
+      "selectedWords": [
+        {
+          "word": "partially obscured orange skull and bones",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white skull head on the back of a leather jacket",
+          "relation": "concrete"
+        },
+        {
+          "word": "this is a skull and crossbones",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:58:25.082Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch2",
+      "selectedWords": [
+        {
+          "word": "the glowing eyes of the orange cat",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:58:36.525Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00096_patch3",
+      "selectedWords": [
+        {
+          "word": "light gray tile on wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white and gray mouse next to a computer",
+          "relation": "concrete"
+        },
+        {
+          "word": "the water is white and gray",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:58:54.970Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00096_patch4",
+      "selectedWords": [
+        {
+          "word": "the girl has is wearing a white graphic shirt",
+          "relation": "global"
+        },
+        {
+          "word": "the front tire of the white truck.",
+          "relation": "global"
+        },
+        {
+          "word": "man wearing brown sweater with white collar",
+          "relation": "global"
+        },
+        {
+          "word": "man in black shirt with white single stripe down arm of shirt",
+          "relation": "global"
+        },
+        {
+          "word": "a pair of white shorts with red stripes",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:59:06.788Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00096_patch5",
+      "selectedWords": [
+        {
+          "word": "a drawing of a skull",
+          "relation": "concrete"
+        },
+        {
+          "word": "black and red graffiti of skulls, anarchy signs, etc.",
+          "relation": "concrete"
+        },
+        {
+          "word": "platform for display of bones",
+          "relation": "concrete"
+        },
+        {
+          "word": "a happy looking skull",
+          "relation": "concrete"
+        },
+        {
+          "word": "an ipad with a drawing of a skull on the locked screen",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:59:17.951Z"
+    }
+  ]
+}

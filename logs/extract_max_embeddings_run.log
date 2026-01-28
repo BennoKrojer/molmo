@@ -1,0 +1,68 @@
+========================================
+Extract Max Token Embeddings (PARALLEL)
+========================================
+
+Output: analysis_results/max_token_embeddings
+Logs: logs/max_embeddings_20260108_142120
+Images per model: 10
+
+GPU 0: olmo-7b + vit-l-14-336
+  Log: logs/max_embeddings_20260108_142120/olmo-7b_vit-l-14-336.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 1: olmo-7b + dinov2-large-336
+  Log: logs/max_embeddings_20260108_142120/olmo-7b_dinov2-large-336.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 2: olmo-7b + siglip
+  Log: logs/max_embeddings_20260108_142120/olmo-7b_siglip.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 3: llama3-8b + vit-l-14-336
+  Log: logs/max_embeddings_20260108_142120/llama3-8b_vit-l-14-336.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 4: llama3-8b + dinov2-large-336
+  Log: logs/max_embeddings_20260108_142120/llama3-8b_dinov2-large-336.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 5: llama3-8b + siglip
+  Log: logs/max_embeddings_20260108_142120/llama3-8b_siglip.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 6: qwen2-7b + vit-l-14-336
+  Log: logs/max_embeddings_20260108_142120/qwen2-7b_vit-l-14-336.log
+  Waiting for model load...
+  ✓ Model loaded
+GPU 7: qwen2-7b + dinov2-large-336
+  Log: logs/max_embeddings_20260108_142120/qwen2-7b_dinov2-large-336.log
+  Waiting for model load...
+  ✓ Model loaded
+
+All 8 GPUs in use, waiting for a job...
+✓ Completed: olmo-7b+vit-l-14-336
+✓ Completed: olmo-7b+dinov2-large-336
+✓ Completed: olmo-7b+siglip
+✓ Completed: llama3-8b+vit-l-14-336
+✓ Completed: llama3-8b+dinov2-large-336
+✓ Completed: llama3-8b+siglip
+✓ Completed: qwen2-7b+vit-l-14-336
+GPU 1: qwen2-7b + siglip
+  Log: logs/max_embeddings_20260108_142120/qwen2-7b_siglip.log
+  Waiting for model load...
+  ✓ Model loaded
+
+Waiting for all jobs to complete...
+✓ Completed: qwen2-7b+dinov2-large-336
+✓ Completed: qwen2-7b+siglip
+
+========================================
+Creating plots...
+========================================
+Saved: paper_plots/paper_figures_output/l2norm_plots/max_token_embedding_values_3x3.png
+
+========================================
+DONE!
+Results: analysis_results/max_token_embeddings
+Plots: paper_plots/paper_figures_output/l2norm_plots/
+========================================

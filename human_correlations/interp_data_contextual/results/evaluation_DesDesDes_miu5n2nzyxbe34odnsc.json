@@ -1,0 +1,65 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5n2nzyxbe34odnsc",
+  "timestamp": "2025-12-06T10:32:32.309Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00257_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:31:59.902Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00257_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:32:02.010Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00257_patch2",
+      "selectedWords": [
+        {
+          "word": "man has red fingertips, short fingernails, no nail polish at all",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman approaching cow with red fingertips",
+          "relation": "concrete"
+        },
+        {
+          "word": "man with sun shining on fingertips",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:32:11.828Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00257_patch3",
+      "selectedWords": [
+        {
+          "word": "a banana amongst other fruit",
+          "relation": "concrete"
+        },
+        {
+          "word": "a banana sitting on top of other fruit",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:32:19.314Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00257_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:32:25.330Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00257_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:32:32.063Z"
+    }
+  ]
+}

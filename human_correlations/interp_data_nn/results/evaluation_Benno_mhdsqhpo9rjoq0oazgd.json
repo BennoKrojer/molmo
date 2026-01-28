@@ -1,0 +1,48 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsqhpo9rjoq0oazgd",
+  "timestamp": "2025-10-30T19:07:10.527Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00016_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:06:01.773Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00016_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:06:03.523Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00016_patch5",
+      "selectedWords": [
+        {
+          "word": "ingers",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:06:20.456Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00016_patch6",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:06:23.423Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00016_patch7",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:06:25.221Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00016_patch8",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:07:15.372Z"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+==========================================
+MASTER SCRIPT: Running All Missing Tasks
+==========================================
+Log directory: logs/master_run_20260103_205206
+Dry run: false
+Test mode: false
+Force Qwen2-VL: false
+Qwen2-VL only: true
+==========================================
+
+[2026-01-03 20:52:06] Starting master script
+[2026-01-03 20:52:06] Configuration: NUM_IMAGES=300, LAYERS=0,1,2,4,8,16,24,30,31, SPLIT=validation
+[2026-01-03 20:52:06] 
+[2026-01-03 20:52:06] ========== PHASE 0: Validation ==========
+[2026-01-03 20:52:06] Checking Python script syntax...
+[2026-01-03 20:52:06]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
+[2026-01-03 20:52:06]   ✓ scripts/analysis/logitlens.py
+[2026-01-03 20:52:06]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
+[2026-01-03 20:52:07]   ✓ llm_judge/run_single_model_with_viz.py
+[2026-01-03 20:52:07]   ✓ llm_judge/run_single_model_with_viz_contextual.py
+[2026-01-03 20:52:07]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py
+[2026-01-03 20:52:07]   ✓ scripts/analysis/qwen2_vl/logitlens.py
+[2026-01-03 20:52:07] Checking imports and dependencies...
+Warning: translation disabled (googletrans import error: module 'httpcore' has no attribute 'SyncHTTPTransport'). To enable, install compatible versions, e.g.:
+  pip install 'googletrans==4.0.0rc1' 'httpx<0.24' 'httpcore<1.0'
+[2026-01-03 20:52:12]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py imports OK
+[2026-01-03 20:52:16]   ✓ scripts/analysis/logitlens.py imports OK
+[2026-01-03 20:52:21]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py imports OK
+[2026-01-03 20:52:27]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py imports OK
+[2026-01-03 20:52:32]   ✓ scripts/analysis/qwen2_vl/logitlens.py imports OK
+[2026-01-03 20:52:32] Checking API key file...
+[2026-01-03 20:52:32]   ✓ llm_judge/api_key.txt exists and is non-empty
+[2026-01-03 20:52:32] SKIP: Ablation validation (--qwen2vl-only mode)
+[2026-01-03 20:52:32] ✓ All validations passed
+[2026-01-03 20:52:32] 
+[2026-01-03 20:52:32] 
+[2026-01-03 20:52:32] SKIP: Phases 1-6 (ablations) - running Qwen2-VL only mode
+[2026-01-03 20:52:32] ✓ Loaded API key for Qwen2-VL LLM Judge phases
+[2026-01-03 20:52:32] 
+[2026-01-03 20:52:32] ========== PHASE 7: Static NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 20:52:32] SKIP: Static NN complete for Qwen2-VL (9 layers)
+[2026-01-03 20:52:32] 
+[2026-01-03 20:52:32] ========== PHASE 8: LogitLens for Qwen2-VL (9 layers) ==========
+[2026-01-03 20:52:32] SKIP: LogitLens complete for Qwen2-VL (9 layers)
+[2026-01-03 20:52:32] 
+[2026-01-03 20:52:32] ========== PHASE 9: LLM Judge NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 0
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 1
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 2
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 4
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 8
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 16
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 24
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 26
+[2026-01-03 20:52:32] LAUNCHING: LLM Judge NN for Qwen2-VL layer 27
+[2026-01-03 20:52:32] Waiting for 9 parallel LLM Judge NN jobs...
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342559 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342563 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342567 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342571 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342575 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342579 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342583 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342587 failed
+[2026-01-03 20:52:38] WARNING: LLM Judge NN job 1342591 failed
+[2026-01-03 20:52:38] ✓ Phase 9 complete
+[2026-01-03 20:52:38] 
+[2026-01-03 20:52:38] ========== PHASE 10: LLM Judge LogitLens for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 0
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 1
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 2
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 4
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 8
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 16
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 24
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 26
+[2026-01-03 20:52:38] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 27
+[2026-01-03 20:52:38] Waiting for 9 parallel LLM Judge LogitLens jobs...
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343826 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343830 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343834 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343838 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343842 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343846 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343850 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343854 failed
+[2026-01-03 20:52:44] WARNING: LLM Judge LogitLens job 1343858 failed
+[2026-01-03 20:52:44] ✓ Phase 10 complete
+[2026-01-03 20:52:44] 
+[2026-01-03 20:52:44] ========== PHASE 10.5: Contextual NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 20:52:44] RUNNING: Contextual NN for Qwen2-VL (all 9 layers)
+[2026-01-03 20:52:44]   Command: python3 scripts/analysis/qwen2_vl/contextual_nearest_neighbors_allLayers_singleGPU.py             --contextual-dir molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-VL-7B-Instruct             --num-images 300             --visual-layer 0,1,2,4,8,16,24,26,27             --fixed-resolution 448             --force-square             --output-dir analysis_results/contextual_nearest_neighbors/qwen2_vl
+[2026-01-03 21:21:10] ✓ SUCCESS: Contextual NN for Qwen2-VL (all 9 layers)
+[2026-01-03 21:21:10] 
+[2026-01-03 21:21:10] ========== PHASE 11: LLM Judge Contextual NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 0
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 1
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 2
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 4
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 8
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 16
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 24
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 26
+[2026-01-03 21:21:10] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 27
+[2026-01-03 21:21:10] Waiting for 9 parallel LLM Judge Contextual jobs...
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347016 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347020 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347024 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347028 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347032 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347036 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347040 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347044 failed
+[2026-01-03 21:21:16] WARNING: LLM Judge Contextual job 1347048 failed
+[2026-01-03 21:21:16] ✓ Phase 11 complete
+[2026-01-03 21:21:16] 
+[2026-01-03 21:21:16] ==========================================
+[2026-01-03 21:21:16] MASTER SCRIPT COMPLETED
+[2026-01-03 21:21:16] ==========================================
+[2026-01-03 21:21:16] Log directory: logs/master_run_20260103_205206
+[2026-01-03 21:21:16] Check logs/master_run_20260103_205206/master.log for full details
+
+==========================================
+MASTER SCRIPT COMPLETED
+==========================================
+Log directory: logs/master_run_20260103_205206
+
+Next steps:
+1. Check logs for any failures: cat logs/master_run_20260103_205206/master.log | grep FAILED
+2. Regenerate unified viewer if needed
+==========================================

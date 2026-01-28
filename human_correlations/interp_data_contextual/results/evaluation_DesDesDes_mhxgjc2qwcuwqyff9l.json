@@ -1,0 +1,56 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgjc2qwcuwqyff9l",
+  "timestamp": "2025-11-13T13:21:09.752Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00260_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:20:47.667Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00260_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:20:52.230Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00260_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:20:55.877Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00260_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:20:59.092Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00260_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:21:00.230Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00260_patch5",
+      "selectedWords": [
+        {
+          "word": "fluffy white tail of the llama",
+          "relation": "concrete"
+        },
+        {
+          "word": "the plate is color white",
+          "relation": "concrete"
+        },
+        {
+          "word": "a large white table umbrella",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:21:09.602Z"
+    }
+  ]
+}

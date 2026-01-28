@@ -1,0 +1,52 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwepkko9kcksv9jxch",
+  "timestamp": "2025-11-12T19:42:15.265Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:40:39.550Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch1",
+      "selectedWords": [
+        {
+          "word": "two women looking at a smartphone",
+          "relation": "concrete"
+        },
+        {
+          "word": "an old smartphone",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:41:01.638Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00216_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:41:09.209Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:41:41.274Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:42:00.607Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00216_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:42:15.144Z"
+    }
+  ]
+}

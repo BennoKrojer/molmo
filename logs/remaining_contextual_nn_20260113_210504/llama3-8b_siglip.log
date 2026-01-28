@@ -1,0 +1,22 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg
+Visual layers: [0, 1, 2, 4, 8, 16, 24, 30, 31]
+Contextual layers: []
+Images: 36 (indices: [100, 102, 108, 109, 119]...)
+Total forward passes: 0 caches × 36 images = 0
+
+======================================================================
+LOADING MODEL
+======================================================================
+  Loading weights...
+  Moving to GPU (fp16)...
+✓ Model loaded in 77.9s
+
+======================================================================
+PRELOADING IMAGES TO GPU
+======================================================================
+  Loading 36 images directly to GPU...
+    0/36 (image 100)...

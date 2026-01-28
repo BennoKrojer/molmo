@@ -1,0 +1,59 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg/meta-llama_Meta-Llama-3-8B
+Visual layers: [0, 1, 16, 2, 24, 30, 31, 4, 8]
+Contextual layers: [1, 2, 4, 8, 16, 24, 30, 31]
+Images: 36 (indices: [100, 102, 108, 109, 119]...)
+Total forward passes: 8 caches × 36 images = 288
+
+======================================================================
+LOADING MODEL
+======================================================================
+  Loading weights...
+  Moving to GPU (fp16)...
+✓ Model loaded in 190.4s
+
+======================================================================
+PRELOADING IMAGES TO GPU
+======================================================================
+  Loading 36 images directly to GPU...
+    0/36 (image 100)...
+    10/36 (image 155)...
+    20/36 (image 234)...
+    30/36 (image 284)...
+✓ Images preloaded in 1.6s (22.1 img/s)
+
+======================================================================
+CONTEXTUAL LAYER 1 (1/8)
+======================================================================
+  Loading cache to GPU... done (5.2s, 417315 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (144631.2 img/s)
+    Image 6/36 (idx=134) (0.9 img/s)
+    Image 11/36 (idx=155) (0.8 img/s)
+    Image 16/36 (idx=191) (0.7 img/s)
+    Image 21/36 (idx=234) (0.7 img/s)
+    Image 26/36 (idx=257) (0.7 img/s)
+    Image 31/36 (idx=284) (0.7 img/s)
+    Image 36/36 (idx=299) (0.7 img/s)
+  ✓ Done: 36 images in 54.1s (0.7 img/s)
+======================================================================
+CONTEXTUAL LAYER 2 (2/8)
+======================================================================
+  Loading cache to GPU... done (35.7s, 415651 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (83886.1 img/s)
+    Image 6/36 (idx=134) (0.9 img/s)
+    Image 11/36 (idx=155) (0.8 img/s)
+    Image 16/36 (idx=191) (0.7 img/s)
+    Image 21/36 (idx=234) (0.7 img/s)
+    Image 26/36 (idx=257) (0.7 img/s)
+    Image 31/36 (idx=284) (0.7 img/s)
+    Image 36/36 (idx=299) (0.7 img/s)
+  ✓ Done: 36 images in 55.3s (0.7 img/s)
+======================================================================
+CONTEXTUAL LAYER 4 (3/8)
+======================================================================
+  Loading cache to GPU... 

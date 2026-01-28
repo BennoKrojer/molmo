@@ -1,0 +1,81 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsf6p9w2ggow8s0sl",
+  "timestamp": "2025-10-30T18:58:22.937Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00299_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:36.285Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00299_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:40.268Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00299_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:43.185Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00299_patch6",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:44.735Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00299_patch7",
+      "selectedWords": [
+        {
+          "word": " Orange",
+          "relation": "concrete"
+        },
+        {
+          "word": "Orange",
+          "relation": "concrete"
+        },
+        {
+          "word": " colorful",
+          "relation": "abstract"
+        },
+        {
+          "word": "Purple",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:56.717Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00299_patch8",
+      "selectedWords": [
+        {
+          "word": " Whites",
+          "relation": "concrete"
+        },
+        {
+          "word": "white",
+          "relation": "concrete"
+        },
+        {
+          "word": " White",
+          "relation": "concrete"
+        },
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:58:27.885Z"
+    }
+  ]
+}

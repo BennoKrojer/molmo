@@ -1,0 +1,61 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdg4dsubbfyojariyk",
+  "timestamp": "2025-10-30T13:14:08.822Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00153_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:13:36.115Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00153_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:13:37.257Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch2",
+      "selectedWords": [
+        {
+          "word": "(T",
+          "relation": "global"
+        },
+        {
+          "word": " TK",
+          "relation": "global"
+        },
+        {
+          "word": " T",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:13:47.486Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:13:50.775Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:13:53.118Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch5",
+      "selectedWords": [
+        {
+          "word": " Bark",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:14:08.477Z"
+    }
+  ]
+}

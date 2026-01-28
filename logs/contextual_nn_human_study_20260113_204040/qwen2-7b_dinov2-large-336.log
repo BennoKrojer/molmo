@@ -1,0 +1,13 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-7B
+Visual layers: [0, 1, 16, 2, 24, 26, 27, 4, 8]
+Contextual layers: [1, 2, 4, 8, 16, 24, 26, 27]
+Images: 36 (indices: [100, 102, 108, 109, 119]...)
+Total forward passes: 8 caches × 36 images = 288
+
+======================================================================
+LOADING MODEL
+======================================================================

@@ -1307,7 +1307,7 @@ class Trainer:
                 num_samples = 200  # Number of samples from each modality
                 
                 # Gather visual embeddings from all GPUs
-                print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
+                # print(f'DEBUG: visual_embeddings.shape: {visual_embeddings.shape}')
                 gathered_visual = [torch.zeros_like(visual_embeddings) for _ in range(dist.get_world_size())]
                 dist.all_gather(gathered_visual, visual_embeddings)
                 # Concatenate along batch dimension
@@ -1851,6 +1851,13 @@ class Trainer:
                     )
                     global_batch_size = batch_size * get_world_size()  # assumes batch size equal across ranks
                     self.global_step += 1
+                    
+                    # DEBUG: Print token details for first batch (commented out for production)
+                    # if first_batch and get_global_rank() == 0:
+                    #     log.info("="*80)
+                    #     log.info("DEBUG [olmo/train.py first_batch]: Training batch token details")
+                    #     ...
+                    
                     self.global_train_examples_seen_this_epoch += global_batch_size
                     self.global_train_tokens_seen += global_batch_size * seq_len
                     speed_monitor.batch_start(
@@ -1985,6 +1992,11 @@ class Trainer:
 
                         # Reset model to 'train' mode.
                         self.fsdp_model.train()
+                    
+                    # DEBUG: Validation generation test (commented out for production)
+                    # Uncomment for debugging generation during training
+                    # if (self.global_step % 500 == 0 and hasattr(self.cfg.data, 'dataset') and self.cfg.data.dataset == "left_right"):
+                    #     ... (validation generation code)
 
                     # End of batch.
                     first_batch = False
@@ -2019,6 +2031,7 @@ class Trainer:
 
         # Save final checkpoint.
         if save_checkpoints:
+            final_checkpoint_path = None
             if (
                 self.cfg.save_interval_unsharded is not None
                 and self.last_unsharded_checkpoint_step != self.global_step
@@ -2026,6 +2039,7 @@ class Trainer:
                 log.info("Saving final unsharded model checkpoint...")
                 checkpoint_path, _ = self.save_checkpoint(CheckpointType.unsharded)
                 log.info(f"Unsharded checkpoint saved to {checkpoint_path}")
+                final_checkpoint_path = checkpoint_path
             elif (
                 self.cfg.save_num_checkpoints_to_keep != 0
                 and self.last_sharded_checkpoint_step != self.global_step
@@ -2033,6 +2047,41 @@ class Trainer:
                 log.info("Saving final checkpoint...")
                 checkpoint_path, _ = self.save_checkpoint(CheckpointType.sharded)
                 log.info(f"Checkpoint saved to {checkpoint_path}")
+                final_checkpoint_path = checkpoint_path
+            
+            # Cleanup all checkpoints except the final one
+            if final_checkpoint_path is not None and get_global_rank() == 0:
+                log.info(f"Cleaning up checkpoints, keeping only {final_checkpoint_path.name}...")
+                save_folder = Path(self.cfg.save_folder)
+                final_checkpoint_name = final_checkpoint_path.name
+                
+                # Count checkpoints before cleanup
+                checkpoint_dirs = [d for d in save_folder.iterdir() 
+                                 if d.is_dir() and d.name.startswith('step')]
+                log.info(f"Found {len(checkpoint_dirs)} checkpoint directories")
+                
+                # Remove all checkpoint directories except the final one
+                removed_count = 0
+                for checkpoint_dir in checkpoint_dirs:
+                    if checkpoint_dir.name != final_checkpoint_name:
+                        log.info(f"Removing checkpoint: {checkpoint_dir.name}")
+                        shutil.rmtree(checkpoint_dir, ignore_errors=True)
+                        removed_count += 1
+                
+                # Also remove 'latest' and 'latest-unsharded' symlinks if they exist and don't point to final checkpoint
+                for link_name in ['latest', 'latest-unsharded']:
+                    link_path = save_folder / link_name
+                    if link_path.exists():
+                        if link_path.is_symlink() and link_path.resolve().name != final_checkpoint_name:
+                            log.info(f"Removing symlink: {link_name}")
+                            link_path.unlink()
+                        elif not link_path.is_symlink() and link_path.name != final_checkpoint_name:
+                            log.info(f"Removing directory: {link_name}")
+                            shutil.rmtree(link_path, ignore_errors=True)
+                
+                log.info(f"Cleanup complete: removed {removed_count} checkpoint directories")
+            
+            barrier()
 
     def close(self, exit_code: int = 0) -> None:
         gc_cuda()

@@ -1,0 +1,118 @@
+{
+  "main_models": [
+    {"llm": "llama3-8b", "vision_encoder": "vit-l-14-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336"},
+    {"llm": "llama3-8b", "vision_encoder": "dinov2-large-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336"},
+    {"llm": "llama3-8b", "vision_encoder": "siglip", "checkpoint": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip"},
+    {"llm": "olmo-7b", "vision_encoder": "vit-l-14-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336"},
+    {"llm": "olmo-7b", "vision_encoder": "dinov2-large-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336"},
+    {"llm": "olmo-7b", "vision_encoder": "siglip", "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip"},
+    {"llm": "qwen2-7b", "vision_encoder": "vit-l-14-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10"},
+    {"llm": "qwen2-7b", "vision_encoder": "dinov2-large-336", "checkpoint": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336"},
+    {"llm": "qwen2-7b", "vision_encoder": "siglip", "checkpoint": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip"}
+  ],
+  "ablations": [
+    {
+      "name": "Qwen2-VL (off-the-shelf)",
+      "id": "qwen2-vl",
+      "checkpoint": "Qwen_Qwen2-VL-7B-Instruct",
+      "llm": "qwen2-7b",
+      "vision_encoder": "vit-l-14-336",
+      "data_paths": {
+        "nn": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct",
+        "logitlens": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct",
+        "contextual": "qwen2_vl/Qwen_Qwen2-VL-7B-Instruct"
+      }
+    },
+    {
+      "name": "Seed 10",
+      "id": "seed10",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10_step12000-unsharded"
+      }
+    },
+    {
+      "name": "Seed 11",
+      "id": "seed11",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11_step12000-unsharded"
+      }
+    },
+    {
+      "name": "Linear Connector",
+      "id": "linear",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear_step12000-unsharded"
+      }
+    },
+    {
+      "name": "Unfreeze LLM",
+      "id": "unfreeze",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze_step12000-unsharded"
+      }
+    },
+    {
+      "name": "First-Sentence Captions",
+      "id": "first-sentence",
+      "checkpoint": "train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336_step12000-unsharded"
+      }
+    },
+    {
+      "name": "Earlier ViT Layer (6)",
+      "id": "earlier-vit-6",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6_step12000-unsharded"
+      }
+    },
+    {
+      "name": "Earlier ViT Layer (10)",
+      "id": "earlier-vit-10",
+      "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10_step12000-unsharded"
+      }
+    },
+    {
+      "name": "TopBottom Task",
+      "id": "topbottom",
+      "checkpoint": "train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded"
+      }
+    },
+    {
+      "name": "TopBottom + Unfreeze",
+      "id": "topbottom-unfreeze",
+      "checkpoint": "train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_step12000-unsharded",
+      "data_paths": {
+        "nn": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_step12000-unsharded",
+        "logitlens": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_step12000-unsharded",
+        "contextual": "ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm_step12000-unsharded"
+      }
+    }
+  ]
+}
+

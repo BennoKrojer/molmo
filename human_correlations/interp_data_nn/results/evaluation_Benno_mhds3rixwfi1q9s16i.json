@@ -1,0 +1,78 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhds3rixwfi1q9s16i",
+  "timestamp": "2025-10-30T18:49:30.080Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00222_patch0",
+      "selectedWords": [
+        {
+          "word": "Room",
+          "relation": "global"
+        },
+        {
+          "word": " feet",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:48:03.968Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00222_patch1",
+      "selectedWords": [
+        {
+          "word": " dotted",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:48:13.384Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00222_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:48:14.684Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00222_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:48:15.568Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00222_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:48:21.434Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00222_patch5",
+      "selectedWords": [
+        {
+          "word": " Window",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        },
+        {
+          "word": "Glass",
+          "relation": "concrete"
+        },
+        {
+          "word": "white",
+          "relation": "concrete"
+        },
+        {
+          "word": "White",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:49:35.001Z"
+    }
+  ]
+}

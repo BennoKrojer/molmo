@@ -1,0 +1,97 @@
+{
+  "layer": 0,
+  "total_matched_instances": 323,
+  "total_human_instances": 360,
+  "interpretability_correlation": {
+    "n": 323,
+    "pearson_r": 0.6509416718065099,
+    "pearson_p": 2.594595437116058e-40,
+    "spearman_r": 0.65094167180651,
+    "spearman_p": 2.594595437116045e-40,
+    "cohens_kappa": 0.6483209154373306,
+    "accuracy": 0.8421052631578947,
+    "per_model": {
+      "llama3-8b_dinov2-large-336": {
+        "n": 37,
+        "pearson_r": 0.20865621238292043,
+        "pearson_p": 0.21521967877842157,
+        "spearman_r": 0.20865621238292043,
+        "spearman_p": 0.2152196787784219,
+        "cohens_kappa": 0.20600858369098718,
+        "accuracy": 0.7297297297297297
+      },
+      "qwen2-7b_siglip": {
+        "n": 33,
+        "pearson_r": 0.8032193289024989,
+        "pearson_p": 1.8468337446706977e-08,
+        "spearman_r": 0.8032193289024989,
+        "spearman_p": 1.8468337446707027e-08,
+        "cohens_kappa": 0.7843137254901961,
+        "accuracy": 0.9696969696969697
+      },
+      "olmo-7b_siglip": {
+        "n": 35,
+        "pearson_r": 0.7071067811865476,
+        "pearson_p": 2.047600312331452e-06,
+        "spearman_r": 0.7071067811865476,
+        "spearman_p": 2.0476003123314473e-06,
+        "cohens_kappa": 0.6666666666666667,
+        "accuracy": 0.8285714285714286
+      },
+      "olmo-7b_dinov2-large-336": {
+        "n": 38,
+        "pearson_r": 0.8975670439947498,
+        "pearson_p": 2.2932531625730155e-14,
+        "spearman_r": 0.89756704399475,
+        "spearman_p": 2.2932531625729814e-14,
+        "cohens_kappa": 0.8923512747875354,
+        "accuracy": 0.9473684210526315
+      },
+      "llama3-8b_siglip": {
+        "n": 31,
+        "pearson_r": 0.4432968684948911,
+        "pearson_p": 0.012499834043977958,
+        "spearman_r": 0.44329686849489114,
+        "spearman_p": 0.012499834043977929,
+        "cohens_kappa": 0.43891402714932126,
+        "accuracy": 0.7419354838709677
+      },
+      "olmo-7b_vit-l-14-336": {
+        "n": 34,
+        "pearson_r": 0.8345229603962802,
+        "pearson_p": 8.615862233109188e-10,
+        "spearman_r": 0.8345229603962802,
+        "spearman_p": 8.615862233109091e-10,
+        "cohens_kappa": 0.8210526315789474,
+        "accuracy": 0.9117647058823529
+      },
+      "llama3-8b_vit-l-14-336": {
+        "n": 45,
+        "pearson_r": 0.6475260220108946,
+        "pearson_p": 1.5277260240829476e-06,
+        "spearman_r": 0.6475260220108946,
+        "spearman_p": 1.5277260240829349e-06,
+        "cohens_kappa": 0.6449704142011834,
+        "accuracy": 0.8222222222222222
+      },
+      "qwen2-7b_vit-l-14-336_seed10": {
+        "n": 38,
+        "pearson_r": 0.6987241860816671,
+        "pearson_p": 1.0684416315603243e-06,
+        "spearman_r": 0.6987241860816672,
+        "spearman_p": 1.0684416315603192e-06,
+        "cohens_kappa": 0.6561085972850679,
+        "accuracy": 0.8947368421052632
+      },
+      "qwen2-7b_dinov2-large-336": {
+        "n": 32,
+        "pearson_r": -0.16265001215808883,
+        "pearson_p": 0.3737750967378573,
+        "spearman_r": -0.16265001215808886,
+        "spearman_p": 0.37377509673785747,
+        "cohens_kappa": -0.16129032258064524,
+        "accuracy": 0.71875
+      }
+    }
+  }
+}

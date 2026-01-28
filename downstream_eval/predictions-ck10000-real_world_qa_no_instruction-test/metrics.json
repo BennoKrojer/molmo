@@ -1,0 +1,51 @@
+{
+  "metrics": {
+    "predictions": "downstream_eval/predictions-ck10000-real_world_qa_no_instruction-test/real_world_qa_no_instruction-predictions.html",
+    "real_world_qa_score": 0.25
+  },
+  "date": "04/22/2025, 15:12:41",
+  "eval_config": {
+    "label": "real_world_qa_no_instruction",
+    "data": {
+      "dataset": "real_world_qa_no_instruction",
+      "mixture": null,
+      "root_size_mixture": null,
+      "split": "test",
+      "seed": null,
+      "shuffle_messages": true,
+      "pad": "to_max",
+      "sequence_length": 1536,
+      "shuffle": true,
+      "for_inference": true,
+      "multi_modal": "torch",
+      "num_workers": 2,
+      "drop_last": true,
+      "pin_memory": true,
+      "prefetch_factor": null,
+      "persistent_workers": false,
+      "timeout": 0
+    },
+    "device_eval_batch_size": null,
+    "subset_num_batches": null,
+    "max_examples": 10,
+    "max_new_tokens": 12,
+    "mm_evaluator": {
+      "n_to_log": 4,
+      "num_wandb_examples": 300,
+      "save_predictions": "_default",
+      "save_tokens": false,
+      "vqa_eval": "real_world_qa_score",
+      "pointing_eval": false,
+      "count_eval": false,
+      "point_count_eval": false,
+      "android_eval": false,
+      "clock_eval": false,
+      "clock_bench_eval": false,
+      "math_vista_eval": false
+    },
+    "save_dir": "downstream_eval",
+    "save_to_checkpoint_dir": false,
+    "eval_name": null,
+    "skip_if_metrics_cached": true
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdrf5x20qnplny56r5",
+  "timestamp": "2025-10-30T18:30:22.322Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00134_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:28:11.654Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00134_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:28:13.154Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00134_patch2",
+      "selectedWords": [
+        {
+          "word": "ing",
+          "relation": "concrete"
+        },
+        {
+          "word": "inging",
+          "relation": "concrete"
+        },
+        {
+          "word": "ining",
+          "relation": "concrete"
+        },
+        {
+          "word": "izing",
+          "relation": "concrete"
+        },
+        {
+          "word": "ating",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:30:10.753Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch3",
+      "selectedWords": [
+        {
+          "word": "toolbar",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:30:16.688Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:30:20.788Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00134_patch5",
+      "selectedWords": [
+        {
+          "word": " Fonts",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:30:27.254Z"
+    }
+  ]
+}

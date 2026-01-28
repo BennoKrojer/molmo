@@ -1,0 +1,75 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5owk017ob5b83uelh",
+  "timestamp": "2025-12-06T10:33:57.583Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00175_patch0",
+      "selectedWords": [
+        {
+          "word": "a white sided house",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:33:20.679Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00175_patch1",
+      "selectedWords": [
+        {
+          "word": "large giraffe plays it open: open-eyed, open-mouthed & hungry, awaits snackfood",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:33:28.029Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00175_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:33:29.513Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00175_patch3",
+      "selectedWords": [
+        {
+          "word": "a man laying on a surfboard in the water",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:33:35.646Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00175_patch4",
+      "selectedWords": [
+        {
+          "word": "small roof on brown brick building",
+          "relation": "concrete"
+        },
+        {
+          "word": "a solid brown cow.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a light-brown cowboy hat.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a black/brown lamp",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:33:53.379Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00175_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:33:57.456Z"
+    }
+  ]
+}

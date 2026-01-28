@@ -1,0 +1,81 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5vmla5wkbu0bn9y",
+  "timestamp": "2025-12-06T10:39:11.249Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00102_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:38:42.406Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00102_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:38:44.055Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00102_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:38:48.904Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00102_patch6",
+      "selectedWords": [
+        {
+          "word": "arabic letters on the plane",
+          "relation": "concrete"
+        },
+        {
+          "word": "arabic writng is on the sign",
+          "relation": "concrete"
+        },
+        {
+          "word": "arabic writing on the bench",
+          "relation": "concrete"
+        },
+        {
+          "word": "arabic store signage reads, 'al anwar'.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:38:58.320Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00102_patch7",
+      "selectedWords": [
+        {
+          "word": "blue and white smock on girl",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue cat liter inside of burgundy container",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue yellow and whtie train",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue pole with white stripes on top",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue color tennis court",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:39:08.167Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00102_patch8",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:39:11.134Z"
+    }
+  ]
+}

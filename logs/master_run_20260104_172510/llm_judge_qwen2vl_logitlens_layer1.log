@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 1
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer1_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:10<01:33, 10.41s/it]Processing images:  30%|███       | 3/10 [00:18<00:39,  5.68s/it]Processing images:  40%|████      | 4/10 [00:26<00:39,  6.56s/it]Processing images:  50%|█████     | 5/10 [00:27<00:22,  4.50s/it]Processing images:  60%|██████    | 6/10 [00:39<00:27,  6.98s/it]Processing images:  70%|███████   | 7/10 [00:52<00:26,  8.90s/it]Processing images:  90%|█████████ | 9/10 [01:00<00:06,  6.54s/it]Processing images: 100%|██████████| 10/10 [01:00<00:00,  6.03s/it]
+  Patch (13, 9): ['(anchor', 'ズ', 'omb']... -> FAIL
+  Patch (0, 12): ['沟', '享有', '臨']... -> FAIL
+  Patch (10, 8): ['ramework', 'entrant', ' GestureDetector']... -> FAIL
+  Patch (8, 13): ['owler', ' bénéfic', '.subplots']... -> FAIL
+  Patch (7, 13): ['/gin', 'fon', ' näch']... -> PASS
+  Patch (3, 4): ['异', ' Narendra', '-Methods']... -> FAIL
+
+============================================================
+Results: 1/6 (16.7%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped/visualizations
+============================================================
+

@@ -1,0 +1,94 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5r2qd45lz9hm5mnu",
+  "timestamp": "2025-11-30T20:13:29.470Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00047_patch0",
+      "selectedWords": [
+        {
+          "word": "a bowl with prawns",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white and orange piece of top shrimp.",
+          "relation": "concrete"
+        },
+        {
+          "word": "white bowl with pieces of shrimp",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:12:44.779Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00047_patch1",
+      "selectedWords": [
+        {
+          "word": "the wall is off-white",
+          "relation": "concrete"
+        },
+        {
+          "word": "all built-in socks are a creamy off-white",
+          "relation": "concrete"
+        },
+        {
+          "word": "small white bowl containing a white creamy substance",
+          "relation": "concrete"
+        },
+        {
+          "word": "the wall is a creamy color",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:12:58.396Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00047_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:13:12.662Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00047_patch3",
+      "selectedWords": [
+        {
+          "word": "square white plate of fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "ketchup on top of the french fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white bowl with fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white plate of french fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "sliced cucumbers on top of french fries",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:13:24.677Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00047_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:13:26.813Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00047_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:13:29.365Z"
+    }
+  ]
+}

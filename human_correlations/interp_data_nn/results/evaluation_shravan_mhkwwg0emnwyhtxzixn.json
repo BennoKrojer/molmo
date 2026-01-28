@@ -1,0 +1,56 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkwwg0emnwyhtxzixn",
+  "timestamp": "2025-11-04T18:38:14.849Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00094_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:37:35.397Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00094_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:37:41.748Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00094_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:37:47.529Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00094_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:37:53.495Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00094_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:38:00.548Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00094_patch5",
+      "selectedWords": [
+        {
+          "word": " beard",
+          "relation": "global"
+        },
+        {
+          "word": " noses",
+          "relation": "global"
+        },
+        {
+          "word": " Nose",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:38:14.798Z"
+    }
+  ]
+}

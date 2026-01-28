@@ -1,0 +1,9 @@
+==========================================
+PARALLEL CONTEXTUAL NN EXTRACTION
+==========================================
+Output dir: logs/contextual_nn_human_study_20260113_203535
+Models: 9
+Max GPUs: 8
+
+[20:35:35] LAUNCHING: olmo-7b_vit-l-14-336 (GPU 0)
+  Waiting for model load...

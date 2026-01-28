@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/vl_embedding_spaces/third_party/molmo/.claude/hooks/context_refresher.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/vl_embedding_spaces/third_party/molmo/.claude/hooks/block_inline_python.py"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhdlscrvoel5us9cjci",
+  "timestamp": "2025-10-30T15:52:45.017Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00267_patch0",
+      "selectedWords": [
+        {
+          "word": "𝄹",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:50:19.538Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00267_patch1",
+      "selectedWords": [
+        {
+          "word": " purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "Purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "Pink",
+          "relation": "concrete"
+        },
+        {
+          "word": " violet",
+          "relation": "concrete"
+        },
+        {
+          "word": " snapchat",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:50:52.289Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:51:06.006Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch3",
+      "selectedWords": [
+        {
+          "word": " Gray",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:51:32.007Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch4",
+      "selectedWords": [
+        {
+          "word": " ZERO",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:52:12.071Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch5",
+      "selectedWords": [
+        {
+          "word": "Button",
+          "relation": "global"
+        },
+        {
+          "word": "ty",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:52:44.971Z"
+    }
+  ]
+}

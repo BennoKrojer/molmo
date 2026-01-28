@@ -1,0 +1,129 @@
+========================================
+PARALLEL Contextual NN Analysis
+Dataset: vg
+Strategy: 8 independent single-GPU jobs
+========================================
+
+Logs: logs/parallel_contextual_nn_20260113_211108
+
+GPU 0: olmo-7b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/olmo-7b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 1: llama3-8b + vit-l-14-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/llama3-8b_vit-l-14-336.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 2: llama3-8b + dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/llama3-8b_dinov2-large-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 3: llama3-8b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/llama3-8b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 4: qwen2-7b + vit-l-14-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/qwen2-7b_vit-l-14-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 5: qwen2-7b + dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/qwen2-7b_dinov2-large-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 6: qwen2-7b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/parallel_contextual_nn_20260113_211108/qwen2-7b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+
+========================================
+All jobs launched! Waiting for completion...
+========================================
+
+✓ Completed: olmo-7b+siglip
+✗ FAILED: llama3-8b+vit-l-14-336 (exit code: 1)
+✗ FAILED: llama3-8b+dinov2-large-336 (exit code: 1)
+✓ Completed: llama3-8b+siglip
+✗ FAILED: qwen2-7b+vit-l-14-336 (exit code: 1)
+✗ FAILED: qwen2-7b+dinov2-large-336 (exit code: 1)
+✓ Completed: qwen2-7b+siglip
+
+========================================
+Extraction complete. Merging results...
+========================================
+Merging olmo-7b_siglip...
+Merging 9 files...
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual0_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual16_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual1_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual24_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual2_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual30_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual31_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual4_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual8_allLayers.json: 136 + 36 = 136
+Done!
+Skip llama3-8b_vit-l-14-336 (no supplement files)
+Skip llama3-8b_dinov2-large-336 (no supplement files)
+Merging llama3-8b_siglip...
+Merging 9 files...
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual0_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual16_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual1_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual24_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual2_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual30_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual31_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual4_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual8_allLayers.json: 136 + 36 = 136
+Done!
+Skip qwen2-7b_vit-l-14-336 (no supplement files)
+Skip qwen2-7b_dinov2-large-336 (no supplement files)
+Merging qwen2-7b_siglip...
+Merging 9 files...
+  contextual_neighbors_visual0_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual16_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual1_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual24_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual26_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual27_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual2_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual4_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual8_allLayers.json: 100 + 36 = 136
+Done!
+
+========================================
+ALL DONE!
+Check logs in: logs/parallel_contextual_nn_20260113_211108
+========================================

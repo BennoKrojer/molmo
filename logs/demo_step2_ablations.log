@@ -1,0 +1,57 @@
+INFO:__main__:Will generate viewers for 10 ablation(s)
+INFO:__main__:Loading PixMoCap dataset...
+INFO:__main__:Dataset loaded: 2048 examples
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Qwen2-VL (off-the-shelf)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Seed 10
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Seed 11
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Linear Connector
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Unfreeze LLM
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: First-Sentence Captions
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Earlier ViT Layer (6)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: Earlier ViT Layer (10)
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: TopBottom Task
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:Processing: TopBottom + Unfreeze
+INFO:__main__:============================================================
+INFO:__main__:  ⏭️  Skipping (already has 10 images)
+INFO:__main__:
+============================================================
+INFO:__main__:DONE!
+INFO:__main__:============================================================

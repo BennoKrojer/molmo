@@ -1,0 +1,82 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdgfg8g3qmv2d5us1u",
+  "timestamp": "2025-10-30T13:22:45.202Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:21:59.193Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch1",
+      "selectedWords": [
+        {
+          "word": "Tower",
+          "relation": "global"
+        },
+        {
+          "word": " towers",
+          "relation": "global"
+        },
+        {
+          "word": " Towers",
+          "relation": "global"
+        },
+        {
+          "word": " Tower",
+          "relation": "global"
+        },
+        {
+          "word": " tower",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:22:10.660Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch2",
+      "selectedWords": [
+        {
+          "word": "Hair",
+          "relation": "concrete"
+        },
+        {
+          "word": " curly",
+          "relation": "concrete"
+        },
+        {
+          "word": " Hair",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:22:25.386Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00284_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:22:27.989Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00284_patch4",
+      "selectedWords": [
+        {
+          "word": "black (translated from 黑)",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:22:41.190Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00284_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:22:44.846Z"
+    }
+  ]
+}

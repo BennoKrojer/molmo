@@ -1,0 +1,74 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5lerlkp2qbr9e52a",
+  "timestamp": "2025-12-06T10:31:14.629Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00020_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:30:21.562Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00020_patch1",
+      "selectedWords": [
+        {
+          "word": "boy with black shoes",
+          "relation": "concrete"
+        },
+        {
+          "word": "a pair of black short pants",
+          "relation": "concrete"
+        },
+        {
+          "word": "the blanket is gray/black.",
+          "relation": "concrete"
+        },
+        {
+          "word": "circular black light",
+          "relation": "concrete"
+        },
+        {
+          "word": "a black suv ahead of the bus",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:30:32.242Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00020_patch2",
+      "selectedWords": [
+        {
+          "word": "a teddy bear holding a sewing needle",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:30:41.132Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00020_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:30:56.457Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00020_patch4",
+      "selectedWords": [
+        {
+          "word": "rug with crocheted edges",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:31:07.684Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00020_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:31:14.433Z"
+    }
+  ]
+}

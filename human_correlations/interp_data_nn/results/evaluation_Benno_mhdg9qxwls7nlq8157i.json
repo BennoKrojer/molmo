@@ -1,0 +1,82 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdg9qxwls7nlq8157i",
+  "timestamp": "2025-10-30T13:18:19.232Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00100_patch0",
+      "selectedWords": [
+        {
+          "word": " sofa",
+          "relation": "concrete"
+        },
+        {
+          "word": " Sofa",
+          "relation": "concrete"
+        },
+        {
+          "word": " sofas",
+          "relation": "concrete"
+        },
+        {
+          "word": " couch",
+          "relation": "concrete"
+        },
+        {
+          "word": " mattress",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:17:56.739Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00100_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:17:58.625Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00100_patch2",
+      "selectedWords": [
+        {
+          "word": "Old",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:18:03.841Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00100_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:18:05.074Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch4",
+      "selectedWords": [
+        {
+          "word": " white",
+          "relation": "concrete"
+        },
+        {
+          "word": " White",
+          "relation": "concrete"
+        },
+        {
+          "word": "White",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:18:14.375Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:18:18.788Z"
+    }
+  ]
+}

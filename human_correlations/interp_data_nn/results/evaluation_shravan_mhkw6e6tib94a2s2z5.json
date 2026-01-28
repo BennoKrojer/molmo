@@ -1,0 +1,75 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkw6e6tib94a2s2z5",
+  "timestamp": "2025-11-04T18:17:59.431Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00064_patch0",
+      "selectedWords": [
+        {
+          "word": "-yellow",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:17:03.863Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch1",
+      "selectedWords": [
+        {
+          "word": " hands",
+          "relation": "concrete"
+        },
+        {
+          "word": " Hand",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:17:14.446Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00064_patch2",
+      "selectedWords": [
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": " WHITE",
+          "relation": "concrete"
+        },
+        {
+          "word": " White",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:17:27.121Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00064_patch3",
+      "selectedWords": [
+        {
+          "word": " thicker",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:17:47.165Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00064_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:17:52.995Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:17:59.381Z"
+    }
+  ]
+}

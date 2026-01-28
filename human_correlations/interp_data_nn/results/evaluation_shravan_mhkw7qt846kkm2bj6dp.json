@@ -1,0 +1,65 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkw7qt846kkm2bj6dp",
+  "timestamp": "2025-11-04T18:19:02.439Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:18:20.547Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00218_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:18:23.963Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00218_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:18:30.462Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00218_patch3",
+      "selectedWords": [
+        {
+          "word": " white",
+          "relation": "concrete"
+        },
+        {
+          "word": " light",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:18:49.398Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00218_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:18:53.549Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00218_patch5",
+      "selectedWords": [
+        {
+          "word": " hairstyle",
+          "relation": "concrete"
+        },
+        {
+          "word": " Hair",
+          "relation": "concrete"
+        },
+        {
+          "word": " hairstyles",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:19:02.396Z"
+    }
+  ]
+}

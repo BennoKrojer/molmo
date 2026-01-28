@@ -1,0 +1,56 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkvhznafi0wgggl96m",
+  "timestamp": "2025-11-04T17:59:00.971Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00109_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:57:35.557Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:57:45.674Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00109_patch2",
+      "selectedWords": [
+        {
+          "word": "Orange",
+          "relation": "concrete"
+        },
+        {
+          "word": " Orange",
+          "relation": "concrete"
+        },
+        {
+          "word": " electronics",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T17:57:59.930Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00109_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:58:03.740Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:58:39.523Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00109_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:59:00.790Z"
+    }
+  ]
+}

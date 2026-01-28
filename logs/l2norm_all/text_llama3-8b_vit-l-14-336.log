@@ -1,0 +1,42 @@
+================================================================================
+Text Token L2 Norm Across Layers (Single-GPU)
+================================================================================
+
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+Dataset split: validation
+Number of images: 10
+Target layers: [0, 4, 8, 16, 24, 31]
+Histogram bins: 50
+
+Loading model from molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+Detected full checkpoint (31.44 GB)
+Skipping pretrained weights loading (checkpoint contains all weights)
+Loading checkpoint weights...
+Loaded 669 parameter tensors from checkpoint
+Moving model to GPU (fp16)...
+Model loaded on device: cuda
+
+Special token IDs to exclude: [100257, 100278, 100279, 100280, 100281, 128000, 128001, 128256, 128257, 128258, 128259]
+Loading PixMo-Cap validation split...
+
+Processing 10 images...
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:01<00:14,  1.64s/it]Processing images:  20%|██        | 2/10 [00:02<00:10,  1.37s/it]Processing images:  30%|███       | 3/10 [00:03<00:08,  1.20s/it]Processing images:  40%|████      | 4/10 [00:05<00:07,  1.24s/it]Processing images:  50%|█████     | 5/10 [00:07<00:08,  1.74s/it]Processing images:  60%|██████    | 6/10 [00:08<00:05,  1.50s/it]Processing images:  70%|███████   | 7/10 [00:09<00:03,  1.31s/it]Processing images:  80%|████████  | 8/10 [00:10<00:02,  1.20s/it]Processing images:  90%|█████████ | 9/10 [00:11<00:01,  1.17s/it]Processing images: 100%|██████████| 10/10 [00:12<00:00,  1.09s/it]Processing images: 100%|██████████| 10/10 [00:12<00:00,  1.27s/it]
+
+✓ Saving detailed results to analysis_results/sameToken_acrossLayers_text_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded/text_l2norm_across_layers_detailed.json...
+✓ Saving summary to analysis_results/sameToken_acrossLayers_text_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded/text_l2norm_across_layers_summary.json...
+✓ Saving raw values to analysis_results/sameToken_acrossLayers_text_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded/text_l2norm_raw_values.json...
+
+================================================================================
+Summary: L2 Norm Statistics per Layer (Text Tokens)
+================================================================================
+Layer      Mean            Std             Min             Max             Samples   
+--------------------------------------------------------------------------------
+0          0.4658          0.1197          0.2862          0.7488          2350      
+4          2.7487          0.3379          1.7684          3.7981          2350      
+8          4.9597          0.4427          3.3649          6.3029          2350      
+16         9.1438          0.6655          6.1945          10.8874         2350      
+24         22.1050         2.1427          13.0729         28.9482         2350      
+31         42.8289         3.1841          25.4219         52.0354         2350      
+================================================================================
+
+✓ Analysis complete! Results saved to analysis_results/sameToken_acrossLayers_text_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded

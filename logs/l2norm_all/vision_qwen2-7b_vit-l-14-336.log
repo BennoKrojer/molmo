@@ -1,0 +1,41 @@
+================================================================================
+Vision Token L2 Norm Across Layers (Single-GPU)
+================================================================================
+
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+Dataset split: validation
+Number of images: 10
+Target layers: [0, 4, 8, 16, 24, 27]
+Histogram bins: 50
+
+Loading model from molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+Detected full checkpoint (30.00 GB)
+Skipping pretrained weights loading (checkpoint contains all weights)
+Loading checkpoint weights...
+Loaded 577 parameter tensors from checkpoint
+Moving model to GPU (fp16)...
+Model loaded on device: cuda
+
+Loading PixMo-Cap validation split...
+
+Processing 10 images...
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:01<00:12,  1.36s/it]Processing images:  20%|██        | 2/10 [00:02<00:09,  1.21s/it]Processing images:  30%|███       | 3/10 [00:03<00:07,  1.03s/it]Processing images:  40%|████      | 4/10 [00:04<00:05,  1.10it/s]Processing images:  50%|█████     | 5/10 [00:05<00:05,  1.00s/it]Processing images:  60%|██████    | 6/10 [00:05<00:03,  1.10it/s]Processing images:  70%|███████   | 7/10 [00:06<00:02,  1.16it/s]Processing images:  80%|████████  | 8/10 [00:07<00:01,  1.19it/s]Processing images:  90%|█████████ | 9/10 [00:08<00:00,  1.21it/s]Processing images: 100%|██████████| 10/10 [00:09<00:00,  1.22it/s]Processing images: 100%|██████████| 10/10 [00:09<00:00,  1.10it/s]
+
+✓ Saving detailed results to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded/l2norm_across_layers_detailed.json...
+✓ Saving summary to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded/l2norm_across_layers_summary.json...
+✓ Saving raw values to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded/l2norm_raw_values.json...
+
+================================================================================
+Summary: L2 Norm Statistics per Layer (Vision Tokens)
+================================================================================
+Layer      Mean            Std             Min             Max             Samples   
+--------------------------------------------------------------------------------
+0          1238.7162       7033.6990       47.0173         163194.1406     5760      
+4          1233.9394       7033.7059       49.4488         163201.8438     5760      
+8          1214.5676       7034.0229       48.2710         163204.2344     5760      
+16         1195.9707       7034.1606       49.7197         163217.7031     5760      
+24         1237.2151       7031.6134       105.3210        163280.2969     5760      
+27         1324.0377       7017.4156       186.8372        163274.8281     5760      
+================================================================================
+
+✓ Analysis complete! Results saved to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded

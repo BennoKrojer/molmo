@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 1
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer1_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:06,  1.34it/s]Processing images:  20%|██        | 2/10 [00:12<00:59,  7.48s/it]Processing images:  30%|███       | 3/10 [00:23<01:03,  9.07s/it]Processing images:  50%|█████     | 5/10 [00:36<00:37,  7.45s/it]Processing images:  70%|███████   | 7/10 [00:50<00:22,  7.34s/it]Processing images:  80%|████████  | 8/10 [01:01<00:16,  8.21s/it]Processing images: 100%|██████████| 10/10 [01:16<00:00,  7.82s/it]Processing images: 100%|██████████| 10/10 [01:16<00:00,  7.62s/it]
+  Patch (2, 13): ['讓', ' ...\n', '}\n\n\n\n\n']... -> FAIL
+  Patch (0, 12): ['pdf', 'pts', '();\n']... -> FAIL
+  Patch (6, 8): ['港', '浪', 'Ray']... -> FAIL
+  Patch (5, 4): [' scène', 'cdc', 'uevo']... -> FAIL
+  Patch (3, 5): [' \n        \n', '))\n', ' \r\n']... -> FAIL
+  Patch (2, 8): ['排名第', 'ק', 'ﱵ']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped/visualizations
+============================================================
+

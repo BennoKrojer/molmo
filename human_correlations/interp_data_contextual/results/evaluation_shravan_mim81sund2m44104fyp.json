@@ -1,0 +1,112 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim81sund2m44104fyp",
+  "timestamp": "2025-11-30T21:17:49.383Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00187_patch0",
+      "selectedWords": [
+        {
+          "word": "exterior views of the entrance , house , statues and gardens located .",
+          "relation": "abstract"
+        },
+        {
+          "word": "seamless pattern of tiny people : pedestrians in the street , a diverse collection of small hand drawn men and women walking through the city",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:16:04.937Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00187_patch1",
+      "selectedWords": [
+        {
+          "word": "we can see two faces of this clock tower",
+          "relation": "concrete"
+        },
+        {
+          "word": "further to the back are white goats with black or dark faces",
+          "relation": "concrete"
+        },
+        {
+          "word": "astonished, admiring look on a person's face",
+          "relation": "concrete"
+        },
+        {
+          "word": "this skier's goggles are on her forehead",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:16:26.943Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch2",
+      "selectedWords": [
+        {
+          "word": "a pair of red satin high heels with gold heels",
+          "relation": "concrete"
+        },
+        {
+          "word": "carousel-type top with red trim and fancy clock-face.",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:16:52.718Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00187_patch3",
+      "selectedWords": [
+        {
+          "word": "fog is obscuring boats and trees in the distance.",
+          "relation": "concrete"
+        },
+        {
+          "word": "identity and environmental graphics for an interactive gallery aimed at schoolchildren .",
+          "relation": "abstract"
+        },
+        {
+          "word": "an abstract painting which represents the artist 's love for the natural environment and her passion in promoting conservation .",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:17:37.004Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00187_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:17:38.956Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00187_patch5",
+      "selectedWords": [
+        {
+          "word": "\"justice for oscar\" graffiti on wall",
+          "relation": "concrete"
+        },
+        {
+          "word": "the pants the person on the mural is wearing.",
+          "relation": "concrete"
+        },
+        {
+          "word": "the words mirror ball in white stencil",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue and green graffiti on side of train",
+          "relation": "concrete"
+        },
+        {
+          "word": "yellow and black graffiti on the ramp",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:17:49.007Z"
+    }
+  ]
+}

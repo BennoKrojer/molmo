@@ -1,0 +1,119 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwejpmfr6iem1wygd8",
+  "timestamp": "2025-11-12T19:37:41.873Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00267_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:36:27.950Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00267_patch1",
+      "selectedWords": [
+        {
+          "word": "floor appears to be purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "sleeves of shirt are purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "round collar with purple flowers",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman is carrying purple handbag",
+          "relation": "concrete"
+        },
+        {
+          "word": "a pair of purple framed sunglasses",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:36:38.057Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch2",
+      "selectedWords": [
+        {
+          "word": "portion of a heineken logo/advertisement at right",
+          "relation": "global"
+        },
+        {
+          "word": "a square blazing white light above an archway beside where the tobacconist is advertised",
+          "relation": "global"
+        },
+        {
+          "word": "two men in polos in advertisment on bus",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:37:04.065Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch3",
+      "selectedWords": [
+        {
+          "word": "a grey parking meter",
+          "relation": "concrete"
+        },
+        {
+          "word": "a grey economy size car",
+          "relation": "concrete"
+        },
+        {
+          "word": "a red coffee cup with a white oval.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a black/grey baseball cap",
+          "relation": "concrete"
+        },
+        {
+          "word": "mouse pad is grey and red.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:37:17.013Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch4",
+      "selectedWords": [
+        {
+          "word": "a pair of white shorts with red stripes",
+          "relation": "concrete"
+        },
+        {
+          "word": "the girl has is wearing a white graphic shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "the front tire of the white truck.",
+          "relation": "concrete"
+        },
+        {
+          "word": "man in black shirt with white single stripe down arm of shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "man wearing brown sweater with white collar",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:37:28.264Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:37:41.751Z"
+    }
+  ]
+}

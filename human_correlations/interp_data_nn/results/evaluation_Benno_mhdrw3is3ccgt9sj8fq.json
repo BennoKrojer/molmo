@@ -1,0 +1,43 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdrw3is3ccgt9sj8fq",
+  "timestamp": "2025-10-30T18:43:32.371Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00167_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:41:52.601Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00167_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:41:55.201Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00167_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:41:59.635Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00167_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:42:03.933Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00167_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:43:35.234Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00167_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:43:37.300Z"
+    }
+  ]
+}

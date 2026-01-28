@@ -1,0 +1,86 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsdty6m2dpm934tuk",
+  "timestamp": "2025-10-30T18:57:19.817Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00119_patch3",
+      "selectedWords": [
+        {
+          "word": " green",
+          "relation": "concrete"
+        },
+        {
+          "word": "Green",
+          "relation": "concrete"
+        },
+        {
+          "word": " GREEN",
+          "relation": "concrete"
+        },
+        {
+          "word": " Green",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:56:21.268Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00119_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:56:24.785Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00119_patch5",
+      "selectedWords": [
+        {
+          "word": " Clothing",
+          "relation": "concrete"
+        },
+        {
+          "word": " wearable",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:56:32.085Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00119_patch6",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:07.651Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00119_patch7",
+      "selectedWords": [
+        {
+          "word": " carved",
+          "relation": "concrete"
+        },
+        {
+          "word": " carving",
+          "relation": "concrete"
+        },
+        {
+          "word": " striped",
+          "relation": "concrete"
+        },
+        {
+          "word": " lined",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:23.317Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00119_patch8",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:57:24.702Z"
+    }
+  ]
+}

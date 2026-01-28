@@ -1,0 +1,335 @@
+# CLAUDE.md - Rules for AI Assistants
+
+## ⚠️ MANDATORY FIRST STEPS ⚠️
+
+**Before taking ANY action on a task, you MUST:**
+
+1. Tell the user you have read CLAUDE.md and how you'll follow the THREE RULES
+2. **Actually read these files** (not optional—these prevent wasted time):
+   - **README.md** - Data locations, directory structure, which directories to use
+   - **JOURNAL.md** - Last few days (recent bugs, what's broken/fixed)
+   - **paper/icml2026_main.tex** - Abstract/intro (understand research goals)
+   - **SCHEMA_STANDARDIZATION.md** - JSON formats (if working with data)
+
+**Do NOT skip this to "get to work faster."** Skipping causes you to use wrong directories, miss known issues, and waste time on already-solved problems.
+
+**What went wrong (2026-01-15):** Agent skipped README.md, picked wrong data directory (`_vg` instead of main), wasted 10+ minutes exploring broken data before user caught the mistake.
+
+---
+
+## ⚠️ THE THREE RULES ⚠️
+
+**These are the most violated rules. Read them before EVERY significant action.**
+
+### 1. EDIT, NEVER REWRITE
+- **ALWAYS edit existing code, NEVER rewrite from scratch**
+- Find the exact file/function, make surgical changes with Edit tool
+- If you're about to write 50+ lines of new code doing something similar to existing code, STOP
+- **This applies to data processing too:** find and reuse existing preprocessing code (e.g., `resize_and_pad`), don't write your own `img.resize()`
+
+### 2. VALIDATE DATA BEFORE PLOTTING
+- Never trust glob patterns - they can pick up wrong files (e.g., ablations)
+- Check `paper_data_manifest.json` for expected values
+- If a number looks different than expected, investigate before proceeding
+- **For paper numbers:** ALWAYS use `paper_plots/data.json` - this is the SINGLE SOURCE OF TRUTH
+- NEVER use hardcoded data from .py scripts - they may be stale
+
+**What went wrong (2026-01-24):** Agent read hardcoded data from `paper_figures_standalone.py` instead of canonical `data.json`, despite README clearly stating "data.json is the single source of truth". The hardcoded data had 63 wrong values. Wasted 30 minutes before discovering the discrepancy.
+
+### 3. COMMIT AND DOCUMENT IMMEDIATELY
+- `git commit && git push` after every fix
+- Update JOURNAL.md right after pushing
+- Don't batch changes - commit as you go
+
+---
+
+## ⚠️ MINDSET: NO SHORTCUTS ⚠️
+
+**Never settle for easy fixes or quick workarounds. Aim for perfection.**
+
+- If something doesn't work (e.g., Unicode characters not rendering), **exhaust all options** before falling back to placeholders or workarounds
+- Always ask: "Is there a proper solution?" before accepting a hack
+- Academic rigor means doing things RIGHT, not just doing things FAST
+- Be skeptical of your own first approach—question whether it could be better
+- Don't wait for the user to push back—proactively pursue excellence
+
+**Examples of what NOT to do:**
+- Unicode doesn't render? → Don't immediately replace with `[Korean]`—try XeLaTeX, fontspec, font fallbacks first
+- Data looks wrong? → Don't patch the display—investigate the source
+- Something is hard? → Don't simplify the requirement—solve the actual problem
+
+**What went wrong (2026-01-14):** When Unicode characters failed to render, immediately fell back to `[Korean]`, `[RU]` placeholders instead of trying XeLaTeX with proper font support. The proper solution (XeLaTeX + DejaVu + Baekmuk fallback) took 2 minutes once actually attempted.
+
+---
+
+## Communication
+
+**PI/Intern Mindset:** Think of this as a PI supervising an intern/MSc student. The PI doesn't just want the final answer—they want to see enough evidence and intuition that the PROCESS made sense. Don't just show results; show HOW you got there.
+
+**When computing numbers or making claims:**
+- Show the raw data or where it came from
+- Show the computation step-by-step (e.g., "27 values, sum = 1205, avg = 1205/27 = 44.6%")
+- If you're averaging, state WHAT you're averaging over (all models? all layers? subset?)
+- Never just say "the average is X" without showing the inputs
+
+**When showing results or finishing tasks:**
+- ALWAYS provide the **full absolute path** to any files created or modified
+- Don't make the user figure out where things are - be explicit
+- Example: "View the result at: `/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/analysis_results/layer_evolution/icicle_final_v6.png`"
+
+**What went wrong (2026-01-24):** Agent reported "LogitLens: 45% at late layers" without showing the computation. User had to ask twice to see the actual values and how the average was computed.
+
+---
+
+## Code Changes
+
+**Before changing any code:**
+1. FIND the exact file that produces the current output
+2. READ and understand it
+3. EDIT only the specific lines needed (use Edit tool)
+4. TEST that output matches except for your intended change
+
+**For figures/plots:**
+- Find the EXACT script that generated it (grep for filename)
+- Make minimal edits to that script
+- NEVER create "standalone" scripts with hardcoded data
+- NEVER copy data values into new files
+
+**Check existing scripts first:**
+- Search for `run_all_*.sh`, `run_all_parallel_*.sh` before creating new ones
+- These have established patterns for GPU management, error handling
+
+**When adapting code for new models:**
+- Verify EVERY detail matches original (layers, colors, fonts, markers)
+- Explicitly state adherence: "Uses same markersize=8 as original"
+
+---
+
+## Data Loading
+
+**Directory structure:**
+```
+analysis_results/llm_judge_{type}/
+├── llm_judge_{model}_{layer}_*/   # Main results
+└── ablations/                      # Ablation variants
+    └── llm_judge_{model}_{layer}_*/
+```
+
+**Rules:**
+1. NEVER use `**` glob without excluding `/ablations/`:
+   ```python
+   for f in path.glob("**/results_*.json"):
+       if '/ablations/' in str(f):
+           continue
+   ```
+
+2. Validate against `paper_data_manifest.json` golden values
+
+3. When adding data to existing directories, check what scripts read from there
+
+**What went wrong (2026-01-10):** Glob pattern picked up ablation files (42%) instead of main results (70%). Paper figure had wrong data.
+
+---
+
+## Execution
+
+**Running commands:**
+- Use: `source ../../env/bin/activate`
+- Run long scripts in background
+- If terminal returns empty: STOP, tell user (Cursor bug)
+
+**Error handling:**
+- Let errors fail loudly - no silent try-except
+- Clean up debug prints after fixing
+
+**Pre-flight checklist (before costly operations):**
+1. Check existing `.sh` files for patterns
+2. Grep codebase for similar code
+3. Read argparse defaults
+4. If ANY doubt, ASK user first
+5. If a script warns about long duration (e.g., "takes 4-8 hours") or seems inefficient, ASK if there's a better approach
+
+**LLM Judge API calls:**
+- NEVER change `--api-provider` or `--api-model` without asking
+- Check existing results naming (e.g., `gpt5` in directory names)
+
+---
+
+## Reproducibility
+
+**Save scripts when output matters. Inline is fine for exploration.**
+
+**Must save to `scripts/analysis/` when:**
+- Output goes to `paper/figures/` or `paper/*.tex`
+- Creates data files used by other scripts
+- Generates anything that might need regeneration
+
+**Inline is fine when:**
+- Debugging/exploration
+- Quick data inspection
+- One-off checks that won't be needed again
+- Temporary analysis
+
+**A PreToolUse hook will WARN (not block) when inline code saves to paper paths.**
+
+**What went wrong (2026-01-14):** Icicle plot code was run inline, never saved. When dimensions needed changing, code had to be recovered from conversation transcript. The issue: it produced `paper/figures/` output but had no saved script.
+
+---
+
+## Figure Replacement Checklist
+
+When replacing or renaming a figure, **ALWAYS complete this checklist:**
+
+1. ☐ Update the figure file itself
+2. ☐ Update `\includegraphics` path if filename changed
+3. ☐ **Grep for old label/name:** `grep -rn "old_name" paper/sections/`
+4. ☐ Update ALL `\Cref{}` and `\ref{}` references
+5. ☐ Update caption if content changed
+6. ☐ Check appendix references too
+
+**What went wrong (2026-01-14):** Sunburst replaced with icicle, but text still referenced `\Cref{fig:sunburst}` causing broken references.
+
+---
+
+## ⚠️ NEVER GUESS SILENTLY ⚠️
+
+**When you encounter ambiguity** (multiple directories, unclear options, undocumented choices):
+
+1. **STOP** - Do not make an arbitrary choice
+2. **ASK** - "The docs show X and Y but don't specify which to use for [task]. Which should I use?"
+3. **FLAG** - Even after resolving, note: "Documentation gap: [description]"
+4. **FIX** - Propose an update to README.md or CLAUDE.md so the next agent doesn't hit this
+
+**Every arbitrary choice you make silently is a documentation bug that will bite again.**
+
+**What went wrong (2026-01-15):** README listed two directories (`contextual_nearest_neighbors/` and `contextual_nearest_neighbors_vg/`) without specifying which to use. Agent guessed `_vg`, which had incomplete data. Should have asked.
+
+---
+
+## Meta-Rule: Continuous Improvement
+
+**When a preventable issue occurs:**
+1. Identify the root cause
+2. Propose a new rule or hook to prevent recurrence
+3. Add to CLAUDE.md or `.claude/hooks/`
+4. Commit the improvement
+
+**Proactively improve documentation:**
+- If you had to guess → documentation is unclear → fix it
+- If you wasted time → add a "What went wrong" example
+- If a directory/option is deprecated → mark it clearly in README
+
+This file should evolve based on lessons learned. Don't just apologize—create processes that prevent future issues.
+
+---
+
+## Version Control
+
+**Git workflow:**
+- Commit and push after EVERY fix (don't wait)
+- Check `git status` and file sizes before pushing (no files >100MB)
+- Update JOURNAL.md immediately after pushing
+
+**Paper repo (Overleaf sync) - STRICT WORKFLOW:**
+
+⚠️ **Before ANY paper edit, ASK:** "Are you currently editing on Overleaf?" If yes, wait or coordinate.
+
+```bash
+cd paper
+git fetch --all                    # Check for Overleaf branches
+git pull                           # Pull latest
+# make changes
+git pull                           # Pull AGAIN before pushing (catch concurrent edits!)
+git add -A && git commit -m "msg" && git push
+cd .. && git add paper && git commit -m "Update paper submodule" && git push
+```
+
+**If merge conflict:** Resolve carefully, keeping BOTH your changes and Overleaf's edits.
+
+**What went wrong (2026-01-15):** Pushed paper changes without checking if user was on Overleaf. Resulted in merge conflict that had to be resolved manually.
+
+**JOURNAL.md:**
+- Update after every significant change
+- Format: `[YYYY-MM-DD] Brief description`
+- Log: bug fixes, new scripts, results, git pushes
+
+---
+
+## Investigation
+
+**When something seems wrong:**
+1. STOP - don't patch the visible symptom
+2. ASK WHY - trace back to data generation
+3. VERIFY - test hypotheses with minimal examples
+4. FIX ROOT - fix the source, not downstream
+
+**Flag inconsistencies immediately:**
+- Different layer counts across analysis types
+- Missing data, unexpected numbers
+- If numbers differ from expected, investigate WHY
+
+---
+
+## ⚠️ PATCH VISUALIZATION GOTCHAS ⚠️
+
+**What went wrong (2026-01-15):** Agent hardcoded `grid_size=24` when drawing patch bounding boxes. But SigLIP uses 27×27 grid, causing ~17px offset per patch. Took hours to debug because the offset looked "close enough" semantically.
+
+**Grid sizes vary by vision encoder:**
+| Encoder | Grid | Patches |
+|---------|------|---------|
+| CLIP (ViT-L/14) | 24×24 | 576 |
+| DINOv2 | 24×24 | 576 |
+| SigLIP | 27×27 | 729 |
+| Qwen2-VL | varies | varies |
+
+**NEVER hardcode grid_size. Always read from data:**
+```python
+# WRONG:
+patch_size = 512 / 24  # Assumes 24x24!
+
+# CORRECT - read from data:
+patches_per_chunk = len(chunks[0]['patches'])
+grid_size = int(patches_per_chunk ** 0.5)
+patch_size = 512 / grid_size
+```
+
+**Use existing utilities in `scripts/analysis/viewer_lib.py`:**
+- `get_grid_dimensions(image_data)` → returns (grid_rows, grid_cols, patches_per_chunk)
+- `create_preprocessor(checkpoint_name)` → model's actual preprocessor
+- `patch_idx_to_row_col(patch_idx, patches_per_chunk)` → convert index to row/col
+
+**For image preprocessing, always use the model's preprocessor:**
+```python
+from viewer_lib import create_preprocessor
+preprocessor = create_preprocessor(checkpoint_name)
+processed, _ = preprocessor.mm_preprocessor.resize_image(image_array, (512, 512), ...)
+```
+
+---
+
+## Quick Reference
+
+**Regenerate demo viewer:**
+```bash
+python scripts/analysis/create_unified_viewer.py \
+    --output-dir analysis_results/unified_viewer_lite \
+    --num-images 10
+```
+
+**Sync to website:**
+```bash
+rsync -av --delete analysis_results/unified_viewer_lite/ website/vlm_interp_demo/
+cd website && git add -A && git commit -m "Update demo" && git push
+cd .. && git add website && git commit -m "Update website submodule" && git push
+```
+
+**Key paths:**
+- Checkpoints: `molmo_data/checkpoints/`
+- Analysis results: `analysis_results/`
+- Contextual embeddings: `molmo_data/contextual_llm_embeddings_vg/`
+- Viewer config: `scripts/analysis/viewer_models.json`
+
+**Model info:**
+- OLMo/LLaMA: 32 layers → analyze 0,1,2,4,8,16,24,30,31
+- Qwen2: 28 layers → analyze 0,1,2,4,8,16,24,26,27
+- Exception: `qwen2-7b_vit-l-14-336` has `_seed10` suffix

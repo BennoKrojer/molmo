@@ -1,0 +1,73 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgemme75tmo0yxpqn",
+  "timestamp": "2025-11-13T13:17:30.131Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00242_patch0",
+      "selectedWords": [
+        {
+          "word": "a large red and yellow umbrella",
+          "relation": "concrete"
+        },
+        {
+          "word": "a table that is by a yellow umbrella.",
+          "relation": "concrete"
+        },
+        {
+          "word": "pink letters on the side of the yellow truck",
+          "relation": "concrete"
+        },
+        {
+          "word": "a person on a yellow and purple snowboard.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a pair of yellow garbage cans next to a set of stairs.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:17:00.020Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00242_patch1",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:17:05.864Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00242_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:17:12.869Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00242_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:17:17.911Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00242_patch4",
+      "selectedWords": [
+        {
+          "word": "a blue/red/yellow toy",
+          "relation": "global"
+        },
+        {
+          "word": "a dog laying on a yellow bench",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:17:28.666Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00242_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:17:29.990Z"
+    }
+  ]
+}

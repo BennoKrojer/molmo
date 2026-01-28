@@ -237,6 +237,7 @@ class VisionBackboneType(StrEnum):
     openai = "openai"
     siglip = "siglip"
     dino = "dino"
+    openvision2 = "openvision2"
 
 
 class ImagePaddingEmbed(StrEnum):
@@ -272,6 +273,7 @@ class AttentionType(StrEnum):
 @dataclass
 class VisionBackboneConfig(BaseConfig):
     image_model_type: VisionBackboneType = VisionBackboneType.openai
+    image_model_name: Optional[str] = None  # For models loaded from HuggingFace (e.g., OpenVision2)
     image_default_input_size: Tuple[int, int] = (336, 336)
     image_patch_size: int = 14
     image_pos_patch_size: int = 14
@@ -662,6 +664,14 @@ class ModelConfig(BaseConfig):
     vit_layers: Tuple = (-1,)  # TODO should we fix the offset?
     """
     What layers to use from the VIT
+    """
+
+    vit_intermediate_layer: Optional[int] = None
+    """
+    If set, use this single intermediate layer from the ViT instead of vit_layers.
+    The ViT forward pass will stop early at this layer for efficiency.
+    Layer indices are 0-based (e.g., 11 means use output after layer 12).
+    When set, this overrides vit_layers.
     """
 
     image_pooling_h: int = 2

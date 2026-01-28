@@ -1,0 +1,70 @@
+{
+  "userId": "Vaibhav",
+  "sessionId": "mhw4wizx5dwv84w274d",
+  "timestamp": "2025-11-12T15:07:43.684Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00153_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:03:22.486Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00153_patch1",
+      "selectedWords": [
+        {
+          "word": "older man, central mid-ground, wears pink shirt",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:03:34.015Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:03:46.947Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch3",
+      "selectedWords": [
+        {
+          "word": "wheels of a four wheeler",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:05:38.447Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch4",
+      "selectedWords": [
+        {
+          "word": "the mouth is smiling",
+          "relation": "global"
+        },
+        {
+          "word": "this guy is joking around",
+          "relation": "abstract"
+        },
+        {
+          "word": "the cat lips are smiling",
+          "relation": "global"
+        },
+        {
+          "word": "the man and woman smiling",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T15:07:27.483Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T15:07:43.533Z"
+    }
+  ]
+}

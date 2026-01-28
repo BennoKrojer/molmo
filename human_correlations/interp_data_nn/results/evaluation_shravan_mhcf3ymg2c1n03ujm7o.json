@@ -1,0 +1,74 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhcf3ymg2c1n03ujm7o",
+  "timestamp": "2025-10-29T19:58:03.075Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T19:49:38.647Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00139_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T19:49:46.437Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch2",
+      "selectedWords": [
+        {
+          "word": "Crud",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-29T19:50:10.098Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00139_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-29T19:50:31.646Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00139_patch4",
+      "selectedWords": [
+        {
+          "word": "Green",
+          "relation": "global"
+        },
+        {
+          "word": " green",
+          "relation": "global"
+        },
+        {
+          "word": " Green",
+          "relation": "global"
+        },
+        {
+          "word": "-green",
+          "relation": "global"
+        },
+        {
+          "word": " colors",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-29T19:57:47.997Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00139_patch5",
+      "selectedWords": [
+        {
+          "word": "white (translated from 白)",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-29T19:58:03.016Z"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkwpvs70cbspv1iq9g",
+  "timestamp": "2025-11-04T18:33:08.690Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00295_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:32:32.296Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00295_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:32:45.295Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00295_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:32:51.978Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00295_patch3",
+      "selectedWords": [
+        {
+          "word": "wood (translated from 木)",
+          "relation": "concrete"
+        },
+        {
+          "word": " trees",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:33:01.628Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00295_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:33:05.728Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00295_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:33:08.647Z"
+    }
+  ]
+}

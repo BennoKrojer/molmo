@@ -1,0 +1,70 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkv9680jkml880006l",
+  "timestamp": "2025-11-04T17:52:09.628Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:49:47.055Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch1",
+      "selectedWords": [
+        {
+          "word": " smartphone",
+          "relation": "concrete"
+        },
+        {
+          "word": " battery",
+          "relation": "abstract"
+        },
+        {
+          "word": "frame",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T17:50:17.077Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00216_patch2",
+      "selectedWords": [
+        {
+          "word": "(show",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T17:50:23.836Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00216_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:50:32.758Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00216_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T17:50:59.925Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00216_patch5",
+      "selectedWords": [
+        {
+          "word": "menus",
+          "relation": "global"
+        },
+        {
+          "word": "_caps",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T17:52:09.408Z"
+    }
+  ]
+}

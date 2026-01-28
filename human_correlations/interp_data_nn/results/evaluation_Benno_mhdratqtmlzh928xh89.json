@@ -1,0 +1,57 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdratqtmlzh928xh89",
+  "timestamp": "2025-10-30T18:26:59.932Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:26:43.885Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch1",
+      "selectedWords": [
+        {
+          "word": " yellow",
+          "relation": "concrete"
+        },
+        {
+          "word": " Gold",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:26:48.436Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:26:53.036Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:26:55.054Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00007_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:26:59.770Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00007_patch5",
+      "selectedWords": [
+        {
+          "word": " PhD",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:27:04.853Z"
+    }
+  ]
+}

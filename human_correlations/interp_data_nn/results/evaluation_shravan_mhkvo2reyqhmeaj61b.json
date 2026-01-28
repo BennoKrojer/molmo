@@ -1,0 +1,57 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkvo2reyqhmeaj61b",
+  "timestamp": "2025-11-04T18:03:47.189Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00054_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:02:36.764Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00054_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:02:46.332Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:02:51.179Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch3",
+      "selectedWords": [
+        {
+          "word": "Vert",
+          "relation": "concrete"
+        },
+        {
+          "word": " feet",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:03:28.945Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00054_patch4",
+      "selectedWords": [
+        {
+          "word": " trees",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:03:41.759Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00054_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:03:44.762Z"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5k1lbmkmwe0vzjaq",
+  "timestamp": "2025-12-06T10:30:10.944Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00222_patch0",
+      "selectedWords": [
+        {
+          "word": "a small zebra's legs",
+          "relation": "concrete"
+        },
+        {
+          "word": "can humans get worms from dogs written beside a lady hugging a labrador",
+          "relation": "abstract"
+        },
+        {
+          "word": "cat's black and white paws",
+          "relation": "concrete"
+        },
+        {
+          "word": "a giraffe's legs",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:29:32.265Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00222_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:29:34.023Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00222_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:29:35.173Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00222_patch3",
+      "selectedWords": [
+        {
+          "word": "two towels draped on the tub",
+          "relation": "concrete"
+        },
+        {
+          "word": "mannakin has a white towel draped around his neck",
+          "relation": "concrete"
+        },
+        {
+          "word": "3 neck ties draped over shoulder",
+          "relation": "concrete"
+        },
+        {
+          "word": "towels draped over a handle",
+          "relation": "concrete"
+        },
+        {
+          "word": "desk chair with jacket draped on back",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:29:55.141Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00222_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:29:56.989Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00222_patch5",
+      "selectedWords": [
+        {
+          "word": "gooey red berries over edge of long white box",
+          "relation": "concrete"
+        },
+        {
+          "word": "tan building with golden windows",
+          "relation": "concrete"
+        },
+        {
+          "word": "dark doorway surrounded by white windows",
+          "relation": "concrete"
+        },
+        {
+          "word": "black bat with white print and gold design",
+          "relation": "concrete"
+        },
+        {
+          "word": "a wood buiilding with large windows",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:30:10.703Z"
+    }
+  ]
+}

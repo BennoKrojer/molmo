@@ -1,0 +1,108 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdg6zhltbgiy6ll849",
+  "timestamp": "2025-10-30T13:16:10.307Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch0",
+      "selectedWords": [
+        {
+          "word": " furniture",
+          "relation": "concrete"
+        },
+        {
+          "word": " Furniture",
+          "relation": "concrete"
+        },
+        {
+          "word": "urniture",
+          "relation": "concrete"
+        },
+        {
+          "word": " jewellery",
+          "relation": "global"
+        },
+        {
+          "word": " woodworking",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:15:20.385Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00001_patch1",
+      "selectedWords": [
+        {
+          "word": " Gold",
+          "relation": "global"
+        },
+        {
+          "word": "Gold",
+          "relation": "global"
+        },
+        {
+          "word": " golden",
+          "relation": "global"
+        },
+        {
+          "word": "Golden",
+          "relation": "global"
+        },
+        {
+          "word": " gold",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:15:32.153Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00001_patch2",
+      "selectedWords": [
+        {
+          "word": " Sitting",
+          "relation": "concrete"
+        },
+        {
+          "word": " sitting",
+          "relation": "concrete"
+        },
+        {
+          "word": " waited",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:15:52.214Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00001_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:15:56.534Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00001_patch4",
+      "selectedWords": [
+        {
+          "word": " Woman",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:02.230Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00001_patch5",
+      "selectedWords": [
+        {
+          "word": "dress",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T13:16:09.896Z"
+    }
+  ]
+}

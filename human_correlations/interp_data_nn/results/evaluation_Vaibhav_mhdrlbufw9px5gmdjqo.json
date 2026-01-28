@@ -1,0 +1,66 @@
+{
+  "userId": "Vaibhav",
+  "sessionId": "mhdrlbufw9px5gmdjqo",
+  "timestamp": "2025-10-30T18:35:09.993Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00023_patch0",
+      "selectedWords": [
+        {
+          "word": "stem cells (translated from 干细胞)",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:34:33.831Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00023_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T18:34:42.903Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch2",
+      "selectedWords": [
+        {
+          "word": " pouring",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:34:57.850Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00023_patch3",
+      "selectedWords": [
+        {
+          "word": "Green",
+          "relation": "concrete"
+        },
+        {
+          "word": " green",
+          "relation": "concrete"
+        },
+        {
+          "word": " greens",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:35:03.404Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00023_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T18:35:09.117Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00023_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T18:35:14.871Z"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5m4omuq4iymxlw5",
+  "timestamp": "2025-11-30T20:09:38.725Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch0",
+      "selectedWords": [
+        {
+          "word": "red and white buildings",
+          "relation": "global"
+        },
+        {
+          "word": "two women wearing white outfits",
+          "relation": "concrete"
+        },
+        {
+          "word": "young man jumping with other man wearing identical outfits",
+          "relation": "concrete"
+        },
+        {
+          "word": "the vase is white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:05:34.537Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:05:45.377Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00284_patch2",
+      "selectedWords": [
+        {
+          "word": "terracotta colored skyscrapper",
+          "relation": "concrete"
+        },
+        {
+          "word": "the tal grye skyscrapper in front of the water",
+          "relation": "concrete"
+        },
+        {
+          "word": "city skyline with towering buildings",
+          "relation": "concrete"
+        },
+        {
+          "word": "black metal framed tower",
+          "relation": "concrete"
+        },
+        {
+          "word": "silver van near tower.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:05:59.117Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00284_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:09:20.166Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00284_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:09:28.399Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00284_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:09:38.614Z"
+    }
+  ]
+}

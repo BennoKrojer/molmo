@@ -1,0 +1,56 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5euk9sawqq7mcvze",
+  "timestamp": "2025-12-06T10:26:08.417Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch0",
+      "selectedWords": [
+        {
+          "word": "blue leash on surfing bulldog",
+          "relation": "abstract"
+        },
+        {
+          "word": "black eyes and dark noses",
+          "relation": "global"
+        },
+        {
+          "word": "pets : portrait of a cute purebred brindle chihuahua in front of white background",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:25:58.541Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00154_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:00.482Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00154_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:02.230Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:04.334Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00154_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:06.646Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:26:08.313Z"
+    }
+  ]
+}

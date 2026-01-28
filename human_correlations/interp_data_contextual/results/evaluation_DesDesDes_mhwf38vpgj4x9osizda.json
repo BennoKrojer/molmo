@@ -1,0 +1,77 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwf38vpgj4x9osizda",
+  "timestamp": "2025-11-12T19:52:53.292Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00047_patch0",
+      "selectedWords": [
+        {
+          "word": "a white and orange piece of top shrimp.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a bowl with prawns",
+          "relation": "concrete"
+        },
+        {
+          "word": "white bowl with pieces of shrimp",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:52:03.452Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00047_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:52:13.741Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00047_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:52:21.444Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00047_patch3",
+      "selectedWords": [
+        {
+          "word": "sliced cucumbers on top of french fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white plate of french fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "a white bowl with fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "ketchup on top of the french fries",
+          "relation": "concrete"
+        },
+        {
+          "word": "square white plate of fries",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:52:45.037Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00047_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:52:50.398Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00047_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:52:53.173Z"
+    }
+  ]
+}

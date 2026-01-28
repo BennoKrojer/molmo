@@ -1,0 +1,108 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim5udysm4u7n7e3c5",
+  "timestamp": "2025-11-30T20:16:03.995Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00252_patch0",
+      "selectedWords": [
+        {
+          "word": "tile is white with brown swirls",
+          "relation": "concrete"
+        },
+        {
+          "word": "zebu bull is deep dark brown, off-black, has well-shaped, pointy horns",
+          "relation": "concrete"
+        },
+        {
+          "word": "black and white spotted neck tie",
+          "relation": "concrete"
+        },
+        {
+          "word": "the head is spotted",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:13:46.132Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00252_patch1",
+      "selectedWords": [
+        {
+          "word": "the giraffi is brown spots with a tan that outlines them",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:14:22.024Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00252_patch2",
+      "selectedWords": [
+        {
+          "word": "a tree with green slime",
+          "relation": "concrete"
+        },
+        {
+          "word": "a large green fern",
+          "relation": "concrete"
+        },
+        {
+          "word": "a loose bunch of a kale",
+          "relation": "concrete"
+        },
+        {
+          "word": "a green fern leaf",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:14:34.421Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00252_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:15:08.973Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00252_patch4",
+      "selectedWords": [
+        {
+          "word": "cake with black frosting on top",
+          "relation": "concrete"
+        },
+        {
+          "word": "white-and-black tennis racket",
+          "relation": "concrete"
+        },
+        {
+          "word": "whitet shoes on the man",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:15:23.445Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00252_patch5",
+      "selectedWords": [
+        {
+          "word": "a path behind the person is covered with greenery",
+          "relation": "concrete"
+        },
+        {
+          "word": "security fences with greenery",
+          "relation": "concrete"
+        },
+        {
+          "word": "wild animal moving through thick undergrowth",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:16:03.892Z"
+    }
+  ]
+}

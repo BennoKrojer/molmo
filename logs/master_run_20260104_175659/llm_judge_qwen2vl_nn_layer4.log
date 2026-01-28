@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 4
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer4_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:06,  1.31it/s]Processing images:  20%|██        | 2/10 [00:14<01:06,  8.26s/it]Processing images:  30%|███       | 3/10 [00:25<01:07,  9.67s/it]Processing images:  50%|█████     | 5/10 [00:37<00:37,  7.46s/it]Processing images:  70%|███████   | 7/10 [00:49<00:20,  6.82s/it]Processing images:  80%|████████  | 8/10 [00:59<00:15,  7.57s/it]Processing images: 100%|██████████| 10/10 [01:08<00:00,  6.46s/it]Processing images: 100%|██████████| 10/10 [01:08<00:00,  6.89s/it]
+  Patch (2, 13): ['讓', '_SKIP', ' ...\n']... -> FAIL
+  Patch (0, 12): [' pubkey', ' pumpkin', 'pdf']... -> FAIL
+  Patch (6, 8): ['港', '埗', 'RG']... -> FAIL
+  Patch (5, 4): ['datos', '栽培', ' tahun']... -> FAIL
+  Patch (3, 5): [' nomination', "'.\n\n", ' \n\n\n\n\n']... -> FAIL
+  Patch (2, 8): [' Missile', 'ﱵ', 'istance']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer4_gpt5_cropped/visualizations
+============================================================
+

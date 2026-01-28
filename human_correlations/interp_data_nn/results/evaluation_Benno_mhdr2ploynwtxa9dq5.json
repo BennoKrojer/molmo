@@ -1,0 +1,74 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdr2ploynwtxa9dq5",
+  "timestamp": "2025-10-30T18:20:41.504Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00064_patch0",
+      "selectedWords": [
+        {
+          "word": "-yellow",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:17:22.453Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch1",
+      "selectedWords": [
+        {
+          "word": " hands",
+          "relation": "concrete"
+        },
+        {
+          "word": " Hand",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:18:52.953Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00064_patch2",
+      "selectedWords": [
+        {
+          "word": " WHITE",
+          "relation": "concrete"
+        },
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": " pencil",
+          "relation": "concrete"
+        },
+        {
+          "word": " White",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:19:08.769Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00064_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:20:42.518Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00064_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:20:44.235Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:20:46.236Z"
+    }
+  ]
+}

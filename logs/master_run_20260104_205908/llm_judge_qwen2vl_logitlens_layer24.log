@@ -1,0 +1,117 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 24
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer24_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/100 [00:00<?, ?it/s]Processing images:   1%|          | 1/100 [00:10<17:26, 10.57s/it]Processing images:   2%|▏         | 2/100 [00:19<15:20,  9.40s/it]Processing images:   3%|▎         | 3/100 [00:28<15:04,  9.32s/it]Processing images:   4%|▍         | 4/100 [00:36<14:17,  8.93s/it]Processing images:   5%|▌         | 5/100 [00:45<13:48,  8.72s/it]Processing images:   6%|▌         | 6/100 [00:59<16:53, 10.78s/it]Processing images:   7%|▋         | 7/100 [01:10<16:35, 10.71s/it]Processing images:   8%|▊         | 8/100 [01:23<17:27, 11.38s/it]Processing images:   9%|▉         | 9/100 [01:30<15:13, 10.04s/it]Processing images:  10%|█         | 10/100 [01:37<13:53,  9.26s/it]Processing images:  11%|█         | 11/100 [01:48<14:31,  9.80s/it]Processing images:  12%|█▏        | 12/100 [01:59<14:47, 10.09s/it]Processing images:  13%|█▎        | 13/100 [02:07<13:31,  9.33s/it]Processing images:  14%|█▍        | 14/100 [02:17<13:39,  9.52s/it]Processing images:  15%|█▌        | 15/100 [02:27<13:40,  9.65s/it]Processing images:  16%|█▌        | 16/100 [02:42<16:08, 11.52s/it]Processing images:  17%|█▋        | 17/100 [02:50<14:23, 10.41s/it]Processing images:  18%|█▊        | 18/100 [03:00<13:59, 10.24s/it]Processing images:  19%|█▉        | 19/100 [03:10<13:33, 10.04s/it]Processing images:  20%|██        | 20/100 [03:33<18:34, 13.93s/it]Processing images:  21%|██        | 21/100 [03:41<16:04, 12.21s/it]Processing images:  22%|██▏       | 22/100 [03:50<14:40, 11.29s/it]Processing images:  23%|██▎       | 23/100 [04:04<15:21, 11.97s/it]Processing images:  24%|██▍       | 24/100 [04:12<13:57, 11.02s/it]Processing images:  25%|██▌       | 25/100 [04:21<12:44, 10.19s/it]Processing images:  26%|██▌       | 26/100 [04:30<12:19,  9.99s/it]Processing images:  27%|██▋       | 27/100 [04:38<11:11,  9.20s/it]Processing images:  28%|██▊       | 28/100 [04:49<11:56,  9.95s/it]Processing images:  29%|██▉       | 29/100 [05:01<12:26, 10.51s/it]Processing images:  30%|███       | 30/100 [05:13<12:45, 10.93s/it]Processing images:  31%|███       | 31/100 [05:22<11:45, 10.22s/it]Processing images:  32%|███▏      | 32/100 [05:30<11:08,  9.83s/it]Processing images:  33%|███▎      | 33/100 [05:37<09:50,  8.82s/it]Processing images:  34%|███▍      | 34/100 [05:46<09:41,  8.81s/it]Processing images:  35%|███▌      | 35/100 [05:53<09:05,  8.40s/it]Processing images:  36%|███▌      | 36/100 [06:02<08:58,  8.41s/it]Processing images:  37%|███▋      | 37/100 [06:11<08:59,  8.57s/it]Processing images:  38%|███▊      | 38/100 [06:17<08:06,  7.85s/it]Processing images:  39%|███▉      | 39/100 [06:26<08:30,  8.37s/it]Processing images:  40%|████      | 40/100 [06:35<08:26,  8.44s/it]Processing images:  41%|████      | 41/100 [06:42<08:02,  8.18s/it]Processing images:  42%|████▏     | 42/100 [06:51<07:58,  8.25s/it]Processing images:  43%|████▎     | 43/100 [07:01<08:28,  8.92s/it]Processing images:  44%|████▍     | 44/100 [07:10<08:16,  8.87s/it]Processing images:  45%|████▌     | 45/100 [07:17<07:42,  8.41s/it]Processing images:  46%|████▌     | 46/100 [07:26<07:37,  8.47s/it]Processing images:  47%|████▋     | 47/100 [07:35<07:31,  8.52s/it]Processing images:  48%|████▊     | 48/100 [07:43<07:21,  8.50s/it]Processing images:  49%|████▉     | 49/100 [07:54<07:45,  9.13s/it]Processing images:  50%|█████     | 50/100 [08:04<07:51,  9.44s/it]Processing images:  51%|█████     | 51/100 [08:10<06:57,  8.51s/it]Processing images:  52%|█████▏    | 52/100 [08:19<06:48,  8.52s/it]Processing images:  53%|█████▎    | 53/100 [08:30<07:24,  9.46s/it]Processing images:  54%|█████▍    | 54/100 [08:38<06:48,  8.87s/it]Processing images:  55%|█████▌    | 55/100 [08:46<06:32,  8.72s/it]Processing images:  56%|█████▌    | 56/100 [08:56<06:33,  8.94s/it]Processing images:  57%|█████▋    | 57/100 [09:04<06:14,  8.70s/it]Processing images:  58%|█████▊    | 58/100 [09:14<06:22,  9.10s/it]Processing images:  59%|█████▉    | 59/100 [09:22<05:55,  8.66s/it]Processing images:  60%|██████    | 60/100 [09:30<05:40,  8.51s/it]Processing images:  61%|██████    | 61/100 [09:41<06:08,  9.44s/it]Processing images:  62%|██████▏   | 62/100 [09:51<05:56,  9.38s/it]Processing images:  63%|██████▎   | 63/100 [10:02<06:05,  9.87s/it]Processing images:  64%|██████▍   | 64/100 [10:11<05:45,  9.61s/it]Processing images:  65%|██████▌   | 65/100 [10:17<05:02,  8.63s/it]Processing images:  66%|██████▌   | 66/100 [10:30<05:34,  9.85s/it]Processing images:  67%|██████▋   | 67/100 [10:37<05:02,  9.17s/it]Processing images:  68%|██████▊   | 68/100 [10:46<04:48,  9.01s/it]Processing images:  69%|██████▉   | 69/100 [10:56<04:47,  9.29s/it]Processing images:  70%|███████   | 70/100 [11:05<04:36,  9.22s/it]Processing images:  71%|███████   | 71/100 [11:14<04:24,  9.13s/it]Processing images:  72%|███████▏  | 72/100 [11:23<04:15,  9.12s/it]Processing images:  73%|███████▎  | 73/100 [11:31<04:01,  8.94s/it]Processing images:  74%|███████▍  | 74/100 [11:44<04:22, 10.10s/it]Processing images:  75%|███████▌  | 75/100 [11:53<04:01,  9.67s/it]Processing images:  76%|███████▌  | 76/100 [12:06<04:19, 10.80s/it]Processing images:  77%|███████▋  | 77/100 [12:17<04:06, 10.73s/it]Processing images:  78%|███████▊  | 78/100 [12:29<04:02, 11.00s/it]Processing images:  79%|███████▉  | 79/100 [12:39<03:45, 10.76s/it]Processing images:  80%|████████  | 80/100 [12:46<03:16,  9.81s/it]Processing images:  81%|████████  | 81/100 [12:56<03:07,  9.85s/it]Processing images:  82%|████████▏ | 82/100 [13:05<02:49,  9.43s/it]Processing images:  83%|████████▎ | 83/100 [13:13<02:34,  9.07s/it]Processing images:  84%|████████▍ | 84/100 [13:23<02:27,  9.23s/it]Processing images:  85%|████████▌ | 85/100 [13:31<02:13,  8.91s/it]Processing images:  86%|████████▌ | 86/100 [13:39<02:02,  8.76s/it]Processing images:  87%|████████▋ | 87/100 [13:47<01:52,  8.65s/it]Processing images:  88%|████████▊ | 88/100 [13:59<01:54,  9.54s/it]Processing images:  89%|████████▉ | 89/100 [14:12<01:55, 10.53s/it]Processing images:  90%|█████████ | 90/100 [14:20<01:37,  9.75s/it]Processing images:  91%|█████████ | 91/100 [14:29<01:26,  9.58s/it]Processing images:  92%|█████████▏| 92/100 [14:38<01:14,  9.26s/it]Processing images:  93%|█████████▎| 93/100 [14:48<01:06,  9.46s/it]Processing images:  94%|█████████▍| 94/100 [14:59<01:00, 10.04s/it]Processing images:  95%|█████████▌| 95/100 [15:12<00:54, 10.81s/it]Processing images:  96%|█████████▌| 96/100 [15:22<00:43, 10.77s/it]Processing images:  97%|█████████▋| 97/100 [15:31<00:30, 10.11s/it]Processing images:  98%|█████████▊| 98/100 [15:38<00:18,  9.31s/it]Processing images:  99%|█████████▉| 99/100 [15:47<00:09,  9.22s/it]Processing images: 100%|██████████| 100/100 [15:58<00:00,  9.80s/it]Processing images: 100%|██████████| 100/100 [15:58<00:00,  9.59s/it]
+  Patch (11, 9): [' autogenerated', ' Snackbar', '全面提升']... -> FAIL
+  Patch (2, 0): ['getCell', 'Selectable', '.Usuario']... -> FAIL
+  Patch (0, 6): ['稞', '锦标', '�']... -> FAIL
+  Patch (5, 5): ['腆', '踔', '("(%']... -> FAIL
+  Patch (4, 6): [' [...]', ' ngo', '…)\n\n']... -> FAIL
+  Patch (4, 1): ['…)\n\n', '\']=="', '捩']... -> PASS
+  Patch (2, 9): [' autogenerated', 'intValue', ' jihadists']... -> FAIL
+  Patch (13, 6): [' Insets', ' autogenerated', '…)\n\n']... -> PASS
+  Patch (1, 12): [' sond', '是韩国', '誊']... -> FAIL
+  Patch (12, 5): [' autogenerated', 'eterangan', ' imageURL']... -> FAIL
+  Patch (13, 7): ['intValue', ' autogenerated', '_fee']... -> FAIL
+  Patch (9, 13): [' autogenerated', ' uncert', '俱乐']... -> PASS
+  Patch (1, 8): ['(mysqli', 'ählen', ' vö']... -> FAIL
+  Patch (10, 11): ['旧', ' autogenerated', ' old']... -> FAIL
+  Patch (7, 10): [' ceremon', ' framebuffer', '创始']... -> FAIL
+  Patch (0, 8): ['oard', 'ell', '帳號']... -> PASS
+  Patch (0, 7): ['如果玩家', '💡', ' TMPro']... -> FAIL
+  Patch (1, 10): ['endencies', '矍', '!!");\n']... -> FAIL
+  Patch (3, 13): ['…)\n\n', ' aftermarket', ' Invalidate']... -> FAIL
+  Patch (4, 3): ['ish', '/framework', ' Invalidate']... -> FAIL
+  Patch (9, 3): [' autogenerated', 'xFFFFFFFF', '…)\n\n']... -> FAIL
+  Patch (11, 0): ['供货', ' autogenerated', 'HeaderView']... -> FAIL
+  Patch (0, 6): ['Crear', '乜', ' распр']... -> FAIL
+  Patch (10, 3): ['拔', ' Incre', ' autogenerated']... -> FAIL
+  Patch (3, 8): ['ustralian', ' autogenerated', ' mastur']... -> FAIL
+  Patch (13, 1): ['[array', 'さい', '波特']... -> FAIL
+  Patch (11, 12): [' autogenerated', '营造良好', 'AuthService']... -> FAIL
+  Patch (10, 9): [' autogenerated', ' thôi', '防治']... -> FAIL
+  Patch (7, 9): [' aras', '营造良好', ' advoc']... -> FAIL
+  Patch (4, 0): [' proport', '家都知道', '如果玩家']... -> FAIL
+  Patch (8, 2): [".'<", ' nowrap', '.myapplication']... -> FAIL
+  Patch (10, 10): ['�建', 'gles', ' explan']... -> FAIL
+  Patch (5, 1): ['…)\n\n', '顸', '萝']... -> FAIL
+  Patch (0, 1): ['lève', '!=(', '疬']... -> FAIL
+  Patch (13, 12): ['iferay', 'uters', '.OrderByDescending']... -> FAIL
+  Patch (3, 1): ['@GeneratedValue', '诱', '产业结构']... -> FAIL
+  Patch (12, 10): ['2', ' autogenerated', ' uninitialized']... -> PASS
+  Patch (7, 10): ['已完成', '-initialized', ' autogenerated']... -> FAIL
+  Patch (6, 3): ['минист', '营造良好', 'unist']... -> FAIL
+  Patch (5, 1): ['院副院长', '镓', '我爱你']... -> FAIL
+  Patch (2, 11): [' autogenerated', '全面提升', 'LayoutManager']... -> FAIL
+  Patch (3, 13): ['��', ' autogenerated', ' framebuffer']... -> FAIL
+  Patch (13, 13): [' autogenerated', '奠定了', '...']... -> FAIL
+  Patch (6, 8): [' autogenerated', '赖以', ' Insets']... -> FAIL
+  Patch (1, 12): ['褡', 'sembling', ' Twelve']... -> FAIL
+  Patch (1, 9): ['�', '是韩国', ' Iso']... -> FAIL
+  Patch (6, 13): ['endencies', '医科', 'innacle']... -> FAIL
+  Patch (1, 10): ['�', ' necessità', '聩']... -> FAIL
+  Patch (6, 7): [' autogenerated', ' Außerdem', ' !");\n']... -> PASS
+  Patch (6, 4): [">('", ' ceremon', '会议']... -> FAIL
+  Patch (11, 0): [' autogenerated', ' alph', ' assum']... -> FAIL
+  Patch (5, 2): ["={['", '全', '撺']... -> FAIL
+  Patch (0, 11): [' lucr', '瓜', ".'<"]... -> PASS
+  Patch (13, 4): ['踯', '=".$', '_TOGGLE']... -> FAIL
+  Patch (9, 0): ['社会资本', '�', '�建']... -> PASS
+  Patch (9, 11): [' autogenerated', ' aras', '酋']... -> FAIL
+  Patch (2, 5): [' [...]', 'intégr', 'TouchListener']... -> FAIL
+  Patch (6, 12): [">('", '售', ' panor']... -> FAIL
+  Patch (1, 6): ['锨', '蚝', '蚓']... -> FAIL
+  Patch (10, 11): [' 若要', 'ishops', ' assum']... -> FAIL
+  Patch (5, 5): ['ishops', '家纺', ' listar']... -> FAIL
+  Patch (11, 6): ['身高', 'intValue', '知名企业']... -> FAIL
+  Patch (11, 4): [' autogenerated', '永不', 'FormsModule']... -> FAIL
+  Patch (6, 8): [' vess', ' escorte', '原文地址']... -> FAIL
+  Patch (10, 7): ['生产商', ' subrange', ' uncert']... -> FAIL
+  Patch (3, 7): ['方向', ' directions', 'direction']... -> PASS
+  Patch (12, 12): [' autogenerated', ' uncert', 'opération']... -> FAIL
+  Patch (1, 3): ['为了更好', '欸', '!!");\n']... -> FAIL
+  Patch (0, 11): ['...)\n\n', '欸', 'ặp']... -> FAIL
+  Patch (12, 1): ['iferay', '馒', ' Außerdem']... -> FAIL
+  Patch (4, 2): ['…)\n\n', '翛', '("//*[@']... -> FAIL
+  Patch (5, 4): ['inté', 'intégr', ' subrange']... -> FAIL
+  Patch (1, 7): [' fireEvent', 'getRow', ' amis']... -> FAIL
+  Patch (4, 3): ['ancock', ' aras', 'posición']... -> PASS
+  Patch (1, 11): ['恭喜', '如果玩家', 'ABL']... -> FAIL
+  Patch (6, 13): ['翛', ' autogenerated', '全产业链']... -> PASS
+  Patch (5, 1): [' autogenerated', ' tritur', '-small']... -> PASS
+  Patch (8, 4): ['翛', '营造良好', '抻']... -> PASS
+  Patch (11, 8): [' Positioned', ' autogenerated', ' 若要']... -> FAIL
+  Patch (6, 9): [' ApplicationException', ' untranslated', ' autogenerated']... -> FAIL
+  Patch (2, 13): ['翛', ' seiz', '界第一']... -> FAIL
+  Patch (6, 10): [' autogenerated', '=".$', ' prive']... -> FAIL
+  Patch (6, 6): [' autogenerated', ' chooser', '导购']... -> FAIL
+  Patch (3, 11): [' autogenerated', '!!");\n', '拜师学艺']... -> FAIL
+  Patch (12, 3): ['毛泽', ' strr', 'StandardItem']... -> FAIL
+  Patch (4, 12): [' uninitialized', ' autogenerated', '�建']... -> FAIL
+  Patch (12, 9): ['抻', '疳', '!!");\n']... -> FAIL
+  Patch (1, 4): ['するのが', '(Spring', '<tag']... -> FAIL
+  Patch (11, 1): [' autogenerated', ' esi', '…)\n\n']... -> FAIL
+  Patch (11, 8): [' autogenerated', ' Pager', '酋']... -> FAIL
+  Patch (3, 1): ['∕', '…)\n\n', ' uncert']... -> FAIL
+  Patch (9, 10): [' explan', ' autogenerated', '��']... -> FAIL
+  Patch (13, 4): ['-Methods', '�인', '(targetEntity']... -> FAIL
+  Patch (4, 6): ['天花板', '无限', ' autogenerated']... -> PASS
+  Patch (2, 13): ['媾', 'uktur', 'istencia']... -> FAIL
+  Patch (8, 6): [' autogenerated', 'opération', ' therap']... -> FAIL
+  Patch (6, 13): ['ishops', ' uncompressed', '�']... -> PASS
+  Patch (5, 4): [' ceremon', '�', '!!");\n']... -> FAIL
+  Patch (11, 9): ['AndPassword', ' uncert', ' 若要']... -> FAIL
+  Patch (12, 8): [' autogenerated', ' explan', ' uncert']... -> FAIL
+
+============================================================
+Results: 15/100 (15.0%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer24_gpt5_cropped/visualizations
+============================================================
+

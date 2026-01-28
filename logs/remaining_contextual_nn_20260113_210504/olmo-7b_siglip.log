@@ -1,0 +1,39 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg
+Visual layers: [0, 1, 2, 4, 8, 16, 24, 30, 31]
+Contextual layers: []
+Images: 36 (indices: [100, 102, 108, 109, 119]...)
+Total forward passes: 0 caches × 36 images = 0
+
+======================================================================
+LOADING MODEL
+======================================================================
+  Loading weights...
+  Moving to GPU (fp16)...
+✓ Model loaded in 71.1s
+
+======================================================================
+PRELOADING IMAGES TO GPU
+======================================================================
+  Loading 36 images directly to GPU...
+    0/36 (image 100)...
+    10/36 (image 155)...
+    20/36 (image 234)...
+    30/36 (image 284)...
+✓ Images preloaded in 2.0s (17.9 img/s)
+
+
+✓ All caches processed in 0.0s (0.0 min)
+
+======================================================================
+BUILDING RESULTS
+======================================================================
+Traceback (most recent call last):
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py", line 455, in <module>
+    main()
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py", line 343, in main
+    num_patches = shape_info['num_patches']
+TypeError: 'NoneType' object is not subscriptable

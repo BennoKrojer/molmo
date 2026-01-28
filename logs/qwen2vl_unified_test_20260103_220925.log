@@ -1,0 +1,55 @@
+==========================================
+MASTER SCRIPT: Running All Missing Tasks
+==========================================
+Log directory: logs/master_run_20260103_220925
+Dry run: false
+Test mode: false
+Force Qwen2-VL: false
+Qwen2-VL only: true
+==========================================
+
+[2026-01-03 22:09:25] Starting master script
+[2026-01-03 22:09:25] Configuration: NUM_IMAGES=300, LAYERS=0,1,2,4,8,16,24,30,31, SPLIT=validation
+[2026-01-03 22:09:25] 
+[2026-01-03 22:09:25] ========== PHASE 0: Validation ==========
+[2026-01-03 22:09:25] Checking Python script syntax...
+[2026-01-03 22:09:25]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
+[2026-01-03 22:09:25]   ✓ scripts/analysis/logitlens.py
+[2026-01-03 22:09:25]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
+[2026-01-03 22:09:25]   ✓ llm_judge/run_llm_judge.py
+[2026-01-03 22:09:25]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py
+[2026-01-03 22:09:25]   ✓ scripts/analysis/qwen2_vl/logitlens.py
+[2026-01-03 22:09:25] Checking imports and dependencies...
+Warning: translation disabled (googletrans import error: module 'httpcore' has no attribute 'SyncHTTPTransport'). To enable, install compatible versions, e.g.:
+  pip install 'googletrans==4.0.0rc1' 'httpx<0.24' 'httpcore<1.0'
+[2026-01-03 22:09:31]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py imports OK
+[2026-01-03 22:09:35]   ✓ scripts/analysis/logitlens.py imports OK
+[2026-01-03 22:09:40]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py imports OK
+[2026-01-03 22:09:46]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py imports OK
+[2026-01-03 22:09:51]   ✓ scripts/analysis/qwen2_vl/logitlens.py imports OK
+[2026-01-03 22:09:51] Checking API key file...
+[2026-01-03 22:09:51]   ✓ llm_judge/api_key.txt exists and is non-empty
+[2026-01-03 22:09:51] SKIP: Ablation validation (--qwen2vl-only mode)
+[2026-01-03 22:09:51] ✓ All validations passed
+[2026-01-03 22:09:51] 
+[2026-01-03 22:09:51] 
+[2026-01-03 22:09:51] SKIP: Phases 1-6 (ablations) - running Qwen2-VL only mode
+[2026-01-03 22:09:51] ✓ Loaded API key for Qwen2-VL LLM Judge phases
+[2026-01-03 22:09:51] 
+[2026-01-03 22:09:51] ========== PHASE 7: Static NN for Qwen2-VL (9 layers) ==========
+[2026-01-03 22:09:51] SKIP: Static NN complete for Qwen2-VL (9 layers)
+[2026-01-03 22:09:51] 
+[2026-01-03 22:09:51] ========== PHASE 8: LogitLens for Qwen2-VL (9 layers) ==========
+[2026-01-03 22:09:51] SKIP: LogitLens complete for Qwen2-VL (9 layers)
+[2026-01-03 22:09:51] 
+[2026-01-03 22:09:51] ========== PHASE 9: LLM Judge NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 0
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 1
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 2
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 4
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 8
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 16
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 24
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 26
+[2026-01-03 22:09:51] LAUNCHING: LLM Judge NN for Qwen2-VL layer 27
+[2026-01-03 22:09:51] Waiting for 9 parallel LLM Judge NN jobs...

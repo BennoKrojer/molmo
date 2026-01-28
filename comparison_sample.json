@@ -1,0 +1,520 @@
+{
+  "old_metadata": {
+    "visual_layer": 0,
+    "contextual_layer": 8,
+    "description": "Layer 0 vision vs Layer 8 text"
+  },
+  "new_metadata": {
+    "visual_layer": 8,
+    "contextual_layer": 8,
+    "description": "Layer 8 vision vs Layer 8 text"
+  },
+  "comparisons": [
+    {
+      "image_idx": 0,
+      "ground_truth_caption": "A panoramic view of the bustling Fontana di Santa Maria in Trastevere, captured with a slight side-angle for optimal scenic detail. The foreground features a grand, multi-arched building adorned with a tower that boasts a delicate clock, all in varying shades of beige. Adjacent to this structure is a salmon-colored edifice with an intriguing mix of arched and rectangular windows. Dominating the center of the image is the majestic fountain, elevated on a base, accessible by a series of steps. Silhouetted against a stunning gradient sky that transitions from deep to lighter blue, free of clouds, people are seen enjoying the serene ambiance, either milling about on the stairs or gathered around the fountain's base. The image beautifully encapsulates the architectural charm and lively atmosphere of this historic plaza.",
+      "old": {
+        "visual_layer": 0,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": "322",
+            "token_id": 15805,
+            "caption": "license plat reading efw322h",
+            "position": 5,
+            "similarity": 0.0806884765625,
+            "lowest_similarity_same_token": {
+              "token_str": "322",
+              "token_id": 15805,
+              "caption": "signs giving directions to route 322",
+              "position": 7,
+              "similarity": 0.02398681640625,
+              "num_instances": 8
+            },
+            "similarity_to_other_nns": {
+              "vs_2": 0.336181640625,
+              "vs_3": 0.57958984375,
+              "vs_4": 0.2447509765625,
+              "vs_5": 0.283203125
+            }
+          },
+          {
+            "token_str": "wh",
+            "token_id": 1336,
+            "caption": "bacon lettuce tomato sandiwhc",
+            "position": 6,
+            "similarity": 0.07684326171875,
+            "lowest_similarity_same_token": {
+              "token_str": "wh",
+              "token_id": 1336,
+              "caption": "whie clouds completely covering sky",
+              "position": 0,
+              "similarity": -0.054168701171875,
+              "num_instances": 20
+            }
+          },
+          {
+            "token_str": "828",
+            "token_id": 22716,
+            "caption": "an identification number of wff828",
+            "position": 6,
+            "similarity": 0.07586669921875,
+            "lowest_similarity_same_token": {
+              "token_str": "828",
+              "token_id": 22716,
+              "caption": "828 on the red bus",
+              "position": 0,
+              "similarity": -0.0233001708984375,
+              "num_instances": 2
+            }
+          },
+          {
+            "token_str": "gg",
+            "token_id": 14736,
+            "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+            "position": 16,
+            "similarity": 0.074951171875,
+            "lowest_similarity_same_token": {
+              "token_str": "gg",
+              "token_id": 14736,
+              "caption": "high white ugg boot",
+              "position": 3,
+              "similarity": 0.01325225830078125,
+              "num_instances": 20
+            }
+          },
+          {
+            "token_str": "966",
+            "token_id": 25285,
+            "caption": "the company's telephone number is 01716296606",
+            "position": 9,
+            "similarity": 0.07464599609375,
+            "lowest_similarity_same_token": null
+          }
+        ]
+      },
+      "new": {
+        "visual_layer": 8,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": " !!!",
+            "token_id": 33970,
+            "caption": "we're on a roll !!!",
+            "position": 5,
+            "similarity": 0.1527099609375,
+            "lowest_similarity_same_token": null,
+            "similarity_to_other_nns": {
+              "vs_2": 0.287109375,
+              "vs_3": 0.29541015625,
+              "vs_4": 0.30517578125,
+              "vs_5": 0.280029296875
+            }
+          },
+          {
+            "token_str": "881",
+            "token_id": 25339,
+            "caption": "4h881 is on boat",
+            "position": 2,
+            "similarity": 0.1497802734375,
+            "lowest_similarity_same_token": {
+              "token_str": "881",
+              "token_id": 25339,
+              "caption": "number 881 white print on a train",
+              "position": 2,
+              "similarity": 0.1114501953125,
+              "num_instances": 4
+            }
+          },
+          {
+            "token_str": "828",
+            "token_id": 22716,
+            "caption": "an identification number of wff828",
+            "position": 6,
+            "similarity": 0.147216796875,
+            "lowest_similarity_same_token": {
+              "token_str": "828",
+              "token_id": 22716,
+              "caption": "828 on the red bus",
+              "position": 0,
+              "similarity": 0.03204345703125,
+              "num_instances": 2
+            }
+          },
+          {
+            "token_str": "348",
+            "token_id": 19746,
+            "caption": "wi af87 348 written on tail",
+            "position": 4,
+            "similarity": 0.146484375,
+            "lowest_similarity_same_token": {
+              "token_str": "348",
+              "token_id": 19746,
+              "caption": "the number is 348",
+              "position": 4,
+              "similarity": 0.1002197265625,
+              "num_instances": 2
+            }
+          },
+          {
+            "token_str": "322",
+            "token_id": 15805,
+            "caption": "license plat reading efw322h",
+            "position": 5,
+            "similarity": 0.1461181640625,
+            "lowest_similarity_same_token": {
+              "token_str": "322",
+              "token_id": 15805,
+              "caption": "signs giving directions to route 322",
+              "position": 7,
+              "similarity": 0.08123779296875,
+              "num_instances": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "image_idx": 1,
+      "ground_truth_caption": "This detailed photograph appears to be taken at Madame Tussaud's wax museum, featuring an exceptionally lifelike wax figure of Queen Elizabeth II dressed in a white gown adorned with a yellow sash, a silver crown with black jewels, and a silver necklace with matching jewels. The Queen\u2019s statue stands regally with her hands folded. In the background, a Union Jack flag featuring the Royal Family crest is prominently displayed, accentuated by a red carpet beneath. Adjacent to the Queen, in a red chair with gold accents and a gray blanket draped over its back, a young woman with darker skin and long black hair \u2013 presumptively a tourist \u2013 is seated. She wears a white shirt, blue jeans, black shoes, a crown, and a red sash. Her casual posture, with legs crossed and hands resting on her knee, contrasts with the royal setting. Above, the initial pendants of a chandelier cascade into view from the top of the image.",
+      "old": {
+        "visual_layer": 0,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": "                                                                                                                                ",
+            "token_id": 58040,
+            "caption": "metal pole of the umbrella                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              metal pole to the umbrella",
+            "position": 9,
+            "similarity": 0.07110595703125,
+            "lowest_similarity_same_token": {
+              "token_str": "                                                                                                                                ",
+              "token_id": 58040,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 105,
+              "similarity": 0.049041748046875,
+              "num_instances": 7
+            },
+            "similarity_to_other_nns": {
+              "vs_2": 0.96435546875,
+              "vs_3": 0.2364501953125,
+              "vs_4": 0.484130859375,
+              "vs_5": 0.5810546875
+            }
+          },
+          {
+            "token_str": "                                                                                                                                ",
+            "token_id": 58040,
+            "caption": "metal pole of the umbrella                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              metal pole to the umbrella",
+            "position": 8,
+            "similarity": 0.0701904296875,
+            "lowest_similarity_same_token": {
+              "token_str": "                                                                                                                                ",
+              "token_id": 58040,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 105,
+              "similarity": 0.049041748046875,
+              "num_instances": 7
+            }
+          },
+          {
+            "token_str": "322",
+            "token_id": 15805,
+            "caption": "license plat reading efw322h",
+            "position": 5,
+            "similarity": 0.0667724609375,
+            "lowest_similarity_same_token": {
+              "token_str": "322",
+              "token_id": 15805,
+              "caption": "signs giving directions to route 322",
+              "position": 7,
+              "similarity": 0.01143646240234375,
+              "num_instances": 8
+            }
+          },
+          {
+            "token_str": "gg",
+            "token_id": 14736,
+            "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+            "position": 16,
+            "similarity": 0.0667724609375,
+            "lowest_similarity_same_token": {
+              "token_str": "gg",
+              "token_id": 14736,
+              "caption": "veggies atop a wood pallet",
+              "position": 1,
+              "similarity": 0.0032253265380859375,
+              "num_instances": 20
+            }
+          },
+          {
+            "token_str": "                                                                                                                                ",
+            "token_id": 58040,
+            "caption": "metal pole of the umbrella                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              metal pole to the umbrella",
+            "position": 5,
+            "similarity": 0.066162109375,
+            "lowest_similarity_same_token": {
+              "token_str": "                                                                                                                                ",
+              "token_id": 58040,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 105,
+              "similarity": 0.049041748046875,
+              "num_instances": 7
+            }
+          }
+        ]
+      },
+      "new": {
+        "visual_layer": 8,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": " !!!",
+            "token_id": 33970,
+            "caption": "we're on a roll !!!",
+            "position": 5,
+            "similarity": 0.1707763671875,
+            "lowest_similarity_same_token": null,
+            "similarity_to_other_nns": {
+              "vs_2": 0.332763671875,
+              "vs_3": 0.287109375,
+              "vs_4": 0.322509765625,
+              "vs_5": 0.27490234375
+            }
+          },
+          {
+            "token_str": "893",
+            "token_id": 26088,
+            "caption": "faw893 written in white",
+            "position": 2,
+            "similarity": 0.16943359375,
+            "lowest_similarity_same_token": {
+              "token_str": "893",
+              "token_id": 26088,
+              "caption": "the number to rent is 594-8939",
+              "position": 8,
+              "similarity": 0.1361083984375,
+              "num_instances": 3
+            }
+          },
+          {
+            "token_str": "881",
+            "token_id": 25339,
+            "caption": "4h881 is on boat",
+            "position": 2,
+            "similarity": 0.1639404296875,
+            "lowest_similarity_same_token": {
+              "token_str": "881",
+              "token_id": 25339,
+              "caption": "number 881 white print on a train",
+              "position": 2,
+              "similarity": 0.11724853515625,
+              "num_instances": 4
+            }
+          },
+          {
+            "token_str": "yyyy",
+            "token_id": 15110,
+            "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+            "position": 35,
+            "similarity": 0.1632080078125,
+            "lowest_similarity_same_token": {
+              "token_str": "yyyy",
+              "token_id": 15110,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 42,
+              "similarity": 0.1536865234375,
+              "num_instances": 20
+            }
+          },
+          {
+            "token_str": "734",
+            "token_id": 24438,
+            "caption": "f734 written on the side of the boat",
+            "position": 1,
+            "similarity": 0.1612548828125,
+            "lowest_similarity_same_token": {
+              "token_str": "734",
+              "token_id": 24438,
+              "caption": "7348 numbers can be seen",
+              "position": 0,
+              "similarity": 0.04339599609375,
+              "num_instances": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "image_idx": 2,
+      "ground_truth_caption": "In this detailed cell phone screenshot, a host of features is displayed on the screen. The upper left corner is populated with familiar app icons such as Gmail, a photo gallery, and an alarm clock. Counterbalancing these icons on the upper right are indicators for an alarm clock, Wi-Fi connection, and cellular reception showing 3 out of 4 bars, alongside a battery icon indicating 81% charge, and the current time stamped at 1:08 p.m.\n\nDominating the main section of the screen is a map. At the center of this map, a marker identifies \"The Couch Tomato Cafe\" with a distinctive red circle bearing the number 4. Surrounding this centerpiece, various streets such as Interstate 76 in the lower left, Main Street, Terrace Street, Apple Street, Station Street, Cotton Street, and Grape Street crisscross the map.\n\nDirectly beneath the map, there is an interface allowing users to sort the results by relevance, hours, and ratings, each accompanied by a pull-down menu. The Couch Tomato Cafe is highlighted, showing a 4-star rating out of 5, accompanied by an enticing image of food on the right side of the entry.\n\nFollowing this, the list highlights \"So Crepe,\" which boasts a 4.5-star rating with 24 reviews sourced from Yelp. This detailed layout provides a comprehensive snapshot of the user's navigation and search result experience on their cell phone.",
+      "old": {
+        "visual_layer": 0,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": "                                                                                                                                ",
+            "token_id": 58040,
+            "caption": "metal pole of the umbrella                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              metal pole to the umbrella",
+            "position": 9,
+            "similarity": 0.06951904296875,
+            "lowest_similarity_same_token": {
+              "token_str": "                                                                                                                                ",
+              "token_id": 58040,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 105,
+              "similarity": 0.053863525390625,
+              "num_instances": 7
+            },
+            "similarity_to_other_nns": {
+              "vs_2": 0.96435546875,
+              "vs_3": 0.2364501953125,
+              "vs_4": 0.484130859375,
+              "vs_5": 0.1806640625
+            }
+          },
+          {
+            "token_str": "                                                                                                                                ",
+            "token_id": 58040,
+            "caption": "metal pole of the umbrella                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              metal pole to the umbrella",
+            "position": 8,
+            "similarity": 0.06683349609375,
+            "lowest_similarity_same_token": {
+              "token_str": "                                                                                                                                ",
+              "token_id": 58040,
+              "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+              "position": 105,
+              "similarity": 0.053863525390625,
+              "num_instances": 7
+            }
+          },
+          {
+            "token_str": "322",
+            "token_id": 15805,
+            "caption": "license plat reading efw322h",
+            "position": 5,
+            "similarity": 0.0655517578125,
+            "lowest_similarity_same_token": {
+              "token_str": "322",
+              "token_id": 15805,
+              "caption": "signs giving directions to route 322",
+              "position": 7,
+              "similarity": 0.01055908203125,
+              "num_instances": 8
+            }
+          },
+          {
+            "token_str": "gg",
+            "token_id": 14736,
+            "caption": "front tire with red fender                                                              gggggggggggggggggggggggggggggggg                                  yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                                                                                                                                                                                                                                                                                                      h",
+            "position": 16,
+            "similarity": 0.06304931640625,
+            "lowest_similarity_same_token": {
+              "token_str": "gg",
+              "token_id": 14736,
+              "caption": "high white ugg boot",
+              "position": 3,
+              "similarity": 0.0084686279296875,
+              "num_instances": 20
+            }
+          },
+          {
+            "token_str": "uj",
+            "token_id": 9832,
+            "caption": "statue is part of a fountain, & was designed by catalan architect, josep maria jujol",
+            "position": 21,
+            "similarity": 0.06268310546875,
+            "lowest_similarity_same_token": {
+              "token_str": "uj",
+              "token_id": 9832,
+              "caption": "half of fujifilm logo on ad at baseball stadium.",
+              "position": 3,
+              "similarity": 0.031463623046875,
+              "num_instances": 10
+            }
+          }
+        ]
+      },
+      "new": {
+        "visual_layer": 8,
+        "contextual_layer": 8,
+        "nearest_neighbors": [
+          {
+            "token_str": "881",
+            "token_id": 25339,
+            "caption": "4h881 is on boat",
+            "position": 2,
+            "similarity": 0.1903076171875,
+            "lowest_similarity_same_token": {
+              "token_str": "881",
+              "token_id": 25339,
+              "caption": "number 881 white print on a train",
+              "position": 2,
+              "similarity": 0.1309814453125,
+              "num_instances": 4
+            },
+            "similarity_to_other_nns": {
+              "vs_2": 0.65234375,
+              "vs_3": 0.287109375,
+              "vs_4": 0.481201171875,
+              "vs_5": 0.56201171875
+            }
+          },
+          {
+            "token_str": "893",
+            "token_id": 26088,
+            "caption": "faw893 written in white",
+            "position": 2,
+            "similarity": 0.1888427734375,
+            "lowest_similarity_same_token": {
+              "token_str": "893",
+              "token_id": 26088,
+              "caption": "the number to rent is 594-8939",
+              "position": 8,
+              "similarity": 0.1484375,
+              "num_instances": 3
+            }
+          },
+          {
+            "token_str": " !!!",
+            "token_id": 33970,
+            "caption": "we're on a roll !!!",
+            "position": 5,
+            "similarity": 0.1866455078125,
+            "lowest_similarity_same_token": null
+          },
+          {
+            "token_str": "862",
+            "token_id": 24071,
+            "caption": "train number 86260 front side.",
+            "position": 3,
+            "similarity": 0.179931640625,
+            "lowest_similarity_same_token": {
+              "token_str": "862",
+              "token_id": 24071,
+              "caption": "the numbers are 158-862",
+              "position": 6,
+              "similarity": 0.125244140625,
+              "num_instances": 3
+            }
+          },
+          {
+            "token_str": "734",
+            "token_id": 24438,
+            "caption": "f734 written on the side of the boat",
+            "position": 1,
+            "similarity": 0.1790771484375,
+            "lowest_similarity_same_token": {
+              "token_str": "734",
+              "token_id": 24438,
+              "caption": "7348 numbers can be seen",
+              "position": 0,
+              "similarity": 0.05218505859375,
+              "num_instances": 8
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkx269r7y0quz0f6u2",
+  "timestamp": "2025-11-04T18:42:42.148Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:41:58.978Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00154_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:42:04.549Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00154_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:42:11.212Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:42:21.565Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00154_patch4",
+      "selectedWords": [
+        {
+          "word": "Outdoor",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:42:32.660Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00154_patch5",
+      "selectedWords": [
+        {
+          "word": " white",
+          "relation": "concrete"
+        },
+        {
+          "word": " light",
+          "relation": "abstract"
+        },
+        {
+          "word": " Walls",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:42:42.111Z"
+    }
+  ]
+}

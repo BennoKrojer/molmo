@@ -1,0 +1,82 @@
+========================================
+Contextual NN for Human Study Images
+Strategy: 8 independent single-GPU jobs
+========================================
+
+Logs: logs/contextual_nn_human_study_20260113_204040
+
+GPU 0: olmo-7b + vit-l-14-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/olmo-7b_vit-l-14-336.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 1: olmo-7b + dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/olmo-7b_dinov2-large-336.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 2: olmo-7b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/olmo-7b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 3: llama3-8b + vit-l-14-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/llama3-8b_vit-l-14-336.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 4: llama3-8b + dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/llama3-8b_dinov2-large-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 5: llama3-8b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,30,31,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/llama3-8b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  ✓ Model loaded! Launching next...
+GPU 6: qwen2-7b + vit-l-14-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/qwen2-7b_vit-l-14-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+GPU 7: qwen2-7b + dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/qwen2-7b_dinov2-large-336.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+
+All 8 GPUs in use, waiting for a job to complete...
+✓ Completed: olmo-7b+vit-l-14-336
+✓ Completed: olmo-7b+dinov2-large-336
+✓ Completed: olmo-7b+siglip
+✓ Completed: llama3-8b+vit-l-14-336
+✓ Completed: llama3-8b+dinov2-large-336
+✓ Completed: llama3-8b+siglip
+✓ Completed: qwen2-7b+vit-l-14-336
+✓ Completed: qwen2-7b+dinov2-large-336
+GPU 0: qwen2-7b + siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+  Layers: 0,1,16,2,24,26,27,4,8
+  Log: logs/contextual_nn_human_study_20260113_204040/qwen2-7b_siglip.log
+  Waiting for model to load (up to 5 min)...
+  Timeout waiting for model load, continuing anyway...
+
+========================================
+All jobs launched! Waiting for completion...
+========================================
+
+✗ FAILED: qwen2-7b+siglip (exit code: 143)
+
+========================================
+ALL DONE!
+Check logs in: logs/contextual_nn_human_study_20260113_204040
+========================================

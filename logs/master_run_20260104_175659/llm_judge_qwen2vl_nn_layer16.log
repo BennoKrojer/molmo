@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 16
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer16_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:06,  1.39it/s]Processing images:  20%|██        | 2/10 [00:12<00:59,  7.41s/it]Processing images:  30%|███       | 3/10 [00:21<00:57,  8.16s/it]Processing images:  50%|█████     | 5/10 [00:32<00:33,  6.62s/it]Processing images:  70%|███████   | 7/10 [00:43<00:17,  6.00s/it]Processing images:  80%|████████  | 8/10 [00:53<00:13,  6.93s/it]Processing images: 100%|██████████| 10/10 [01:02<00:00,  5.99s/it]Processing images: 100%|██████████| 10/10 [01:02<00:00,  6.24s/it]
+  Patch (2, 13): ['ရ', '_RESULT', 'itech']... -> FAIL
+  Patch (0, 12): ['<TEntity', ' IPAddress', 'ثل']... -> FAIL
+  Patch (6, 8): [' accomp', 'tworzyć', '네']... -> FAIL
+  Patch (5, 4): ['汝', 'Jess', ' totaled']... -> FAIL
+  Patch (3, 5): ['3', '2', '4']... -> FAIL
+  Patch (2, 8): [' MILF', 'ℋ', 'VertexUvs']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped/visualizations
+============================================================
+

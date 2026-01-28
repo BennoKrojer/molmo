@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - CONTEXTUAL
+Model: qwen2-7b + qwen2-vl
+Layer: 0
+Input: analysis_results/contextual_nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/contextual_neighbors_visual0_allLayers.json
+Output: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual0_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  20%|██        | 2/10 [00:09<00:39,  4.95s/it]Processing images:  30%|███       | 3/10 [00:20<00:50,  7.24s/it]Processing images:  40%|████      | 4/10 [00:20<00:27,  4.62s/it]Processing images:  50%|█████     | 5/10 [00:35<00:40,  8.12s/it]Processing images:  70%|███████   | 7/10 [00:45<00:19,  6.56s/it]Processing images:  80%|████████  | 8/10 [00:58<00:16,  8.40s/it]Processing images: 100%|██████████| 10/10 [01:09<00:00,  7.16s/it]Processing images: 100%|██████████| 10/10 [01:09<00:00,  6.98s/it]
+  Patch (2, 13): ['test', 'twitter', 'twitter']... -> FAIL
+  Patch (0, 12): ['didn', 'isn', 'flatscreen)']... -> FAIL
+  Patch (6, 8): ['city', 'city', 'city']... -> PASS
+  Patch (5, 4): ['muddly', 'mush', 'cloud']... -> PASS
+  Patch (3, 5): ['iii', 'iii', 'be']... -> FAIL
+  Patch (2, 8): ['butterflies', 'chees', 'fisbee']... -> FAIL
+
+============================================================
+Results: 2/6 (33.3%)
+Saved to: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual0_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_contextual_nn/qwen2-vl/llm_judge_qwen2vl_contextual0_gpt5_cropped/visualizations
+============================================================
+

@@ -183,7 +183,25 @@ def main(cfg: TrainConfig) -> None:
         init_weights = False
         if get_local_rank() == 0:
             if cfg.model.init_device == "meta":
+                # CRITICAL BUG FIX: to_empty corrupts OpenVision2 weights!
+                # OpenVision2 loads weights during __init__, but to_empty overwrites them with uninitialized memory
+                # Solution: Save OpenVision2 state before to_empty, restore after
+                openvision2_state = None
+                if (cfg.model.vision_backbone is not None and 
+                    cfg.model.vision_backbone.image_model_type == 'openvision2' and
+                    hasattr(olmo_model, 'vision_backbone') and
+                    hasattr(olmo_model.vision_backbone, 'image_vit') and
+                    hasattr(olmo_model.vision_backbone.image_vit, 'vision_encoder')):
+                    log.info("Saving OpenVision2 weights before to_empty() to prevent corruption...")
+                    openvision2_state = olmo_model.vision_backbone.image_vit.vision_encoder.state_dict()
+                
                 olmo_model.to_empty(device="cpu")
+                
+                # Restore OpenVision2 weights
+                if openvision2_state is not None:
+                    log.info("Restoring OpenVision2 weights after to_empty()...")
+                    olmo_model.vision_backbone.image_vit.vision_encoder.load_state_dict(openvision2_state)
+                    del openvision2_state
             if cfg.initial_model_checkpoint:
                 state_dict = torch.load(join(cfg.initial_model_checkpoint, "model.pt"), map_location="cpu")
                 olmo_model.load_state_dict(state_dict)
@@ -192,6 +210,14 @@ def main(cfg: TrainConfig) -> None:
                 olmo_model.reset_with_pretrained_weights()
     else:
         init_weights = True
+
+    # Re-freeze model components after weight loading
+    if cfg.model.vision_backbone is not None and not cfg.ft_connector:
+        freeze_parameters_by_name(olmo_model, Molmo.get_connector_parameters(), warn=False)
+    if cfg.model.vision_backbone is not None and not cfg.ft_vit:
+        freeze_parameters_by_name(olmo_model, Molmo.get_vit_parameters(), warn=False)
+    if not cfg.ft_llm:
+        freeze_parameters_by_name(olmo_model, Molmo.get_llm_parameters(), warn=False)
 
     log.info(f"Total number of parameters: {olmo_model.num_params():,d}")
     log.info(f"Number of non-embedding parameters: {olmo_model.num_params(include_embedding=False):,d}")

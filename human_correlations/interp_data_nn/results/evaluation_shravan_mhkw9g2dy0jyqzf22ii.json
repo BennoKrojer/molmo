@@ -1,0 +1,99 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhkw9g2dy0jyqzf22ii",
+  "timestamp": "2025-11-04T18:20:21.845Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch0",
+      "selectedWords": [
+        {
+          "word": "White",
+          "relation": "global"
+        },
+        {
+          "word": " White",
+          "relation": "global"
+        },
+        {
+          "word": " WHITE",
+          "relation": "global"
+        },
+        {
+          "word": " white",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:19:18.115Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00234_patch1",
+      "selectedWords": [
+        {
+          "word": "Leaf",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:19:34.616Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00234_patch2",
+      "selectedWords": [
+        {
+          "word": " Chicken",
+          "relation": "concrete"
+        },
+        {
+          "word": "_order",
+          "relation": "abstract"
+        },
+        {
+          "word": "(item",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:19:56.948Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:20:01.230Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00234_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-04T18:20:10.833Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00234_patch5",
+      "selectedWords": [
+        {
+          "word": " blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": " Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "-white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-04T18:20:21.781Z"
+    }
+  ]
+}

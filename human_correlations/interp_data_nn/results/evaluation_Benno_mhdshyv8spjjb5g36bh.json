@@ -1,0 +1,61 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdshyv8spjjb5g36bh",
+  "timestamp": "2025-10-30T19:00:32.762Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00087_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:09.020Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00087_patch4",
+      "selectedWords": [
+        {
+          "word": "Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "quoise",
+          "relation": "concrete"
+        },
+        {
+          "word": " turquoise",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:17.135Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00087_patch5",
+      "selectedWords": [
+        {
+          "word": "inbox",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:24.802Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00087_patch6",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:27.119Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00087_patch7",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:29.269Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00087_patch8",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T19:00:37.700Z"
+    }
+  ]
+}

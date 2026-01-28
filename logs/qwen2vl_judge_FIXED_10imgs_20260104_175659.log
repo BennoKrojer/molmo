@@ -1,0 +1,163 @@
+==========================================
+MASTER SCRIPT: Running All Missing Tasks
+==========================================
+Log directory: logs/master_run_20260104_175659
+Dry run: false
+Test mode: false
+Force Qwen2-VL: false
+Qwen2-VL only: false
+Ablations: 9
+==========================================
+
+[2026-01-04 17:56:59] Starting master script
+[2026-01-04 17:56:59] Configuration: NUM_IMAGES=300 (analysis), JUDGE_NUM_IMAGES=10 (LLM judge), LAYERS=0,1,2,4,8,16,24,30,31, SPLIT=validation
+[2026-01-04 17:56:59] 
+[2026-01-04 17:56:59] ========== PHASE 0: Validation ==========
+[2026-01-04 17:56:59] Checking Python script syntax...
+[2026-01-04 17:56:59]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py
+[2026-01-04 17:56:59]   ✓ scripts/analysis/logitlens.py
+[2026-01-04 17:57:00]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py
+[2026-01-04 17:57:00]   ✓ llm_judge/run_llm_judge.py
+[2026-01-04 17:57:00]   ✓ scripts/analysis/qwen2_vl/nearest_neighbors.py
+[2026-01-04 17:57:00]   ✓ scripts/analysis/qwen2_vl/logitlens.py
+[2026-01-04 17:57:00] Checking imports and dependencies...
+Warning: translation disabled (googletrans import error: module 'httpcore' has no attribute 'SyncHTTPTransport'). To enable, install compatible versions, e.g.:
+  pip install 'googletrans==4.0.0rc1' 'httpx<0.24' 'httpcore<1.0'
+[2026-01-04 17:57:05]   ✓ scripts/analysis/general_and_nearest_neighbors_pixmo_cap_multi-gpu.py imports OK
+[2026-01-04 17:57:09]   ✓ scripts/analysis/logitlens.py imports OK
+[2026-01-04 17:57:14]   ✓ scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py imports OK
+[2026-01-04 17:57:23] Checking API key file...
+[2026-01-04 17:57:23]   ✓ llm_judge/api_key.txt exists and is non-empty
+[2026-01-04 17:57:23] Checking checkpoint directories...
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336
+[2026-01-04 17:57:23]   ✓ train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm
+[2026-01-04 17:57:23] Checking contextual embeddings...
+[2026-01-04 17:57:23]   ✓ OLMo contextual embeddings
+[2026-01-04 17:57:23] ✓ All validations passed
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 1: Static NN for ALL Ablations (9 layers) ==========
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336 (14 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6 (9 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10 (9 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear (10 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10 (9 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11 (9 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze (15 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336 (9 layers)
+[2026-01-04 17:57:23] SKIP: NN complete for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm (9 layers)
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 2: LogitLens for ALL Ablations (9 layers) ==========
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336 (9 layers)
+[2026-01-04 17:57:23] SKIP: LogitLens complete for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm (9 layers)
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 3: Contextual NN for ALL Ablations (Parallel) ==========
+[2026-01-04 17:57:23] Visual layers: 0,1,16,2,24,30,31,4,8
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_first-sentence_olmo-7b_vit-l-14-336
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_linear
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed11
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_unfreeze
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336
+[2026-01-04 17:57:23] SKIP: Contextual NN already exists for train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_unfreeze-llm
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 4: LLM Judge NN for Missing Ablations ==========
+[2026-01-04 17:57:23] SKIP: LLM Judge NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-6
+[2026-01-04 17:57:23] SKIP: LLM Judge NN already exists for train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_earlier-vit-layers-10
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 5+6: LLM Judge Contextual NN (LAYERS IN PARALLEL) ==========
+[2026-01-04 17:57:23] Strategy: 9 parallel processes (one per layer), each processes all models sequentially
+[2026-01-04 17:57:23] LAUNCHING: Layer 0 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 1 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 2 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 4 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 8 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 16 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 24 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 26 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 27 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 30 (parallel)
+[2026-01-04 17:57:23] LAUNCHING: Layer 31 (parallel)
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] Waiting for 11 parallel layer jobs...
+[2026-01-04 17:57:23] Phase 5+6 complete: 11/11 layers succeeded
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 7: Static NN for Qwen2-VL (9 layers) ==========
+[2026-01-04 17:57:23] SKIP: Static NN complete for Qwen2-VL (9 layers)
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 8: LogitLens for Qwen2-VL (9 layers) ==========
+[2026-01-04 17:57:23] SKIP: LogitLens complete for Qwen2-VL (9 layers)
+[2026-01-04 17:57:23] 
+[2026-01-04 17:57:23] ========== PHASE 9: LLM Judge NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 0
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 1
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 2
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 4
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 8
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 16
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 24
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 26
+[2026-01-04 17:57:23] LAUNCHING: LLM Judge NN for Qwen2-VL layer 27
+[2026-01-04 17:57:24] Waiting for 9 parallel LLM Judge NN jobs...
+[2026-01-04 17:58:59] ✓ Phase 9 complete
+[2026-01-04 17:58:59] 
+[2026-01-04 17:58:59] ========== PHASE 10: LLM Judge LogitLens for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 0
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 1
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 2
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 4
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 8
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 16
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 24
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 26
+[2026-01-04 17:58:59] LAUNCHING: LLM Judge LogitLens for Qwen2-VL layer 27
+[2026-01-04 17:58:59] Waiting for 9 parallel LLM Judge LogitLens jobs...
+[2026-01-04 18:00:25] ✓ Phase 10 complete
+[2026-01-04 18:00:25] 
+[2026-01-04 18:00:25] ========== PHASE 10.5: Contextual NN for Qwen2-VL (9 layers) ==========
+[2026-01-04 18:00:25] SKIP: Contextual NN complete for Qwen2-VL (9 allLayers files)
+[2026-01-04 18:00:25] 
+[2026-01-04 18:00:25] ========== PHASE 11: LLM Judge Contextual NN for Qwen2-VL (9 layers, parallel) ==========
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 0
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 1
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 2
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 4
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 8
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 16
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 24
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 26
+[2026-01-04 18:00:25] LAUNCHING: LLM Judge Contextual for Qwen2-VL layer 27
+[2026-01-04 18:00:25] Waiting for 9 parallel LLM Judge Contextual jobs...
+[2026-01-04 18:01:44] ✓ Phase 11 complete
+[2026-01-04 18:01:44] 
+[2026-01-04 18:01:44] ==========================================
+[2026-01-04 18:01:44] MASTER SCRIPT COMPLETED
+[2026-01-04 18:01:44] ==========================================
+[2026-01-04 18:01:44] Log directory: logs/master_run_20260104_175659
+[2026-01-04 18:01:44] Check logs/master_run_20260104_175659/master.log for full details
+
+==========================================
+MASTER SCRIPT COMPLETED
+==========================================
+Log directory: logs/master_run_20260104_175659
+
+Next steps:
+1. Check logs for any failures: cat logs/master_run_20260104_175659/master.log | grep FAILED
+2. Regenerate unified viewer if needed
+==========================================

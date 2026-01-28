@@ -226,6 +226,325 @@ class PixMoPoints(Dataset):
         )
 
 
+class PixMoPointsLeftRight(Dataset):
+    """Simplified PixMo Points dataset for left/right classification.
+    
+    Instead of predicting exact coordinates, the model predicts whether an object
+    is on the left or right side of the image. Objects in the middle 60% are skipped.
+    
+    Zones: LEFT (<20%), MIDDLE (20-80%, skipped), RIGHT (>80%)
+    """
+
+    @classmethod
+    def download(cls, n_procs=1, check_sha=True, n_val=2048, cache_only=False, hold_out_pointing_eval=True):
+        # Reuse the same downloaded data as PixMoPoints
+        PixMoPoints.download(n_procs=n_procs, check_sha=check_sha, n_val=n_val, 
+                           cache_only=cache_only, hold_out_pointing_eval=hold_out_pointing_eval)
+
+    def __init__(self, split, kind="basic", keep_in_memory=False):
+        if kind not in ["high_frequency", "basic"]:
+            raise ValueError(f"kind must be 'basic' or 'high_frequency', got {kind}")
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.kind = kind
+        
+        # Load the pointing data (not counting)
+        dataset_name = "points-pointing" if kind == "basic" else "points-counting"
+        self.data = datasets.load_from_disk(
+            join(PIXMO_DATASETS, dataset_name), keep_in_memory=keep_in_memory)[split]
+
+    def __len__(self):
+        return len(self.data)
+    
+    @staticmethod
+    def classify_position(points):
+        """Classify object position as 'left', 'right', or 'middle'.
+        
+        Args:
+            points: Array of (x, y) coordinates in 0-100 scale
+            
+        Returns:
+            'left' if mean x < 20
+            'right' if mean x > 80
+            'middle' otherwise (we skip these)
+        """
+        if len(points) == 0:
+            return None
+        
+        # Get mean x coordinate across all points
+        mean_x = np.mean(points[:, 0])
+        
+        if mean_x < 20:
+            return 'left'
+        elif mean_x > 80:
+            return 'right'
+        else:
+            return 'middle'
+
+    def get(self, item, rng):
+        """Get an example with ONE randomly selected left/right object.
+        
+        Since ~50% of examples have no valid left/right objects (all in middle zone),
+        we keep trying adjacent indices until we find a valid one.
+        """
+        max_attempts = 100  # Avoid infinite loops
+        
+        for attempt in range(max_attempts):
+            idx = (item + attempt) % len(self.data)
+            ex = self.data[idx]
+            valid_objects = []
+            
+            # Collect all valid left/right objects
+            for label, points in zip(ex["label"], ex["points"]):
+                # Convert points to numpy array
+                if len(points) == 0:
+                    continue  # Skip examples with no objects
+                
+                points_array = np.stack([[x["x"] for x in points], [x["y"] for x in points]], -1)
+                position = self.classify_position(points_array)
+                
+                # Skip middle zone objects
+                if position == 'middle' or position is None:
+                    continue
+                
+                valid_objects.append(dict(
+                    label=label,
+                    position=position,  # 'left' or 'right'
+                    style="left_right"  # New style identifier
+                ))
+            
+            # If we found valid objects, randomly select ONE
+            if len(valid_objects) > 0:
+                selected_object = valid_objects[rng.randint(0, len(valid_objects))]
+                
+                return dict(
+                    image=ex["image"],
+                    message_list=[selected_object],  # Only return ONE object
+                    metadata=dict(
+                        image_url=ex["image_url"],
+                    )
+                )
+        
+        # If we still can't find a valid example after max_attempts, raise an error
+        raise RuntimeError(f"Could not find valid left/right example after {max_attempts} attempts starting from index {item}")
+
+
+class PixMoPointsSpatial(Dataset):
+    """Spatial classification dataset supporting both left/right and top/bottom.
+    
+    50% of examples ask "Where is X?" expecting left/right answer
+    50% of examples ask "Where is X?" expecting top/bottom answer
+    
+    Uses 20-80 thresholds for both dimensions:
+    - Horizontal: LEFT (<20%), MIDDLE (20-80%, skipped), RIGHT (>80%)
+    - Vertical: TOP (<20%), MIDDLE (20-80%, skipped), BOTTOM (>80%)
+    """
+
+    @classmethod
+    def download(cls, n_procs=1, check_sha=True, n_val=2048, cache_only=False, hold_out_pointing_eval=True):
+        # Reuse the same downloaded data as PixMoPoints
+        PixMoPoints.download(n_procs=n_procs, check_sha=check_sha, n_val=n_val, 
+                           cache_only=cache_only, hold_out_pointing_eval=hold_out_pointing_eval)
+
+    def __init__(self, split, kind="basic", keep_in_memory=False):
+        if kind not in ["high_frequency", "basic"]:
+            raise ValueError(f"kind must be 'basic' or 'high_frequency', got {kind}")
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.kind = kind
+        
+        # Load the pointing data (not counting)
+        dataset_name = "points-pointing" if kind == "basic" else "points-counting"
+        self.data = datasets.load_from_disk(
+            join(PIXMO_DATASETS, dataset_name), keep_in_memory=keep_in_memory)[split]
+
+    def __len__(self):
+        return len(self.data)
+    
+    @staticmethod
+    def classify_horizontal(points):
+        """Classify horizontal position as 'left', 'right', or 'middle'."""
+        if len(points) == 0:
+            return None
+        mean_x = np.mean(points[:, 0])
+        if mean_x < 20:
+            return 'left'
+        elif mean_x > 80:
+            return 'right'
+        else:
+            return 'middle'
+    
+    @staticmethod
+    def classify_vertical(points):
+        """Classify vertical position as 'top', 'bottom', or 'middle'."""
+        if len(points) == 0:
+            return None
+        mean_y = np.mean(points[:, 1])
+        if mean_y < 20:
+            return 'top'
+        elif mean_y > 80:
+            return 'bottom'
+        else:
+            return 'middle'
+
+    def get(self, item, rng):
+        """Get an example with ONE randomly selected object (either left/right or top/bottom).
+        
+        50% chance of left/right task, 50% chance of top/bottom task.
+        """
+        max_attempts = 100
+        
+        # Randomly decide: left/right or top/bottom
+        use_horizontal = rng.rand() < 0.5
+        
+        for attempt in range(max_attempts):
+            idx = (item + attempt) % len(self.data)
+            ex = self.data[idx]
+            valid_objects = []
+            
+            # Collect all valid objects for the chosen dimension
+            for label, points in zip(ex["label"], ex["points"]):
+                if len(points) == 0:
+                    continue
+                
+                points_array = np.stack([[x["x"] for x in points], [x["y"] for x in points]], -1)
+                
+                # Classify BOTH dimensions for lenient evaluation
+                h_position = self.classify_horizontal(points_array)
+                v_position = self.classify_vertical(points_array)
+                
+                if use_horizontal:
+                    position = h_position
+                    if position in ['left', 'right']:
+                        valid_objects.append(dict(
+                            label=label,
+                            position=position,
+                            horizontal_position=h_position,
+                            vertical_position=v_position,
+                            style="spatial"  # Use generic style identifier
+                        ))
+                else:  # vertical
+                    position = v_position
+                    if position in ['top', 'bottom']:
+                        valid_objects.append(dict(
+                            label=label,
+                            position=position,
+                            horizontal_position=h_position,
+                            vertical_position=v_position,
+                            style="spatial"
+                        ))
+            
+            # If we found valid objects, randomly select ONE
+            if len(valid_objects) > 0:
+                selected_object = valid_objects[rng.randint(0, len(valid_objects))]
+                
+                return dict(
+                    image=ex["image"],
+                    message_list=[selected_object],
+                    metadata=dict(
+                        image_url=ex["image_url"],
+                    )
+                )
+        
+        # If we still can't find a valid example after max_attempts, raise an error
+        raise RuntimeError(f"Could not find valid spatial example after {max_attempts} attempts starting from index {item}")
+
+
+class PixMoPointsTopBottom(Dataset):
+    """Top/bottom classification dataset.
+    
+    100% of examples ask "Where is X?" expecting top/bottom answer
+    
+    Uses 20-80 thresholds for vertical dimension:
+    - Vertical: TOP (<20%), MIDDLE (20-80%, skipped), BOTTOM (>80%)
+    """
+
+    @classmethod
+    def download(cls, n_procs=1, check_sha=True, n_val=2048, cache_only=False, hold_out_pointing_eval=True):
+        # Reuse the same downloaded data as PixMoPoints
+        PixMoPoints.download(n_procs=n_procs, check_sha=check_sha, n_val=n_val, 
+                           cache_only=cache_only, hold_out_pointing_eval=hold_out_pointing_eval)
+
+    def __init__(self, split, kind="basic", keep_in_memory=False):
+        if kind not in ["high_frequency", "basic"]:
+            raise ValueError(f"kind must be 'basic' or 'high_frequency', got {kind}")
+        if split not in ["train", "validation"]:
+            raise ValueError(f"Unknown split {split}")
+        
+        self.split = split
+        self.kind = kind
+        
+        # Load the pointing data (not counting)
+        dataset_name = "points-pointing" if kind == "basic" else "points-counting"
+        self.data = datasets.load_from_disk(
+            join(PIXMO_DATASETS, dataset_name), keep_in_memory=keep_in_memory)[split]
+
+    def __len__(self):
+        return len(self.data)
+    
+    @staticmethod
+    def classify_vertical(points):
+        """Classify vertical position as 'top', 'bottom', or 'middle'."""
+        if len(points) == 0:
+            return None
+        mean_y = np.mean(points[:, 1])
+        if mean_y < 20:
+            return 'top'
+        elif mean_y > 80:
+            return 'bottom'
+        else:
+            return 'middle'
+
+    def get(self, item, rng):
+        """Get an example with ONE randomly selected object (top/bottom only).
+        
+        Always returns top/bottom task.
+        """
+        max_attempts = 100
+        
+        for attempt in range(max_attempts):
+            idx = (item + attempt) % len(self.data)
+            ex = self.data[idx]
+            valid_objects = []
+            
+            # Collect all valid objects for vertical dimension
+            for label, points in zip(ex["label"], ex["points"]):
+                if len(points) == 0:
+                    continue
+                
+                points_array = np.stack([[x["x"] for x in points], [x["y"] for x in points]], -1)
+                
+                # Classify vertical dimension
+                v_position = self.classify_vertical(points_array)
+                
+                if v_position in ['top', 'bottom']:
+                    valid_objects.append(dict(
+                        label=label,
+                        position=v_position,
+                        vertical_position=v_position,
+                        style="top_bottom"
+                    ))
+            
+            # If we found valid objects, randomly select ONE
+            if len(valid_objects) > 0:
+                selected_object = valid_objects[rng.randint(0, len(valid_objects))]
+                
+                return dict(
+                    image=ex["image"],
+                    message_list=[selected_object],
+                    metadata=dict(
+                        image_url=ex["image_url"],
+                    )
+                )
+        
+        # If we still can't find a valid example after max_attempts, raise an error
+        raise RuntimeError(f"Could not find valid top/bottom example after {max_attempts} attempts starting from index {item}")
+
+
 class PixMoPointExplanations(Dataset):
 
     @classmethod

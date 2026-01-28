@@ -1,0 +1,23 @@
+
+============================================================
+LLM Judge - LOGITLENS
+Model: qwen2-7b + qwen2-vl
+Layer: 16
+Input: analysis_results/logit_lens/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/logit_lens_layer16_topk5.json
+Output: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:00<00:05,  1.56it/s]Processing images:  20%|██        | 2/10 [00:10<00:49,  6.16s/it]Processing images:  30%|███       | 3/10 [00:21<00:58,  8.36s/it]Processing images:  50%|█████     | 5/10 [00:30<00:30,  6.16s/it]Processing images:  70%|███████   | 7/10 [00:41<00:17,  5.82s/it]Processing images:  80%|████████  | 8/10 [00:50<00:13,  6.59s/it]Processing images: 100%|██████████| 10/10 [00:58<00:00,  5.64s/it]Processing images: 100%|██████████| 10/10 [00:59<00:00,  5.90s/it]
+  Patch (2, 13): ['opération', '补贴', '/topics']... -> FAIL
+  Patch (0, 12): ['生产总', ' getSupportActionBar', '务']... -> FAIL
+  Patch (6, 8): ['们都', '俱乐', '1']... -> FAIL
+  Patch (5, 4): ['鲳', '1', '...']... -> FAIL
+  Patch (3, 5): ['就来看看', '从根本', ' kj']... -> FAIL
+  Patch (2, 8): ['getDisplay', '原因是', 'noinspection']... -> FAIL
+
+============================================================
+Results: 0/6 (0.0%)
+Saved to: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped/results_validation.json
+Visualizations: analysis_results/llm_judge_logitlens/qwen2-vl/llm_judge_qwen2vl_layer16_gpt5_cropped/visualizations
+============================================================
+

@@ -35,7 +35,8 @@ dependencies = [
     "einops-exts==0.0.4",
     "tqdm==4.67.1",
     "gcsfs==2023.9.2",
-    "accelerate==1.5.2"
+    "accelerate==1.5.2",
+    "matplotlib"
 ]
 
 [project.optional-dependencies]

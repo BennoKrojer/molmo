@@ -1,0 +1,64 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxg7cutf7qlckzrbz",
+  "timestamp": "2025-11-13T13:11:50.893Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00134_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:11:28.612Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00134_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:11:31.741Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00134_patch2",
+      "selectedWords": [
+        {
+          "word": "messenger bag strap on shoulder",
+          "relation": "global"
+        },
+        {
+          "word": "messenger bag on the floor",
+          "relation": "global"
+        },
+        {
+          "word": "messenger bag hung from female's left shoulder",
+          "relation": "global"
+        },
+        {
+          "word": "a note by a big fan of the toilet messaging system",
+          "relation": "global"
+        },
+        {
+          "word": "electronic message board on the front of a train",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:11:46.095Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:11:48.591Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:11:49.736Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00134_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:11:50.741Z"
+    }
+  ]
+}

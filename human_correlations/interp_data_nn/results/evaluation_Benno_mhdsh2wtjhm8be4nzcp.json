@@ -1,0 +1,64 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsh2wtjhm8be4nzcp",
+  "timestamp": "2025-10-30T18:59:51.340Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00102_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:15.570Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00102_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:21.640Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00102_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:25.869Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00102_patch6",
+      "selectedWords": [
+        {
+          "word": " arab",
+          "relation": "concrete"
+        },
+        {
+          "word": " Arab",
+          "relation": "concrete"
+        },
+        {
+          "word": " Arabs",
+          "relation": "concrete"
+        },
+        {
+          "word": " Arabic",
+          "relation": "concrete"
+        },
+        {
+          "word": "Language",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:37.168Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00102_patch7",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:43.435Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00102_patch8",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:59:56.285Z"
+    }
+  ]
+}

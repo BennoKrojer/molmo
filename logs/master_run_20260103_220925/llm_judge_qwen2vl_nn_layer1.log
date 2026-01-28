@@ -1,0 +1,10 @@
+
+============================================================
+LLM Judge - NN
+Model: qwen2-7b + qwen2-vl
+Layer: 1
+Input: analysis_results/nearest_neighbors/qwen2_vl/Qwen_Qwen2-VL-7B-Instruct/nearest_neighbors_layer1_topk5.json
+Output: analysis_results/llm_judge_nearest_neighbors/qwen2-vl/llm_judge_qwen2vl_layer1_gpt5_cropped
+============================================================
+
+Processing images:   0%|          | 0/300 [00:00<?, ?it/s]Processing images:   0%|          | 1/300 [00:11<59:16, 11.90s/it]

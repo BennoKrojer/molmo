@@ -1,0 +1,82 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwee5o1nn0ycgqvvr",
+  "timestamp": "2025-11-12T19:33:22.742Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch0",
+      "selectedWords": [
+        {
+          "word": "a black chair in a room",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T17:41:06.821Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00084_patch1",
+      "selectedWords": [
+        {
+          "word": "some food in bright plastic packages",
+          "relation": "global"
+        },
+        {
+          "word": "a cardboard box full of packaged snacks",
+          "relation": "abstract"
+        },
+        {
+          "word": "black bowl holding packaged food",
+          "relation": "abstract"
+        },
+        {
+          "word": "a plastic lid filled with packaged items.",
+          "relation": "abstract"
+        },
+        {
+          "word": "a few rows of packaged blueberries",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:32:06.526Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00084_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:32:23.296Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:32:32.301Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00084_patch4",
+      "selectedWords": [
+        {
+          "word": "crumbled white napkin on counter",
+          "relation": "concrete"
+        },
+        {
+          "word": "a yellow dessert plate on a counter",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman sitting at a restaurant",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:33:11.471Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00084_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:33:22.609Z"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdsc5fx1dbt7rbol1n",
+  "timestamp": "2025-10-30T18:56:01.345Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00208_patch0",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:55:39.534Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00208_patch1",
+      "selectedWords": [
+        {
+          "word": " red",
+          "relation": "concrete"
+        },
+        {
+          "word": "-red",
+          "relation": "concrete"
+        },
+        {
+          "word": "Pink",
+          "relation": "concrete"
+        },
+        {
+          "word": " redd",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:55:46.820Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00208_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:55:48.702Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00208_patch3",
+      "selectedWords": [
+        {
+          "word": " ice",
+          "relation": "global"
+        },
+        {
+          "word": " Ice",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:55:56.285Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00208_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:55:59.351Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00208_patch5",
+      "selectedWords": [
+        {
+          "word": " tasty",
+          "relation": "abstract"
+        },
+        {
+          "word": " delicious",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:56:06.285Z"
+    }
+  ]
+}

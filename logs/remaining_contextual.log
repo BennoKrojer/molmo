@@ -1,0 +1,126 @@
+========================================
+Contextual NN for 7 remaining models
+========================================
+Logs: logs/remaining_contextual_nn_20260113_210916
+
+GPU 0: llama3-8b_dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+  Contextual: molmo_data/contextual_llm_embeddings_vg/meta-llama_Meta-Llama-3-8B
+  Visual layers: 0,1,16,2,24,30,31,4,8
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded
+  Waiting for model to load...
+
+GPU 1: llama3-8b_siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip/step12000-unsharded
+  Contextual: molmo_data/contextual_llm_embeddings_vg/meta-llama_Meta-Llama-3-8B
+  Visual layers: 0,1,16,2,24,30,31,4,8
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded
+  Waiting for model to load...
+  ✓ Model loaded!
+
+GPU 2: llama3-8b_vit-l-14-336
+  Checkpoint: molmo_data/checkpoi
+GPU 3: olmo-7b_siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip/step12000-unsharded
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded
+  Waiting for model to load...
+
+GPU 4: qwen2-7b_dinov2-large-336
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336/step12000-unsharded
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded
+  Waiting for model to load...
+
+GPU 5: qwen2-7b_siglip
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded
+  Waiting for model to load...
+
+GPU 6: qwen2-7b_vit-l-14-336_seed10
+  Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10/step12000-unsharded
+  Supplement dir: analysis_results/contextual_nearest_neighbors_supplement/train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_step12000-unsharded_seed10
+  Waiting for model to load...
+
+All extraction jobs launched. Waiting for completion...
+
+========================================
+Merging results...
+========================================
+Merging results...
+=======================================Skipping llama3-8b_siglip (no supplement files)
+Skipping llama3-8b_vit-l-14-336 (no supplement files)
+Merging olmo-7b_siglip...
+Merging 9 files...
+  contextual_neighbors_visual0_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual16_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual1_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual24_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual2_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual30_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual31_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual4_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual8_allLayers.json: 100 + 36 = 136
+Done!
+S
+========================================
+Merging results...
+========================================
+Skipping llama3-8b_dinov2-large-336 (no supplement files)
+Merging llama3-8b_siglip...
+Merging 9 files...
+  contextual_neighbors_visual0_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual16_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual1_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual24_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual2_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual30_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual31_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual4_allLayers.json: 100 + 36 = 136
+  contextual_neighbors_visual8_allLayers.json: 100 + 36 = 136
+Done!
+Skipping llama3-8b_vit-l-14-336 (no supplement files)
+Merging olmo-7b_siglip...
+Merging 9 files...
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual0_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual16_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual1_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual24_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual2_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual30_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual31_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual4_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual8_allLayers.json: 136 + 36 = 136
+Done!
+Skipping qwen2-7b_dinov2-large-336 (no supplement files)
+Merging qwen2-7b_siglip...
+Merging 9 files...
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual0_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual16_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual1_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual24_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual26_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual27_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual2_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual4_allLayers.json: 136 + 36 = 136
+  Warning: 36 overlapping indices, keeping base version
+  contextual_neighbors_visual8_allLayers.json: 136 + 36 = 136
+Done!
+Skipping qwen2-7b_vit-l-14-336_seed10 (no supplement files)
+
+Done!

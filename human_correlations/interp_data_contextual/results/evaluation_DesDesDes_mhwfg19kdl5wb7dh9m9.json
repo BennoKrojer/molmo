@@ -1,0 +1,91 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwfg19kdl5wb7dh9m9",
+  "timestamp": "2025-11-12T20:02:49.958Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00032_patch0",
+      "selectedWords": [
+        {
+          "word": "kittens laying in wicker basket",
+          "relation": "concrete"
+        },
+        {
+          "word": "small brown table with two chairs",
+          "relation": "concrete"
+        },
+        {
+          "word": "there is a black chair that",
+          "relation": "concrete"
+        },
+        {
+          "word": "torn wicker on side of basket",
+          "relation": "concrete"
+        },
+        {
+          "word": "two brown wicker baskets with orange and red fruit",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:00:23.393Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00032_patch1",
+      "selectedWords": [
+        {
+          "word": "ground is reddish brown colored",
+          "relation": "concrete"
+        },
+        {
+          "word": "table is a reddish-brown",
+          "relation": "concrete"
+        },
+        {
+          "word": "the limb is reddish brown.",
+          "relation": "concrete"
+        },
+        {
+          "word": "the table is reddish brown",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:02:25.732Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00032_patch2",
+      "selectedWords": [
+        {
+          "word": "green+formal photo of gorgeous house+pond looks like a set from \"the prisoner\"",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:02:35.923Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00032_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:02:41.579Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00032_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T20:02:44.199Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00032_patch5",
+      "selectedWords": [
+        {
+          "word": "a bird with a white and brown chest",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T20:02:49.832Z"
+    }
+  ]
+}

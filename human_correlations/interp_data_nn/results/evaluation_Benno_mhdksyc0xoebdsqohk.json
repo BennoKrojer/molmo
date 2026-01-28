@@ -1,0 +1,65 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdksyc0xoebdsqohk",
+  "timestamp": "2025-10-30T15:25:13.309Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00047_patch0",
+      "selectedWords": [
+        {
+          "word": " trout",
+          "relation": "concrete"
+        },
+        {
+          "word": "wich",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:24:23.949Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00047_patch1",
+      "selectedWords": [
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": "inoa",
+          "relation": "concrete"
+        },
+        {
+          "word": "iflower",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:24:41.064Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00047_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:24:50.330Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00047_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:25:06.631Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00047_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:25:09.163Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00047_patch5",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:25:13.296Z"
+    }
+  ]
+}

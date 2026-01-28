@@ -1,0 +1,61 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "miu5tn2r5ztq3smn7sa",
+  "timestamp": "2025-12-06T10:37:38.562Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00299_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:36:43.807Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00299_patch4",
+      "selectedWords": [
+        {
+          "word": "birthday cake with thick yellow-orange icing.",
+          "relation": "concrete"
+        },
+        {
+          "word": "'boarder pants are multi-color, multi-pattern, graffiti-ish",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:36:58.046Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00299_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:37:04.875Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00299_patch6",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:37:27.067Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00299_patch7",
+      "selectedWords": [
+        {
+          "word": "the colorful drawings on the elephant",
+          "relation": "concrete"
+        },
+        {
+          "word": "black and colorful kite",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-12-06T10:37:33.937Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00299_patch8",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-12-06T10:37:38.451Z"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdrnvcrvjcnl0g6hpo",
+  "timestamp": "2025-10-30T18:37:08.579Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00155_patch0",
+      "selectedWords": [
+        {
+          "word": " move",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:36:43.517Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00155_patch1",
+      "selectedWords": [
+        {
+          "word": " bikes",
+          "relation": "concrete"
+        },
+        {
+          "word": " Bike",
+          "relation": "concrete"
+        },
+        {
+          "word": " Bicycle",
+          "relation": "concrete"
+        },
+        {
+          "word": " bicycle",
+          "relation": "concrete"
+        },
+        {
+          "word": " bicycles",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:36:55.435Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00155_patch2",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:36:58.284Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00155_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:37:08.467Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00155_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:37:09.933Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00155_patch5",
+      "selectedWords": [
+        {
+          "word": " factory",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:37:13.467Z"
+    }
+  ]
+}

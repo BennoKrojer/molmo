@@ -1,0 +1,41 @@
+================================================================================
+Vision Token L2 Norm Across Layers (Single-GPU)
+================================================================================
+
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+Dataset split: validation
+Number of images: 10
+Target layers: [0, 4, 8, 16, 24, 31]
+Histogram bins: 50
+
+Loading model from molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336/step12000-unsharded
+Detected full checkpoint (31.49 GB)
+Skipping pretrained weights loading (checkpoint contains all weights)
+Loading checkpoint weights...
+Loaded 732 parameter tensors from checkpoint
+Moving model to GPU (fp16)...
+Model loaded on device: cuda
+
+Loading PixMo-Cap validation split...
+
+Processing 10 images...
+Processing images:   0%|          | 0/10 [00:00<?, ?it/s]Processing images:  10%|█         | 1/10 [00:01<00:09,  1.04s/it]Processing images:  20%|██        | 2/10 [00:01<00:06,  1.20it/s]Processing images:  30%|███       | 3/10 [00:02<00:05,  1.26it/s]Processing images:  40%|████      | 4/10 [00:03<00:04,  1.28it/s]Processing images:  50%|█████     | 5/10 [00:04<00:04,  1.13it/s]Processing images:  60%|██████    | 6/10 [00:05<00:03,  1.20it/s]Processing images:  70%|███████   | 7/10 [00:05<00:02,  1.26it/s]Processing images:  80%|████████  | 8/10 [00:06<00:01,  1.30it/s]Processing images:  90%|█████████ | 9/10 [00:07<00:00,  1.28it/s]Processing images: 100%|██████████| 10/10 [00:08<00:00,  1.22it/s]Processing images: 100%|██████████| 10/10 [00:08<00:00,  1.22it/s]
+
+✓ Saving detailed results to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded/l2norm_across_layers_detailed.json...
+✓ Saving summary to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded/l2norm_across_layers_summary.json...
+✓ Saving raw values to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded/l2norm_raw_values.json...
+
+================================================================================
+Summary: L2 Norm Statistics per Layer (Vision Tokens)
+================================================================================
+Layer      Mean            Std             Min             Max             Samples   
+--------------------------------------------------------------------------------
+0          2778.6239       28529.4883      643.2805        721474.4375     5760      
+4          2778.4913       28529.4960      643.2930        721474.4375     5760      
+8          2774.6196       28529.6808      639.8917        721474.4375     5760      
+16         2764.2633       28530.1637      630.0920        721474.4375     5760      
+24         2757.7624       28530.4647      625.4515        721474.3750     5760      
+31         2756.2201       28530.5409      626.7401        721474.3750     5760      
+================================================================================
+
+✓ Analysis complete! Results saved to analysis_results/sameToken_acrossLayers_l2norm/train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded

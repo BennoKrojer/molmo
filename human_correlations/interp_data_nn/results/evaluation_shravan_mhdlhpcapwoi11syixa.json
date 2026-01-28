@@ -1,0 +1,53 @@
+{
+  "userId": "shravan",
+  "sessionId": "mhdlhpcapwoi11syixa",
+  "timestamp": "2025-10-30T15:44:28.092Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00153_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:42:14.761Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00153_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:42:24.413Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:43:16.675Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T15:43:26.507Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00153_patch4",
+      "selectedWords": [
+        {
+          "word": "meeting (translated from 会)",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:44:07.590Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00153_patch5",
+      "selectedWords": [
+        {
+          "word": " Bark",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T15:44:28.041Z"
+    }
+  ]
+}

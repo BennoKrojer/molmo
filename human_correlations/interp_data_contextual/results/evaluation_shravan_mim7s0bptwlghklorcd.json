@@ -1,0 +1,74 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim7s0bptwlghklorcd",
+  "timestamp": "2025-11-30T21:10:12.495Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch0",
+      "selectedWords": [
+        {
+          "word": "giraffe on right with protrusions",
+          "relation": "concrete"
+        },
+        {
+          "word": "the meter has red arrows pointing upward.",
+          "relation": "concrete"
+        },
+        {
+          "word": "dark blue court with thick and thin white lines",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:09:02.487Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00007_patch1",
+      "selectedWords": [
+        {
+          "word": "back of a red and gold train toy",
+          "relation": "concrete"
+        },
+        {
+          "word": "man wearing red outfit with black and gold stripes.",
+          "relation": "concrete"
+        },
+        {
+          "word": "white plate with gold filigree",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:09:20.103Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:09:30.574Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00007_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:09:40.870Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00007_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:09:42.742Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00007_patch5",
+      "selectedWords": [
+        {
+          "word": "pomeranian is attempting to read medical book",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:10:12.133Z"
+    }
+  ]
+}

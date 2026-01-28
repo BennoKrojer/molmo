@@ -1,0 +1,95 @@
+{
+  "userId": "Benno",
+  "sessionId": "mhdr592pgpe4301fty6",
+  "timestamp": "2025-10-30T18:22:39.885Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch0",
+      "selectedWords": [
+        {
+          "word": "White",
+          "relation": "concrete"
+        },
+        {
+          "word": " White",
+          "relation": "concrete"
+        },
+        {
+          "word": " latina",
+          "relation": "concrete"
+        },
+        {
+          "word": " WHITE",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:16.503Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00234_patch1",
+      "selectedWords": [
+        {
+          "word": "Leaf",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:25.353Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00234_patch2",
+      "selectedWords": [
+        {
+          "word": " Chicken",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:31.886Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00234_patch3",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:33.137Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00234_patch4",
+      "selectedWords": [],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:36.786Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00234_patch5",
+      "selectedWords": [
+        {
+          "word": " Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "Blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "blue",
+          "relation": "concrete"
+        },
+        {
+          "word": " blue",
+          "relation": "concrete"
+        },
+        {
+          "word": "-white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:22:44.785Z"
+    }
+  ]
+}

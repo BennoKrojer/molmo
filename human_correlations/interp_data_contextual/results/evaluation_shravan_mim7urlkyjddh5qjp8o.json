@@ -1,0 +1,64 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim7urlkyjddh5qjp8o",
+  "timestamp": "2025-11-30T21:12:21.156Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00134_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:11:48.778Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00134_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:11:58.377Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00134_patch2",
+      "selectedWords": [
+        {
+          "word": "electronic message board on the front of a train",
+          "relation": "global"
+        },
+        {
+          "word": "a note by a big fan of the toilet messaging system",
+          "relation": "global"
+        },
+        {
+          "word": "messenger bag strap on shoulder",
+          "relation": "global"
+        },
+        {
+          "word": "messenger bag on the floor",
+          "relation": "global"
+        },
+        {
+          "word": "messenger bag hung from female's left shoulder",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T21:12:16.011Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:12:17.672Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00134_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:12:19.065Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_dinov2-large-336_step12000-unsharded_00134_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T21:12:20.792Z"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwfce4oqtvgdt5bqc",
+  "timestamp": "2025-11-12T20:00:00.003Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00031_patch0",
+      "selectedWords": [
+        {
+          "word": "faded green and yellow leaves in front of a stick like plant with yellow/green fruit",
+          "relation": "global"
+        },
+        {
+          "word": "rocks in front of green bushes",
+          "relation": "global"
+        },
+        {
+          "word": "flowers in vase have bloomed",
+          "relation": "concrete"
+        },
+        {
+          "word": "a parked blue/green bike",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:59:45.518Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:59:48.139Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:59:52.091Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00031_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:59:53.705Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00031_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:59:58.343Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00031_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:59:59.880Z"
+    }
+  ]
+}

@@ -25,6 +25,8 @@ import altair as alt
 from PIL import Image
 import io
 
+from olmo.data.pixmo_datasets import PixMoCap
+
 log = logging.getLogger(__name__)
 
 def escape_for_html_attribute(text: str) -> str:
@@ -44,41 +46,52 @@ def patch_idx_to_row_col(patch_idx: int, patches_per_chunk: int) -> Tuple[int, i
     col = patch_idx % grid_size
     return row, col
 
+def pil_image_to_base64(img: Image.Image, preprocessor=None) -> str:
+    """Convert PIL Image to base64 string for embedding in HTML, with optional preprocessing."""
+    try:
+        if img is None:
+            return ""
+        
+        # Convert to RGB if needed
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Apply the same preprocessing as the model if preprocessor is provided
+        if preprocessor is not None:
+            try:
+                # Convert PIL image to numpy array for preprocessing
+                from olmo.data.model_preprocessor import load_image
+                image_array = load_image(img)
+                
+                # Apply the same preprocessing as the model
+                processed_image, img_mask = preprocessor.mm_preprocessor.resize_image(
+                    image_array, 
+                    (512, 512), 
+                    is_training=False,
+                    rng=np.random
+                )
+                
+                # Convert back to PIL image (processed_image is in [0,1] range)
+                processed_image = (processed_image * 255).astype(np.uint8)
+                img = Image.fromarray(processed_image)
+                print(f"Applied preprocessing to image")
+            except Exception as e:
+                print(f"Could not preprocess image: {e}, using original")
+        
+        # Convert to base64
+        buffered = io.BytesIO()
+        img.save(buffered, format="JPEG", quality=95)
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        return f"data:image/jpeg;base64,{img_str}"
+    except Exception as e:
+        log.warning(f"Could not convert image to base64: {e}")
+        return ""
+
 def image_to_base64(image_path: str, preprocessor=None) -> str:
     """Convert image file to base64 string for embedding in HTML, with optional preprocessing."""
     try:
         with Image.open(image_path) as img:
-            # Convert to RGB if needed
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            
-            # Apply the same preprocessing as the model if preprocessor is provided
-            if preprocessor is not None:
-                try:
-                    # Convert PIL image to numpy array for preprocessing
-                    from olmo.data.model_preprocessor import load_image
-                    image_array = load_image(img)
-                    
-                    # Apply the same preprocessing as the model
-                    processed_image, img_mask = preprocessor.mm_preprocessor.resize_image(
-                        image_array, 
-                        (512, 512), 
-                        is_training=False,
-                        rng=np.random
-                    )
-                    
-                    # Convert back to PIL image (processed_image is in [0,1] range)
-                    processed_image = (processed_image * 255).astype(np.uint8)
-                    img = Image.fromarray(processed_image)
-                    print(f"Applied preprocessing to image: {image_path}")
-                except Exception as e:
-                    print(f"Could not preprocess image {image_path}: {e}, using original")
-            
-            # Convert to base64
-            buffered = io.BytesIO()
-            img.save(buffered, format="JPEG", quality=95)
-            img_str = base64.b64encode(buffered.getvalue()).decode()
-            return f"data:image/jpeg;base64,{img_str}"
+            return pil_image_to_base64(img, preprocessor)
     except Exception as e:
         log.warning(f"Could not convert image {image_path} to base64: {e}")
         return ""
@@ -305,6 +318,7 @@ def create_html_with_image_overlay(
     image_data: Dict,
     dataset_type: str = "pixmo_cap",
     images_dir: Optional[Path] = None,
+    pil_image: Optional[Image.Image] = None,
     split_name: str = "unknown",
     output_path: Optional[str] = None,
     preprocessor=None
@@ -338,15 +352,18 @@ def create_html_with_image_overlay(
         patches_per_chunk = len(chunks[0].get("patches", []))
         grid_size = int(math.sqrt(patches_per_chunk))
         
-        # Try to find the image file
+        # Try to get the image: first from PIL image, then from images_dir
         image_base64 = ""
-        image_filename = image_data.get("image_filename")
-        if images_dir and image_filename:
-            image_path = images_dir / image_filename
-            if image_path.exists():
-                image_base64 = image_to_base64(str(image_path), preprocessor)
-            else:
-                print(f"Image file not found: {image_path}")
+        if pil_image is not None:
+            image_base64 = pil_image_to_base64(pil_image, preprocessor)
+        elif images_dir:
+            image_filename = image_data.get("image_filename")
+            if image_filename:
+                image_path = images_dir / image_filename
+                if image_path.exists():
+                    image_base64 = image_to_base64(str(image_path), preprocessor)
+                else:
+                    print(f"Image file not found: {image_path}")
         
         # Prepare patch data
         patch_data = []
@@ -688,11 +705,23 @@ def main():
         output_dir = results_file.parent / f"interactive_visualizations_{args.dataset}_{identifier}"
     output_dir.mkdir(exist_ok=True)
     
-    # Try to find images directory
+    # Load dataset if using pixmo_cap (for direct image loading)
+    dataset = None
+    if args.dataset == "pixmo_cap":
+        try:
+            print(f"Loading PixMoCap dataset ({args.split} split)...")
+            dataset = PixMoCap(split=args.split, mode="captions")
+            print(f"✓ Dataset loaded successfully")
+        except Exception as e:
+            print(f"Could not load dataset: {e}")
+            print("Will try to use images directory instead")
+    
+    # Try to find images directory (fallback)
     images_dir = results_file.parent / "images"
     if not images_dir.exists():
-        print(f"Warning: Images directory not found at {images_dir}")
-        print("Will create visualizations without image background")
+        if dataset is None:
+            print(f"Warning: Images directory not found at {images_dir} and dataset not loaded")
+            print("Will create visualizations without image background")
         images_dir = None
     else:
         print(f"Found images directory: {images_dir}")
@@ -728,20 +757,44 @@ def main():
         try:
             print(f"Creating visualization for image {idx}...")
             
+            # Try to load image from dataset first
+            pil_image = None
+            if dataset is not None:
+                try:
+                    actual_image_idx = image_data.get("image_idx", idx)
+                    print(f"  Loading image {actual_image_idx} from dataset...")
+                    example_data = dataset.get(actual_image_idx, np.random)
+                    image_data_raw = example_data.get("image")
+                    
+                    # Handle both PIL Image and file path string
+                    if isinstance(image_data_raw, str):
+                        print(f"  Image is a file path, loading: {image_data_raw}")
+                        pil_image = Image.open(image_data_raw)
+                    elif isinstance(image_data_raw, Image.Image):
+                        print(f"  Image is already PIL Image")
+                        pil_image = image_data_raw
+                    else:
+                        print(f"  Unknown image type: {type(image_data_raw)}")
+                    
+                    if pil_image:
+                        print(f"  ✓ Successfully loaded image: mode={pil_image.mode}, size={pil_image.size}")
+                except Exception as e:
+                    print(f"  Could not load image from dataset: {e}")
+                    pil_image = None
+            
             output_filename = f"interactive_nn_viewer_{args.dataset}_{args.split}_image_{idx:04d}.html"
             output_path = output_dir / output_filename
             
-            # Try to create HTML with image background first
-            success = False
-            if images_dir:
-                success = create_html_with_image_overlay(
-                    image_data,
-                    dataset_type=args.dataset,
-                    images_dir=images_dir,
-                    split_name=args.split,
-                    output_path=str(output_path),
-                    preprocessor=preprocessor
-                )
+            # Try to create HTML with image background
+            success = create_html_with_image_overlay(
+                image_data,
+                dataset_type=args.dataset,
+                images_dir=images_dir,
+                pil_image=pil_image,
+                split_name=args.split,
+                output_path=str(output_path),
+                preprocessor=preprocessor
+            )
             
             # Fall back to Altair grid if HTML creation failed
             if not success:

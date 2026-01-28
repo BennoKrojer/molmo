@@ -1,0 +1,281 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg/allenai_OLMo-7B-1024-preview
+Visual layers: [0, 1, 2, 4, 8, 16, 24, 30, 31]
+Contextual layers: [1, 2, 4, 8, 16, 24, 30, 31]
+Images: 100
+Total forward passes: 8 caches × 100 images = 800
+
+======================================================================
+LOADING MODEL
+======================================================================
+  Loading weights...
+  Moving to GPU (bf16)...
+✓ Model loaded in 69.2s
+
+======================================================================
+PRELOADING IMAGES TO GPU
+======================================================================
+  Loading 100 images directly to GPU...
+    0/100...
+    10/100...
+    20/100...
+    30/100...
+    40/100...
+    50/100...
+    60/100...
+    70/100...
+    80/100...
+    90/100...
+✓ Images preloaded in 4.8s (20.8 img/s)
+
+======================================================================
+CONTEXTUAL LAYER 1 (1/8)
+======================================================================
+  Loading cache to GPU... done (3.5s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (59074.7 img/s)
+    Image 6/100 (1.4 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.1 img/s)
+    Image 46/100 (1.1 img/s)
+    Image 51/100 (1.1 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 98.8s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 2 (2/8)
+======================================================================
+  Loading cache to GPU... done (47.8s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (95325.1 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.1 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.0s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 4 (3/8)
+======================================================================
+  Loading cache to GPU... done (40.0s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (85598.0 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.0 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.4s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 8 (4/8)
+======================================================================
+  Loading cache to GPU... done (40.9s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (85598.0 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.0 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.4s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 16 (5/8)
+======================================================================
+  Loading cache to GPU... done (51.3s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (97542.0 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.1 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.2s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 24 (6/8)
+======================================================================
+  Loading cache to GPU... done (41.6s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (97542.0 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.0 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.5s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 30 (7/8)
+======================================================================
+  Loading cache to GPU... done (43.4s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (95325.1 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.0 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.4s (1.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 31 (8/8)
+======================================================================
+  Loading cache to GPU... done (34.7s, 306962 embeddings on GPU)
+  Processing 100 images (from GPU)...
+    Image 1/100 (89240.5 img/s)
+    Image 6/100 (1.5 img/s)
+    Image 11/100 (1.2 img/s)
+    Image 16/100 (1.1 img/s)
+    Image 21/100 (1.1 img/s)
+    Image 26/100 (1.1 img/s)
+    Image 31/100 (1.1 img/s)
+    Image 36/100 (1.1 img/s)
+    Image 41/100 (1.0 img/s)
+    Image 46/100 (1.0 img/s)
+    Image 51/100 (1.0 img/s)
+    Image 56/100 (1.0 img/s)
+    Image 61/100 (1.0 img/s)
+    Image 66/100 (1.0 img/s)
+    Image 71/100 (1.0 img/s)
+    Image 76/100 (1.0 img/s)
+    Image 81/100 (1.0 img/s)
+    Image 86/100 (1.0 img/s)
+    Image 91/100 (1.0 img/s)
+    Image 96/100 (1.0 img/s)
+    Image 100/100 (1.0 img/s)
+  ✓ Done: 100 images in 100.6s (1.0 img/s)
+
+✓ All caches processed in 1111.3s (18.5 min)
+
+======================================================================
+BUILDING RESULTS
+======================================================================
+  Image 1/100...
+  Image 21/100...
+  Image 41/100...
+  Image 61/100...
+  Image 81/100...
+✓ Results built in 129.4s
+
+======================================================================
+SAVING RESULTS
+======================================================================
+  ✓ contextual_neighbors_visual0_allLayers.json
+  ✓ contextual_neighbors_visual1_allLayers.json
+  ✓ contextual_neighbors_visual2_allLayers.json
+  ✓ contextual_neighbors_visual4_allLayers.json
+  ✓ contextual_neighbors_visual8_allLayers.json
+  ✓ contextual_neighbors_visual16_allLayers.json
+  ✓ contextual_neighbors_visual24_allLayers.json
+  ✓ contextual_neighbors_visual30_allLayers.json
+  ✓ contextual_neighbors_visual31_allLayers.json
+
+======================================================================
+✓ DONE!
+  Preload: 4.8s | Search: 1111.3s | Build: 129.4s
+  Total: 1245.5s (20.8 min)
+  Output: analysis_results/contextual_nearest_neighbors/ablations/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded/train_mlp-only_pixmo_topbottom_olmo-7b_vit-l-14-336_step12000-unsharded
+======================================================================

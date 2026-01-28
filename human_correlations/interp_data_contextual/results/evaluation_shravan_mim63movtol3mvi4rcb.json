@@ -1,0 +1,86 @@
+{
+  "userId": "shravan",
+  "sessionId": "mim63movtol3mvi4rcb",
+  "timestamp": "2025-11-30T20:23:15.204Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00064_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:22:11.745Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch1",
+      "selectedWords": [
+        {
+          "word": "person's hand emerging from beneath umbrella",
+          "relation": "concrete"
+        },
+        {
+          "word": "man's right hand reaching for the frisbee",
+          "relation": "concrete"
+        },
+        {
+          "word": "arm of man reaching to catch frisbee",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:22:23.063Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00064_patch2",
+      "selectedWords": [
+        {
+          "word": "a tall off white building.",
+          "relation": "concrete"
+        },
+        {
+          "word": "two desserts with plastic utensils",
+          "relation": "concrete"
+        },
+        {
+          "word": "white striped chair with wooden arms",
+          "relation": "concrete"
+        },
+        {
+          "word": "woman holding a yellow wand",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:22:43.648Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00064_patch3",
+      "selectedWords": [
+        {
+          "word": "pitcher & batter helmets are similar, almost a green-black, & plastic",
+          "relation": "concrete"
+        },
+        {
+          "word": "a brown/black/pink/black striped shirt",
+          "relation": "concrete"
+        },
+        {
+          "word": "a brown/black house",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-30T20:22:57.351Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00064_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:23:11.767Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00064_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-30T20:23:15.103Z"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhxgofr59s55r4bf8lh",
+  "timestamp": "2025-11-13T13:25:07.796Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_siglip_step12000-unsharded_00155_patch0",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:22:44.168Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00155_patch1",
+      "selectedWords": [
+        {
+          "word": "a large gray and black bike",
+          "relation": "concrete"
+        },
+        {
+          "word": "a black and red bicycle.",
+          "relation": "concrete"
+        },
+        {
+          "word": "a line of bicycles against the wall.",
+          "relation": "concrete"
+        },
+        {
+          "word": "rear view of bicycle.",
+          "relation": "concrete"
+        },
+        {
+          "word": "green and yellow car with four bicycles on roof.",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:22:54.225Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00155_patch2",
+      "selectedWords": [
+        {
+          "word": "view of the bridge with standing neoclassical statues on each balustrade",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-13T13:23:30.171Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip_step12000-unsharded_00155_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:24:24.023Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00155_patch4",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:03.949Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00155_patch5",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-13T13:25:07.649Z"
+    }
+  ]
+}

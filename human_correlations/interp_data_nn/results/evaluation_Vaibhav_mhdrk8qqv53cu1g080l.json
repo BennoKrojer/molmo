@@ -1,0 +1,88 @@
+{
+  "userId": "Vaibhav",
+  "sessionId": "mhdrk8qqv53cu1g080l",
+  "timestamp": "2025-10-30T18:34:19.235Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00267_patch0",
+      "selectedWords": [
+        {
+          "word": "manual",
+          "relation": "abstract"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:33:30.091Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00267_patch1",
+      "selectedWords": [
+        {
+          "word": " purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "Purple",
+          "relation": "concrete"
+        },
+        {
+          "word": "Pink",
+          "relation": "concrete"
+        },
+        {
+          "word": " violet",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:33:38.641Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch2",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-10-30T18:33:47.399Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch3",
+      "selectedWords": [
+        {
+          "word": " Gray",
+          "relation": "concrete"
+        },
+        {
+          "word": " white",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:34:02.711Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00267_patch4",
+      "selectedWords": [
+        {
+          "word": " ZERO",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:34:12.945Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_vit-l-14-336_step12000-unsharded_00267_patch5",
+      "selectedWords": [
+        {
+          "word": "ty",
+          "relation": "concrete"
+        },
+        {
+          "word": "ry",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-10-30T18:34:24.194Z"
+    }
+  ]
+}

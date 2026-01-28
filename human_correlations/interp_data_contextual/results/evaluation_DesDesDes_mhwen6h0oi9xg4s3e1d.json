@@ -1,0 +1,75 @@
+{
+  "userId": "DesDesDes",
+  "sessionId": "mhwen6h0oi9xg4s3e1d",
+  "timestamp": "2025-11-12T19:40:23.679Z",
+  "results": [
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_step12000-unsharded_00100_patch0",
+      "selectedWords": [
+        {
+          "word": "two people sitting on brown couch",
+          "relation": "concrete"
+        },
+        {
+          "word": "two women sitting on a floral sofa.",
+          "relation": "concrete"
+        },
+        {
+          "word": "one man is sleeping in couch.",
+          "relation": "concrete"
+        },
+        {
+          "word": "two cats laying on a couch",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:39:08.238Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_qwen2-7b_vit-l-14-336_seed10_step12000-unsharded_00100_patch1",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:39:17.298Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_llama3-8b_dinov2-large-336_step12000-unsharded_00100_patch2",
+      "selectedWords": [
+        {
+          "word": "man has mouth open and is balding looking in front of him.",
+          "relation": "global"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:39:35.146Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_siglip_step12000-unsharded_00100_patch3",
+      "selectedWords": [],
+      "noneSelected": true,
+      "timestamp": "2025-11-12T19:40:00.313Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch4",
+      "selectedWords": [
+        {
+          "word": "a white plate with flowery edges",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:40:07.423Z"
+    },
+    {
+      "instanceId": "train_mlp-only_pixmo_cap_resize_olmo-7b_dinov2-large-336_step12000-unsharded_00100_patch5",
+      "selectedWords": [
+        {
+          "word": "two mirrors with black framing hanging on a wall",
+          "relation": "concrete"
+        }
+      ],
+      "noneSelected": false,
+      "timestamp": "2025-11-12T19:40:23.556Z"
+    }
+  ]
+}

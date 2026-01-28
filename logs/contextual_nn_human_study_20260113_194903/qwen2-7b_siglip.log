@@ -1,0 +1,152 @@
+======================================================================
+CONTEXTUAL NN (WITH IMAGE PRELOADING)
+======================================================================
+Checkpoint: molmo_data/checkpoints/train_mlp-only_pixmo_cap_resize_qwen2-7b_siglip/step12000-unsharded
+Contextual dir: molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-7B
+Visual layers: [0]
+Contextual layers: [1, 2, 4, 8, 16, 24, 26, 27]
+Images: 36 (indices: [100, 102, 108, 109, 119]...)
+Total forward passes: 8 caches × 36 images = 288
+
+======================================================================
+LOADING MODEL
+======================================================================
+  Loading weights...
+  Moving to GPU (fp16)...
+✓ Model loaded in 1605.7s
+
+======================================================================
+PRELOADING IMAGES TO GPU
+======================================================================
+  Loading 36 images directly to GPU...
+    0/36 (image 100)...
+    10/36 (image 155)...
+    20/36 (image 234)...
+    30/36 (image 284)...
+✓ Images preloaded in 1.6s (22.7 img/s)
+
+======================================================================
+CONTEXTUAL LAYER 1 (1/8)
+======================================================================
+  Loading cache to GPU... done (94.5s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (119837.3 img/s)
+    Image 6/36 (idx=134) (10.4 img/s)
+    Image 11/36 (idx=155) (9.7 img/s)
+    Image 16/36 (idx=191) (9.5 img/s)
+    Image 21/36 (idx=234) (9.3 img/s)
+    Image 26/36 (idx=257) (9.3 img/s)
+    Image 31/36 (idx=284) (9.2 img/s)
+    Image 36/36 (idx=299) (9.2 img/s)
+  ✓ Done: 36 images in 3.9s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 2 (2/8)
+======================================================================
+  Loading cache to GPU... done (67.5s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (89240.5 img/s)
+    Image 6/36 (idx=134) (12.8 img/s)
+    Image 11/36 (idx=155) (10.7 img/s)
+    Image 16/36 (idx=191) (10.0 img/s)
+    Image 21/36 (idx=234) (9.7 img/s)
+    Image 26/36 (idx=257) (9.6 img/s)
+    Image 31/36 (idx=284) (9.4 img/s)
+    Image 36/36 (idx=299) (9.4 img/s)
+  ✓ Done: 36 images in 4.0s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 4 (3/8)
+======================================================================
+  Loading cache to GPU... done (66.5s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (53092.5 img/s)
+    Image 6/36 (idx=134) (12.7 img/s)
+    Image 11/36 (idx=155) (10.1 img/s)
+    Image 16/36 (idx=191) (9.7 img/s)
+    Image 21/36 (idx=234) (9.5 img/s)
+    Image 26/36 (idx=257) (9.3 img/s)
+    Image 31/36 (idx=284) (9.3 img/s)
+    Image 36/36 (idx=299) (9.2 img/s)
+  ✓ Done: 36 images in 4.0s (9.0 img/s)
+======================================================================
+CONTEXTUAL LAYER 8 (4/8)
+======================================================================
+  Loading cache to GPU... done (87.1s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (91180.5 img/s)
+    Image 6/36 (idx=134) (12.8 img/s)
+    Image 11/36 (idx=155) (10.6 img/s)
+    Image 16/36 (idx=191) (10.0 img/s)
+    Image 21/36 (idx=234) (9.7 img/s)
+    Image 26/36 (idx=257) (9.5 img/s)
+    Image 31/36 (idx=284) (9.4 img/s)
+    Image 36/36 (idx=299) (9.3 img/s)
+  ✓ Done: 36 images in 4.0s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 16 (5/8)
+======================================================================
+  Loading cache to GPU... done (82.2s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (14563.6 img/s)
+    Image 6/36 (idx=134) (12.8 img/s)
+    Image 11/36 (idx=155) (10.6 img/s)
+    Image 16/36 (idx=191) (10.0 img/s)
+    Image 21/36 (idx=234) (9.7 img/s)
+    Image 26/36 (idx=257) (9.5 img/s)
+    Image 31/36 (idx=284) (9.4 img/s)
+    Image 36/36 (idx=299) (9.3 img/s)
+  ✓ Done: 36 images in 4.0s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 24 (6/8)
+======================================================================
+  Loading cache to GPU... done (61.2s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (54471.5 img/s)
+    Image 6/36 (idx=134) (12.7 img/s)
+    Image 11/36 (idx=155) (10.6 img/s)
+    Image 16/36 (idx=191) (10.0 img/s)
+    Image 21/36 (idx=234) (9.7 img/s)
+    Image 26/36 (idx=257) (9.5 img/s)
+    Image 31/36 (idx=284) (9.4 img/s)
+    Image 36/36 (idx=299) (9.3 img/s)
+  ✓ Done: 36 images in 4.0s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 26 (7/8)
+======================================================================
+  Loading cache to GPU... done (57.1s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (95325.1 img/s)
+    Image 6/36 (idx=134) (12.7 img/s)
+    Image 11/36 (idx=155) (10.6 img/s)
+    Image 16/36 (idx=191) (10.0 img/s)
+    Image 21/36 (idx=234) (9.7 img/s)
+    Image 26/36 (idx=257) (9.5 img/s)
+    Image 31/36 (idx=284) (9.4 img/s)
+    Image 36/36 (idx=299) (9.3 img/s)
+  ✓ Done: 36 images in 4.0s (9.1 img/s)
+======================================================================
+CONTEXTUAL LAYER 27 (8/8)
+======================================================================
+  Loading cache to GPU... done (53.4s, 300836 embeddings on GPU)
+  Processing 36 images (from GPU)...
+    Image 1/36 (idx=100) (66576.3 img/s)
+    Image 6/36 (idx=134) (12.8 img/s)
+    Image 11/36 (idx=155) (10.7 img/s)
+    Image 16/36 (idx=191) (10.1 img/s)
+    Image 21/36 (idx=234) (9.8 img/s)
+    Image 26/36 (idx=257) (9.6 img/s)
+    Image 31/36 (idx=284) (9.5 img/s)
+    Image 36/36 (idx=299) (9.4 img/s)
+  ✓ Done: 36 images in 3.9s (9.1 img/s)
+
+✓ All caches processed in 602.8s (10.0 min)
+
+======================================================================
+BUILDING RESULTS
+======================================================================
+  Image 1/36 (idx=100)...
+Traceback (most recent call last):
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py", line 455, in <module>
+    main()
+  File "/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/scripts/analysis/contextual_nearest_neighbors_allLayers_singleGPU.py", line 407, in main
+    "ground_truth_caption": cached_images[img_idx]['caption'],
+IndexError: list index out of range
