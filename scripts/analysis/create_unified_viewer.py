@@ -87,7 +87,6 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
         "logitlens": {},  # layer -> json path
         "contextual_cc": {},  # layer -> json path (Conceptual Captions)
         "contextual_vg": {},  # layer -> json path (Visual Genome)
-        "patchscopes": {},  # layer -> json path (Patchscopes descriptive)
         "interpretability": None  # path to interpretability heuristic JSON
     }
     
@@ -162,16 +161,6 @@ def scan_analysis_results(checkpoint_name: str, lite_suffix: str = "") -> Dict[s
         for json_file in interpretability_dir.glob("interpretability_heuristic_*.json"):
             results["interpretability"] = json_file
             break  # Only take the first one
-
-    # Scan patchscopes results
-    patchscopes_dir = base_dir / "patchscopes" / f"{checkpoint_name}_step12000-unsharded{lite_suffix}"
-    if patchscopes_dir.exists():
-        for json_file in patchscopes_dir.glob("patchscopes_layer*.json"):
-            # Extract layer number from filename: patchscopes_layer8.json
-            layer_str = json_file.stem.split("_layer")[-1]
-            if layer_str.isdigit():
-                layer = int(layer_str)
-                results["patchscopes"][layer] = json_file
 
     return results
 
@@ -363,15 +352,13 @@ def create_main_index(output_dir: Path, model_availability: Dict) -> None:
                 ctx_cc_count = len(stats["contextual_cc_layers"])
                 ctx_vg_count = len(stats["contextual_vg_layers"])
                 ctx_count = max(ctx_cc_count, ctx_vg_count)  # Show the max of either
-                patchscopes_count = len(stats.get("patchscopes_layers", []))
 
                 html_content += f'''
                         <td class="model-cell available">
                             <a href="{checkpoint_name}/index.html" class="model-link">
                                 <div>View Results</div>
                                 <div class="stats">
-                                    LN: {ctx_count} | LL: {logit_count}<br>
-                                    NN: {nn_count} | PS: {patchscopes_count}
+                                    LN: {ctx_count} | LL: {logit_count} | NN: {nn_count}
                                 </div>
                             </a>
                         </td>'''
@@ -421,7 +408,6 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
     logit_layers = sorted(analysis_results["logitlens"].keys())
     ctx_cc_layers = sorted(analysis_results["contextual_cc"].keys())
     ctx_vg_layers = sorted(analysis_results["contextual_vg"].keys())
-    patchscopes_layers = sorted(analysis_results["patchscopes"].keys())
     
     html_content = f'''<!DOCTYPE html>
 <html lang="en">
@@ -553,11 +539,6 @@ def create_model_index(output_dir: Path, checkpoint_name: str, llm: str, ve: str
                     <div class="stat-label">EmbeddingLens</div>
                     <div class="stat-value">{len(nn_layers)}</div>
                     <div class="stat-label">Layers: {", ".join(map(str, nn_layers)) if nn_layers else "None"}</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Patchscopes</div>
-                    <div class="stat-value">{len(patchscopes_layers)}</div>
-                    <div class="stat-label">Layers: {", ".join(map(str, patchscopes_layers)) if patchscopes_layers else "None"}</div>
                 </div>
             </div>
         </div>
