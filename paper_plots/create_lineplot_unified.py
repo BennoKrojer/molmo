@@ -384,42 +384,37 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
     }
     
     encoder_display_names = {
-        'vit-l-14-336': 'CLIP ViT-L/14',
+        'vit-l-14-336': 'CLIP-ViT',
         'siglip': 'SigLIP',
-        'dinov2-large-336': 'DinoV2'
+        'dinov2-large-336': 'DINOv2'
     }
     
     # Define exact order
     llm_order = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
     encoder_order = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
     
-    # Color scheme
+    # Color scheme: LLM determines color family, encoder determines shade
+    # This makes it easy to visually group by LLM
     llm_base_colors = {
         'olmo-7b': plt.cm.Blues,
         'llama3-8b': plt.cm.Greens,
         'qwen2-7b': plt.cm.Reds
     }
-    encoder_shade_indices = [0.5, 0.7, 0.9]
-    
-    # Markers
-    encoder_markers = {
-        'vit-l-14-336': '*',       # star
-        'siglip': 'o',             # circle (hollow)
-        'dinov2-large-336': '^'    # triangle
-    }
-    
-    encoder_marker_facecolors = {
-        'vit-l-14-336': None,
-        'siglip': 'none',
-        'dinov2-large-336': None
-    }
-    
+    encoder_shade_indices = [0.5, 0.7, 0.9]  # light to dark for CLIP, SigLIP, DINOv2
+
     # Create color mapping
     color_map = {}
     for llm in llm_order:
         base_cmap = llm_base_colors[llm]
         for enc_idx, encoder in enumerate(encoder_order):
             color_map[(llm, encoder)] = base_cmap(encoder_shade_indices[enc_idx])
+
+    # Markers - distinct shapes for each encoder (redundant coding with color)
+    encoder_markers = {
+        'vit-l-14-336': 'o',       # circle (CLIP)
+        'siglip': 's',             # square (SigLIP)
+        'dinov2-large-336': '^'    # triangle (DINOv2)
+    }
     
     # X-axis ticks: union of all expected layers across all models
     # OLMo/Llama: [0, 1, 2, 4, 8, 16, 24, 30, 31]
@@ -440,14 +435,14 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         {
             'ax': axes[0],
             'data': nn_data,
-            'title': 'a) Input Embedding Matrix',
+            'title': 'a) EmbeddingLens',
             'xlabel': 'Layer',
             'show_ylabel': True
         },
         {
             'ax': axes[1],
             'data': logitlens_data,
-            'title': 'b) Unembedding Matrix (LogitLens)',
+            'title': 'b) LogitLens',
             'xlabel': 'Layer',
             'show_ylabel': False
         },
@@ -492,28 +487,22 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
                 encoder_label = encoder_display_names.get(encoder, encoder)
                 label = f"{llm_label} + {encoder_label}"
                 
-                # Get marker properties
+                # Get marker for this encoder (shape distinguishes encoder)
                 marker = encoder_markers.get(encoder, 'o')
-                marker_facecolor = encoder_marker_facecolors.get(encoder, None)
-                
+
                 # Plot line
-                if marker_facecolor is not None:
-                    line, = ax.plot(layers, values, marker=marker,
-                                   color=color_map[key], markerfacecolor=marker_facecolor,
-                                   markeredgewidth=1.5, linewidth=2, markersize=8)
-                else:
-                    line, = ax.plot(layers, values, marker=marker,
-                                   color=color_map[key], linewidth=2, markersize=8)
+                line, = ax.plot(layers, values, marker=marker,
+                               color=color_map[key], linewidth=2, markersize=8)
                 
                 # Store handle for legend (only once)
                 if label not in handles_dict:
                     handles_dict[label] = line
         
-        # Customize subplot - consistent with Qwen2VL figure
-        ax.set_xlabel(config['xlabel'], fontsize=14, fontweight='bold')
+        # Customize subplot - larger fonts for print
+        ax.set_xlabel(config['xlabel'], fontsize=16, fontweight='bold')
         if config.get('show_ylabel', False):
-            ax.set_ylabel('% of interpretable visual tokens', fontsize=12, fontweight='bold')
-        ax.set_title(config['title'], fontsize=14, fontweight='bold', pad=8)
+            ax.set_ylabel('% of interpretable tokens', fontsize=14, fontweight='bold')
+        ax.set_title(config['title'], fontsize=16, fontweight='bold', pad=10)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
 
@@ -524,8 +513,8 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
         clean_ticks = [0, 8, 16, 24, 31]
         ax.set_xticks(clean_ticks)
         ax.set_xticklabels([str(t) for t in clean_ticks])
-        ax.tick_params(axis='x', labelsize=10)
-        ax.tick_params(axis='y', labelsize=10)
+        ax.tick_params(axis='x', labelsize=13)
+        ax.tick_params(axis='y', labelsize=13)
     
     # Create single shared legend on the right side
     # Get handles and labels in the desired order
@@ -546,7 +535,7 @@ def create_unified_lineplot(nn_data, logitlens_data, contextual_data, output_pat
               loc='center left',
               bbox_to_anchor=(0.88, 0.5),
               ncol=1,
-              fontsize=10,
+              fontsize=12,
               framealpha=0.9,
               handlelength=2.0,
               handletextpad=0.5)
@@ -578,9 +567,9 @@ def create_baselines_lineplot(nn_data, logitlens_data, output_path):
     }
 
     encoder_display_names = {
-        'vit-l-14-336': 'CLIP ViT-L/14',
+        'vit-l-14-336': 'CLIP-ViT',
         'siglip': 'SigLIP',
-        'dinov2-large-336': 'DinoV2'
+        'dinov2-large-336': 'DINOv2'
     }
 
     llm_order = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
@@ -734,9 +723,9 @@ def create_lnlens_lineplot(contextual_data, output_path):
     }
     
     encoder_display_names = {
-        'vit-l-14-336': 'CLIP ViT-L/14',
+        'vit-l-14-336': 'CLIP-ViT',
         'siglip': 'SigLIP',
-        'dinov2-large-336': 'DinoV2'
+        'dinov2-large-336': 'DINOv2'
     }
     
     llm_order = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
