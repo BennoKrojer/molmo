@@ -8,13 +8,15 @@ A concise log of major changes, results, and git operations.
 
 ### 2026-01-29 (arXiv preparation)
 
-**Converted ICML submission to arXiv preprint:**
+**Created separate `arxiv_main.tex` for arXiv preprint** (keeps `icml2026_main.tex` unchanged for camera-ready):
 
-1. **Package option:** Changed `\usepackage{icml2026}` to `\usepackage[preprint]{icml2026}`
-   - Shows real authors instead of "Anonymous"
-   - Footer now says "Preprint. January 29, 2026." instead of "Under review"
+1. **New file:** `paper/arxiv_main.tex` with:
+   - `\usepackage[preprint]{icml2026}` (shows authors, preprint footer)
+   - All authors with affiliations
+   - Disabled todonotes
+   - Acknowledgements placeholder
 
-2. **Authors added with affiliations:**
+2. **Authors with affiliations:**
    - Benno Krojer (Mila, McGill)
    - Shravan Nayak (Mila, UdeM)
    - Oscar Mañas (Mila, UdeM)
@@ -24,30 +26,19 @@ A concise log of major changes, results, and git operations.
    - Marius Mosbach* (Mila, McGill)
    - *Equal senior contribution noted
 
-3. **Limitations section:** Added to appendix (Section A) covering:
-   - Storage requirements
-   - Corpus constraints
-   - Noun bias in results
-   - Model scope limitations
-   - Evaluation subjectivity
+3. **Limitations section:** Added to appendix (Section A) covering storage, corpus constraints, noun bias, model scope, evaluation subjectivity
 
-4. **Acknowledgements:** Added empty section placeholder (to be filled)
+4. **README.md:** Updated citation block with authors
 
-5. **Todonotes:** Disabled for clean PDF
-
-6. **README.md:** Updated citation block with authors
-
-7. **Keywords:** Updated PDF metadata to "Vision-Language Models, Interpretability, Multimodal Learning, Large Language Models"
-
-**Files modified:**
-- `paper/icml2026_main.tex`
-- `paper/sections/appendix.tex`
+**Files:**
+- `paper/arxiv_main.tex` (NEW - for arXiv)
+- `paper/icml2026_main.tex` (UNCHANGED - for camera-ready)
+- `paper/sections/appendix.tex` (Limitations section added)
 - `README.md`
 
-**TODO before arXiv upload:**
-- Fill in acknowledgements
-- Update README citation with arXiv ID after upload
-- Consider adding GitHub/demo links to abstract
+**To compile:** `pdflatex arxiv_main.tex`
+
+**Git:** Paper 8129afc
 
 ---
 
