@@ -6,6 +6,51 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-29 (arXiv preparation)
+
+**Converted ICML submission to arXiv preprint:**
+
+1. **Package option:** Changed `\usepackage{icml2026}` to `\usepackage[preprint]{icml2026}`
+   - Shows real authors instead of "Anonymous"
+   - Footer now says "Preprint. January 29, 2026." instead of "Under review"
+
+2. **Authors added with affiliations:**
+   - Benno Krojer (Mila, McGill)
+   - Shravan Nayak (Mila, UdeM)
+   - Oscar Mañas (Mila, UdeM)
+   - Vaibhav Adlakha (Mila, McGill)
+   - Desmond Elliott* (U Copenhagen)
+   - Siva Reddy* (Mila, McGill)
+   - Marius Mosbach* (Mila, McGill)
+   - *Equal senior contribution noted
+
+3. **Limitations section:** Added to appendix (Section A) covering:
+   - Storage requirements
+   - Corpus constraints
+   - Noun bias in results
+   - Model scope limitations
+   - Evaluation subjectivity
+
+4. **Acknowledgements:** Added empty section placeholder (to be filled)
+
+5. **Todonotes:** Disabled for clean PDF
+
+6. **README.md:** Updated citation block with authors
+
+7. **Keywords:** Updated PDF metadata to "Vision-Language Models, Interpretability, Multimodal Learning, Large Language Models"
+
+**Files modified:**
+- `paper/icml2026_main.tex`
+- `paper/sections/appendix.tex`
+- `README.md`
+
+**TODO before arXiv upload:**
+- Fill in acknowledgements
+- Update README citation with arXiv ID after upload
+- Consider adding GitHub/demo links to abstract
+
+---
+
 ### 2026-01-28 (Demo polish for paper submission)
 
 **Interactive demo polished for paper submission:**

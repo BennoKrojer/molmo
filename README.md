@@ -295,11 +295,14 @@ python scripts/analysis/precompute_contextual_caches.py \
 ## Citation
 
 ```bibtex
-@article{TODO,
-  title={The surprising interpretability of vision tokens in LLMs},
-  author={TODO},
-  year={2025}
+@article{krojer2026latentlens,
+  title={LatentLens: Revealing Highly Interpretable Visual Tokens in LLMs},
+  author={Krojer, Benno and Nayak, Shravan and Ma{\~n}as, Oscar and Adlakha, Vaibhav and Elliott, Desmond and Reddy, Siva and Mosbach, Marius},
+  journal={arXiv preprint arXiv:XXXX.XXXXX},
+  year={2026}
 }
 ```
+
+> **Note**: Update the arXiv ID after upload.
 
 
