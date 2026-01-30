@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-01
 
+### 2026-01-30 (arXiv final touches)
+
+**Final arXiv preprint fixes:**
+
+1. Removed date from preprint footer: now just says "Preprint." (via `\renewcommand{\ICML@preprint}`)
+2. Added FontAwesome magnifying glass icon for demo link (`\faSearch` via fontawesome5 package)
+3. Fixed duplicate `\demolink` definition error
+4. Regenerated `arxiv_submission.zip` (8.4 MB) ready for upload
+
+---
+
 ### 2026-01-29 (arXiv preparation)
 
 **Created separate `arxiv_main.tex` for arXiv preprint** (keeps `icml2026_main.tex` unchanged for camera-ready):
