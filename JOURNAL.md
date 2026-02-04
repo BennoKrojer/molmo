@@ -51,6 +51,12 @@ Root cause: `CJKutf8` package breaks Times Bold in pdfLaTeX. Following CLAUDE.md
 - `iclr2026_conference.sty` and `iclr2026_conference.bst` were untracked
 - Committed and pushed for Overleaf compilation
 
+**Bug fix: missing workshop figure conditionals:**
+- `sections/1_intro.tex` and `sections/5_analysis.tex` were modified locally but NEVER COMMITTED
+- Caused Overleaf to show old figure code despite pulling
+- **What went wrong:** Failed to run `git status` before claiming sync issue was user's fault
+- **Lesson:** Always check `git status` for uncommitted changes before blaming external systems
+
 ---
 
 ## 2026-01
