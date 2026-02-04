@@ -1,24 +1,15 @@
 # CLAUDE.md - Rules for AI Assistants
 
-## ⚠️ WHENEVER YOU SEE THIS FILE (including via hook injection) ⚠️
-
-**This file is injected every 5 messages via automated hook. EVERY TIME you see it:**
-
-1. **Actually use the Read tool** on the files listed in MANDATORY FIRST STEPS below
-2. Don't just acknowledge - invoke the tool
-
----
-
 ## ⚠️ MANDATORY FIRST STEPS ⚠️
 
-**Before taking ANY action on a task, you MUST:**
+**EVERY TIME you see this file (including via automated hook injection every 5 messages), you MUST:**
 
-1. Tell the user you have read CLAUDE.md and how you'll follow the THREE RULES
-2. **Actually read these files using the Read tool** (not optional—these prevent wasted time):
+1. **Invoke the Read tool** on these files - don't just acknowledge, actually call the tool:
    - **README.md** - Data locations, directory structure, which directories to use
-   - **JOURNAL.md** - Last few days (recent bugs, what's broken/fixed)
+   - **JOURNAL.md** (last 100 lines) - Recent bugs, what's broken/fixed
    - **paper/icml2026_main.tex** - Abstract/intro (understand research goals)
    - **SCHEMA_STANDARDIZATION.md** - JSON formats (if working with data)
+2. State how you'll follow the THREE RULES
 
 **Do NOT skip this to "get to work faster."** Skipping causes you to use wrong directories, miss known issues, and waste time on already-solved problems.
 
