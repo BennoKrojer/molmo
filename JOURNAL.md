@@ -4,6 +4,45 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-02
+
+### 2026-02-03 (XeLaTeX font fix + ICLR workshop)
+
+**Fixed bold fonts + CJK characters for all paper versions:**
+
+Root cause: `CJKutf8` package breaks Times Bold in pdfLaTeX. Following CLAUDE.md guidance ("exhaust all options before falling back"), implemented proper XeLaTeX solution:
+
+1. **Font configuration for XeLaTeX** (all three main files):
+   ```latex
+   \usepackage{fontspec}
+   \setmainfont{TeX Gyre Termes}  % Times-compatible
+   \setsansfont{TeX Gyre Heros}
+   \usepackage{xeCJK}
+   \setCJKmainfont{AR PL UMing CN}  % Chinese font
+   ```
+
+2. **Critical fix:** fontspec must come AFTER icml2026 style (because `icml2026.sty` has `\RequirePackage{times}` which overrides fontspec if loaded before)
+
+3. **Verified all three PDFs** have correct fonts:
+   - TeXGyreTermes-Bold (Times Bold equivalent) ✓
+   - UMingCN (Chinese character 黧 support) ✓
+
+**ICLR Re-Align Workshop submission:**
+- Created `realign_main.tex` using `iclr2026_conference.sty`
+- Adapted figures for single-column format (methods + heatmap at 60% width)
+- Same XeLaTeX font configuration
+
+**Files modified:**
+- `paper/icml2026_main.tex` - fontspec moved after icml2026 style
+- `paper/arxiv_main.tex` - same fix
+- `paper/realign_main.tex` (NEW) - workshop submission
+- `paper/sections/3_method.tex` - workshop figure adjustments
+- `paper/sections/4_experiments.tex` - workshop figure adjustments
+
+**Compile command:** `xelatex <filename>.tex` (not pdflatex)
+
+---
+
 ## 2026-01
 
 ### 2026-01-30 (arXiv final touches)
