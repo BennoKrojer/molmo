@@ -41,6 +41,12 @@ Root cause: `CJKutf8` package breaks Times Bold in pdfLaTeX. Following CLAUDE.md
 
 **Compile command:** `xelatex <filename>.tex` (not pdflatex)
 
+**Behind The Scenes de-anonymization:**
+- Split into `sections/behind.tex` (full) and `sections/behind_anon.tex` (anonymous)
+- Anonymous version removes: Personal subsection, MM/Elinor acknowledgment
+- `appendix.tex` uses `\ifworkshop` conditional to select version
+- Workshop uses anon, ICML/arXiv use full
+
 ---
 
 ## 2026-01
