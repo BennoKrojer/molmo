@@ -2,13 +2,10 @@
 
 ## ⚠️ WHENEVER YOU SEE THIS FILE (including via hook injection) ⚠️
 
-**This file is injected every 5 messages via automated hook. EVERY TIME you see it, you MUST:**
+**This file is injected every 5 messages via automated hook. EVERY TIME you see it:**
 
-1. **Actually use the Read tool** to read JOURNAL.md (last 100 lines) - don't just acknowledge
-2. **Run `git status`** to verify repo state
-3. If mid-task, verify any files you're working on are in the state you expect
-
-**This is not optional.** Acknowledging CLAUDE.md without reading the referenced files defeats the purpose.
+1. **Actually use the Read tool** on the files listed in MANDATORY FIRST STEPS below
+2. Don't just acknowledge - invoke the tool
 
 ---
 
