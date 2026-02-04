@@ -17,6 +17,19 @@
 
 ---
 
+## ⚠️ CONTEXT COMPACTION / SESSION RESUME ⚠️
+
+**When a session resumes from context compaction (you see a summary of previous work):**
+
+1. **Do NOT trust the summary completely** - it may omit uncommitted changes
+2. **Run `git status`** immediately to verify actual repo state
+3. **Re-read any files** you're told you modified - verify changes are actually committed
+4. **Check `git log -3`** to see what was actually pushed vs what the summary claims
+
+**What went wrong (2026-02-04):** Session resumed from compaction. Summary said files were modified for workshop. Agent assumed they were committed. They weren't. User reported Overleaf had old code. Agent blamed Overleaf sync instead of checking `git status`. Wasted 30 minutes deflecting before finding uncommitted local changes.
+
+---
+
 ## ⚠️ THE THREE RULES ⚠️
 
 **These are the most violated rules. Read them before EVERY significant action.**
@@ -252,6 +265,18 @@ cd .. && git add paper && git commit -m "Update paper submodule" && git push
 - Update after every significant change
 - Format: `[YYYY-MM-DD] Brief description`
 - Log: bug fixes, new scripts, results, git pushes
+
+**Commit Verification Checklist (before saying "pushed" or "done"):**
+
+1. ☐ `git status` shows clean working directory (no unstaged/uncommitted changes)
+2. ☐ `git log -1` shows YOUR commit as most recent
+3. ☐ ALL files you edited are in the commit (check `git show --stat`)
+
+**When user reports "your change isn't working":**
+- FIRST action: `git status` and `git diff origin/main`
+- Do NOT suggest user-side fixes (clear cache, re-pull, etc.) until you've verified your commits are complete
+
+**What went wrong (2026-02-04):** Edited 4 files, committed only 2. When user reported issue, agent suggested Overleaf cache/sync problems instead of checking `git status`. The 2 uncommitted files were the actual problem.
 
 ---
 
