@@ -1,11 +1,23 @@
 # CLAUDE.md - Rules for AI Assistants
 
+## ⚠️ WHENEVER YOU SEE THIS FILE (including via hook injection) ⚠️
+
+**This file is injected every 5 messages via automated hook. EVERY TIME you see it, you MUST:**
+
+1. **Actually use the Read tool** to read JOURNAL.md (last 100 lines) - don't just acknowledge
+2. **Run `git status`** to verify repo state
+3. If mid-task, verify any files you're working on are in the state you expect
+
+**This is not optional.** Acknowledging CLAUDE.md without reading the referenced files defeats the purpose.
+
+---
+
 ## ⚠️ MANDATORY FIRST STEPS ⚠️
 
 **Before taking ANY action on a task, you MUST:**
 
 1. Tell the user you have read CLAUDE.md and how you'll follow the THREE RULES
-2. **Actually read these files** (not optional—these prevent wasted time):
+2. **Actually read these files using the Read tool** (not optional—these prevent wasted time):
    - **README.md** - Data locations, directory structure, which directories to use
    - **JOURNAL.md** - Last few days (recent bugs, what's broken/fixed)
    - **paper/icml2026_main.tex** - Abstract/intro (understand research goals)
