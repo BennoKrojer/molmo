@@ -47,6 +47,10 @@ Root cause: `CJKutf8` package breaks Times Bold in pdfLaTeX. Following CLAUDE.md
 - `appendix.tex` uses `\ifworkshop` conditional to select version
 - Workshop uses anon, ICML/arXiv use full
 
+**Added ICLR style files for Overleaf:**
+- `iclr2026_conference.sty` and `iclr2026_conference.bst` were untracked
+- Committed and pushed for Overleaf compilation
+
 ---
 
 ## 2026-01
