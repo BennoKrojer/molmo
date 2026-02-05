@@ -6,6 +6,88 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-05 (EmbeddingLens 9x speedup + reproduction tests)
+
+**EmbeddingLens efficiency fix:**
+- `run_embedding_lens.py` previously did 1 forward pass per (image, layer) pair = 900 total for 100 images × 9 layers
+- Added `process_split_all_layers()`: one forward pass per image, extracts all requested layers from `output_hidden_states=True`
+- New total: 100 forward passes for 100 images × any number of layers → **9x speedup**
+- Same output format, same numerical results — only loop order changed
+- Kept original `process_split()` for backward compatibility
+
+**Reproduction tests (`tests/test_reproduction.py`):**
+- `@pytest.mark.slow` + `@pytest.mark.gpu` tests that actually run release scripts on 2 images
+- Compare output against golden JSONs in `analysis_results/` (original repo outputs)
+- Tests: LogitLens, EmbeddingLens, LatentLens reproduction against golden values
+- Multi-layer efficiency test: verifies `--llm_layer 0,8` produces same output as separate `--llm_layer 0` + `--llm_layer 8` runs
+
+**Files modified:**
+- `latentlens_release/scripts/run_embedding_lens.py` — added `process_split_all_layers()`, restructured `main()`
+- `latentlens_release/tests/test_reproduction.py` (NEW) — GPU reproduction tests
+- `latentlens_release/reproduce/step3_run_analysis.sh` — updated time estimate comment
+
+**Test results:** 93 pass, 1 pre-existing timeout (connector_equivalence), 20 deselected (slow)
+
+---
+
+### 2026-02-04 (LatentLens Public Release MVP)
+
+**Created latentlens_release/ directory with clean public release structure:**
+
+Directory: `/home/nlp/users/bkroje/vl_embedding_spaces/third_party/molmo/latentlens_release/`
+
+**Structure:**
+```
+latentlens_release/
+├── README.md                 # LLM2Vec-style documentation
+├── LICENSE                   # Apache 2.0
+├── NOTICE                    # Molmo attribution
+├── pyproject.toml            # uv-compatible package config
+├── .gitignore
+├── latentlens/               # Main package (~15 Python files)
+│   ├── model.py              # Model architecture (from olmo/)
+│   ├── config.py             # Configuration classes
+│   ├── data/                 # Preprocessing utilities
+│   └── ...
+├── scripts/                  # Analysis scripts
+│   ├── run_latentlens.py     # LatentLens analysis
+│   ├── run_logitlens.py      # LogitLens analysis
+│   ├── run_embedding_lens.py # EmbeddingLens analysis
+│   ├── extract_embeddings.py # Contextual embedding extraction
+│   └── generate_viewer.py    # HTML demo generation
+├── reproduce/                # Paper reproduction scripts
+│   ├── step1_download.sh
+│   ├── step2_extract_contextual.sh
+│   ├── step3_run_analysis.sh
+│   ├── step4_generate_demo.sh
+│   └── run_all.sh
+└── examples/
+    └── quickstart.py
+```
+
+**Key changes:**
+- Extracted core model code from olmo/ with `latentlens` imports
+- Added Molmo attribution headers to all files
+- Renamed scripts to canonical names (e.g., `run_latentlens.py`)
+- Created pyproject.toml for uv compatibility
+- Created reproduction scripts for paper results
+
+**Unit tests added (35 tests, all passing):**
+- `test_imports.py` - Package imports work, no olmo references break
+- `test_contextual_embeddings.py` - Golden data structure verified
+- `test_latentlens_output.py` - Output format and golden values verified
+- `test_end_to_end.py` - Scripts exist and have valid syntax/argparse
+
+**Additional modules copied to fix script dependencies:**
+- `pixmo_datasets.py`, `download_urls.py`, `collator.py`, `dataset.py`
+- `iterable_dataset_mixture.py`, `academic_datasets.py`, `viewer_lib.py`
+
+**NOT YET DONE:**
+- HuggingFace data upload (connector weights + contextual embeddings)
+- PyPI release
+
+---
+
 ### 2026-02-03 (XeLaTeX font fix + ICLR workshop)
 
 **Fixed bold fonts + CJK characters for all paper versions:**
