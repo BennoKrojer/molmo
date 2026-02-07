@@ -6,6 +6,28 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-07 (Qwen2-VL Quickstart + HF Embeddings)
+
+**Rewrote `examples/quickstart.py` for Qwen2-VL:**
+- Uses pure `transformers` (no `latentlens` package imports) — demonstrates LatentLens is a method, not a framework
+- Downloads contextual text embeddings from HuggingFace on first run
+- Processes image through Qwen2-VL-7B-Instruct, extracts hidden states at configurable layers
+- Nearest-neighbor search in contextual embedding space → prints interpretable results
+- PNG visualization: green bboxes on 10 randomly sampled tokens, connecting lines to caption context with yellow-highlighted matched tokens
+- Word-boundary-aware BPE token matching (fixes false matches like " door" inside "doorway")
+- Handles `device_map="auto"` (embedding layer may be on CPU with low VRAM)
+
+**Uploaded contextual embeddings to HuggingFace:**
+- Repo: `McGill-NLP/latentlens-qwen2vl-embeddings`
+- 8 layers (1, 2, 4, 8, 16, 24, 26, 27), float16 (~2.1GB/layer)
+- Source: `molmo_data/contextual_llm_embeddings_vg/Qwen_Qwen2-VL-7B-Instruct/`
+
+**Updated README.md Quick Start section** to show actual working command instead of aspirational API.
+
+**Files modified:** `latentlens_release/examples/quickstart.py`, `latentlens_release/README.md`
+
+---
+
 ### 2026-02-05 (EmbeddingLens 9x speedup + reproduction tests)
 
 **EmbeddingLens efficiency fix:**
