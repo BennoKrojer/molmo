@@ -6,6 +6,26 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-08 (Quickstart: cross-layer merge fix + optimization)
+
+**Fixed critical bug in `quickstart.py`:** NN search was matching vision tokens against
+contextual embeddings from only the same layer. The paper's methodology (and interactive
+demo) searches across ALL contextual layers and merges globally. This caused quickstart
+output to not match the demo.
+
+**Changes:**
+- Cross-layer merge: search all 8 contextual layers, keep global top-K per token
+- Batch search: load each cache once for all LLM layers (8 loads vs 24) → 60s → 30s
+- Keep float16 embeddings (was converting to float32 unnecessarily)
+- Unified 10 sampled tokens for both text + visualization (removed `_pick_display_indices`)
+- Default layers: `2,8,27` (was `1,8,27`), visualization shows layer 2
+- Default seed: 10 (was 1), added `--seed` arg
+- Model loaded on single device (fixes Qwen2-VL rope device mismatch with `device_map="auto"`)
+
+**Files modified:** `latentlens_release/quickstart.py`
+
+---
+
 ### 2026-02-08 (E2E Reproduction: Steps 0-3 Complete)
 
 **Full E2E reproduction simulation completed (Steps 0-3):**
