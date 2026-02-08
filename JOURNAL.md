@@ -6,6 +6,33 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-08 (E2E Reproduction: Steps 0-3 Complete)
+
+**Full E2E reproduction simulation completed (Steps 0-3):**
+- Master script: `/home/nlp/users/bkroje/e2e_latentlens/run_e2e.sh`
+- Fresh clone from `git@github.com:McGill-NLP/latentlens.git` (commit `b129777`)
+- Clone location: `/home/nlp/users/bkroje/e2e_latentlens/latentlens/`
+- Data on `/mnt/research/scratch/bkroje/e2e_latentlens/` via symlinks
+- Env: reused `/home/nlp/users/bkroje/vl_embedding_spaces/env/`
+
+**Timeline:**
+- Step 0 (Clone + Install): Feb 6, 08:59 (~13s)
+- Step 1 (Download 50GB + convert): Feb 6, 08:59-09:06 (~7 min)
+- Step 2 (Contextual embeddings, 3 LLMs parallel on 3 GPUs): Feb 6 09:34 - Feb 7 16:20 (~30.8h)
+- Step 3 (Analysis: latentlens 178m + logitlens 54m + embedding_lens 50m): Feb 7 16:20-21:04 (~4.7h)
+- Total wall-clock: ~36.5 hours
+
+**Results: 243 JSON files** (9 models × 3 methods × 9 layers) at `/mnt/.../e2e_latentlens/results/`
+- Contextual embeddings: 234GB (88G olmo + 88G llama + 58G qwen)
+- Checkpoints: 9 connectors (~8.2GB) + 6 base models (~95GB)
+
+**Still needed:** Step 4 (LLM judge evaluation, ~$80-100 API cost) + Step 5 (compare to paper numbers)
+
+**Status file:** `/home/nlp/users/bkroje/e2e_latentlens/status.txt`
+**Logs:** `/home/nlp/users/bkroje/e2e_latentlens/step2_*.log`, `step3_*.log`
+
+---
+
 ### 2026-02-07 (Qwen2-VL Quickstart + HF Embeddings)
 
 **Rewrote `examples/quickstart.py` for Qwen2-VL:**
