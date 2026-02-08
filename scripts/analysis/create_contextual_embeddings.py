@@ -112,13 +112,17 @@ def save_progress(output_dir, layer_dirs, captions_processed, total_captions, to
         'layer_counters': {str(layer_idx): info['counter'] for layer_idx, info in layer_dirs.items()}
     }
     
+    # Save random state for reproducible reservoir sampling across resumes
+    progress['random_state'] = list(random.getstate()[1])
+    progress['random_gauss_next'] = random.getstate()[2]
+
     # Save token_seen_counts for reservoir sampling if provided
     if token_seen_counts is not None:
         progress['token_seen_counts'] = {
             str(layer_idx): {token: counts for token, counts in layer_counts.items()}
             for layer_idx, layer_counts in token_seen_counts.items()
         }
-    
+
     progress_file = output_dir / "progress.json"
     with open(progress_file, 'w') as f:
         json.dump(progress, f, indent=2)
@@ -194,7 +198,13 @@ def load_existing_embeddings(layer_dirs, output_dir, layers_to_extract):
                 for token, counts in layer_counts.items():
                     token_seen_counts[layer_idx][token] = counts
         print(f"  Restored reservoir sampling counts")
-    
+
+    # Restore random state for reproducible reservoir sampling across resumes
+    if 'random_state' in progress:
+        state_tuple = (3, tuple(progress['random_state']), progress.get('random_gauss_next'))
+        random.setstate(state_tuple)
+        print(f"  Restored random state for reproducible reservoir sampling")
+
     return progress['captions_processed'], token_seen_counts
 
 def load_vg_phrases(vg_file_path, num_phrases=NUM_CAPTIONS):
