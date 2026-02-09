@@ -109,6 +109,9 @@ echo "Step 2: Re-running LLM judge evaluations..."
 echo "  Running 3 methods sequentially (each runs 7 models in parallel internally)"
 echo ""
 
+# Ensure PYTHONPATH is set (batch scripts append to it with set -u)
+export PYTHONPATH="${PYTHONPATH:-}"
+
 echo "--- Method 1/3: Nearest Neighbors ---"
 bash llm_judge/run_all_parallel_nn.sh
 echo ""
