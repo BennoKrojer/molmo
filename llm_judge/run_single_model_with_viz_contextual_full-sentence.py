@@ -507,7 +507,7 @@ def main():
             # Calculate grid size from actual patch data
             grid_size = max(max_row + 1, max_col + 1) if (max_row > 0 or max_col > 0) else 24
 
-            processed_image, image_mask = process_image_with_mask(image_path)
+            processed_image, image_mask = process_image_with_mask(image_path, model_name=model_name)
 
             # Sample patches uniformly from valid positions (using correct grid_size)
             sampled_positions = sample_valid_patch_positions(image_mask, bbox_size=3, num_samples=args.num_samples, grid_size=grid_size)

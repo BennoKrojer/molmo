@@ -322,7 +322,7 @@ def run_llm_judge_pixmo(client, input_json_path, split_name="train", image_indic
             
         # Process the original image to get both the processed image and mask
         try:
-            processed_image, image_mask = process_image_with_mask(image_path)
+            processed_image, image_mask = process_image_with_mask(image_path, model_name=args.model_name)
         except Exception as e:
             print(f"Warning: Could not process image {image_path}: {e}")
             continue
@@ -466,6 +466,8 @@ def main():
                        help='Path to save results json file (default: auto-generated from input path)')
     parser.add_argument('--model', type=str, default='gpt-5',
                        help='OpenAI model to use (default: gpt-5)')
+    parser.add_argument('--model-name', type=str, default=None,
+                        help='Model name for preprocessing dispatch (e.g. qwen2vl, olmo-7b_siglip)')
     parser.add_argument('--resume', action='store_true',
                        help='Resume from existing results file if present (skip completed images)')
     
