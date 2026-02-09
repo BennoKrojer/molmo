@@ -6,6 +6,35 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-09 (Fix LLM judge preprocessing bug: wrong image transform for SigLIP/DINOv2/qwen2-7b)
+
+**Bug:** `process_image_with_mask()` in `llm_judge/utils.py` used `resize_and_pad` (CLIP-style
+aspect-preserving resize + black padding) for ALL non-Qwen2-VL models. But SigLIP and DINOv2
+use squash-resize (no padding), so the LLM judge was showing GPT-5 padded images when the
+model actually saw squash-resized images. Additionally, `"qwen2" in model_name` matched
+qwen2-7b controlled models (e.g. `qwen2-7b_dinov2-large-336`), wrongly giving them center-crop.
+
+**Impact:** 6 of 9 controlled models had wrong preprocessing in LLM judge evaluation:
+- 3 SigLIP models (olmo/llama/qwen2): got padding instead of squash-resize
+- 3 DINOv2 models (olmo/llama/qwen2): got padding instead of squash-resize
+- 3 qwen2-7b models additionally matched `"qwen2"` → center-crop (wrong for all 3)
+- Only the 3 CLIP (vit-l-14) models were correct
+
+**Fix:** 3-way dispatch in `process_image_with_mask()`:
+- `"qwen2vl"` / `"qwen2-vl"` in name → center-crop (Qwen2-VL off-the-shelf only)
+- `"siglip"` / `"dinov2"` in name → squash-resize to 512x512, no padding
+- else (CLIP/default) → resize + pad
+
+**Files modified:**
+- `llm_judge/utils.py` — fixed preprocessing dispatch
+- `latentlens_release/scripts/evaluate/utils.py` — same fix
+- `latentlens_release/scripts/evaluate/evaluate_interpretability.py` — added `--model-name` arg
+  (was missing entirely, so model_name was always None)
+
+**Still needed:** Re-run LLM judge for 6 affected models (162 data points), update data.json
+
+---
+
 ### 2026-02-08 (Quickstart: cross-layer merge fix + optimization)
 
 **Fixed critical bug in `quickstart.py`:** NN search was matching vision tokens against

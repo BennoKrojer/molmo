@@ -275,34 +275,41 @@ def process_image_with_mask(image_path, model_name=None):
     """
     Process image and return both the processed image and the mask indicating real vs padded areas.
 
+    Preprocessing must match what the model saw during inference:
+      - CLIP (vit-l-14): aspect-preserving resize + black padding (mask has False for padded areas)
+      - SigLIP:          squash-resize to square, no padding (mask all True)
+      - DINOv2:          squash-resize to square, no padding (mask all True)
+      - Qwen2-VL:        center-crop to square, no padding (mask all True)
+      - Default (no model_name or unknown encoder): resize + pad (safe fallback for CLIP)
+
     Args:
         image_path (str): Path to the image file
         model_name (str, optional): Model name to determine preprocessing method.
-                                   If contains "qwen2" (case-insensitive), uses center-crop.
-                                   Otherwise uses aspect-preserving resize + black padding.
 
     Returns:
         tuple: (processed_image, image_mask) where image_mask is True for real image areas
     """
     image = load_image(image_path)
+    name_lower = model_name.lower() if model_name else ""
 
-    # Check if this is Qwen2-VL → use center-crop preprocessing (SINGLE SOURCE OF TRUTH)
-    if model_name and "qwen2" in model_name.lower():
-        # Import shared preprocessing for Qwen2-VL
+    if "qwen2vl" in name_lower or "qwen2-vl" in name_lower:
+        # Qwen2-VL off-the-shelf → center-crop
         import sys
         from pathlib import Path
         sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "analysis" / "qwen2_vl"))
         from preprocessing import preprocess_image_qwen2vl
 
-        # Convert to PIL, apply center-crop preprocessing (512x512 for LLM judge)
         pil_image = Image.fromarray(image)
-        processed_pil = preprocess_image_qwen2vl(pil_image, target_size=512, force_square=True)
-        processed_image = processed_pil  # Keep as PIL Image
-
-        # For center-crop, entire image is real (no padding) → mask is all True
+        processed_image = preprocess_image_qwen2vl(pil_image, target_size=512, force_square=True)
+        image_mask = np.ones((512, 512), dtype=bool)
+    elif "siglip" in name_lower or "dinov2" in name_lower:
+        # SigLIP / DINOv2 → squash-resize to 512x512, no padding
+        # Matches siglip_resize_and_pad / dino_resize_and_pad in model_preprocessor.py
+        pil_image = Image.fromarray(image)
+        processed_image = pil_image.resize((512, 512), Image.BILINEAR)
         image_mask = np.ones((512, 512), dtype=bool)
     else:
-        # Use existing preprocessing (aspect-preserving resize + black padding)
+        # CLIP (vit-l-14) and default → aspect-preserving resize + black padding
         processed_image, image_mask = resize_and_pad(image, (512, 512), normalize=False)
         processed_image = (processed_image * 255).astype(np.uint8)
         processed_image = Image.fromarray(processed_image)
