@@ -6,6 +6,46 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-02
 
+### 2026-02-10 (Release repo finalization + paper data update)
+
+**Updated paper numbers:** Ran `paper_plots/update_data.py --skip-alignment` to propagate
+re-run LLM judge results into `data.json`. 175/189 values changed. Regenerated
+`fig1_unified_interpretability.{pdf,png}` and all 7 jobtalk progressive-reveal plots.
+
+**Fixed 6 paper text claims** in `paper/sections/4_experiments.tex` to match corrected data:
+- OLMo NN: "40-60%" → "34-62%"
+- Qwen2 NN: "less than 20%" → "less than 22%"
+- LLaMA3 NN: "20-40%" → "19-51%, though most layers stay below 40%"
+- LogitLens early: "all models <20%" → "most models <20%"
+- OLMo LogitLens late: "60-80% from layer 24 onward" → "61-76% at layers 24 and 30"
+- LatentLens: removed "Qwen2+CLIP is the only exception" claim (no longer true after fix)
+
+**Fixed appendix ablation numbers** in `paper/sections/appendix.tex`:
+- Baseline: 71.3% → 72.3% (stale number, recomputed from data.json)
+- Recomputed all 6 ablation deltas; Linear connector flipped from +0.8% to -0.2%
+
+**Release repo audit and sanitization:**
+- Removed hardcoded paths from 4 test files → environment variables with pytest.skip guards
+- Fixed 9 YAML configs: relative paths, wandb entity placeholder, llama-vit copy-paste bug
+- Fixed `extract_all_connectors.py`: hardcoded path → env var
+- Fixed NOTICE: stale `latentlens/` paths → `molmo/`
+- Added `--model-name` documentation to README
+
+**Squashed git history:** 46 commits → single "Initial release of LatentLens" commit.
+Backup branch `dev-history` preserves full history locally.
+
+**License change:** Apache 2.0 → MIT.
+- `LICENSE`: MIT text with note about Molmo Apache 2.0 components
+- `pyproject.toml`: license field + classifier updated
+- `README.md`: badge and footer updated from Apache to MIT
+- Kept Apache attribution headers in `molmo/*.py` files (legally required for derived code)
+- Kept `NOTICE` file for Molmo attribution
+
+**Commits (release repo, github.com/McGill-NLP/latentlens):**
+- `f556452` Initial release of LatentLens (single squashed commit)
+
+---
+
 ### 2026-02-09 (Fix LLM judge preprocessing bug: wrong image transform for SigLIP/DINOv2/qwen2-7b)
 
 **Bug:** `process_image_with_mask()` in `llm_judge/utils.py` used `resize_and_pad` (CLIP-style
