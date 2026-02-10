@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-Run LLM judge evaluation for contextual nearest neighbors with visualizations.
+DEPRECATED / UNUSED — This is an experimental variant that was never adopted.
 
-This script consumes outputs produced by scripts like
-  scripts/analysis/contextual_nearest_neighbors.py
-which save JSON files containing, per image/patch, the top-k nearest contextual
-neighbors (token in the context of a sentence).
+The canonical contextual evaluation script is:
+    run_single_model_with_viz_contextual.py  (called by run_all_parallel_contextual.sh)
 
-It formats 5 sentence candidates by highlighting the key token inside each
-sentence (using **word**), asks the LLM judge with the SENTENCE_LEVEL_PROMPT,
-and saves both JSON and visualization outputs. Supports OpenAI and OpenRouter
-(e.g., Gemini) via flags consistent with other LLM judge scripts.
+This file uses SENTENCE_LEVEL_PROMPT (sends full sentences with highlighted tokens).
+The canonical script uses IMAGE_PROMPT_WITH_CROP (sends extracted words), matching
+the NN and LogitLens scripts. All paper results use the canonical word-level script.
+
+This file is kept only for reference. Do NOT use it for evaluation.
 """
 
 import os
