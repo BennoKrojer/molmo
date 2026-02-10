@@ -40,9 +40,27 @@ DINOv2 also uses 24×24 so was unaffected. Contextual NN doesn't crop patches, s
 and `run_single_model_with_viz_logitlens.py`. Added 63 unit tests for the full preprocessing pipeline:
 crop at all grid sizes (24, 27, 16), SigLIP 27×27 edge cases, full pipeline smoke tests.
 
-**Re-run #2 (SigLIP grid fix):** In progress. Deleted broken SigLIP NN (39 dirs) + LogitLens (3 dirs).
-Running `llm_judge/rerun_siglip_fix.sh` — tests pass first, then re-runs NN + LogitLens + Contextual.
-Estimated ~6 hours. PID 2280296.
+**Re-run #2 (SigLIP grid fix):** Completed successfully. 189/189 results (7 models × 3 methods × 9 layers).
+Deleted broken SigLIP NN (39 dirs) + LogitLens (3 dirs), re-ran all.
+
+**Data update (2026-02-10):** Updated `paper_plots/data.json` with new numbers via `update_data.py`.
+Regenerated `fig1_unified_interpretability.{pdf,png}`.
+
+Key changes in numbers:
+- 175/189 values changed (SigLIP and DINOv2 models got correct preprocessing; qwen2-7b no longer center-cropped)
+- Old layer 0 NN values were averaged over multiple runs (fractional X/3); now clean 100-sample runs
+- **qwen2-7b+vit contextual**: massive increase (+13 to +31 pp) — old data had preprocessing bug
+- **olmo-7b+dinov2 NN**: mid/late layers dropped ~5-13 pp (was inflated by wrong padding)
+- Most other changes within ±5 pp
+- 2 contextual results at 99/100 samples (stragglers): olmo-7b+siglip layer31 (53.54%), qwen2-7b+vit layer27 (68.69%)
+- CLIP (vit-l-14) models unchanged (were already correctly preprocessed)
+
+**Paper text claims to review** (see detailed audit below):
+- "40-60% for OLMo NN" — now 34-62% at layer 0 for SigLIP
+- "less than 20% for Qwen2 NN" — qwen2+vit layer4 = 22%
+- "60-80% for OLMo LogitLens layer 24+" — layer 31 drops to 45-59%
+- "Qwen2+CLIP is the only exception" for LatentLens — NO LONGER TRUE, qwen2+vit is now 68-83%
+- Qwen2-VL LatentLens "60-73%" — layer 16 = 49.49%, actual range 49-70%
 
 **Commits:**
 - `eff81e4` Fix preprocessing dispatch (SigLIP/DINOv2/qwen2-7b)
@@ -50,8 +68,7 @@ Estimated ~6 hours. PID 2280296.
 - `0367f82` Fix hardcoded grid_size=24 in crop_image_region
 - `e4d5a19` Add 63 unit tests for crop and preprocessing pipeline
 - `a3c1c57` Add targeted re-run script for SigLIP grid fix
-
-**Still needed:** Update data.json with new numbers, regenerate figures, review paper text
+- `033ed94` Document canonical LLM judge scripts, mark unused artifact
 
 ---
 
