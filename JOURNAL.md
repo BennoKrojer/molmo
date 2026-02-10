@@ -31,7 +31,27 @@ qwen2-7b controlled models (e.g. `qwen2-7b_dinov2-large-336`), wrongly giving th
 - `latentlens_release/scripts/evaluate/evaluate_interpretability.py` — added `--model-name` arg
   (was missing entirely, so model_name was always None)
 
-**Still needed:** Re-run LLM judge for 6 affected models (162 data points), update data.json
+**Re-run #1 (preprocessing fix):** Completed for DINOv2 + qwen2-vit models. SigLIP models
+crashed due to a second bug: `crop_image_region()` hardcoded `grid_size=24` (CLIP's grid).
+SigLIP uses 27×27, so patches at row/col >24 overflowed the 512px image, crashing PNG save.
+DINOv2 also uses 24×24 so was unaffected. Contextual NN doesn't crop patches, so also fine.
+
+**Fix #2:** Added `grid_size` parameter to `crop_image_region()` in both `run_single_model_with_viz.py`
+and `run_single_model_with_viz_logitlens.py`. Added 63 unit tests for the full preprocessing pipeline:
+crop at all grid sizes (24, 27, 16), SigLIP 27×27 edge cases, full pipeline smoke tests.
+
+**Re-run #2 (SigLIP grid fix):** In progress. Deleted broken SigLIP NN (39 dirs) + LogitLens (3 dirs).
+Running `llm_judge/rerun_siglip_fix.sh` — tests pass first, then re-runs NN + LogitLens + Contextual.
+Estimated ~6 hours. PID 2280296.
+
+**Commits:**
+- `eff81e4` Fix preprocessing dispatch (SigLIP/DINOv2/qwen2-7b)
+- `ba0c67d` Pass model_name to remaining scripts
+- `0367f82` Fix hardcoded grid_size=24 in crop_image_region
+- `e4d5a19` Add 63 unit tests for crop and preprocessing pipeline
+- `a3c1c57` Add targeted re-run script for SigLIP grid fix
+
+**Still needed:** Update data.json with new numbers, regenerate figures, review paper text
 
 ---
 
