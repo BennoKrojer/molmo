@@ -144,27 +144,34 @@ def check_output_completeness(output_json, expected_total):
         return False, total, f"Incomplete: {total}/{expected_total} examples"
 
 
-def crop_image_region(processed_image, patch_row, patch_col, bbox_size):
+def crop_image_region(processed_image, patch_row, patch_col, bbox_size, grid_size=24):
     """Crop the image region based on patch coordinates and bbox size."""
     from PIL import Image
-    
+
     img_width, img_height = processed_image.size
-    
-    # Use the same patch size calculation as the bounding box
-    actual_patch_size = img_width / 24  # Same as in create_visualization
-    
+
+    # Use dynamic grid size (CLIP=24, SigLIP=27, Qwen2-VL=16, etc.)
+    actual_patch_size = img_width / grid_size
+
     # Calculate bounding box coordinates using the same method as calculate_square_bbox_from_patch
     left = int(patch_col * actual_patch_size)
     top = int(patch_row * actual_patch_size)
     right = int((patch_col + bbox_size) * actual_patch_size)
     bottom = int((patch_row + bbox_size) * actual_patch_size)
-    
+
     # Ensure coordinates are within image bounds
-    left = max(0, left)
-    top = max(0, top)
-    right = min(right, img_width)
-    bottom = min(bottom, img_height)
-    
+    left = max(0, min(left, img_width))
+    top = max(0, min(top, img_height))
+    right = max(0, min(right, img_width))
+    bottom = max(0, min(bottom, img_height))
+
+    # Ensure we have a valid crop region (non-zero dimensions)
+    if right <= left or bottom <= top:
+        # Fallback: return a small center region
+        cx, cy = img_width // 2, img_height // 2
+        s = max(1, int(actual_patch_size))
+        left, top, right, bottom = cx - s, cy - s, cx + s, cy + s
+
     # Crop the region
     cropped = processed_image.crop((left, top, right, bottom))
     return cropped
@@ -616,9 +623,9 @@ def main():
             # Get GPT response
             if args.use_cropped_region:
                 # Use cropped region prompt
-                cropped_image = crop_image_region(processed_image, patch_row, patch_col, bbox_size)
+                cropped_image = crop_image_region(processed_image, patch_row, patch_col, bbox_size, grid_size=grid_size)
                 formatted_prompt = IMAGE_PROMPT_WITH_CROP.format(candidate_words=str(tokens))
-                response = get_gpt_response(client, image_with_bbox, cropped_image, formatted_prompt, 
+                response = get_gpt_response(client, image_with_bbox, cropped_image, formatted_prompt,
                                            api_provider=args.api_provider, model=args.api_model)
             else:
                 # Use regular prompt
@@ -652,8 +659,8 @@ def main():
             # Get cropped image if using cropped region mode
             cropped_img = None
             if args.use_cropped_region:
-                cropped_img = crop_image_region(processed_image, patch_row, patch_col, bbox_size)
-            
+                cropped_img = crop_image_region(processed_image, patch_row, patch_col, bbox_size, grid_size=grid_size)
+
             create_visualization(
                 image_path=image_path,
                 patch_row=patch_row,
