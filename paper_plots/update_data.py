@@ -1110,33 +1110,30 @@ def main():
     OUTPUT_DIR = Path(__file__).parent / "paper_figures_output"
     OUTPUT_DIR.mkdir(exist_ok=True)
     
-    # Plotting config
+    # Plotting config — matches create_lineplot_unified.py layout
     LLM_ORDER = ['olmo-7b', 'llama3-8b', 'qwen2-7b']
     ENC_ORDER = ['vit-l-14-336', 'siglip', 'dinov2-large-336']
     LLM_DISPLAY = {'llama3-8b': 'Llama3-8B', 'olmo-7b': 'OLMo-7B', 'qwen2-7b': 'Qwen2-7B'}
     ENC_DISPLAY = {'vit-l-14-336': 'CLIP ViT-L/14', 'siglip': 'SigLIP', 'dinov2-large-336': 'DINOv2'}
     LLM_COLORS = {'olmo-7b': plt.cm.Blues, 'llama3-8b': plt.cm.Greens, 'qwen2-7b': plt.cm.Reds}
     ENC_SHADES = [0.5, 0.7, 0.9]
-    ENC_MARKERS = {'vit-l-14-336': '*', 'siglip': 'o', 'dinov2-large-336': '^'}
-    ENC_FILL = {'vit-l-14-336': None, 'siglip': 'none', 'dinov2-large-336': None}
-    
+    ENC_MARKERS = {'vit-l-14-336': 'o', 'siglip': 's', 'dinov2-large-336': '^'}
+
     colors = {(l, e): LLM_COLORS[l](ENC_SHADES[i]) for l in LLM_ORDER for i, e in enumerate(ENC_ORDER)}
     label = lambda l, e: f"{LLM_DISPLAY.get(l, l)} + {ENC_DISPLAY.get(e, e)}"
-    
+
     # Create unified plot
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(18, 4))
     sns.set_style("whitegrid")
-    
-    # Order: Input Embedding Matrix, Output Embedding Matrix (LogitLens), LatentLens (ours last)
+
     configs = [
-        (axes[0], nn_data, '(a) Input Embedding Matrix'),
-        (axes[1], logitlens_data, '(b) Output Embedding Matrix (LogitLens)'),
-        (axes[2], contextual_data, '(c) LatentLens (Ours)'),
+        (axes[0], nn_data, 'a) EmbeddingLens'),
+        (axes[1], logitlens_data, 'b) LogitLens'),
+        (axes[2], contextual_data, 'c) LatentLens (Ours)'),
     ]
 
     handles = {}
     for idx, (ax, data, title) in enumerate(configs):
-        all_layers = sorted(set(l for d in data.values() for l in d.keys()))
         for llm in LLM_ORDER:
             for enc in ENC_ORDER:
                 key = f"{llm}+{enc}"
@@ -1145,32 +1142,33 @@ def main():
                 layers = sorted(data[key].keys())
                 values = [data[key][l] for l in layers]
                 lbl = label(llm, enc)
-                marker, fill = ENC_MARKERS[enc], ENC_FILL[enc]
-                if fill is not None:
-                    line, = ax.plot(layers, values, marker=marker, color=colors[(llm, enc)],
-                                   markerfacecolor=fill, markeredgewidth=2, linewidth=2.5, markersize=10)
-                else:
-                    line, = ax.plot(layers, values, marker=marker, color=colors[(llm, enc)],
-                                   linewidth=2.5, markersize=10)
+                line, = ax.plot(layers, values, marker=ENC_MARKERS[enc], color=colors[(llm, enc)],
+                               linewidth=2, markersize=8)
                 if lbl not in handles:
                     handles[lbl] = line
-        ax.set_xlabel('Layer', fontsize=14, fontweight='bold')
-        # Shared y-axis: only show label on leftmost plot
+        ax.set_xlabel('Layer', fontsize=16)
         if idx == 0:
-            ax.set_ylabel('Interpretability %', fontsize=14, fontweight='bold')
-        ax.set_title(title, fontsize=16, fontweight='bold', pad=10)
+            ax.set_ylabel('% of interpretable tokens', fontsize=14)
+        ax.set_title(title, fontsize=20, fontweight='bold', pad=12)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 100)
-        ax.tick_params(labelsize=11)
+        # Clean x-axis ticks matching create_lineplot_unified.py
+        all_layers = sorted(set(l for d in data.values() for l in d.keys()))
         if all_layers:
             ax.set_xlim(min(all_layers) - 0.5, max(all_layers) + 0.5)
-    
+        clean_ticks = [0, 8, 16, 24, 31]
+        ax.set_xticks(clean_ticks)
+        ax.set_xticklabels([str(t) for t in clean_ticks])
+        ax.tick_params(axis='x', labelsize=13)
+        ax.tick_params(axis='y', labelsize=13)
+
     ordered = [(label(l, e), handles[label(l, e)]) for l in LLM_ORDER for e in ENC_ORDER if label(l, e) in handles]
     fig.legend([h for _, h in ordered], [l for l, _ in ordered],
-              loc='lower center', bbox_to_anchor=(0.5, -0.12), ncol=3, fontsize=12)
+              loc='center left', bbox_to_anchor=(0.88, 0.5), ncol=1, fontsize=12,
+              framealpha=0.9, handlelength=2.0, handletextpad=0.5)
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.22, wspace=0.25)
-    
+    plt.subplots_adjust(right=0.87, wspace=0.18)
+
     for ext in ['pdf', 'png']:
         plt.savefig(OUTPUT_DIR / f'fig1_unified_interpretability.{ext}', dpi=300, bbox_inches='tight')
     print(f"✓ Saved plots to {OUTPUT_DIR}/")
