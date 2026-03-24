@@ -4,6 +4,45 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-03
+
+### 2026-03-24 (Rebuttal item #6: Off-the-shelf VLMs — Molmo-7B + LLaVA-1.5)
+
+**Added two off-the-shelf VLMs** for rebuttal, extending Qwen2-VL analysis:
+- Molmo-7B-D (`allenai/Molmo-7B-D-0924`): Qwen2 backbone, 28 layers, 12×12=144 base crop tokens
+- LLaVA-1.5-7B (`llava-hf/llava-1.5-7b-hf`): Vicuna backbone, 32 layers, 24×24=576 CLIP tokens
+
+**Scripts created (18 files):**
+- `scripts/analysis/contextual_embeddings_common.py` — shared extraction infrastructure
+- `scripts/analysis/molmo_7b/` — preprocessing, tests, extraction, NN, LogitLens, LatentLens
+- `scripts/analysis/llava_1_5/` — same structure
+
+**End-to-end tested:** EmbeddingLens + LogitLens verified on 3 images each.
+
+**Contextual embedding extraction launched:** 8 shards per model on GPUs 0-7.
+Monitor: `tail -5 analysis_results/{molmo_7b,llava_1_5}_extraction.log`
+
+**Commit:** `83cf50a` pushed to main.
+
+---
+
+### 2026-03-24 (Rebuttal experiments: pass@1 evaluation)
+
+**Rebuttal item #4 (VLM judge bias):** Set up pass@1 (top-k=1) LLM judge evaluation to compare
+against existing pass@5 results. Addresses reviewer concern that LatentLens benefits from returning
+full words while LogitLens/EmbeddingLens return subword fragments.
+
+**Code changes:**
+- Added `--top-k` arg to `latentlens_release/reproduce/scripts/evaluate/evaluate_interpretability.py`
+- Fixed `load_analysis_results()` bug: directories ending in `.json` were picked up by glob
+- Created `scripts/analysis/corpus_ablation/create_indexed_images.py` (symlinks PixMoCap validation)
+- Created `scripts/analysis/corpus_ablation/run_topk1_evaluation.sh` (3 models × 3 methods)
+- Created `scripts/analysis/corpus_ablation/compare_topk.py` (pass@5 vs pass@1 comparison)
+
+**Running:** 9 sequential API jobs, ~3-4 hours total. Results → `analysis_results/llm_judge_topk1/`
+
+---
+
 ## 2026-02
 
 ### 2026-02-10 (Release repo finalization + paper data update)
