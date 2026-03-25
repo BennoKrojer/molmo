@@ -24,6 +24,32 @@
       }
     },
     {
+      "name": "Molmo-7B-D (off-the-shelf)",
+      "id": "molmo-7b-d",
+      "checkpoint": "allenai_Molmo-7B-D-0924",
+      "llm": "qwen2-7b",
+      "vision_encoder": "vit-l-14-336",
+      "preprocessing": "center_crop_square",
+      "data_paths": {
+        "nn": "molmo_7b/allenai_Molmo-7B-D-0924",
+        "logitlens": "molmo_7b/allenai_Molmo-7B-D-0924",
+        "contextual": "molmo_7b/allenai_Molmo-7B-D-0924"
+      }
+    },
+    {
+      "name": "LLaVA-1.5-7B (off-the-shelf)",
+      "id": "llava-1.5-7b",
+      "checkpoint": "llava-hf_llava-1.5-7b-hf",
+      "llm": "llama3-8b",
+      "vision_encoder": "vit-l-14-336",
+      "preprocessing": "center_crop_square",
+      "data_paths": {
+        "nn": "llava_1_5/llava-hf_llava-1.5-7b-hf",
+        "logitlens": "llava_1_5/llava-hf_llava-1.5-7b-hf",
+        "contextual": "llava_1_5/llava-hf_llava-1.5-7b-hf"
+      }
+    },
+    {
       "name": "Seed 10",
       "id": "seed10",
       "checkpoint": "train_mlp-only_pixmo_cap_resize_olmo-7b_vit-l-14-336_seed10_step12000-unsharded",

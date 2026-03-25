@@ -33,6 +33,28 @@ def escape_for_html(text: str) -> str:
     return html.escape(text, quote=True)
 
 
+def preprocess_center_crop_square(img: Image.Image, target_size: int = 512) -> Image.Image:
+    """Center-crop to square and resize. Used for off-the-shelf VLMs (Molmo-7B-D, LLaVA-1.5).
+
+    This matches the preprocessing used in analysis scripts:
+    - scripts/analysis/molmo_7b/preprocessing.py: preprocess_image_molmo()
+    - scripts/analysis/llava_1_5/preprocessing.py: preprocess_image_llava()
+
+    Both center-crop to square, then resize. We do the same for display.
+    """
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+    w, h = img.size
+    if w != h:
+        min_dim = min(w, h)
+        left = (w - min_dim) // 2
+        top = (h - min_dim) // 2
+        img = img.crop((left, top, left + min_dim, top + min_dim))
+    if img.size != (target_size, target_size):
+        img = img.resize((target_size, target_size), Image.LANCZOS)
+    return img
+
+
 def pil_image_to_base64(img: Image.Image, preprocessor=None) -> str:
     """Convert PIL Image to base64 string for embedding in HTML, with optional preprocessing."""
     try:

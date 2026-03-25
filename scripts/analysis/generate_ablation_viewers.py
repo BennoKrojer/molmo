@@ -36,6 +36,7 @@ from viewer_lib import (
     pil_image_to_base64,
     escape_for_html,
     create_preprocessor,
+    preprocess_center_crop_square,
 )
 
 # Import HTML template from create_unified_viewer
@@ -484,54 +485,66 @@ def create_ablation_model_index(output_dir: Path, ablation_config: Dict,
 
 def create_image_viewer(output_dir: Path, ablation_config: Dict,
                         image_idx: int, all_data: Dict,
-                        dataset, split: str, preprocessor=None) -> bool:
-    """Create image viewer for one image - uses SAME logic as main viewer."""
+                        dataset, split: str, preprocessor=None,
+                        preprocessing_mode: str = None) -> bool:
+    """Create image viewer for one image - uses SAME logic as main viewer.
+
+    Args:
+        preprocessing_mode: If "center_crop_square", apply center-crop-to-square preprocessing
+            (used for off-the-shelf VLMs like Molmo-7B-D, LLaVA-1.5 that don't have
+            local Molmo checkpoints for create_preprocessor()).
+    """
 
     checkpoint = ablation_config["checkpoint"]
     display_name = ablation_config["name"]
     model_dir = output_dir / "ablations" / checkpoint
-    
+
     # Get data for this image (filter out _format_* metadata keys)
     image_data = {
         "nn": {},
         "logitlens": {},
         "contextual": {},
     }
-    
+
     for analysis_type in ["nn", "logitlens", "contextual"]:
         for layer, images_list in all_data.get(analysis_type, {}).items():
             if str(layer).startswith("_format"):
                 continue  # Skip format metadata
             if isinstance(images_list, list) and image_idx < len(images_list):
                 image_data[analysis_type][layer] = images_list[image_idx]
-    
+
     # Get available layers
     nn_layers = sorted(image_data["nn"].keys())
     logit_layers = sorted(image_data["logitlens"].keys())
     ctx_layers = sorted(image_data["contextual"].keys())
-    
+
     if not nn_layers and not logit_layers and not ctx_layers:
         return False
-    
+
     # Get image from dataset
     pil_image = None
     ground_truth = "Caption not available"
     image_base64 = ""
-    
+
     try:
         example = dataset.get(image_idx, np.random)
         image_data_raw = example.get("image")
-        
+
         if isinstance(image_data_raw, str):
             pil_image = Image.open(image_data_raw)
         elif isinstance(image_data_raw, Image.Image):
             pil_image = image_data_raw
-        
+
         if pil_image:
-            # Apply model-specific preprocessing (ViT=black padding, SigLIP/DINOv2=resize)
-            # Uses same preprocessor as main viewer for consistency
-            image_base64 = pil_image_to_base64(pil_image, preprocessor)
-        
+            if preprocessing_mode == "center_crop_square":
+                # Off-the-shelf VLMs: center-crop to square + resize to 512 for display
+                # Matches preprocessing in molmo_7b/preprocessing.py and llava_1_5/preprocessing.py
+                pil_image = preprocess_center_crop_square(pil_image, target_size=512)
+                image_base64 = pil_image_to_base64(pil_image, preprocessor=None)
+            else:
+                # Standard Molmo checkpoint preprocessing
+                image_base64 = pil_image_to_base64(pil_image, preprocessor)
+
         ground_truth = example.get("caption", "No caption available")
     except Exception as e:
         log.warning(f"Could not load image {image_idx}: {e}")
@@ -888,15 +901,23 @@ def main():
         # Create model index
         create_ablation_model_index(args.output_dir, ablation, args.num_images, available_layers)
 
+        # Determine preprocessing mode from config
+        # Off-the-shelf VLMs (Molmo-7B-D, LLaVA-1.5) use center_crop_square
+        preprocessing_mode = ablation.get("preprocessing", None)
+
         # Create preprocessor for model-specific image preprocessing
         # ViT models use black padding, SigLIP/DINOv2 use resize
-        # Note: Qwen2-VL is off-the-shelf HF model, no local checkpoint
-        try:
-            preprocessor = create_preprocessor(checkpoint)
-        except (RuntimeError, FileNotFoundError) as e:
-            log.warning(f"  ⚠️  Could not create preprocessor: {e}")
-            log.warning(f"  ⚠️  Will use basic resize for image display")
-            preprocessor = None
+        # Off-the-shelf HF models (Qwen2-VL, Molmo-7B-D, LLaVA-1.5) have no local checkpoint
+        preprocessor = None
+        if preprocessing_mode is None:
+            # Only try Molmo checkpoint preprocessor if no explicit preprocessing mode
+            try:
+                preprocessor = create_preprocessor(checkpoint)
+            except (RuntimeError, FileNotFoundError) as e:
+                log.warning(f"  Could not create preprocessor: {e}")
+                log.warning(f"  Will use basic resize for image display")
+        else:
+            log.info(f"  Using preprocessing mode: {preprocessing_mode}")
 
         # Create image viewers
         log.info(f"  Creating image viewers...")
@@ -904,7 +925,7 @@ def main():
         t0 = time.time()
 
         for img_idx in range(args.num_images):
-            if create_image_viewer(args.output_dir, ablation, img_idx, all_data, dataset, args.split, preprocessor):
+            if create_image_viewer(args.output_dir, ablation, img_idx, all_data, dataset, args.split, preprocessor, preprocessing_mode):
                 success += 1
             
             if (img_idx + 1) % 5 == 0:
