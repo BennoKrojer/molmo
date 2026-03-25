@@ -32,34 +32,36 @@ BASE_CROP_INDEX = 0  # Base crop is always the first one
 def preprocess_image_molmo(
     image: Image.Image,
     target_size: int = 512,
-    force_square: bool = True
 ) -> Image.Image:
     """
-    Preprocess image for LLM judge / visualization.
+    Preprocess image for LLM judge / visualization — matches Molmo's actual preprocessing.
 
-    This does NOT affect model inference (Molmo's processor handles that).
-    This is for creating the image shown to the LLM judge alongside patch crops.
+    Molmo uses resize_and_pad: resize preserving aspect ratio to fit target_size,
+    then center-pad with black. This is what the model actually sees, including
+    black padding bars for non-square images.
 
     Args:
         image: PIL Image
-        target_size: Target display size (512 for LLM judge)
-        force_square: If True, center-crop to square before resizing
+        target_size: Target display size (512 for LLM judge, 336 for model input)
 
     Returns:
-        Preprocessed PIL Image
+        Preprocessed PIL Image (target_size x target_size, with black padding)
     """
-    if force_square:
-        w, h = image.size
-        if w != h:
-            min_dim = min(w, h)
-            left = (w - min_dim) // 2
-            top = (h - min_dim) // 2
-            image = image.crop((left, top, left + min_dim, top + min_dim))
+    w, h = image.size
 
-    if image.size != (target_size, target_size):
-        image = image.resize((target_size, target_size), Image.LANCZOS)
+    # Scale to fit inside target_size preserving aspect ratio (matches Molmo's resize_and_pad)
+    scale = min(target_size / w, target_size / h)
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+    image = image.resize((new_w, new_h), Image.LANCZOS)
 
-    return image
+    # Center-pad with black to target_size x target_size
+    padded = Image.new("RGB", (target_size, target_size), (0, 0, 0))
+    left = (target_size - new_w) // 2
+    top = (target_size - new_h) // 2
+    padded.paste(image, (left, top))
+
+    return padded
 
 
 def get_base_crop_grid() -> Tuple[int, int, int]:

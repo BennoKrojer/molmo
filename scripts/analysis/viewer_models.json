@@ -29,7 +29,7 @@
       "checkpoint": "allenai_Molmo-7B-D-0924",
       "llm": "qwen2-7b",
       "vision_encoder": "vit-l-14-336",
-      "preprocessing": "center_crop_square",
+      "preprocessing": "resize_and_pad",
       "data_paths": {
         "nn": "molmo_7b/allenai_Molmo-7B-D-0924",
         "logitlens": "molmo_7b/allenai_Molmo-7B-D-0924",

@@ -34,13 +34,9 @@ def escape_for_html(text: str) -> str:
 
 
 def preprocess_center_crop_square(img: Image.Image, target_size: int = 512) -> Image.Image:
-    """Center-crop to square and resize. Used for off-the-shelf VLMs (Molmo-7B-D, LLaVA-1.5).
+    """Center-crop to square and resize. Used for LLaVA-1.5 (CLIP preprocessing).
 
-    This matches the preprocessing used in analysis scripts:
-    - scripts/analysis/molmo_7b/preprocessing.py: preprocess_image_molmo()
-    - scripts/analysis/llava_1_5/preprocessing.py: preprocess_image_llava()
-
-    Both center-crop to square, then resize. We do the same for display.
+    LLaVA-1.5 uses CLIP's center-crop-to-square preprocessing.
     """
     if img.mode != 'RGB':
         img = img.convert('RGB')
@@ -53,6 +49,26 @@ def preprocess_center_crop_square(img: Image.Image, target_size: int = 512) -> I
     if img.size != (target_size, target_size):
         img = img.resize((target_size, target_size), Image.LANCZOS)
     return img
+
+
+def preprocess_resize_and_pad(img: Image.Image, target_size: int = 512) -> Image.Image:
+    """Resize preserving aspect ratio + center-pad with black. Used for Molmo-7B-D.
+
+    This matches Molmo's actual resize_and_pad() preprocessing. The model sees
+    the image with black padding bars for non-square images.
+    """
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+    w, h = img.size
+    scale = min(target_size / w, target_size / h)
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+    img = img.resize((new_w, new_h), Image.LANCZOS)
+    padded = Image.new("RGB", (target_size, target_size), (0, 0, 0))
+    left = (target_size - new_w) // 2
+    top = (target_size - new_h) // 2
+    padded.paste(img, (left, top))
+    return padded
 
 
 def pil_image_to_base64(img: Image.Image, preprocessor=None) -> str:

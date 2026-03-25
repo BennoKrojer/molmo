@@ -537,9 +537,13 @@ def create_image_viewer(output_dir: Path, ablation_config: Dict,
 
         if pil_image:
             if preprocessing_mode == "center_crop_square":
-                # Off-the-shelf VLMs: center-crop to square + resize to 512 for display
-                # Matches preprocessing in molmo_7b/preprocessing.py and llava_1_5/preprocessing.py
+                # LLaVA-1.5: CLIP center-crop to square
                 pil_image = preprocess_center_crop_square(pil_image, target_size=512)
+                image_base64 = pil_image_to_base64(pil_image, preprocessor=None)
+            elif preprocessing_mode == "resize_and_pad":
+                # Molmo-7B-D: resize preserving aspect ratio + black padding
+                from viewer_lib import preprocess_resize_and_pad
+                pil_image = preprocess_resize_and_pad(pil_image, target_size=512)
                 image_base64 = pil_image_to_base64(pil_image, preprocessor=None)
             else:
                 # Standard Molmo checkpoint preprocessing
