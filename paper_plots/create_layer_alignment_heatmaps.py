@@ -310,6 +310,55 @@ def main():
     else:
         print("  No qwen2vl_layer_alignment data found in data.json")
 
+    # Create off-the-shelf model heatmaps (Molmo-7B-D, LLaVA-1.5-7B)
+    offtheshelf_models = {
+        'molmo-7b-d': ('Molmo-7B-D', VISION_LAYERS_QWEN, LLM_LAYERS_QWEN),
+        'llava-1.5-7b': ('LLaVA-1.5-7B', VISION_LAYERS_DEFAULT, LLM_LAYERS_DEFAULT),
+    }
+    offtheshelf_dir = SCRIPT_DIR / "paper_figures_output" / "offtheshelf"
+    offtheshelf_dir.mkdir(parents=True, exist_ok=True)
+
+    for model_key, (display_name, vision_layers, llm_layers) in offtheshelf_models.items():
+        print(f"\n{'=' * 50}")
+        print(f"Creating {display_name} heatmap...")
+        counts = data.get(f'{model_key}_layer_alignment', {})
+        if not counts:
+            print(f"  No {model_key}_layer_alignment data found in data.json")
+            continue
+
+        n_vision = len(vision_layers)
+        n_llm = len(llm_layers)
+        matrix = np.zeros((n_vision, n_llm))
+
+        for i, vl in enumerate(vision_layers):
+            layer_counts = counts.get(vl, counts.get(str(vl), {}))
+            total = sum(layer_counts.values())
+            if total > 0:
+                for j, ll in enumerate(llm_layers):
+                    matrix[i, j] = layer_counts.get(ll, layer_counts.get(str(ll), 0)) / total
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        im = ax.pcolormesh(matrix, cmap='viridis', vmin=0, vmax=1.0,
+                           edgecolors='black', linewidth=0.5)
+        ax.set_aspect('auto')
+        ax.set_xlabel('Layer of NNs', fontsize=18)
+        ax.set_ylabel('Layer of Vis. Tokens', fontsize=18)
+        ax.set_title(display_name, fontsize=20, fontweight='bold', pad=15)
+        ax.set_yticks([i + 0.5 for i in range(n_vision)])
+        ax.set_yticklabels([str(vl) for vl in vision_layers], fontsize=15)
+        ax.set_xticks([i + 0.5 for i in range(n_llm)])
+        ax.set_xticklabels([str(ll) for ll in llm_layers], fontsize=15)
+        cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+        cbar.set_label('Proportion of Top-5 NNs', fontsize=16)
+        cbar.ax.tick_params(labelsize=15)
+        plt.tight_layout()
+
+        out_path = offtheshelf_dir / f"{model_key}_layer_alignment_heatmap.png"
+        plt.savefig(out_path, dpi=150, bbox_inches='tight')
+        plt.savefig(out_path.with_suffix('.pdf'), dpi=300, bbox_inches='tight')
+        print(f"  Saved: {out_path}")
+        plt.close()
+
     print(f"\n✓ All heatmaps saved to {OUTPUT_DIR}")
 
 

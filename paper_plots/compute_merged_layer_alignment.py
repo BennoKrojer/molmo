@@ -333,6 +333,105 @@ def compute_qwen2vl_alignment():
     return alignment_data
 
 
+# =============================================================================
+# MOLMO-7B-D and LLAVA-1.5-7B (off-the-shelf, same structure as Qwen2-VL)
+# =============================================================================
+
+OFFTHESHELF_MODELS = {
+    "molmo-7b-d": {
+        "name": "Molmo-7B-D",
+        "static_dir": REPO_ROOT / "analysis_results" / "nearest_neighbors" / "molmo_7b" / "allenai_Molmo-7B-D-0924",
+        "contextual_dir": REPO_ROOT / "analysis_results" / "contextual_nearest_neighbors" / "molmo_7b" / "allenai_Molmo-7B-D-0924",
+        "vision_layers": VISION_LAYERS_QWEN,  # 28-layer Qwen2 backbone
+    },
+    "llava-1.5-7b": {
+        "name": "LLaVA-1.5-7B",
+        "static_dir": REPO_ROOT / "analysis_results" / "nearest_neighbors" / "llava_1_5" / "llava-hf_llava-1.5-7b-hf",
+        "contextual_dir": REPO_ROOT / "analysis_results" / "contextual_nearest_neighbors" / "llava_1_5" / "llava-hf_llava-1.5-7b-hf",
+        "vision_layers": VISION_LAYERS_DEFAULT,  # 32-layer Vicuna backbone
+    },
+}
+
+
+def compute_offtheshelf_alignment(model_key):
+    """Compute layer alignment for an off-the-shelf model (same structure as Qwen2-VL)."""
+    config = OFFTHESHELF_MODELS[model_key]
+    print(f"\n{'='*60}")
+    print(f"Processing {config['name']}")
+    print('='*60)
+
+    static_dir = config["static_dir"]
+    contextual_dir = config["contextual_dir"]
+
+    if not static_dir.exists():
+        print(f"  ERROR: Static NN dir not found: {static_dir}")
+        return None
+    if not contextual_dir.exists():
+        print(f"  ERROR: Contextual NN dir not found: {contextual_dir}")
+        return None
+
+    vision_layers = config["vision_layers"]
+    alignment_data = {}
+
+    for vl in vision_layers:
+        print(f"\n  Vision layer {vl}:", end=" ", flush=True)
+
+        # Load static NN (same format as Qwen2-VL: results[].patches[])
+        static_file = static_dir / f"nearest_neighbors_layer{vl}_topk5.json"
+        if not static_file.exists():
+            print("static NN not found")
+            continue
+        with open(static_file) as f:
+            static_data = json.load(f)
+
+        static_results = {}
+        for r in static_data.get('results', [])[:NUM_IMAGES]:
+            image_idx = r['image_idx']
+            static_results[image_idx] = {}
+            for patch in r.get('patches', []):
+                patch_idx = patch['patch_idx']
+                nns = [{'similarity': nn['similarity'], 'layer': 0, 'token': nn.get('token', '')}
+                       for nn in patch.get('nearest_neighbors', [])]
+                static_results[image_idx][patch_idx] = nns
+
+        # Load contextual NN
+        ctx_file = contextual_dir / f"contextual_neighbors_visual{vl}_allLayers.json"
+        if not ctx_file.exists():
+            print("contextual NN not found")
+            continue
+        with open(ctx_file) as f:
+            ctx_data = json.load(f)
+
+        ctx_results = {}
+        for r in ctx_data.get('results', [])[:NUM_IMAGES]:
+            image_idx = r['image_idx']
+            ctx_results[image_idx] = {}
+            for patch in r.get('patches', []):
+                patch_idx = patch['patch_idx']
+                nns = [{'similarity': nn['similarity'], 'layer': nn['contextual_layer'],
+                        'token': nn.get('token_str', '')}
+                       for nn in patch.get('nearest_contextual_neighbors', [])]
+                ctx_results[image_idx][patch_idx] = nns
+
+        # Merge and count
+        layer_counts = defaultdict(int)
+        common_images = set(static_results.keys()) & set(ctx_results.keys())
+        for image_idx in common_images:
+            common_patches = set(static_results[image_idx].keys()) & set(ctx_results[image_idx].keys())
+            for patch_idx in common_patches:
+                all_nns = static_results[image_idx][patch_idx] + ctx_results[image_idx][patch_idx]
+                all_nns.sort(key=lambda x: x['similarity'], reverse=True)
+                for nn in all_nns[:5]:
+                    layer_counts[nn['layer']] += 1
+
+        alignment_data[vl] = dict(layer_counts)
+        total = sum(layer_counts.values())
+        layer0_pct = layer_counts.get(0, 0) / total * 100 if total > 0 else 0
+        print(f"{total} patches, layer0={layer0_pct:.1f}%")
+
+    return alignment_data
+
+
 def main():
     print("Computing merged layer alignment (static + contextual NN)")
     print(f"Using first {NUM_IMAGES} images per model/vision-layer")
@@ -361,6 +460,12 @@ def main():
     if qwen2vl_alignment:
         data['qwen2vl_layer_alignment'] = qwen2vl_alignment
 
+    # Compute off-the-shelf model alignments (Molmo-7B-D, LLaVA-1.5-7B)
+    for model_key in OFFTHESHELF_MODELS:
+        alignment = compute_offtheshelf_alignment(model_key)
+        if alignment:
+            data[f'{model_key}_layer_alignment'] = alignment
+
     with open(data_json_path, 'w') as f:
         json.dump(data, f, indent=2)
 
@@ -369,6 +474,9 @@ def main():
     print(f"Models processed: {len(all_alignment)}")
     if qwen2vl_alignment:
         print("Also updated qwen2vl_layer_alignment")
+    for mk in OFFTHESHELF_MODELS:
+        if f'{mk}_layer_alignment' in data:
+            print(f"Also updated {mk}_layer_alignment")
 
 
 if __name__ == "__main__":
