@@ -6,6 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-03
 
+### 2026-03-25 (Rebuttal item #6: LLM Judge evaluation complete for Molmo-7B + LLaVA-1.5)
+- Ran evaluate_interpretability.py for all 3 methods × 2 models × 9 layers (54 total)
+- Fixed evaluate_interpretability.py to handle results[].patches[] structure (no chunks wrapper)
+- Fixed EmbeddingLens detection via nearest_neighbors key when splits.validation absent
+- Script: scripts/analysis/run_llm_judge_offtheshelf.sh
+- Results added to paper_plots/data.json (keys: molmo-7b, llava-1.5)
+- **Key results (avg % interpretable across 9 layers):**
+  - Molmo-7B-D: LatentLens=85.9%, EmbeddingLens=44.1%, LogitLens=35.7%
+  - LLaVA-1.5-7B: LatentLens=55.2%, EmbeddingLens=40.8%, LogitLens=34.9%
+- LatentLens wins clearly on both models; Molmo numbers especially strong (~86%)
+- Molmo EmbeddingLens drops at late layers (77%→14%) — ViT-like early layers, LLM-like late
+- git push: d072e31 (script+fix) + this commit
+
 ### 2026-03-24 (Rebuttal item #6: Off-the-shelf VLMs — Molmo-7B + LLaVA-1.5)
 
 **Added two off-the-shelf VLMs** for rebuttal, extending Qwen2-VL analysis:
@@ -40,6 +53,16 @@ full words while LogitLens/EmbeddingLens return subword fragments.
 - Created `scripts/analysis/corpus_ablation/compare_topk.py` (pass@5 vs pass@1 comparison)
 
 **Running:** 9 sequential API jobs, ~3-4 hours total. Results → `analysis_results/llm_judge_topk1/`
+
+### 2026-03-25 (Seed drift fix for pass@1 evaluation)
+
+**Bug:** Original `run_topk1_evaluation.sh` passed all layers in one invocation. The seed=42 was only
+set once at startup, so layers after 0 sampled different patches than the paper's pass@5 evaluation
+(which ran each layer as a separate process with fresh seed). Only layer 0's patches matched.
+
+**Fix:** Rewrote inner loop to run each layer as a separate `evaluate_interpretability.py` invocation,
+each with `--seed 42`. Per-layer results merged into single `evaluation_results.json` per model×method.
+Pattern copied from `run_eval_per_layer.sh`. Deleted old results and re-launched.
 
 ---
 
