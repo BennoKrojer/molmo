@@ -176,7 +176,24 @@
   - OLMo+CLIP:     NN=57.1%, LogitLens=34.3%, LatentLens=72.3%
   - LLaMA+SigLIP:  NN=24.0%, LogitLens=7.1%,  LatentLens=62.3%
   - Qwen2+DINOv2:  NN=8.8%,  LogitLens=16.2%, LatentLens=79.9%
-- Expected: all methods drop with top-1, but LatentLens drops LESS because its top-1 is a full word
+- **COMPLETE (2026-03-26). Final results (avg across 9 layers):**
+
+  | Model            | Method        | Pass@5 | Pass@1 | Drop    |
+  |------------------|---------------|--------|--------|---------|
+  | OLMo+CLIP        | EmbeddingLens | 57.1%  | 41.6%  | −15.5pp |
+  | OLMo+CLIP        | LogitLens     | 34.3%  | 18.6%  | −15.8pp |
+  | OLMo+CLIP        | LatentLens    | 72.3%  | 52.4%  | −19.9pp |
+  | LLaMA+SigLIP     | EmbeddingLens | 24.0%  |  7.7%  | −16.3pp |
+  | LLaMA+SigLIP     | LogitLens     |  7.1%  |  2.9%  |  −4.2pp |
+  | LLaMA+SigLIP     | LatentLens    | 62.3%  | 38.9%  | −23.4pp |
+  | Qwen2+DINOv2     | EmbeddingLens |  8.8%  |  3.6%  |  −5.2pp |
+  | Qwen2+DINOv2     | LogitLens     | 16.2%  |  6.8%  |  −9.4pp |
+  | Qwen2+DINOv2     | LatentLens    | 79.9%  | 56.2%  | −23.7pp |
+
+- **Rebuttal argument:** LatentLens drops more in absolute terms (ceiling/floor effect — it starts higher).
+  Key finding: **LatentLens pass@1 (avg 49.2%) still beats EmbeddingLens pass@5 (avg 29.9%) and LogitLens pass@5 (avg 19.2%).**
+  Even restricted to a single candidate word, LatentLens outperforms baselines using their top-5.
+  Full-word output is a genuine advantage, not an evaluation bias.
 - **Partial results (2026-03-25, 2h in):**
   - EmbeddingLens/OLMo+CLIP: pass@5=57.1% → pass@1=41.6% (**−15.5pp**, 9/9 layers done)
   - LogitLens/OLMo+CLIP: pass@1 layers 0-2 = 5-8% (partial, running layer 4)

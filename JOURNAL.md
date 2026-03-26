@@ -41,6 +41,8 @@ Monitor: `tail -5 analysis_results/{molmo_7b,llava_1_5}_extraction.log`
 
 ### 2026-03-24 (Rebuttal experiments: pass@1 evaluation)
 
+**[COMPLETE 2026-03-26]** LatentLens pass@1 (49.2% avg) > EmbeddingLens pass@5 (29.9%) > LogitLens pass@5 (19.2%). Full results in REBUTTAL.md.
+
 **Rebuttal item #4 (VLM judge bias):** Set up pass@1 (top-k=1) LLM judge evaluation to compare
 against existing pass@5 results. Addresses reviewer concern that LatentLens benefits from returning
 full words while LogitLens/EmbeddingLens return subword fragments.
