@@ -2380,3 +2380,22 @@ Categories:
 - Removed redundancy while keeping all critical rules
 
 **Git:** Pushed to `final` branch (304f2e1)
+
+### 2026-03-26 (Off-the-shelf VLMs: LLM judge + demo viewer)
+
+**LLM judge (GPT-5) for Molmo-7B-D and LLaVA-1.5-7B:**
+- Ran all 3 methods (EmbeddingLens, LogitLens, LatentLens) × 9 layers × 100 patches each
+- Fixed `evaluate_interpretability.py` to handle `results[].patches[]` JSON structure (our scripts don't use `chunks` wrapper)
+- Results stored at `analysis_results/llm_judge_offtheshelf/{embeddinglens,logitlens,contextual}/{molmo,llava}/`
+- Added `molmo-7b` and `llava-1.5` entries to `paper_plots/data.json`
+
+**Key results (average across layers):**
+- Molmo-7B-D: EmbeddingLens ~35%, LogitLens ~44%, LatentLens ~63%
+- LLaVA-1.5-7B: EmbeddingLens ~37%, LogitLens ~47%, LatentLens ~68%
+- Both show same trend as Qwen2-VL: LatentLens substantially outperforms baselines
+
+**Figure update:** Adapted `create_qwen2vl_plots.py` to 3-subplot unified figure (one per method, 3 model lines each). Output: `paper_figures_output/offtheshelf/offtheshelf_unified.{pdf,png}`
+
+**Demo viewer:** Added dedicated "Off-the-shelf VLMs" section to demo. 10 images each for Molmo-7B-D and LLaVA-1.5-7B.
+
+**Git:** Pushed website (cc36f46), pushed main repo (0800f15)
