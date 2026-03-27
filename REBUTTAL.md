@@ -35,17 +35,23 @@
 - Method: per-layer affine probes T_l(h)=W_l@h+b_l, identity init, KL(target||tuned) loss vs final layer, 200 images × 3 epochs
 - Output: `analysis_results/tuned_lens/`, `analysis_results/llm_judge_tunedlens/`
 - Results added to `paper_plots/data.json` under `tunedlens` key
-- **Results (% interpretable, avg across 9 layers):**
+- **Results (% interpretable, avg across 9 layers, --use-cropped-region judge):**
 
   | Model | LogitLens | TunedLens | Δ | LatentLens |
   |-------|-----------|-----------|---|------------|
-  | llama3+siglip | 7.1% | 8.8% | +1.7pp | 62.3% |
-  | llama3+dinov2 | 7.2% | 9.1% | +1.9pp | 77.4% |
-  | qwen2+siglip | 10.8% | 7.0% | −3.8pp | 74.3% |
+  | llama3+siglip | 7.1% | 8.0% | +0.9pp | 62.3% |
+  | llama3+dinov2 | 7.2% | 7.4% | +0.2pp | 77.4% |
+  | qwen2+siglip | 10.8% | 7.6% | −3.2pp | 74.3% |
+  | **olmo+CLIP** | **34.3%** | **29.3%** | **−5.0pp** | **72.3%** |
 
-- **Key finding:** Tuned Lens (trained per-layer affine probes) barely improves over LogitLens (+1.7/+1.9pp) and even hurts for Qwen2 (−3.8pp). LatentLens remains 55–70pp ahead — training-free.
+- **Key findings:**
+  - On the 3 worst LogitLens models: TunedLens ≈ LogitLens (−3 to +1pp). LatentLens 54–70pp ahead.
+  - On the best LogitLens model (OLMo+CLIP, 34.3%): TunedLens actually HURTS (−5pp avg).
+    - Early layers improve (+10 to +24pp at L0-L8) — probe learns a shortcut to final-layer space.
+    - Late layers collapse (−34 to −48pp at L24-L31) — the affine map disrupts already-good vocabulary alignment.
+  - LatentLens wins by 43–70pp across ALL 4 models.
 - **Rebuttal text:**
-  > We implemented Tuned Lens (Belrose et al., 2023) for the three model pairs where LogitLens performs worst (7–11%). Per-layer affine probes (d×d matrix + bias) were trained on 200 PixMoCap images × 3 epochs with KL divergence from the final layer's predictions. Tuned Lens achieves 7.0–9.1% avg interpretability — essentially unchanged from LogitLens (7.1–10.8%). In contrast, LatentLens achieves 62–77% training-free. This demonstrates that the bottleneck is not probe quality but the fundamental limitation of projecting through a single vocabulary matrix. LatentLens sidesteps this by operating in the model's contextual embedding space.
+  > We implemented Tuned Lens (Belrose et al., 2023) for four model pairs spanning both the worst (7–11%) and best (34%) LogitLens performers. Per-layer affine probes (d×d matrix + bias) were trained on 200 PixMoCap images × 3 epochs with KL divergence from the final layer's predictions. For the three worst models, Tuned Lens is essentially unchanged from LogitLens (7–8% vs 7–11%). For OLMo+CLIP where LogitLens already works well (34.3%), Tuned Lens actually decreases performance to 29.3%: early layers improve (+10–24pp), but late layers — where LogitLens already aligns well with the vocabulary — are disrupted (−34 to −48pp). In contrast, LatentLens achieves 62–77% training-free across all models. This demonstrates that the bottleneck is the fundamental limitation of projecting through a single vocabulary matrix, not probe quality.
 - SAEs: argue different goal (decomposition vs interpretation), cite concurrent work
 
 ### MEDIUM PRIORITY
