@@ -46,20 +46,22 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 class TunedLensProbe(nn.Module):
-    """Per-layer affine probe: T_l(h) = W_l @ h + b_l.
+    """Per-layer residual affine probe: T_l(h) = h + W_l @ h + b_l.
 
-    Initialized to identity (W_l = I) and zero bias so training starts
-    from the LogitLens baseline.
+    Following Belrose et al. (2023): W and b initialized to ZERO so the
+    probe starts as identity (h + 0).  Weight decay on W pushes it back
+    toward zero, i.e. toward identity — this is the key regularization
+    mechanism that prevents late-layer probes from drifting.
     """
 
     def __init__(self, d_model: int):
         super().__init__()
         self.linear = nn.Linear(d_model, d_model, bias=True)
-        nn.init.eye_(self.linear.weight)
+        nn.init.zeros_(self.linear.weight)
         nn.init.zeros_(self.linear.bias)
 
     def forward(self, h: torch.Tensor) -> torch.Tensor:
-        return self.linear(h)
+        return h + self.linear(h)  # residual connection
 
 
 def apply_lm_head(model: Molmo, h: torch.Tensor, ln_f_fp32=None, ff_out_fp32=None) -> torch.Tensor:
@@ -87,12 +89,12 @@ def main():
                         help="Path to model checkpoint directory (step12000-unsharded)")
     parser.add_argument("--layers", type=str, required=True,
                         help="Comma-separated layer indices, e.g. '0,1,2,4,8,16,24,30,31'")
-    parser.add_argument("--num-train-images", type=int, default=200,
-                        help="Number of PixMoCap training images to use (default: 200)")
-    parser.add_argument("--epochs", type=int, default=3,
-                        help="Training epochs over the image set (default: 3)")
-    parser.add_argument("--lr", type=float, default=1e-3,
-                        help="AdamW learning rate (default: 1e-3)")
+    parser.add_argument("--num-train-images", type=int, default=2000,
+                        help="Number of PixMoCap training images (default: 2000)")
+    parser.add_argument("--epochs", type=int, default=1,
+                        help="Training epochs over the image set (default: 1)")
+    parser.add_argument("--lr", type=float, default=0.1,
+                        help="SGD learning rate — original paper uses 0.1 effective (default: 0.1)")
     parser.add_argument("--output-dir", type=str, default="analysis_results/tunedlens_probes",
                         help="Directory to save trained probes")
     parser.add_argument("--use-bf16", action="store_true",
@@ -165,12 +167,22 @@ def main():
         ff_out_fp32 = None
 
     # ===== CREATE PROBES =====
+    # Following Belrose et al.: residual probe (h + W@h + b), W=0 init,
+    # SGD+Nesterov, weight_decay=1e-3 (pushes W→0, i.e. toward identity)
     probes = {l: TunedLensProbe(d_model).float().cuda() for l in analyzed_layers}
     all_params = [p for probe in probes.values() for p in probe.parameters()]
-    optimizer = torch.optim.AdamW(all_params, lr=args.lr, weight_decay=0.01)
+    optimizer = torch.optim.SGD(
+        all_params, lr=args.lr, momentum=0.9, nesterov=True, weight_decay=1e-3
+    )
+    total_steps = args.num_train_images * args.epochs
+    scheduler = torch.optim.lr_scheduler.LinearLR(
+        optimizer, start_factor=1.0, end_factor=0.0, total_iters=total_steps
+    )
 
     total_params = sum(p.numel() for p in all_params)
     print(f"  Created {len(probes)} probes — {total_params / 1e6:.1f}M total parameters")
+    print(f"  Optimizer: SGD(lr={args.lr}, momentum=0.9, nesterov=True, wd=1e-3)")
+    print(f"  LR schedule: linear decay over {total_steps} steps")
 
     # ===== LOAD PREPROCESSOR + DATASET =====
     model_config = ModelConfig.load(
@@ -293,6 +305,7 @@ def main():
             total_loss.backward()
             torch.nn.utils.clip_grad_norm_(all_params, max_norm=1.0)
             optimizer.step()
+            scheduler.step()
 
             epoch_losses.append(total_loss.item())
 

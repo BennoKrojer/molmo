@@ -41,14 +41,14 @@ from olmo.data.pixmo_datasets import PixMoCap
 
 
 class TunedLensProbe(nn.Module):
-    """Per-layer affine probe (must match train_tunedlens.py definition)."""
+    """Per-layer residual affine probe (must match train_tunedlens.py definition)."""
 
     def __init__(self, d_model: int):
         super().__init__()
         self.linear = nn.Linear(d_model, d_model, bias=True)
 
     def forward(self, h: torch.Tensor) -> torch.Tensor:
-        return self.linear(h)
+        return h + self.linear(h)  # residual connection
 
 
 def load_probes(probes_path: str, device: torch.device):
