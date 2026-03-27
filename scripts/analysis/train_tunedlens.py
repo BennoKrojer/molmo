@@ -87,10 +87,13 @@ def main():
                         help="AdamW learning rate (default: 1e-3)")
     parser.add_argument("--output-dir", type=str, default="analysis_results/tunedlens_probes",
                         help="Directory to save trained probes")
+    parser.add_argument("--use-bf16", action="store_true",
+                        help="Use bfloat16 instead of float16 (for models with extreme norms)")
     args = parser.parse_args()
 
     analyzed_layers = [int(l.strip()) for l in args.layers.split(",")]
     device = torch.device("cuda")
+    precision_dtype = torch.bfloat16 if args.use_bf16 else torch.float16
 
     print("=" * 70)
     print("TUNED LENS TRAINING")
@@ -122,9 +125,12 @@ def main():
     del weights
     gc.collect()
 
-    model = model.half().cuda().eval()
+    if args.use_bf16:
+        model = model.to(dtype=torch.bfloat16).cuda().eval()
+    else:
+        model = model.half().cuda().eval()
     torch.cuda.empty_cache()
-    print(f"✓ Model loaded in {time.time() - t0:.1f}s")
+    print(f"✓ Model loaded in {time.time() - t0:.1f}s (dtype={'bf16' if args.use_bf16 else 'fp16'})")
 
     # Freeze everything — only probes will have gradients
     for p in model.parameters():
@@ -190,7 +196,7 @@ def main():
 
             # ---- Forward pass with frozen model ----
             with torch.no_grad():
-                with torch.autocast("cuda", dtype=torch.float16):
+                with torch.autocast("cuda", dtype=precision_dtype):
                     output = model(
                         input_ids=input_ids,
                         images=images_tensor,
@@ -218,8 +224,8 @@ def main():
 
                 # ---- Compute target distribution from final layer (frozen) ----
                 h_final_vis = hidden_states[-1][0, vis_positions].float()  # [N_vis, d_model]
-                with torch.autocast("cuda", dtype=torch.float16):
-                    target_logits = apply_lm_head(model, h_final_vis.half())  # float16
+                with torch.autocast("cuda", dtype=precision_dtype):
+                    target_logits = apply_lm_head(model, h_final_vis.to(precision_dtype))
                 target_probs = F.softmax(target_logits.float(), dim=-1).detach()  # [N_vis, vocab]
 
             # ---- Probe training (autograd enabled, only probe params have grad) ----
@@ -232,8 +238,8 @@ def main():
 
                 # Apply probe (float32) → cast to float16 → apply frozen lm head
                 translated = probes[layer_idx](h_l_vis)  # float32
-                with torch.autocast("cuda", dtype=torch.float16):
-                    pred_logits = apply_lm_head(model, translated.half())  # float16
+                with torch.autocast("cuda", dtype=precision_dtype):
+                    pred_logits = apply_lm_head(model, translated.to(precision_dtype))
                 pred_log_probs = F.log_softmax(pred_logits.float(), dim=-1)  # [N_vis, vocab]
 
                 # KL(target || tuned): gradient pushes tuned to cover target's modes
@@ -245,7 +251,16 @@ def main():
                 )
                 total_loss = total_loss + loss
 
+            if torch.isnan(total_loss) or torch.isinf(total_loss):
+                print(f"  WARNING: NaN/Inf loss at image {img_idx}, skipping batch")
+                optimizer.zero_grad()
+                del input_ids, images_tensor, image_masks, image_input_idx
+                del output, hidden_states, h_final_vis, target_logits, target_probs, total_loss
+                torch.cuda.empty_cache()
+                continue
+
             total_loss.backward()
+            torch.nn.utils.clip_grad_norm_(all_params, max_norm=1.0)
             optimizer.step()
 
             epoch_losses.append(total_loss.item())

@@ -55,12 +55,13 @@ run_model() {
     local ENCODER=$3
     local LAYERS=$4
     local LOG=$5
+    local EXTRA_ARGS="${6:-}"
 
     local CKPT_NAME="train_mlp-only_pixmo_cap_resize_${LLM}_${ENCODER}"
     local CKPT_PATH="${CKPT_BASE}/${CKPT_NAME}/step12000-unsharded"
     local PROBES_PATH="${PROBES_BASE}/${CKPT_NAME}/probes.pt"
 
-    echo "[$(date '+%H:%M:%S')] Starting ${LLM} + ${ENCODER} on GPU ${GPU}" | tee -a "$LOG"
+    echo "[$(date '+%H:%M:%S')] Starting ${LLM} + ${ENCODER} on GPU ${GPU} ${EXTRA_ARGS}" | tee -a "$LOG"
 
     # --- Train ---
     echo "[$(date '+%H:%M:%S')] Training probes..." | tee -a "$LOG"
@@ -70,6 +71,7 @@ run_model() {
         --num-train-images $NUM_TRAIN_IMAGES \
         --epochs $EPOCHS \
         --output-dir "$PROBES_BASE" \
+        $EXTRA_ARGS \
         >> "$LOG" 2>&1
     echo "[$(date '+%H:%M:%S')] Training done." | tee -a "$LOG"
 
@@ -95,11 +97,11 @@ echo "" > "$LOG0"
 echo "" > "$LOG1"
 echo "" > "$LOG2"
 
-run_model 0 llama3-8b siglip      "$LLAMA3_LAYERS" "$LOG0" &
+run_model 0 llama3-8b siglip      "$LLAMA3_LAYERS" "$LOG0" "" &
 PID0=$!
-run_model 1 llama3-8b dinov2-large-336 "$LLAMA3_LAYERS" "$LOG1" &
+run_model 1 llama3-8b dinov2-large-336 "$LLAMA3_LAYERS" "$LOG1" "--use-bf16" &
 PID1=$!
-run_model 2 qwen2-7b  siglip      "$QWEN2_LAYERS"  "$LOG2" &
+run_model 2 qwen2-7b  siglip      "$QWEN2_LAYERS"  "$LOG2" "" &
 PID2=$!
 
 echo "Launched:"
