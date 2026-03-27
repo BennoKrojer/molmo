@@ -6,6 +6,17 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-03
 
+### 2026-03-27 (Rebuttal item #3: Tuned Lens COMPLETE)
+- **Result: Tuned Lens ≈ LogitLens.** Training per-layer probes does NOT help.
+- llama3+siglip: LogitLens=7.1% → TunedLens=8.8% (+1.7pp), LatentLens=62.3%
+- llama3+dinov2: LogitLens=7.2% → TunedLens=9.1% (+1.9pp), LatentLens=77.4%
+- qwen2+siglip:  LogitLens=10.8% → TunedLens=7.0% (−3.8pp), LatentLens=74.3%
+- Training: 200 images × 3 epochs, d×d affine probes, KL loss vs final layer
+- llama3+dinov2 needed --fp32-head (hidden state norms ~3000 caused float16 overflow)
+- LLM judge: 27 layers × 100 patches, GPT-5, all parallel (~25 min total)
+- Results in data.json under `tunedlens` key; judge output in `analysis_results/llm_judge_tunedlens/`
+- git commits: 589bf9d (initial), f13e558 (NaN fix), b4b8f2a (fp32-head fix)
+
 ### 2026-03-27 (Rebuttal item #3: Tuned Lens implementation launched)
 - Implemented Tuned Lens (Belrose et al.) for the 3 worst LogitLens models: llama3+siglip (7.1%), llama3+dinov2 (7.2%), qwen2+siglip (10.8%)
 - Per-layer affine probes T_l(h) = W_l@h + b_l, identity init, trained with KL divergence from final-layer target

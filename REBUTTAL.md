@@ -29,12 +29,23 @@
   - Plausibility vs faithfulness distinction: LogitLens has same issue
 
 **3. Stronger baselines: Tuned Lens, SAEs** (u6Pj)
-- Status: IN PROGRESS (Tuned Lens running, results pending)
+- Status: DONE (Tuned Lens complete; SAEs = writing-only argument)
 - Models: llama3+siglip (7.1%), llama3+dinov2 (7.2%), qwen2+siglip (10.8%) — the 3 worst LogitLens
 - Scripts: `scripts/analysis/train_tunedlens.py`, `scripts/analysis/tunedlens.py`, `scripts/analysis/run_all_tunedlens.sh`
-- Method: per-layer affine probes T_l(h)=W_l@h+b_l, identity init, KL loss vs final layer, 200 images × 3 epochs
-- Output dir: `analysis_results/tuned_lens/` (same format as logitlens → same LLM judge)
-- Monitor: `tail -f analysis_results/tunedlens_llama3_siglip.log`
+- Method: per-layer affine probes T_l(h)=W_l@h+b_l, identity init, KL(target||tuned) loss vs final layer, 200 images × 3 epochs
+- Output: `analysis_results/tuned_lens/`, `analysis_results/llm_judge_tunedlens/`
+- Results added to `paper_plots/data.json` under `tunedlens` key
+- **Results (% interpretable, avg across 9 layers):**
+
+  | Model | LogitLens | TunedLens | Δ | LatentLens |
+  |-------|-----------|-----------|---|------------|
+  | llama3+siglip | 7.1% | 8.8% | +1.7pp | 62.3% |
+  | llama3+dinov2 | 7.2% | 9.1% | +1.9pp | 77.4% |
+  | qwen2+siglip | 10.8% | 7.0% | −3.8pp | 74.3% |
+
+- **Key finding:** Tuned Lens (trained per-layer affine probes) barely improves over LogitLens (+1.7/+1.9pp) and even hurts for Qwen2 (−3.8pp). LatentLens remains 55–70pp ahead — training-free.
+- **Rebuttal text:**
+  > We implemented Tuned Lens (Belrose et al., 2023) for the three model pairs where LogitLens performs worst (7–11%). Per-layer affine probes (d×d matrix + bias) were trained on 200 PixMoCap images × 3 epochs with KL divergence from the final layer's predictions. Tuned Lens achieves 7.0–9.1% avg interpretability — essentially unchanged from LogitLens (7.1–10.8%). In contrast, LatentLens achieves 62–77% training-free. This demonstrates that the bottleneck is not probe quality but the fundamental limitation of projecting through a single vocabulary matrix. LatentLens sidesteps this by operating in the model's contextual embedding space.
 - SAEs: argue different goal (decomposition vs interpretation), cite concurrent work
 
 ### MEDIUM PRIORITY
