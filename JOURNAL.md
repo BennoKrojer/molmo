@@ -6,6 +6,15 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-03
 
+### 2026-03-27 (Rebuttal item #3: Tuned Lens implementation launched)
+- Implemented Tuned Lens (Belrose et al.) for the 3 worst LogitLens models: llama3+siglip (7.1%), llama3+dinov2 (7.2%), qwen2+siglip (10.8%)
+- Per-layer affine probes T_l(h) = W_l@h + b_l, identity init, trained with KL divergence from final-layer target
+- Training: visual tokens only, PixMoCap train split, 200 images × 3 epochs, AdamW lr=1e-3, single GPU
+- Scripts: `scripts/analysis/train_tunedlens.py`, `scripts/analysis/tunedlens.py`, `scripts/analysis/run_all_tunedlens.sh`
+- Output format identical to logitlens.py → existing LLM judge pipeline reusable
+- Launched on GPUs 0/1/2 in parallel; monitor: `tail -f analysis_results/tunedlens_llama3_siglip.log`
+- git commit: 589bf9d
+
 ### 2026-03-25 (Rebuttal item #6: LLM Judge evaluation complete for Molmo-7B + LLaVA-1.5)
 - Ran evaluate_interpretability.py for all 3 methods × 2 models × 9 layers (54 total)
 - Fixed evaluate_interpretability.py to handle results[].patches[] structure (no chunks wrapper)

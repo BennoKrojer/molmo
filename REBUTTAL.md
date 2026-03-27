@@ -29,11 +29,13 @@
   - Plausibility vs faithfulness distinction: LogitLens has same issue
 
 **3. Stronger baselines: Tuned Lens, SAEs** (u6Pj)
-- Status: TODO
-- Options:
-  - (a) Argue Tuned Lens requires per-layer training (not training-free), different comparison class
-  - (b) Actually implement and run Tuned Lens (2-3 days)
-  - SAEs: argue different goal (decomposition vs interpretation), cite concurrent work
+- Status: IN PROGRESS (Tuned Lens running, results pending)
+- Models: llama3+siglip (7.1%), llama3+dinov2 (7.2%), qwen2+siglip (10.8%) — the 3 worst LogitLens
+- Scripts: `scripts/analysis/train_tunedlens.py`, `scripts/analysis/tunedlens.py`, `scripts/analysis/run_all_tunedlens.sh`
+- Method: per-layer affine probes T_l(h)=W_l@h+b_l, identity init, KL loss vs final layer, 200 images × 3 epochs
+- Output dir: `analysis_results/tuned_lens/` (same format as logitlens → same LLM judge)
+- Monitor: `tail -f analysis_results/tunedlens_llama3_siglip.log`
+- SAEs: argue different goal (decomposition vs interpretation), cite concurrent work
 
 ### MEDIUM PRIORITY
 
