@@ -35,23 +35,24 @@
 - Method: per-layer affine probes T_l(h)=W_l@h+b_l, identity init, KL(target||tuned) loss vs final layer, 200 images × 3 epochs
 - Output: `analysis_results/tuned_lens/`, `analysis_results/llm_judge_tunedlens/`
 - Results added to `paper_plots/data.json` under `tunedlens` key
-- **Results (% interpretable, avg across 9 layers, --use-cropped-region judge):**
+- **Results (v3: correct Belrose et al. recipe, --use-cropped-region judge):**
 
   | Model | LogitLens | TunedLens | Δ | LatentLens |
   |-------|-----------|-----------|---|------------|
-  | llama3+siglip | 7.1% | 8.0% | +0.9pp | 62.3% |
-  | llama3+dinov2 | 7.2% | 7.4% | +0.2pp | 77.4% |
-  | qwen2+siglip | 10.8% | 7.6% | −3.2pp | 74.3% |
-  | **olmo+CLIP** | **34.3%** | **29.3%** | **−5.0pp** | **72.3%** |
+  | llama3+siglip | 7.1% | 8.9% | +1.8pp | 62.3% |
+  | llama3+dinov2 | 7.2% | 6.4% | −0.8pp | 77.4% |
+  | qwen2+siglip | 10.8% | 7.4% | −3.3pp | 74.3% |
+  | **olmo+CLIP** | **34.3%** | **25.2%** | **−9.1pp** | **72.3%** |
 
+- **Implementation follows Belrose et al. (2023):** residual probe `h + W@h + b` (W=0 init), SGD+Nesterov (lr=0.1, momentum=0.9), weight_decay=1e-3 (pushes W→0=identity), linear LR decay, grad clipping=1.0, trained on 2000 PixMoCap images (~1.15M visual tokens). KL(p_final || q_probe) loss.
 - **Key findings:**
-  - On the 3 worst LogitLens models: TunedLens ≈ LogitLens (−3 to +1pp). LatentLens 54–70pp ahead.
-  - On the best LogitLens model (OLMo+CLIP, 34.3%): TunedLens actually HURTS (−5pp avg).
-    - Early layers improve (+10 to +24pp at L0-L8) — probe learns a shortcut to final-layer space.
-    - Late layers collapse (−34 to −48pp at L24-L31) — the affine map disrupts already-good vocabulary alignment.
-  - LatentLens wins by 43–70pp across ALL 4 models.
+  - On the 3 worst LogitLens models: TunedLens ≈ LogitLens (−3 to +2pp). LatentLens 53–71pp ahead.
+  - On the best LogitLens model (OLMo+CLIP, 34.3%): TunedLens HURTS (−9.1pp avg).
+    - Early layers improve (+4 to +13pp at L0-L8) — probe learns useful translation.
+    - Late layers collapse (−31 to −44pp at L24-L31) — even with residual regularization.
+  - LatentLens wins by 47–71pp across ALL 4 models.
 - **Rebuttal text:**
-  > We implemented Tuned Lens (Belrose et al., 2023) for four model pairs spanning both the worst (7–11%) and best (34%) LogitLens performers. Per-layer affine probes (d×d matrix + bias) were trained on 200 PixMoCap images × 3 epochs with KL divergence from the final layer's predictions. For the three worst models, Tuned Lens is essentially unchanged from LogitLens (7–8% vs 7–11%). For OLMo+CLIP where LogitLens already works well (34.3%), Tuned Lens actually decreases performance to 29.3%: early layers improve (+10–24pp), but late layers — where LogitLens already aligns well with the vocabulary — are disrupted (−34 to −48pp). In contrast, LatentLens achieves 62–77% training-free across all models. This demonstrates that the bottleneck is the fundamental limitation of projecting through a single vocabulary matrix, not probe quality.
+  > We implemented Tuned Lens (Belrose et al., 2023), following the original recipe: residual affine probes (h + Wh + b, W=0 init), SGD with Nesterov momentum (lr=0.1), weight decay 1e-3 (regularizes toward identity), and linear LR decay. We trained on 2000 images (~1.15M visual tokens) for four model pairs spanning both the worst (7–11%) and best (34%) LogitLens performers. For the three worst models, Tuned Lens remains at noise level (6–9% vs 7–11% for LogitLens). For OLMo+CLIP where LogitLens already works well at late layers (75%), Tuned Lens decreases average performance from 34.3% to 25.2%: early layers improve (+4–13pp), but late layers collapse (−31 to −44pp) despite the identity-regularized residual parameterization. In contrast, LatentLens achieves 62–77% training-free across all models. This confirms that the bottleneck is the fundamental limitation of projecting through a single vocabulary matrix, not probe quality.
 - SAEs: argue different goal (decomposition vs interpretation), cite concurrent work
 
 ### MEDIUM PRIORITY

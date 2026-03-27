@@ -6,18 +6,19 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-03
 
-### 2026-03-27 (Rebuttal item #3: Tuned Lens COMPLETE — 4 models)
+### 2026-03-27 (Rebuttal item #3: Tuned Lens COMPLETE — v3, correct recipe)
 - **Result: Tuned Lens ≈ LogitLens or worse.** Training per-layer probes does NOT close the gap to LatentLens.
-- **Corrected results (v2, with --use-cropped-region matching paper protocol):**
-  - llama3+siglip: LogitLens=7.1% → TunedLens=8.0% (+0.9pp), LatentLens=62.3%
-  - llama3+dinov2: LogitLens=7.2% → TunedLens=7.4% (+0.2pp), LatentLens=77.4%
-  - qwen2+siglip:  LogitLens=10.8% → TunedLens=7.6% (−3.2pp), LatentLens=74.3%
-  - olmo+CLIP:     LogitLens=34.3% → TunedLens=29.3% (−5.0pp), LatentLens=72.3%
-- OLMo+CLIP: early layers improve (+10-24pp) but late layers collapse (−34 to −48pp)
-- Training: 200 images × 3 epochs, d×d affine probes, KL loss vs final layer
+- **v3 results (Belrose et al. recipe, --use-cropped-region judge):**
+  - llama3+siglip: LogitLens=7.1% → TunedLens=8.9% (+1.8pp), LatentLens=62.3%
+  - llama3+dinov2: LogitLens=7.2% → TunedLens=6.4% (−0.8pp), LatentLens=77.4%
+  - qwen2+siglip:  LogitLens=10.8% → TunedLens=7.4% (−3.3pp), LatentLens=74.3%
+  - olmo+CLIP:     LogitLens=34.3% → TunedLens=25.2% (−9.1pp), LatentLens=72.3%
+- **Implementation matches Belrose et al.:** residual probe h+W@h+b (W=0 init), SGD+Nesterov (lr=0.1, momentum=0.9), weight_decay=1e-3 (→ identity), linear LR decay, grad clip=1.0
+- Training: 2000 images × 1 epoch (~1.15M visual tokens), single GPU per model
 - llama3+dinov2 needed --fp32-head (hidden state norms ~3000 caused float16 overflow)
-- **Bug fix:** v1 results were invalid — missing --use-cropped-region flag (original LogitLens used it). Caught during audit, re-ran all 36 layers.
-- LLM judge: 36 layers × 100 patches, GPT-5, all parallel with --use-cropped-region
+- OLMo late-layer collapse: L24 75→31%, L30 74→30%, L31 59→28% — even with identity regularization
+- **v1 bug:** missing --use-cropped-region. **v2 bug:** wrong probe architecture (no residual, W=I init, AdamW). Both fixed in v3.
+- LLM judge: 36 layers × 100 patches, GPT-5, all parallel
 - Results in data.json under `tunedlens` key; judge output in `analysis_results/llm_judge_tunedlens/`
 
 ### 2026-03-27 (Rebuttal item #3: Tuned Lens implementation launched)
