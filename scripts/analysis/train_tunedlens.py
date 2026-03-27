@@ -62,10 +62,18 @@ class TunedLensProbe(nn.Module):
         return self.linear(h)
 
 
-def apply_lm_head(model: Molmo, h: torch.Tensor) -> torch.Tensor:
-    """Apply ln_f + ff_out (+ optional logit scale) to hidden states h."""
-    normed = model.transformer.ln_f(h)
-    logits = model.transformer.ff_out(normed)
+def apply_lm_head(model: Molmo, h: torch.Tensor, ln_f_fp32=None, ff_out_fp32=None) -> torch.Tensor:
+    """Apply ln_f + ff_out (+ optional logit scale) to hidden states h.
+
+    If ln_f_fp32/ff_out_fp32 are provided, uses those (float32 copies) for
+    numerically stable gradient computation on models with extreme norms.
+    """
+    if ln_f_fp32 is not None:
+        normed = ln_f_fp32(h.float())
+        logits = ff_out_fp32(normed)
+    else:
+        normed = model.transformer.ln_f(h)
+        logits = model.transformer.ff_out(normed)
     if model.config.scale_logits:
         logits = logits / math.sqrt(model.config.d_model)
     return logits
@@ -89,6 +97,9 @@ def main():
                         help="Directory to save trained probes")
     parser.add_argument("--use-bf16", action="store_true",
                         help="Use bfloat16 instead of float16 (for models with extreme norms)")
+    parser.add_argument("--fp32-head", action="store_true",
+                        help="Use float32 copies of ln_f+ff_out for stable training "
+                             "(needed when hidden states have extreme norms, e.g. llama3+dinov2)")
     args = parser.parse_args()
 
     analyzed_layers = [int(l.strip()) for l in args.layers.split(",")]
@@ -138,6 +149,20 @@ def main():
 
     d_model = model.config.d_model
     print(f"  d_model={d_model}, scale_logits={model.config.scale_logits}")
+
+    # Optionally create float32 copies of LM head for stable gradient flow
+    import copy
+    if args.fp32_head:
+        ln_f_fp32 = copy.deepcopy(model.transformer.ln_f).float().cuda()
+        ff_out_fp32 = copy.deepcopy(model.transformer.ff_out).float().cuda()
+        for p in ln_f_fp32.parameters():
+            p.requires_grad_(False)
+        for p in ff_out_fp32.parameters():
+            p.requires_grad_(False)
+        print(f"  Using float32 LM head copies for stable training")
+    else:
+        ln_f_fp32 = None
+        ff_out_fp32 = None
 
     # ===== CREATE PROBES =====
     probes = {l: TunedLensProbe(d_model).float().cuda() for l in analyzed_layers}
@@ -224,8 +249,11 @@ def main():
 
                 # ---- Compute target distribution from final layer (frozen) ----
                 h_final_vis = hidden_states[-1][0, vis_positions].float()  # [N_vis, d_model]
-                with torch.autocast("cuda", dtype=precision_dtype):
-                    target_logits = apply_lm_head(model, h_final_vis.to(precision_dtype))
+                if ln_f_fp32 is not None:
+                    target_logits = apply_lm_head(model, h_final_vis, ln_f_fp32, ff_out_fp32)
+                else:
+                    with torch.autocast("cuda", dtype=precision_dtype):
+                        target_logits = apply_lm_head(model, h_final_vis.to(precision_dtype))
                 target_probs = F.softmax(target_logits.float(), dim=-1).detach()  # [N_vis, vocab]
 
             # ---- Probe training (autograd enabled, only probe params have grad) ----
@@ -236,10 +264,13 @@ def main():
                 # Extract visual token hidden states for this layer
                 h_l_vis = hidden_states[layer_idx][0, vis_positions].float().clone()  # [N_vis, d_model]
 
-                # Apply probe (float32) → cast to float16 → apply frozen lm head
+                # Apply probe (float32) → apply frozen lm head
                 translated = probes[layer_idx](h_l_vis)  # float32
-                with torch.autocast("cuda", dtype=precision_dtype):
-                    pred_logits = apply_lm_head(model, translated.to(precision_dtype))
+                if ln_f_fp32 is not None:
+                    pred_logits = apply_lm_head(model, translated, ln_f_fp32, ff_out_fp32)
+                else:
+                    with torch.autocast("cuda", dtype=precision_dtype):
+                        pred_logits = apply_lm_head(model, translated.to(precision_dtype))
                 pred_log_probs = F.log_softmax(pred_logits.float(), dim=-1)  # [N_vis, vocab]
 
                 # KL(target || tuned): gradient pushes tuned to cover target's modes

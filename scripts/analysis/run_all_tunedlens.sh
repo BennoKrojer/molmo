@@ -99,7 +99,7 @@ echo "" > "$LOG2"
 
 run_model 0 llama3-8b siglip      "$LLAMA3_LAYERS" "$LOG0" "" &
 PID0=$!
-run_model 1 llama3-8b dinov2-large-336 "$LLAMA3_LAYERS" "$LOG1" "--use-bf16" &
+run_model 1 llama3-8b dinov2-large-336 "$LLAMA3_LAYERS" "$LOG1" "--fp32-head" &
 PID1=$!
 run_model 2 qwen2-7b  siglip      "$QWEN2_LAYERS"  "$LOG2" "" &
 PID2=$!
