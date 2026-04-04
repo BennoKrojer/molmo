@@ -2423,3 +2423,24 @@ Categories:
 **Demo viewer:** Added dedicated "Off-the-shelf VLMs" section to demo. 10 images each for Molmo-7B-D and LLaVA-1.5-7B.
 
 **Git:** Pushed website (cc36f46), pushed main repo (0800f15)
+
+### 2026-04-02 to 2026-04-04 (Qwen2.5-VL-32B — scaling experiment)
+
+**Added Qwen2.5-VL-32B-Instruct** (64 layers, 5120 dim) to address reviewer request for larger model:
+- Created `scripts/analysis/qwen2_5_vl/` by adapting Qwen2-VL scripts
+- Key diff: `Qwen2_5_VLForConditionalGeneration`, `model.model.language_model.{embed_tokens,norm}`, bfloat16
+- Ran on 4× A6000 GPUs with `device_map="auto"`
+- Contextual embeddings: 37h extraction (3M VG phrases × 10 layers), float8 storage
+
+**LLM judge results (GPT-5, 11 layers × 100 patches):**
+- EmbeddingLens: avg 12.5% (best 19% at layer 8)
+- LogitLens: avg 11.3% (best 34% at layer 63)
+- LatentLens: avg 35.1% (best **62.2% at layer 0**)
+
+**Key findings:**
+- Baselines nearly useless on 32B (~11-12%) — much worse than 7B models
+- LatentLens still achieves 62% at early layers — 3-5× better than baselines
+- LatentLens advantage *increases* with model scale
+- Interpretability peaks at early layers for 32B (unlike 7B where late layers often best)
+
+**Git:** Pushed scripts (d2475f8), pushed results (b40e2a3)
