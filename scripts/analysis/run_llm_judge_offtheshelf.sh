@@ -51,6 +51,7 @@ fi
 MODELS=(
     "molmo-7b:molmo_7b/allenai_Molmo-7B-D-0924:molmo-7b:0 1 2 4 8 16 24 26 27"
     "llava-1.5:llava_1_5/llava-hf_llava-1.5-7b-hf:llava-1.5:0 1 2 4 8 16 24 30 31"
+    "qwen2.5-vl-32b:qwen2_5_vl/Qwen_Qwen2.5-VL-32B-Instruct:qwen2vl:0 1 2 4 8 16 32 48 56 62 63"
 )
 
 # Method definitions: method_label:results_dir_prefix
