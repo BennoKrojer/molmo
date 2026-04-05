@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 # Off-the-shelf model IDs (must match entries in viewer_models.json)
-OFFTHESHELF_IDS = ["molmo-7b-d", "llava-1.5-7b"]
+OFFTHESHELF_IDS = ["molmo-7b-d", "llava-1.5-7b", "qwen2.5-vl-32b"]
 
 
 def create_offtheshelf_index(output_dir: Path, model_status: list) -> None:

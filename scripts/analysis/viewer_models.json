@@ -37,6 +37,18 @@
       }
     },
     {
+      "name": "Qwen2.5-VL-32B (off-the-shelf)",
+      "id": "qwen2.5-vl-32b",
+      "checkpoint": "Qwen_Qwen2.5-VL-32B-Instruct",
+      "llm": "qwen2.5-32b",
+      "vision_encoder": "qwen2.5-vit",
+      "data_paths": {
+        "nn": "qwen2_5_vl/Qwen_Qwen2.5-VL-32B-Instruct",
+        "logitlens": "qwen2_5_vl/Qwen_Qwen2.5-VL-32B-Instruct",
+        "contextual": "qwen2_5_vl/Qwen_Qwen2.5-VL-32B-Instruct"
+      }
+    },
+    {
       "name": "LLaVA-1.5-7B (off-the-shelf)",
       "id": "llava-1.5-7b",
       "checkpoint": "llava-hf_llava-1.5-7b-hf",
