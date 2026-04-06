@@ -2444,3 +2444,28 @@ Categories:
 - Interpretability peaks at early layers for 32B (unlike 7B where late layers often best)
 
 **Git:** Pushed scripts (d2475f8), pushed results (b40e2a3)
+
+### 2026-04-05 to 2026-04-06 (LLaVA-NeXT-34B + Chinese hypothesis test)
+
+**LLaVA-NeXT-34B** (Yi-34B backbone, 60 layers, 7168 dim):
+- Created `scripts/analysis/llava_next/` adapting llava_1_5 scripts
+- AnyRes: capped vision tokens to first 576 (base thumbnail 24×24)
+- 500K VG corpus for contextual embeddings (6 layers, float8)
+- NaN fix in `contextual_embeddings_common.py`: skip instead of crash
+
+**LLM judge results (GPT-5, 10 layers × 100 patches):**
+- EmbeddingLens: avg 28.3% (best 54% at layer 45)
+- LogitLens: avg 26.5% (best **82% at layer 59**)
+- LatentLens: avg 26.9% (best 57% at layer 45)
+- All 3 methods similar; LogitLens strongest at late layers (unlike 7B models)
+
+**Chinese LatentLens hypothesis test (Qwen2.5-VL-32B):**
+- Translated 29K VG phrases to Chinese via GPT-4o-mini
+- Extracted Chinese contextual embeddings from Qwen2.5-VL-32B
+- Result: Chinese recovers +7-10% at layers 32/48, but overall -13% vs English
+- Confirms representation collapse, not language switching
+
+**Investigation finding:** Visual tokens at deep layers of 32B model drift toward
+degenerate text embedding directions (self-similarity 0.80), away from semantic tokens.
+
+**Git:** Pushed (11f02f6)
