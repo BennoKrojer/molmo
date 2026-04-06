@@ -42,13 +42,14 @@ def create_unified_plot(models_data):
         ('qwen2vl',          'Qwen2-VL-7B',      'tab:blue',   'o'),
         ('qwen2.5-vl-32b',   'Qwen2.5-VL-32B',   'tab:red',    'D'),
         ('molmo-7b',         'Molmo-7B-D',        'tab:orange', 's'),
+        ('molmo-72b',        'Molmo-72B',         'tab:brown',  'P'),
         ('llava-1.5',        'LLaVA-1.5-7B',     'tab:green',  '^'),
         ('llava-next-34b',   'LLaVA-NeXT-34B',   'tab:purple', 'v'),
     ]
 
-    # X-axis: union of layers across all models (7B: 0-31, 32B/34B: 0-63)
-    all_layers = sorted({0, 1, 2, 4, 8, 16, 24, 26, 27, 30, 31, 32, 45, 48, 56, 58, 59, 62, 63})
-    clean_ticks = [0, 8, 16, 32, 48, 63]
+    # X-axis: union of layers across all models (7B: 0-31, 32B/34B: 0-63, 72B: 0-79)
+    all_layers = sorted({0, 1, 2, 4, 8, 16, 24, 26, 27, 30, 31, 32, 40, 45, 48, 56, 58, 59, 60, 62, 63, 72, 78, 79})
+    clean_ticks = [0, 8, 16, 32, 48, 63, 79]
 
     # 3-subplot layout matching main figure exactly
     fig, axes = plt.subplots(1, 3, figsize=(18, 4))
@@ -156,7 +157,7 @@ def main():
     print("Loading data from data.json...")
     data = load_data()
 
-    MODEL_KEYS = ['qwen2vl', 'qwen2.5-vl-32b', 'molmo-7b', 'llava-1.5', 'llava-next-34b']
+    MODEL_KEYS = ['qwen2vl', 'qwen2.5-vl-32b', 'molmo-7b', 'molmo-72b', 'llava-1.5', 'llava-next-34b']
     models_data = {}
     for key in MODEL_KEYS:
         if key in data:
