@@ -33,7 +33,7 @@ from contextual_embeddings_common import add_common_args, run_extraction
 
 MODEL_NAME = "allenai/Molmo-72B-0924"
 # Molmo uses Qwen2 backbone: 28 layers
-DEFAULT_LAYERS = [1, 2, 4, 8, 16, 24, 26, 27]
+DEFAULT_LAYERS = [1, 2, 4, 8, 16, 40, 60, 72, 78, 79]  # 80-layer Qwen2-72B backbone
 
 
 def load_molmo_model():
