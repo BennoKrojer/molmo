@@ -49,6 +49,19 @@
       }
     },
     {
+      "name": "LLaVA-NeXT-34B (off-the-shelf)",
+      "id": "llava-next-34b",
+      "checkpoint": "llava-hf_llava-v1.6-34b-hf",
+      "llm": "yi-34b",
+      "vision_encoder": "vit-l-14-336",
+      "preprocessing": "center_crop_square",
+      "data_paths": {
+        "nn": "llava_next/llava-hf_llava-v1.6-34b-hf",
+        "logitlens": "llava_next/llava-hf_llava-v1.6-34b-hf",
+        "contextual": "llava_next/llava-hf_llava-v1.6-34b-hf"
+      }
+    },
+    {
       "name": "LLaVA-1.5-7B (off-the-shelf)",
       "id": "llava-1.5-7b",
       "checkpoint": "llava-hf_llava-1.5-7b-hf",

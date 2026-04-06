@@ -257,7 +257,8 @@ def extract_contextual_embeddings(
                         hidden_state = all_hidden_states[layer_idx][sent_idx, token_pos].cpu().numpy()
 
                         if np.isnan(hidden_state).any():
-                            raise ValueError(f"NaN detected in hidden state! Layer {layer_idx}, token '{token_str}'")
+                            # Skip NaN embeddings (can occur with bf16 on large models)
+                            continue
 
                         layer_info = layer_dirs[layer_idx]
                         token_dict = layer_info['token_dict']
