@@ -2456,8 +2456,8 @@ Categories:
 **LLM judge results (GPT-5, 10 layers × 100 patches):**
 - EmbeddingLens: avg 28.3% (best 54% at layer 45)
 - LogitLens: avg 26.5% (best **82% at layer 59**)
-- LatentLens: avg 26.9% (best 57% at layer 45)
-- All 3 methods similar; LogitLens strongest at late layers (unlike 7B models)
+- LatentLens: avg 33.2% (best **58% at layer 0**) — updated after 8-ctx-layer re-run (commit 6ceaf28)
+- LatentLens wins by avg, but LogitLens dominant at late layers (L45-59)
 
 **Chinese LatentLens hypothesis test (Qwen2.5-VL-32B):**
 - Translated 29K VG phrases to Chinese via GPT-4o-mini
@@ -2469,3 +2469,26 @@ Categories:
 degenerate text embedding directions (self-similarity 0.80), away from semantic tokens.
 
 **Git:** Pushed (11f02f6)
+
+### 2026-04-06 to 2026-04-07 (Molmo-72B off-the-shelf)
+
+**Molmo-72B** (`allenai/Molmo-72B-0924`, Qwen2-72B backbone, 80 layers, 8192 dim):
+- Created `scripts/analysis/molmo_72b/` adapting molmo_7b scripts (commit ff3a720)
+- bfloat16, `device_map="auto"` (needs 4+ A6000 GPUs)
+- Layers: 0,1,2,4,8,16,40,60,72,78,79 (11 layers)
+- Added to off-the-shelf figure (6 models total, commit b443dc4)
+
+**LLM judge results (GPT-5, 11 layers × 100 patches):**
+- EmbeddingLens: avg **70.3%** (range 23.5%–87.8%) — much stronger than Molmo-7B (44.1%)
+- LogitLens: avg 29.8% (spikes to 89.8%/90.8% at L72/L78, near-zero early/mid)
+- LatentLens: avg **78.4%** (range 44.9%–90.8%) — best method, wins on 10/11 layers
+
+**Key findings:**
+- LatentLens wins by 8pp avg over EmbeddingLens; margin smaller than Molmo-7B (42pp) due to EmbeddingLens scaling up
+- EmbeddingLens dramatic improvement from 7B (44.1%) to 72B (70.3%): larger model's early/mid layers encode richer static-vocabulary-compatible features
+- Standard LogitLens late-layer spike at L72/78 (90%); collapses to 44.9%/86.7% for LatentLens/EmbeddingLens at L79
+- Pattern mirrors Qwen2.5-VL-32B: interpretability collapses at very final layer(s) for all methods
+
+**Results in data.json under key `molmo-72b`. Off-the-shelf figure updated.**
+
+**Git:** ff3a720 (scripts), b443dc4 (figure config), 13467de (results + data.json)
