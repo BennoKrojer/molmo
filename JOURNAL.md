@@ -57,11 +57,16 @@ A concise log of major changes, results, and git operations.
 - Heatmaps saved to `paper_plots/paper_figures_output/offtheshelf/`
 - git push: `0d67da8` (main)
 
+**§4.4 rewritten** to cover all 6 off-the-shelf VLMs:
+- Intro lists all 6 models with citations (added `liu2023improved`, `liu2024llavanext`, `qwen2_5_vl` to bib)
+- Numbers: Molmo 78-86%, Qwen2-VL-7B/LLaVA-1.5 55-62%, larger models 33-35%; baselines 11-35%
+- Replaced Qwen2-VL-specific layer alignment text with general Mid-Layer Leap pointer to appendix
+- git push: `9af3f6f` (paper), `5e0121b` (main)
+
 **TODO (camera-ready)**:
-- Rewrite §4.4 text to describe all 6 off-the-shelf models (currently still Qwen2-VL focused)
-- Decide how to include all 6 layer alignment heatmaps (likely 2×3 appendix figure)
-- Update abstract/intro/conclusion model counts
-- Possibly add combined 6-model heatmap figure to appendix
+- Decide how to include all 6 layer alignment heatmaps in appendix (likely 2×3 figure replacing/extending Qwen2-VL-only section)
+- Update abstract/intro/conclusion model counts (currently "10 different VLMs" → now 9 controlled + 6 off-the-shelf)
+- Appendix `sec:appendix:layer_alignment` currently just shows Qwen2-VL; needs all 6 or a new combined figure
 
 ---
 
