@@ -63,10 +63,17 @@ A concise log of major changes, results, and git operations.
 - Replaced Qwen2-VL-specific layer alignment text with general Mid-Layer Leap pointer to appendix
 - git push: `9af3f6f` (paper), `5e0121b` (main)
 
+**Appendix §I rewritten** to cover all 6 off-the-shelf VLMs:
+- Section renamed to "Results for off-the-shelf VLMs"
+- New `fig:offtheshelf_layer_alignment` (2×3 grid of all 6 heatmaps, `figure*`)
+- Mid-Layer Leap paragraph generalizes to all 6; Qwen2-VL framed as "representative" deeper analysis
+- Limitations "10 VLMs" → "15 VLMs"; tcolorbox overview updated
+- Fine-grained analysis: clarified Qwen2-VL is representative off-the-shelf model
+- git push: `5040c3e` (paper), `019afce` (main)
+
 **TODO (camera-ready)**:
-- Decide how to include all 6 layer alignment heatmaps in appendix (likely 2×3 figure replacing/extending Qwen2-VL-only section)
-- Update abstract/intro/conclusion model counts (currently "10 different VLMs" → now 9 controlled + 6 off-the-shelf)
-- Appendix `sec:appendix:layer_alignment` currently just shows Qwen2-VL; needs all 6 or a new combined figure
+- Abstract/intro/conclusion: update model counts ("10 different VLMs" → 9 controlled + 6 off-the-shelf; may say "15")
+- User will review §4.4 text and edit directly
 
 ---
 
