@@ -4,6 +4,31 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-05
+
+### 2026-05-18 (Camera-ready: initial setup + first additions)
+
+**Created `paper/icml_camera_ready.tex`** — camera-ready base file:
+- Derived from `arxiv_clean/main.tex` (Feb 25 state, latest arxiv)
+- Uses `\usepackage[accepted]{icml2026}`, XeLaTeX, real authors + affiliations
+- Includes Limitations, Impact Statement, Acknowledgments (all absent from blind ICML version)
+- Compiled: 41 pages total, main content fits within 9pp
+- git push: `c8ef01d` (paper repo), `42f623b` (main repo)
+
+**Added computational cost sentences** to §4.1 LatentLens setup:
+- ~2h GPU + ~13h wall time, ~26GB storage across 8 layers, ~29ms inference per image
+- git push: `91da926` (paper), `f0a12d8` (main)
+
+**Added §4.5 corpus size sensitivity** (new main-text subsection):
+- 4-sentence paragraph + Table 1 (4 corpus sizes × 3 model pairs)
+- Key numbers: 0.1%→58.4%, 1%→67.3%, 10%→72.5%, 100%→71.6% avg interpretable
+- Also added §4.1 forward reference: "1% corpus → ~250MB, comparable interpretability"
+- git push: `9f347e9` (paper), `b218a71` (main)
+
+**Remaining page budget: ~0.35pp** (was 0.75pp; used ~0.4pp on cost + corpus ablation)
+
+---
+
 ## 2026-03
 
 ### 2026-03-27 (Rebuttal item #3: Tuned Lens COMPLETE — v3, correct recipe)
