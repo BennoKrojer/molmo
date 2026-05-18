@@ -37,6 +37,14 @@ VISION_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen
 LLM_LAYERS_DEFAULT = [0, 1, 2, 4, 8, 16, 24, 30, 31]  # OLMo, Llama (32 layers)
 LLM_LAYERS_QWEN = [0, 1, 2, 4, 8, 16, 24, 26, 27]     # Qwen (28 layers)
 
+# Layer configs for larger off-the-shelf models
+VISION_LAYERS_MOLMO72 = [0, 1, 2, 4, 8, 16, 40, 60, 72, 78, 79]   # Molmo-72B (80 layers)
+LLM_LAYERS_MOLMO72   = [0, 1, 2, 4, 8, 16, 40, 60, 72, 78, 79]
+VISION_LAYERS_LLAVA_NEXT = [0, 1, 2, 4, 8, 16, 30, 45, 58, 59]    # LLaVA-NeXT-34B (60 layers)
+LLM_LAYERS_LLAVA_NEXT    = [0, 1, 2, 4, 8, 16, 30, 45, 59]
+VISION_LAYERS_QWEN25 = [0, 1, 2, 4, 8, 16, 32, 48, 56, 62, 63]    # Qwen2.5-VL-32B (64 layers)
+LLM_LAYERS_QWEN25    = [0, 1, 2, 4, 8, 16, 32, 48, 56, 62, 63]
+
 # =============================================================================
 # FONT SIZES - Adjust these to change all text sizes
 # =============================================================================
@@ -296,6 +304,30 @@ def main():
     combined_path = OUTPUT_DIR / "heatmap_combined_3x3.png"
     create_combined_3x3_heatmap(all_counts, combined_path)
 
+    # Create 4-bit quantized combined 3x3 heatmap (if data exists)
+    with open(DATA_JSON) as f:
+        full_data = json.load(f)
+    quantized_counts = full_data.get('layer_alignment_4bit', {})
+    if quantized_counts:
+        print("\n" + "=" * 50)
+        print("Creating 4-bit quantized combined 3x3 heatmap...")
+        quantized_dir = SCRIPT_DIR / "paper_figures_output" / "layer_alignment_heatmaps_4bit"
+        quantized_dir.mkdir(parents=True, exist_ok=True)
+        quantized_path = quantized_dir / "heatmap_combined_3x3_4bit.png"
+        create_combined_3x3_heatmap(quantized_counts, quantized_path)
+        print(f"  Saved: {quantized_path}")
+
+        # Also create individual heatmaps
+        for llm in llms:
+            for encoder in encoders:
+                key = f"{llm}+{encoder}"
+                counts = quantized_counts.get(key, {})
+                if counts:
+                    output_path = quantized_dir / f"heatmap_{llm}_{encoder}_4bit.png"
+                    create_single_heatmap(counts, llm, encoder, output_path)
+    else:
+        print("\n(No layer_alignment_4bit data in data.json — skipping quantized heatmaps)")
+
     # Create Qwen2-VL heatmap (off-the-shelf model)
     print("\n" + "=" * 50)
     print("Creating Qwen2-VL heatmap...")
@@ -310,10 +342,13 @@ def main():
     else:
         print("  No qwen2vl_layer_alignment data found in data.json")
 
-    # Create off-the-shelf model heatmaps (Molmo-7B-D, LLaVA-1.5-7B)
+    # Create off-the-shelf model heatmaps (all 6 models)
     offtheshelf_models = {
-        'molmo-7b-d': ('Molmo-7B-D', VISION_LAYERS_QWEN, LLM_LAYERS_QWEN),
-        'llava-1.5-7b': ('LLaVA-1.5-7B', VISION_LAYERS_DEFAULT, LLM_LAYERS_DEFAULT),
+        'molmo-7b-d':     ('Molmo-7B-D',      VISION_LAYERS_QWEN,       LLM_LAYERS_QWEN),
+        'llava-1.5-7b':   ('LLaVA-1.5-7B',    VISION_LAYERS_DEFAULT,    LLM_LAYERS_DEFAULT),
+        'molmo-72b':      ('Molmo-72B',        VISION_LAYERS_MOLMO72,    LLM_LAYERS_MOLMO72),
+        'llava-next-34b': ('LLaVA-NeXT-34B',  VISION_LAYERS_LLAVA_NEXT, LLM_LAYERS_LLAVA_NEXT),
+        'qwen2.5-vl-32b': ('Qwen2.5-VL-32B',  VISION_LAYERS_QWEN25,     LLM_LAYERS_QWEN25),
     }
     offtheshelf_dir = SCRIPT_DIR / "paper_figures_output" / "offtheshelf"
     offtheshelf_dir.mkdir(parents=True, exist_ok=True)
