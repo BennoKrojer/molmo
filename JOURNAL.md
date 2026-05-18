@@ -36,6 +36,33 @@ A concise log of major changes, results, and git operations.
 
 **Remaining page budget: ~0.3pp** (was 0.35pp; used ~0.05pp on Tuned Lens main-text pointer)
 
+**Tuned Lens section fixes** (camera-ready accuracy pass):
+- Clarified "We train the probes on visual token positions only" (was implicit, now explicit)
+- Fixed wrong claim "four model pairs used in the main paper" → explicit names of which 4 pairs and why selected
+- Pulled in Overleaf edits (footnote about Tuned Lens in §4, faithfully→"as close as possible")
+- git push: `079318d` + `c04954d` (paper repo)
+
+**Off-the-shelf VLMs: unified 6-model figure** (`fig:offtheshelf`):
+- Replaced single Qwen2-VL figure with 3-subplot figure covering all 6 off-the-shelf VLMs
+- Normalized x-axis (0→1 layer depth) to compare models with 28–80 layers fairly
+- Colors: Qwen2-VL=blue, Qwen2.5-32B=red, Molmo-7B=orange, Molmo-72B=brown, LLaVA-1.5=green, LLaVA-NeXT=purple
+- Generated `paper/figures/fig_offtheshelf.pdf`; full-width two-column figure in §4.4
+- Commented out old `fig_qwen2vl` blocks; updated `\Cref` references
+- git push: `c04954d` (paper), `00bda44` (main)
+
+**Layer alignment heatmaps for 3 large off-the-shelf VLMs**:
+- `compute_offtheshelf_layer_alignment.py` — reads raw contextual NN JSON files for Molmo-72B, LLaVA-NeXT-34B, Qwen2.5-VL-32B; writes counts to data.json
+- Extended `create_layer_alignment_heatmaps.py` with layer constants + model entries for all 3 models
+- All 3 heatmaps show the same Mid-Layer Leap + diagonal pattern as the 9 controlled models
+- Heatmaps saved to `paper_plots/paper_figures_output/offtheshelf/`
+- git push: `0d67da8` (main)
+
+**TODO (camera-ready)**:
+- Rewrite §4.4 text to describe all 6 off-the-shelf models (currently still Qwen2-VL focused)
+- Decide how to include all 6 layer alignment heatmaps (likely 2×3 appendix figure)
+- Update abstract/intro/conclusion model counts
+- Possibly add combined 6-model heatmap figure to appendix
+
 ---
 
 ## 2026-03
