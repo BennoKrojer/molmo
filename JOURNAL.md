@@ -25,7 +25,16 @@ A concise log of major changes, results, and git operations.
 - Also added §4.1 forward reference: "1% corpus → ~250MB, comparable interpretability"
 - git push: `9f347e9` (paper), `b218a71` (main)
 
-**Remaining page budget: ~0.35pp** (was 0.75pp; used ~0.4pp on cost + corpus ablation)
+**Added Tuned Lens appendix section** (`app:tunedlens`):
+- New appendix section after `app:ablations`, before `app:outliers`
+- Setup: faithful Belrose et al. (2023) recipe — residual affine probes h + W@h + b (W=0 init), SGD+Nesterov lr=0.1, weight_decay=1e-3, KL(p_final || q_probe), 2000 images
+- Results table (4 models × LogitLens / TunedLens / LatentLens): TunedLens ≈ LogitLens or worse on 3/4 models; LatentLens wins by 47–71pp across all
+- OLMo+CLIP nuance: early layers improve but late-layer collapse of 31–44pp despite identity regularization
+- Added overview tcolorbox row; added 2-sentence pointer in §4 after LogitLens paragraph
+- git push: `b376fdf` (paper repo), `9e6d2ef` (main repo)
+- Appendix section is in the appendix (no main-text page budget impact); pointer adds ~0.05pp
+
+**Remaining page budget: ~0.3pp** (was 0.35pp; used ~0.05pp on Tuned Lens main-text pointer)
 
 ---
 
