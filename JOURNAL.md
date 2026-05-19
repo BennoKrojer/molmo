@@ -2565,3 +2565,17 @@ degenerate text embedding directions (self-similarity 0.80), away from semantic 
 **Results in data.json under key `molmo-72b`. Off-the-shelf figure updated.**
 
 **Git:** ff3a720 (scripts), b443dc4 (figure config), 13467de (results + data.json)
+
+---
+
+### 2026-05-19 (Camera-ready: abstract/intro model count + score updates)
+
+Updated abstract and intro to reflect 15 VLMs (9 controlled + 6 off-the-shelf):
+- "10 different VLMs" → "15 different VLMs" in both abstract and intro
+- Recomputed per-model averages across all 15 VLMs:
+  - LatentLens: 72% → **68%** (pulled down by large off-the-shelf models: LLaVA-NeXT-34B 33%, Qwen2.5-VL-32B 35%)
+  - EmbeddingLens: 30% → **32%** (some off-the-shelf models have strong EmbeddingLens)
+  - LogitLens: 23% → **24%**
+- Intro sentence updated: "Averaged across all 15 VLMs and all layers we study, \lens renders 68% of visual tokens interpretable"
+
+**Git:** paper 319b1e5, main repo 9b1acec
