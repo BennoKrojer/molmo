@@ -6,6 +6,13 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-05
 
+### 2026-05-24 (Camera-ready: fix ICML Nimbus font checker error)
+- ICML checker reported "Page 1 does not contain the Nimbus font"
+- Root cause: `\usepackage{fontspec}` + `\setmainfont{TeX Gyre Termes}` in `icml_camera_ready.tex` was overriding the Nimbus Roman font loaded by the `icml2026` style's `times` package
+- The fontspec/xeCJK block was originally added for `\zh{黧}` (Chinese token in `method_comparison_table_v3.tex`), but that table is commented out — no inline CJK chars remain in the LaTeX source (qualitative figure PDFs contain Chinese chars but are pre-rendered, don't need xeCJK)
+- Fix: removed the 9-line fontspec/xeCJK block from `icml_camera_ready.tex`; XeLaTeX engine kept as-is
+- git push: `81299d2` (paper repo), `261d816` (main repo)
+
 ### 2026-05-18 (Camera-ready: initial setup + first additions)
 
 **Created `paper/icml_camera_ready.tex`** — camera-ready base file:
