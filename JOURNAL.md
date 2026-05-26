@@ -6,6 +6,14 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-05
 
+### 2026-05-26 (Camera-ready: add training dynamics subsection to Appendix D)
+- Added `\subsection{Training Dynamics}` to Appendix D (Ablations, `app:ablations`)
+- Table shows LatentLens avg interpretability at steps 100/1000/6000/12000 for OLMo+CLIP-ViT
+- Key finding: at step 1000 (8% of training), early layers 0-1 already reach 67% while deeper layers 2-31 are only 17%; by step 6000 (half training), all layers near-final
+- Data from `analysis_results/llm_judge_contextual_nn_dynamics/` (run during rebuttal, never written up)
+- Also updated appendix index description for `app:ablations` to mention training dynamics
+- git push: `acf1645` (paper repo), `3d1e852` (main repo)
+
 ### 2026-05-24 (Camera-ready: fix ICML Nimbus font checker error)
 - ICML checker reported "Page 1 does not contain the Nimbus font"
 - Root cause: `\usepackage{fontspec}` + `\setmainfont{TeX Gyre Termes}` in `icml_camera_ready.tex` was overriding the Nimbus Roman font loaded by the `icml2026` style's `times` package
