@@ -21,6 +21,7 @@ A concise log of major changes, results, and git operations.
 - New figures: `fig_offtheshelf.pdf`, `fig_llava15_layer_alignment.pdf`, `fig_llava_next_layer_alignment.pdf`, `fig_molmo72b_layer_alignment.pdf`, `fig_molmo7b_layer_alignment.pdf`, `fig_qwen25_layer_alignment.pdf`, `figure2_v2.pdf`
 - Compiled with XeLaTeX (2 passes), zero `!` errors
 - `paper/arxiv_v10/` directory is the unpacked source
+- **Zip structure fix:** must zip from *inside* `arxiv_v10/` (`cd arxiv_v10 && zip -r ../arxiv_v10.zip .`) so files are at zip root. Zipping from parent (`zip -r arxiv_v10.zip arxiv_v10/`) puts everything under `arxiv_v10/` prefix — arxiv then can't find figures.
 - **Font fix (final):** Removed fontspec/XeLaTeX entirely from arxiv version; compile with pdflatex. arxiv's scanner treats any `\setmainfont{...}` argument as a missing file upload — affects any named font (Nimbus Roman, TeX Gyre Termes, etc.). Since no inline CJK chars remain in source (method_comparison_table_v3 is commented out), fontspec/xeCJK are not needed. pdflatex + icml2026 style gives correct Times Roman with working bold. `\zh`/`\ko` kept as passthrough macros.
 
 ---
