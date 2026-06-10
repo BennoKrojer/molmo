@@ -4,6 +4,26 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-06
+
+### 2026-06-10 (arXiv v10: camera-ready upload)
+
+**Created `paper/arxiv_v10.zip`** — arXiv update with full camera-ready content:
+- Base: `paper/icml_camera_ready.tex` used directly as `main.tex` (no changes; `[accepted]` option kept, appropriate for accepted paper)
+- 43 pages, 7.8MB
+- New content vs arxiv_v9 (Feb 25):
+  - §4.5 Corpus size sensitivity (new main-text subsection + Table 1)
+  - §4.4 + Appendix §I rewritten for 6 off-the-shelf VLMs (unified `fig_offtheshelf.pdf` + 5 new layer alignment heatmaps)
+  - Appendix: Tuned Lens section (`app:tunedlens`)
+  - Appendix D: Training Dynamics subsection
+  - §4.1: Computational cost sentences
+  - Authors + affiliations shown (de-anonymized; was preprint before)
+- New figures: `fig_offtheshelf.pdf`, `fig_llava15_layer_alignment.pdf`, `fig_llava_next_layer_alignment.pdf`, `fig_molmo72b_layer_alignment.pdf`, `fig_molmo7b_layer_alignment.pdf`, `fig_qwen25_layer_alignment.pdf`, `figure2_v2.pdf`
+- Compiled with XeLaTeX (2 passes), zero `!` errors
+- `paper/arxiv_v10/` directory is the unpacked source
+
+---
+
 ## 2026-05
 
 ### 2026-05-26 (Camera-ready: add training dynamics subsection to Appendix D)
