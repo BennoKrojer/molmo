@@ -21,6 +21,7 @@ A concise log of major changes, results, and git operations.
 - New figures: `fig_offtheshelf.pdf`, `fig_llava15_layer_alignment.pdf`, `fig_llava_next_layer_alignment.pdf`, `fig_molmo72b_layer_alignment.pdf`, `fig_molmo7b_layer_alignment.pdf`, `fig_qwen25_layer_alignment.pdf`, `figure2_v2.pdf`
 - Compiled with XeLaTeX (2 passes), zero `!` errors
 - `paper/arxiv_v10/` directory is the unpacked source
+- **Font fix:** arxiv_v10/main.tex uses `TeX Gyre Termes`/`TeX Gyre Heros` (not Nimbus Roman/Sans); arxiv doesn't have Nimbus Roman by that fontspec name — ICML checker requires it but arxiv doesn't. Same font approach as arxiv_v6 through v9.
 
 ---
 
