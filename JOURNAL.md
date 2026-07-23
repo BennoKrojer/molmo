@@ -4,6 +4,29 @@ A concise log of major changes, results, and git operations.
 
 ---
 
+## 2026-07
+
+### 2026-07-23 (single_image_latentlens.py: fix loading bug, generate mcgill demo)
+
+**Generated McGill interactive demo** (`analysis_results/single_image_mcgill/mcgill_demo.zip`).
+
+**Root-cause of NaN regression:** Loading path changed too aggressively from the working northeastern/mit/uw approach. Original code:
+```python
+cfg.model.init_device = "cpu"
+model = Molmo(cfg.model)
+weights = torch.load(ckpt_file, map_location="cpu")  # ← caused CommittedAS OOM
+model.load_state_dict(weights, strict=False)
+del weights; gc.collect()
+model = model.half().cuda().eval()
+```
+`map_location="cpu"` failed because system CommittedAS was at 516/530 GB (vm.overcommit_memory=2, no-overcommit mode) — loading 30 GB of float32 weights to CPU hit the limit. This was correctly identified. However the fix (`init_device="meta"` + `assign=True` + GPU load) introduced NaN in all fp16 forward passes (reason: assign=True replaces parameter objects with state_dict tensors rather than copying in-place; exact NaN mechanism not fully traced).
+
+**Fix applied:** Minimal change from working code — keep `init_device="cpu"` + normal `load_state_dict`, only change `map_location="cpu"` → `map_location=device` (GPU). Weights load to GPU (bypassing CommittedAS), `load_state_dict` copies GPU→CPU into pre-allocated params, then `.half().cuda()` moves model to GPU. No assign=True, no meta init. Checkpoint path also updated to detect both `step12000-unsharded` (old) and `latest-unsharded` (after Mar 2026 rename).
+
+**Still pending:** If CommittedAS headroom is < 22 GB when the script runs, `Molmo(cfg.model)` on CPU may still fail. Need to investigate running at off-peak times or finding headroom. For now, bf16 workaround (`--use-bf16`) is not needed with the reverted loading code.
+
+---
+
 ## 2026-06
 
 ### 2026-06-10 (arXiv v10: camera-ready upload)
