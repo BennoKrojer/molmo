@@ -366,24 +366,32 @@ def process_single_model(model_config: dict, cached_image: dict, device, top_k: 
         gc.collect()
         model = model.to(dtype=target_dtype).cuda().eval()
     else:
-        # Full checkpoint (~30GB float32): init model on CPU, but load weights
-        # directly to GPU (map_location=device) to avoid committing 30GB to
-        # CommittedAS. load_state_dict copies GPU→CPU params (params already
-        # allocated), then .half().cuda() moves the fp16 model to GPU.
-        # This is the original working approach with ONE change: map_location.
-        cfg.model.init_device = "cpu"
+        # Full checkpoint (~30GB float32): use meta init (0 CommittedAS) + GPU
+        # loading (0 CommittedAS). CPU init is not viable: 7B params × 4B = ~28GB
+        # CommittedAS, which exceeds system headroom (vm.overcommit_memory=2).
+        # Must use bfloat16 here — fp16 + assign=True produces NaN in forward pass
+        # (root cause: likely softmax overflow; bf16's wider exponent avoids it).
+        cfg.model.init_device = "meta"
         model = Molmo(cfg.model)
-        print(f"  Loading {ckpt_size_gb:.1f} GB to GPU (bypassing CPU CommittedAS)...")
+        print(f"  Loading {ckpt_size_gb:.1f} GB to GPU (meta init, bfloat16)...")
         weights = torch.load(ckpt_file, map_location=device)
-        model.load_state_dict(weights, strict=False)
+        for k in list(weights.keys()):
+            if weights[k].is_floating_point():
+                weights[k] = weights[k].to(torch.bfloat16)
+        torch.cuda.empty_cache()
+        model.load_state_dict(weights, strict=False, assign=True)
         del weights
         gc.collect()
         torch.cuda.empty_cache()
-        model = model.half().cuda().eval()
+        model = model.eval()
 
     torch.cuda.empty_cache()
 
     print(f"✓ Model loaded in {time.time() - load_start:.1f}s")
+
+    # Inference dtype must match model weight dtype to avoid fp16 overflow/NaN.
+    # (e.g. bf16 weights + fp16 autocast → NaN in attention softmax)
+    precision_dtype = next(model.parameters()).dtype
 
     # Get model config for preprocessing
     model_cfg = ModelConfig.load(resource_path(ckpt_path, "config.yaml"), key="model", validate_paths=False)
@@ -391,7 +399,6 @@ def process_single_model(model_config: dict, cached_image: dict, device, top_k: 
 
     # Extract LogitLens predictions (one forward pass for all layers)
     print(f"\n  Extracting LogitLens predictions...")
-    precision_dtype = torch.bfloat16 if use_bf16 else torch.float16
     logitlens_by_layer, ll_num_chunks, ll_patches_per_chunk = extract_logitlens_predictions(
         model, cached_image, use_n_token_only, visual_layers, device, top_k, precision_dtype
     )
@@ -403,7 +410,6 @@ def process_single_model(model_config: dict, cached_image: dict, device, top_k: 
     ctx_metadata_cache = {}
 
     # Extract visual features ONCE (avoid redundant forward passes per contextual layer)
-    precision_dtype = torch.bfloat16 if use_bf16 else torch.float16
     features_by_layer, shape_info = extract_visual_features(
         model, cached_image, use_n_token_only, visual_layers, device, precision_dtype
     )

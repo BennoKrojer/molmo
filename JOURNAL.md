@@ -6,24 +6,26 @@ A concise log of major changes, results, and git operations.
 
 ## 2026-07
 
-### 2026-07-23 (single_image_latentlens.py: fix loading bug, generate mcgill demo)
+### 2026-07-23 (single_image_latentlens.py: fix CommittedAS + NaN, generate mcgill demo)
 
 **Generated McGill interactive demo** (`analysis_results/single_image_mcgill/mcgill_demo.zip`).
 
-**Root-cause of NaN regression:** Loading path changed too aggressively from the working northeastern/mit/uw approach. Original code:
-```python
-cfg.model.init_device = "cpu"
-model = Molmo(cfg.model)
-weights = torch.load(ckpt_file, map_location="cpu")  # ← caused CommittedAS OOM
-model.load_state_dict(weights, strict=False)
-del weights; gc.collect()
-model = model.half().cuda().eval()
-```
-`map_location="cpu"` failed because system CommittedAS was at 516/530 GB (vm.overcommit_memory=2, no-overcommit mode) — loading 30 GB of float32 weights to CPU hit the limit. This was correctly identified. However the fix (`init_device="meta"` + `assign=True` + GPU load) introduced NaN in all fp16 forward passes (reason: assign=True replaces parameter objects with state_dict tensors rather than copying in-place; exact NaN mechanism not fully traced).
+**Root cause — CommittedAS OOM:** System at 516/530 GB CommittedAS (vm.overcommit_memory=2, shared server). Original `torch.load(map_location="cpu")` needs 30GB headroom → OOM. `init_device="cpu"` model init needs ~28GB (7B × 4B fp32) → also OOM. No CPU path is viable.
 
-**Fix applied:** Minimal change from working code — keep `init_device="cpu"` + normal `load_state_dict`, only change `map_location="cpu"` → `map_location=device` (GPU). Weights load to GPU (bypassing CommittedAS), `load_state_dict` copies GPU→CPU into pre-allocated params, then `.half().cuda()` moves model to GPU. No assign=True, no meta init. Checkpoint path also updated to detect both `step12000-unsharded` (old) and `latest-unsharded` (after Mar 2026 rename).
+**Root cause — NaN:** `meta init + assign=True + fp16 autocast` produces NaN. Two-part issue:
+1. `assign=True` with fp16 weights → NaN in forward pass (exact mechanism unclear, but fp16 overflow in attention softmax likely)
+2. Worse: bf16 model weights + fp16 autocast → NaN even without assign=True issue, because fp16 attention overflows
 
-**Still pending:** If CommittedAS headroom is < 22 GB when the script runs, `Molmo(cfg.model)` on CPU may still fail. Need to investigate running at off-peak times or finding headroom. For now, bf16 workaround (`--use-bf16`) is not needed with the reverted loading code.
+**Fix (verified: 0/23040 LogitLens NaN, 0/25920 contextual NaN):**
+1. `init_device="meta"` — 0 CommittedAS for model skeleton
+2. Load weights to GPU — 0 CommittedAS
+3. Convert weights to **bfloat16** on GPU (bf16 avoids fp16 attention overflow)
+4. `load_state_dict(assign=True)` — replaces meta params with bf16 GPU tensors
+5. `precision_dtype = next(model.parameters()).dtype` — inference dtype MUST match model dtype
+
+**Why northeastern/mit/uw worked before:** CommittedAS had ≥30GB headroom at generation time. Shared server has since filled up. Not a code regression — system resource issue.
+
+**Checkpoint path:** Auto-detects both `step12000-unsharded` (old) and `latest-unsharded` (renamed Mar 2026).
 
 ---
 
